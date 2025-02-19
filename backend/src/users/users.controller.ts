@@ -42,7 +42,7 @@ export class UsersController {
   }
 
   @Put('/:id')
-  async updateProfile(@CurrentUser() user: User, @Param('id') id: string) {
+  updateProfile(@CurrentUser() user: User, @Param('id') id: string) {
     const ability = this.caslAbilityFactory.createForUser(user);
 
     // const someUser: User = {
