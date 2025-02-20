@@ -29,18 +29,12 @@ export class RolesService {
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
-    const role = await this.findOne(id);
-    if (!role) {
-      throw NotFoundException;
-    }
+    await this.findOne(id);
     return await this.rolesRepository.update(id, updateRoleDto);
   }
 
   async remove(id: number) {
-    const role = await this.findOne(id);
-    if (!role) {
-      throw NotFoundException;
-    }
+    await this.findOne(id);
     return await this.rolesRepository.delete(id);
   }
 }

@@ -1,5 +1,4 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { ClientPermission } from 'src/auth/enums/permission.enum';
 
 @Entity()
 export class Permission {
@@ -7,5 +6,5 @@ export class Permission {
   id: number;
 
   @Column({ unique: true })
-  name: ClientPermission;
+  name: string;
 }
