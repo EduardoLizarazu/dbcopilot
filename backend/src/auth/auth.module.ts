@@ -7,6 +7,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { RolesModule } from './roles/roles.module';
+import { PermissionsModule } from './permissions/permissions.module';
 
 @Module({
   controllers: [AuthController],
@@ -22,6 +24,8 @@ import { LocalStrategy } from './strategies/local.strategy';
       }),
     }),
     UsersModule,
+    RolesModule,
+    PermissionsModule,
   ],
 })
 export class AuthModule {}

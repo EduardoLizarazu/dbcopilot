@@ -5,9 +5,9 @@ import {
   ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { ClientRole } from '../enums/role.enum';
-import { Permission } from './permission.entity';
+import { User } from 'src/users/entities/user.entity';
+import { ClientRole } from 'src/auth/enums/role.enum';
+import { Permission } from 'src/auth/permissions/entities/permission.entity';
 
 @Entity()
 export class Role {

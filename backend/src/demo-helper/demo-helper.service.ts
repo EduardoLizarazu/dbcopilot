@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Permission } from '../auth/entities/permission.entity';
-import { Role } from '../auth/entities/role.entity';
+import { Permission } from 'src/auth/permissions/entities/permission.entity';
+import { Role } from 'src/auth/roles/entities/role.entity';
 import { ClientPermission } from '../auth/enums/permission.enum';
 import { ClientRole } from '../auth/enums/role.enum';
 import { AccountStatus } from '../users/enums/user.enums';

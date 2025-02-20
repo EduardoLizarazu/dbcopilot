@@ -5,8 +5,8 @@ import {
   ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Permission } from '../../auth/entities/permission.entity';
-import { Role } from '../../auth/entities/role.entity';
+import { Permission } from 'src/auth/permissions/entities/permission.entity';
+import { Role } from 'src/auth/roles/entities/role.entity';
 import { AccountStatus } from '../enums/user.enums';
 
 @Entity()
