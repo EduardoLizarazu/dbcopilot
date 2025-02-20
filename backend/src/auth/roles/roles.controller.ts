@@ -39,11 +39,28 @@ export class RolesController {
     return await this.rolesService.findOne(+id);
   }
 
+  @Get(':id/permissions')
+  // @Roles(ClientRole.Admin)
+  // @Permissions(ClientPermission.ReadRole)
+  async findOneWithPermissions(@Param('id') id: string) {
+    return await this.rolesService.findOneWithPermissions(+id);
+  }
+
   @Put(':id')
   // @Roles(ClientRole.Admin)
   // @Permissions(ClientPermission.UpdateRole)
   async update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
     return await this.rolesService.update(+id, updateRoleDto);
+  }
+
+  @Put(':id/permissions')
+  // @Roles(ClientRole.Admin)
+  // @Permissions(ClientPermission.UpdateRole)
+  async updatePermissions(
+    @Param('id') id: string,
+    @Body('permissionIds') permissionIds: number[],
+  ) {
+    return await this.rolesService.updatePermissions(+id, permissionIds);
   }
 
   @Delete(':id')
