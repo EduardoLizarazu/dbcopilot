@@ -24,7 +24,7 @@ export class RolesGuard implements CanActivate {
     const user: Partial<User> = req.user as Partial<User>;
 
     return (user.roles ?? []).some((role) =>
-      requiredClientRoles.includes(role.name),
+      requiredClientRoles.includes(role.name as ClientRole),
     );
   }
 }

@@ -6,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { ClientRole } from 'src/auth/enums/role.enum';
 import { Permission } from 'src/auth/permissions/entities/permission.entity';
 
 @Entity()
@@ -15,7 +14,7 @@ export class Role {
   id: number;
 
   @Column({ unique: true })
-  name: ClientRole;
+  name: string;
 
   @Column({ type: 'integer', default: 999 })
   rank: number;

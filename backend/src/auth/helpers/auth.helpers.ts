@@ -19,5 +19,5 @@ export function getClientPermissions(user: Partial<User>): Set<string> {
 }
 
 export const userHasAnyRole = (user: User, roles: ClientRole[]) => {
-  return user.roles?.some((role) => roles.includes(role.name));
+  return user.roles?.some((role) => roles.includes(role.name as ClientRole));
 };
