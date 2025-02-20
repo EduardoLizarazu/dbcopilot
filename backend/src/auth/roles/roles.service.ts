@@ -12,6 +12,8 @@ export class RolesService {
     private rolesRepository: Repository<Role>,
   ) {}
   async create(createRoleDto: CreateRoleDto) {
+    if ((await this.findByName(createRoleDto.name)).length > 0)
+      throw new Error('Role already exists');
     const role = this.rolesRepository.create(createRoleDto);
     return await this.rolesRepository.save(role);
   }
@@ -22,14 +24,22 @@ export class RolesService {
 
   async findOne(id: number): Promise<Role> {
     const role = await this.rolesRepository.findOne({ where: { id } });
-    if (!role) {
-      throw NotFoundException;
-    }
+    if (!role) throw NotFoundException;
+    return role;
+  }
+
+  async findByName(name: string): Promise<Role[]> {
+    const role = await this.rolesRepository.find({ where: { name } });
+    if (!role) throw NotFoundException;
     return role;
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
     await this.findOne(id);
+    if (updateRoleDto.name) {
+      if ((await this.findByName(updateRoleDto.name)).length > 0)
+        throw new Error('Role already exists');
+    }
     return await this.rolesRepository.update(id, updateRoleDto);
   }
 

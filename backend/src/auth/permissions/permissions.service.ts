@@ -14,6 +14,8 @@ export class PermissionsService {
 
   async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
     const role = this.permissionRepository.create(createPermissionDto);
+    if ((await this.findByName(createPermissionDto.name)).length > 0)
+      throw new Error('Permission already exists');
     return await this.permissionRepository.save(role);
   }
 
@@ -31,8 +33,19 @@ export class PermissionsService {
     return permission;
   }
 
+  async findByName(name: string): Promise<Permission[]> {
+    const permissions = await this.permissionRepository.find({
+      where: { name },
+    });
+    return permissions;
+  }
+
   async update(id: number, updatePermissionDto: UpdatePermissionDto) {
     await this.findOne(id);
+    if (updatePermissionDto.name) {
+      if ((await this.findByName(updatePermissionDto.name)).length > 0)
+        throw new Error('Permission already exists');
+    }
     return await this.permissionRepository.update(id, updatePermissionDto);
   }
 
