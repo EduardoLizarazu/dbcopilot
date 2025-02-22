@@ -33,6 +33,17 @@ export class PermissionsService {
     return permission;
   }
 
+  async findOneWithRoles(id: number): Promise<Permission> {
+    const permissionWithRoles = await this.permissionRepository.findOne({
+      where: { id },
+      relations: ['roles'],
+    });
+
+    if (!permissionWithRoles) throw NotFoundException;
+
+    return permissionWithRoles;
+  }
+
   async findByName(name: string): Promise<Permission[]> {
     const permissions = await this.permissionRepository.find({
       where: { name },
@@ -49,8 +60,68 @@ export class PermissionsService {
     return await this.permissionRepository.update(id, updatePermissionDto);
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  // Update the roles of the permission
+  async updateRoles(id: number, roleIds: number[]) {
+    // Check if the permission exists
+    const permission = await this.findOne(id);
+
+    // Load the roles of the permission
+    const roles = await this.permissionRepository
+      .createQueryBuilder()
+      .relation(Permission, 'roles')
+      .of(permission)
+      .loadMany();
+
+    // Find the roles that need to be added
+    const rolesToAdd = roleIds.filter(
+      (roleId) => !roles.some((role: { id: number }) => role.id === roleId),
+    );
+
+    // Find the roles that need to be removed
+    const rolesToRemove = roles.filter(
+      (role: { id: number }) => !roleIds.some((roleId) => role.id === roleId),
+    );
+
+    // Add the roles
+    if (rolesToAdd.length > 0) {
+      await this.permissionRepository
+        .createQueryBuilder()
+        .relation(Permission, 'roles')
+        .of(permission)
+        .add(rolesToAdd);
+    }
+
+    // Remove the roles
+    if (rolesToRemove.length > 0) {
+      await this.permissionRepository
+        .createQueryBuilder()
+        .relation(Permission, 'roles')
+        .of(permission)
+        .remove(rolesToRemove);
+    }
+
+    return await this.findOneWithRoles(id);
+  }
+
+  async remove(id: number, forceDelete: boolean = false) {
+    const permissionWithRoles = await this.findOneWithRoles(id);
+
+    // Check if the permission has roles
+    if (permissionWithRoles.roles && permissionWithRoles.roles.length > 0) {
+      if (!forceDelete) {
+        throw new Error(
+          'Permission has roles. Use forceDelete option to remove it along with its roles.',
+        );
+      }
+
+      // Remove the roles associated with the permission
+      await this.permissionRepository
+        .createQueryBuilder()
+        .relation(Permission, 'roles')
+        .of(permissionWithRoles)
+        .remove(permissionWithRoles.roles);
+    }
+
     return await this.permissionRepository.delete(id);
   }
 }

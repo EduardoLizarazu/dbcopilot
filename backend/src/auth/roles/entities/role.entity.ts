@@ -22,7 +22,7 @@ export class Role {
   @ManyToMany(() => User, (user) => user.roles)
   users?: User[];
 
-  @ManyToMany(() => Permission)
-  @JoinTable()
+  @ManyToMany(() => Permission, (permission) => permission.roles)
+  @JoinTable() // Owning side
   permissions?: Permission[];
 }

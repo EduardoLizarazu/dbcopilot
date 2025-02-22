@@ -30,6 +30,11 @@ export class PermissionsController {
     return await this.permissionsService.findOne(+id);
   }
 
+  @Get(':id/roles')
+  async findOneWithRoles(@Param('id') id: string) {
+    return await this.permissionsService.findOneWithRoles(+id);
+  }
+
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -38,8 +43,20 @@ export class PermissionsController {
     return await this.permissionsService.update(+id, updatePermissionDto);
   }
 
+  @Put(':id/roles')
+  async updateRoles(
+    @Param('id') id: string,
+    @Body('roleIds') roleIds: number[],
+  ) {
+    return await this.permissionsService.updateRoles(+id, roleIds);
+  }
+
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await this.permissionsService.remove(+id);
+  async remove(
+    @Param('id') id: string,
+    @Body('forceDelete') forceDelete?: string,
+  ) {
+    if (forceDelete === '0') return await this.permissionsService.remove(+id);
+    return await this.permissionsService.remove(+id, forceDelete === '1');
   }
 }
