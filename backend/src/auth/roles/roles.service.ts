@@ -37,6 +37,15 @@ export class RolesService {
     return roleWithPermissions;
   }
 
+  async findOneWithUsers(id: number): Promise<Role> {
+    const roleWithUsers = await this.rolesRepository.findOne({
+      where: { id },
+      relations: ['users'],
+    });
+    if (!roleWithUsers) throw NotFoundException;
+    return roleWithUsers;
+  }
+
   async findByName(name: string): Promise<Role[]> {
     const role = await this.rolesRepository.find({ where: { name } });
     if (!role) throw NotFoundException;
@@ -78,8 +87,44 @@ export class RolesService {
     return await this.findOneWithPermissions(id);
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  // Update the users of the role
+  async updateUsers(id: number, userIds: number[]) {
+    // Check if the role exists
+    const role = await this.findOne(id);
+
+    // Load the users of the role
+    const users = await this.rolesRepository
+      .createQueryBuilder()
+      .relation(Role, 'users')
+      .of(role)
+      .loadMany();
+
+    // Update the users of the role
+    await this.rolesRepository
+      .createQueryBuilder()
+      .relation(Role, 'users')
+      .of(role)
+      .addAndRemove(
+        userIds,
+        users.map((u: { id: number }) => u.id),
+      );
+
+    // Return the updated role
+    return await this.findOneWithUsers(id);
+  }
+
+  async remove(id: number, forceDelete: boolean = false) {
+    const roleWithUsers = await this.findOneWithUsers(id);
+    if (roleWithUsers.users && roleWithUsers.users.length > 0 && !forceDelete)
+      throw new Error('Cannot delete role with users, set forceDelete to true');
+
+    // remove the relation with users
+    await this.rolesRepository
+      .createQueryBuilder()
+      .relation(Role, 'users')
+      .of(roleWithUsers)
+      .remove(roleWithUsers.users);
+
     return await this.rolesRepository.delete(id);
   }
 }

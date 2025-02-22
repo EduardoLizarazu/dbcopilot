@@ -46,6 +46,13 @@ export class RolesController {
     return await this.rolesService.findOneWithPermissions(+id);
   }
 
+  @Get(':id/users')
+  // @Roles(ClientRole.Admin)
+  // @Permissions(ClientPermission.ReadRole)
+  async findOneWithUsers(@Param('id') id: string) {
+    return await this.rolesService.findOneWithUsers(+id);
+  }
+
   @Put(':id')
   // @Roles(ClientRole.Admin)
   // @Permissions(ClientPermission.UpdateRole)
@@ -63,10 +70,21 @@ export class RolesController {
     return await this.rolesService.updatePermissions(+id, permissionIds);
   }
 
+  @Put(':id/users')
+  // @Roles(ClientRole.Admin)
+  // @Permissions(ClientPermission.UpdateRole)
+  async updateUsers(
+    @Param('id') id: string,
+    @Body('userIds') userIds: number[],
+  ) {
+    return await this.rolesService.updateUsers(+id, userIds);
+  }
+
   @Delete(':id')
   // @Roles(ClientRole.Admin)
   // @Permissions(ClientPermission.DeleteRole)
-  remove(@Param('id') id: string) {
-    return this.rolesService.remove(+id);
+  remove(@Param('id') id: string, @Body('forceDelete') forceDelete?: string) {
+    if (forceDelete === '0') return this.rolesService.remove(+id);
+    return this.rolesService.remove(+id, forceDelete === '1');
   }
 }
