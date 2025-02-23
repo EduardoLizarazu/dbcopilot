@@ -35,6 +35,11 @@ export class PermissionsController {
     return await this.permissionsService.findOneWithRoles(+id);
   }
 
+  @Get(':id/users')
+  async findOneWithUsers(@Param('id') id: string) {
+    return await this.permissionsService.findOneWithUsers(+id);
+  }
+
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -49,6 +54,14 @@ export class PermissionsController {
     @Body('roleIds') roleIds: number[],
   ) {
     return await this.permissionsService.updateRoles(+id, roleIds);
+  }
+
+  @Put(':id/users')
+  async updateUsers(
+    @Param('id') id: string,
+    @Body('userIds') userIds: number[],
+  ) {
+    return await this.permissionsService.updateUsers(+id, userIds);
   }
 
   @Delete(':id')

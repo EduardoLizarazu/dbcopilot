@@ -32,7 +32,7 @@ export class User {
 
   // Ability to also directly assign permissions to user
   // means more flexibility with potentially more complexity
-  @ManyToMany(() => Permission)
+  @ManyToMany(() => Permission, (permission) => permission.users)
   @JoinTable()
   permissions?: Permission[];
 }
