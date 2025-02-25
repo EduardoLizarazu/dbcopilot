@@ -13,7 +13,11 @@ export class AuthService {
   ) {}
 
   async validateUser({ username, password }: LoginDto) {
-    const user = await this.usersService.findOne(username, true);
+    const user =
+      await this.usersService.findOneWithRolesAndPermissionsByUsername(
+        username,
+        true,
+      );
     if (!user || !user.password) {
       return null;
     }

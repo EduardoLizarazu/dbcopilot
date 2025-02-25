@@ -70,7 +70,7 @@ export class DemoHelperService {
       password: 'secret',
       name: 'John Doe',
     });
-    await this.usersService.update(admin.id, {
+    await this.usersService.updateDemo(admin.id, {
       roles: [adminRole, editorRole, userRole],
       permissions: permissions,
       accountStatus: AccountStatus.Active,
@@ -81,7 +81,7 @@ export class DemoHelperService {
       password: 'secret',
       name: 'Lucy Woo',
     });
-    await this.usersService.update(editor.id, {
+    await this.usersService.updateDemo(editor.id, {
       roles: [editorRole, userRole],
       accountStatus: AccountStatus.Active,
     });
@@ -91,7 +91,7 @@ export class DemoHelperService {
       password: 'secret',
       name: 'Zest Made',
     });
-    await this.usersService.update(user.id, {
+    await this.usersService.updateDemo(user.id, {
       roles: [userRole],
       accountStatus: AccountStatus.Active,
     });

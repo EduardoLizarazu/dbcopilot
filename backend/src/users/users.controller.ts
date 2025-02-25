@@ -1,63 +1,81 @@
 import {
+  Body,
   Controller,
-  ForbiddenException,
+  Delete,
   Get,
   Param,
+  Patch,
   Put,
-  Query,
 } from '@nestjs/common';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { Action } from '../auth/enums/actions.enum';
-import { CaslAbilityFactory } from '../casl/casl-ability.factory/casl-ability.factory';
-import { FindUsersDto } from './dto/find-users.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { AccountStatus } from './enums/user.enums';
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private usersService: UsersService,
-    private caslAbilityFactory: CaslAbilityFactory,
-  ) {}
+  constructor(private usersService: UsersService) {}
 
   @Get()
-  // @Roles(ClientRole.Admin, ClientRole.Editor)
-  // @Permissions(ClientPermission.CreateAnnouncement)
-  findMany(@Query() query: FindUsersDto, @CurrentUser() user: User) {
-    const ability = this.caslAbilityFactory.createForUser(user);
-
-    console.log('query', query);
-    console.log('current user', user);
-
-    if (!ability.can(Action.Read, 'all')) {
-      throw new ForbiddenException(`Permission denied`);
-    }
-
-    return this.usersService.findMany(query);
+  findAll(): Promise<User[]> {
+    return this.usersService.findAll();
   }
 
-  @Get('profile')
-  getProfile(@CurrentUser() user: User) {
-    return user;
+  @Get(':id')
+  findOneWithOutPassword(@Param('id') id: string) {
+    return this.usersService.findOne(+id);
   }
 
-  @Put('/:id')
-  updateProfile(@CurrentUser() user: User, @Param('id') id: string) {
-    const ability = this.caslAbilityFactory.createForUser(user);
+  @Get(':id/roles')
+  findOneWithRoles(@Param('id') id: string) {
+    return this.usersService.findOneWithRoles(+id);
+  }
 
-    // const someUser: User = {
-    //   id: +id,
-    //   username: 'whatever',
-    //   accountStatus: AccountStatus.Active,
-    // };
+  @Get(':id/direct-permissions')
+  findOneWithDirectPermissions(@Param('id') id: string) {
+    return this.usersService.findOneWithDirectPermissions(+id);
+  }
 
-    const someUser = new User();
-    someUser.id = +id;
+  @Get(':id/roles-permissions-direct-permissions')
+  findOneWithRolesAndPermissions(@Param('id') id: string) {
+    return this.usersService.findOneWithRolesPermissionAndDirectPermissions(
+      +id,
+    );
+  }
 
-    if (!ability.can(Action.UpdateOwn, someUser)) {
-      throw new ForbiddenException(`Permission denied`);
-    }
+  @Put(':id')
+  update(@Param('id') id: string, @Body() user: UpdateUserDto) {
+    return this.usersService.updateProfile(+id, user);
+  }
 
-    return someUser;
+  @Patch(':id/account-status')
+  updateAccountStatus(
+    @Param('id') id: string,
+    @Body() accountStatus: AccountStatus,
+  ) {
+    return this.usersService.updateAccountStatus(+id, accountStatus);
+  }
+
+  @Patch(':id/password')
+  updatePassword(@Param('id') id: string, @Body('password') password: string) {
+    return this.usersService.updatePassword(+id, password);
+  }
+
+  @Put(':id/roles')
+  updateRoles(@Param('id') id: string, @Body('roles') roles: number[]) {
+    return this.usersService.updateRoles(+id, roles);
+  }
+
+  @Put(':id/direct-permissions')
+  updateDirectPermissions(
+    @Param('id') id: string,
+    @Body('permissions') permissions: number[],
+  ) {
+    return this.usersService.updateDirectPermissions(+id, permissions);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string, @Body('forceDelete') forceDelete: boolean) {
+    return this.usersService.remove(+id, forceDelete);
   }
 }

@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDemoDto } from './dto/update-demo-user.dto';
 import { User } from './entities/user.entity';
-import { FindUsersDto } from './dto/find-users.dto';
+import { AccountStatus } from './enums/user.enums';
 
 @Injectable()
 export class UsersService {
@@ -32,13 +33,57 @@ export class UsersService {
     return newUser;
   }
 
-  async findMany(dto: FindUsersDto) {
-    // const query: Partial<User> = {};
-    // return this.usersRepository.find();
-    return this.usersRepository.createQueryBuilder('user').getMany();
+  async findAll(): Promise<User[]> {
+    const users = await this.usersRepository.find();
+    return users.map((user) => {
+      delete (user as Partial<User>).password;
+      return user;
+    });
   }
 
-  async findOne(
+  async findOne(userId: number, withPassword: boolean = false): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    // Extract password from user object
+    if (withPassword) delete (user as Partial<User>).password;
+
+    return user;
+  }
+
+  async findOneByUsername(username: string): Promise<User | null> {
+    return await this.usersRepository.findOne({ where: { username } });
+  }
+
+  async findOneWithRoles(userId: number): Promise<User | null> {
+    return await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['roles'],
+    });
+  }
+
+  async findOneWithDirectPermissions(userId: number): Promise<User | null> {
+    return await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['permissions'],
+    });
+  }
+
+  async findOneWithRolesPermissionAndDirectPermissions(
+    userId: number,
+  ): Promise<User | null> {
+    // Retrieve user with roles, the permissions of the roles and direct permissions
+    return await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['roles', 'roles.permissions', 'permissions'],
+      // select: undefined,
+    });
+  }
+
+  // use to validate user on auth
+  async findOneWithRolesAndPermissionsByUsername(
     username: string,
     selectSecrets: boolean = false,
   ): Promise<User | null> {
@@ -56,7 +101,7 @@ export class UsersService {
     return await query.getOne();
   }
 
-  async update(userId: number, dto: UpdateUserDto) {
+  async updateDemo(userId: number, dto: UpdateUserDemoDto): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException();
@@ -69,5 +114,115 @@ export class UsersService {
     user.accountStatus = accountStatus ?? user.accountStatus;
 
     return await this.usersRepository.save(user);
+  }
+
+  async updateProfile(userId: number, dto: UpdateUserDto): Promise<User> {
+    await this.findOne(userId);
+    await this.usersRepository.update(userId, dto);
+    return await this.findOne(userId);
+  }
+
+  async updateAccountStatus(
+    userId: number,
+    accountStatus: AccountStatus,
+  ): Promise<User> {
+    const user = await this.findOne(userId);
+
+    user.accountStatus = accountStatus;
+
+    return await this.usersRepository.save(user);
+  }
+
+  async updatePassword(
+    userId: number,
+    password: string,
+  ): Promise<UpdateResult> {
+    await this.findOne(userId);
+
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const userUpdated = await this.usersRepository.update(userId, {
+      password: hashedPassword,
+    });
+    return userUpdated;
+  }
+
+  async updateRoles(userId: number, roleIds: number[]): Promise<User | null> {
+    // Check if the user exists
+    const user = await this.findOne(userId);
+
+    console.log('roleIds', roleIds);
+
+    // Load the roles of the user
+    const roles = await this.usersRepository
+      .createQueryBuilder()
+      .relation(User, 'roles')
+      .of(user)
+      .loadMany();
+
+    console.log('roles', roles);
+
+    // Update the roles of the user
+    await this.usersRepository
+      .createQueryBuilder()
+      .relation(User, 'roles')
+      .of(user)
+      .addAndRemove(
+        roleIds,
+        roles.map((role: { id: number }) => role.id),
+      );
+
+    return await this.findOneWithRoles(userId);
+  }
+
+  async updateDirectPermissions(
+    userId: number,
+    permissionIds: number[],
+  ): Promise<User | null> {
+    // Check if the user exists
+    const user = await this.findOne(userId);
+
+    // Load the permissions of the user
+    const permissions = await this.usersRepository
+      .createQueryBuilder()
+      .relation(User, 'permissions')
+      .of(user)
+      .loadMany();
+
+    // Update the permissions of the user
+    await this.usersRepository
+      .createQueryBuilder()
+      .relation(User, 'permissions')
+      .of(user)
+      .addAndRemove(
+        permissionIds,
+        permissions.map((p: { id: number }) => p.id),
+      );
+
+    return await this.findOneWithDirectPermissions(userId);
+  }
+
+  async updateRolesAndDirectPermissions(
+    userId: number,
+    roleIds: number[],
+    permissionIds: number[],
+  ): Promise<User | null> {
+    await this.updateRoles(userId, roleIds);
+    await this.updateDirectPermissions(userId, permissionIds);
+    return await this.findOneWithRolesPermissionAndDirectPermissions(userId);
+  }
+
+  async remove(userId: number, forceDelete: boolean = false) {
+    const user = await this.findOne(userId);
+
+    if (user.accountStatus === AccountStatus.Inactive) {
+      throw new Error(
+        'The user still active, please deactivate the user first',
+      );
+    }
+    if (!forceDelete) throw new Error('You must force the deletion');
+
+    return await this.usersRepository.remove(user);
   }
 }

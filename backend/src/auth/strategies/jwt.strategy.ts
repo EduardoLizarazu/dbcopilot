@@ -24,7 +24,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     // Optionally, you can perform additional checks here, such as checking if
     // the user exists, is banned, whatever.
-    const user = await this.usersService.findOne(payload.username);
+    const user =
+      await this.usersService.findOneWithRolesAndPermissionsByUsername(
+        payload.username,
+      );
 
     if (!user) {
       throw new UnauthorizedException();

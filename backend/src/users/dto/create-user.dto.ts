@@ -7,10 +7,10 @@ export class CreateUserDto {
   username: string;
 
   @IsString()
+  @IsOptional()
   // apply more rules for password as you see fit
   password: string;
 
   @IsString()
-  @IsOptional()
-  name?: string;
+  name: string;
 }
