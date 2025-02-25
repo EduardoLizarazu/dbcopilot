@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Role } from './entities/role.entity';
@@ -13,7 +17,7 @@ export class RolesService {
   ) {}
   async create(createRoleDto: CreateRoleDto) {
     if ((await this.findByName(createRoleDto.name)).length > 0)
-      throw new Error('Role already exists');
+      throw new BadRequestException('Role already exists');
     const role = this.rolesRepository.create(createRoleDto);
     return await this.rolesRepository.save(role);
   }
@@ -56,7 +60,7 @@ export class RolesService {
     await this.findOne(id);
     if (updateRoleDto.name) {
       if ((await this.findByName(updateRoleDto.name)).length > 0)
-        throw new Error('Role already exists');
+        throw new BadRequestException('Role already exists');
     }
     return await this.rolesRepository.update(id, updateRoleDto);
   }
@@ -116,7 +120,9 @@ export class RolesService {
   async remove(id: number, forceDelete: boolean = false) {
     const roleWithUsers = await this.findOneWithUsers(id);
     if (roleWithUsers.users && roleWithUsers.users.length > 0 && !forceDelete)
-      throw new Error('Cannot delete role with users, set forceDelete to true');
+      throw new BadRequestException(
+        'Cannot delete role with users, set forceDelete to true',
+      );
 
     // remove the relation with users
     await this.rolesRepository
