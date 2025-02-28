@@ -1,6 +1,7 @@
+"use client";
 import Link from "next/link";
 import { MenuIcon } from "@/components/ui/icons";
-import NavbarAuth from "../auth/nav.auth";
+import NavbarAuth from "@/app/auth/nav.auth";
 
 const links = [
   { href: "#", title: "Home" },
@@ -9,11 +10,7 @@ const links = [
   { href: "#", title: "Contact" },
 ];
 
-export default function Layout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function Nav() {
   return (
     <div>
       <div className="border-b border-gray-100">
@@ -48,10 +45,6 @@ export default function Layout({
           </div>
         </div>
       </div>
-
-      <main className="container mx-auto mt-36 flex max-w-7xl justify-center">
-        {children}
-      </main>
     </div>
   );
 }
