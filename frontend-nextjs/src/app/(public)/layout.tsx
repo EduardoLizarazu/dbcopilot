@@ -1,11 +1,12 @@
-import Link from 'next/link';
-import { MenuIcon } from '@/components/ui/icons';
+import Link from "next/link";
+import { MenuIcon } from "@/components/ui/icons";
+import NavbarAuth from "../auth/nav.auth";
 
 const links = [
-  { href: '#', title: 'Home' },
-  { href: '#', title: 'About' },
-  { href: '#', title: 'Services' },
-  { href: '#', title: 'Contact' },
+  { href: "#", title: "Home" },
+  { href: "#", title: "About" },
+  { href: "#", title: "Services" },
+  { href: "#", title: "Contact" },
 ];
 
 export default function Layout({
@@ -23,6 +24,7 @@ export default function Layout({
                 {link.title}
               </Link>
             ))}
+            <NavbarAuth />
           </nav>
           <div className="hidden items-center space-x-4 md:flex">
             <Link
