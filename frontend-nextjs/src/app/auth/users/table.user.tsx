@@ -5,6 +5,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import { getUsersRoles } from "@/app/auth/users/_actions/user.action";
+import Link from "next/link";
 
 const columns: GridColDef[] = [
   { field: "id", headerName: "ID", width: 70 },
@@ -17,15 +18,16 @@ const columns: GridColDef[] = [
     width: 170,
     renderCell: (params) => (
       <div>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          style={{ marginRight: 16 }}
-          onClick={() => handleView(params.row.id)}
-        >
-          View
-        </Button>
+        <Link href={`/auth/users/${params.row.id}`} passHref>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            style={{ marginRight: 16 }}
+          >
+            View
+          </Button>
+        </Link>
         <Button
           variant="contained"
           color="secondary"
@@ -43,7 +45,6 @@ const paginationModel = { page: 0, pageSize: 5 };
 
 const handleView = (id: string) => {
   console.log(`View action for row with id: ${id}`);
-  // Add your view logic here
 };
 
 const handleDelete = (id: string) => {

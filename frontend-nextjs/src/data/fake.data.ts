@@ -9,3 +9,21 @@ export const fakeUserRoles = [
   { id: 8, fullName: "Frances Rossini", role: "RRHH", active: "active" },
   { id: 9, fullName: "Roxie Harvey", role: "admin", active: "active" },
 ];
+
+export const fakeUserRolesPermissionAndDirectPermission = {
+  id: 1,
+  fullName: "Snow Jon",
+  email: "ex@gmail.com",
+  accountStatus: "active",
+  roles: [
+    {
+      id: 1,
+      name: "admin",
+      permissions: [
+        { id: 1, name: "read:users" },
+        { id: 3, name: "delete:users" },
+      ],
+    },
+  ],
+  directPermissions: [{ id: 2, name: "write:users" }],
+};
