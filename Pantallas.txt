@@ -1,0 +1,13 @@
+Pantallas:
+1. Auth: Login & SignUp (public).
+2. User management: Assign roles and permissions to users (admin).
+3. Auth management: Manage Roles and Permissions on User (admin).
+-------------------------------------------------------
+4. ERD Management Auth: Assign what entities and columns a user can access (admin).
+5. ERD Management: Be able to build from 0 your ERD or just add or remove entities and columns as well as giving them more context.
+---------------------------------------------------------
+6. Chat: Prompt & Retrievable Excel. (finance, admin).
+7. Chat Story: Shows the prompt and the answer.
+8. Dashboard: Shows how many question.
+---------------------------------------
+9. Train the Model

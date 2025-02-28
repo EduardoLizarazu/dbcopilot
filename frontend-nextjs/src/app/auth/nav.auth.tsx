@@ -8,6 +8,7 @@ import Fade from "@mui/material/Fade";
 
 const authLinks = {
   auth: "/auth",
+  users: "/auth/users",
   roles: "/auth/roles",
   permissions: "/auth/permissions",
 };
@@ -43,6 +44,9 @@ const NavbarAuth: React.FC = () => {
         onClose={handleClose}
         TransitionComponent={Fade}
       >
+        <MenuItem onClick={handleClose}>
+          <Link href={authLinks.users}>Users</Link>
+        </MenuItem>
         <MenuItem onClick={handleClose}>
           <Link href={authLinks.roles}>Roles</Link>
         </MenuItem>
