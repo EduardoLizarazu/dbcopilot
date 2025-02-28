@@ -1,27 +1,16 @@
 "use client";
 import * as React from "react";
+import { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
+import { getUsersRoles } from "@/app/auth/users/_actions/user.action";
 
 const columns: GridColDef[] = [
   { field: "id", headerName: "ID", width: 70 },
-  { field: "firstName", headerName: "First name", width: 130 },
-  { field: "lastName", headerName: "Last name", width: 130 },
-  { field: "age", headerName: "Age", type: "number", width: 90 },
-  {
-    field: "fullName",
-    headerName: "Full name",
-    description: "This column has a value getter and is not sortable.",
-    sortable: false,
-    width: 160,
-    valueGetter: (params = {}) => {
-      console.log(params);
-      const { row } = params;
-      if (!row) return "";
-      return `${row.firstName || ""} ${row.lastName || ""}`;
-    },
-  },
+  { field: "fullName", headerName: "Fullname", width: 130 },
+  { field: "role", headerName: "Role", width: 90 },
+  { field: "active", headerName: "Account Status", width: 120 },
   {
     field: "actions",
     headerName: "Actions",
@@ -50,18 +39,6 @@ const columns: GridColDef[] = [
   },
 ];
 
-const rows = [
-  { id: 1, lastName: "Snow", firstName: "Jon", age: 35 },
-  { id: 2, lastName: "Lannister", firstName: "Cersei", age: 42 },
-  { id: 3, lastName: "Lannister", firstName: "Jaime", age: 45 },
-  { id: 4, lastName: "Stark", firstName: "Arya", age: 16 },
-  { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-  { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
-  { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-  { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-  { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-];
-
 const paginationModel = { page: 0, pageSize: 5 };
 
 const handleView = (id: string) => {
@@ -75,6 +52,21 @@ const handleDelete = (id: string) => {
 };
 
 export function UserTable() {
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
+    const fetchUserRoles = async () => {
+      try {
+        const roles = await getUsersRoles();
+        setRows(roles);
+      } catch (error) {
+        console.error("Error fetching user roles:", error);
+      }
+    };
+
+    fetchUserRoles();
+  }, []);
+
   return (
     <Paper sx={{ height: 400, width: "100%" }}>
       <DataGrid
