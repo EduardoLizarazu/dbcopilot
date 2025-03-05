@@ -14,7 +14,7 @@ export const fakeUserRolesPermissionAndDirectPermission = {
   id: 1,
   fullName: "Snow Jon",
   email: "ex@gmail.com",
-  accountStatus: "active",
+  accountStatus: 1,
   roles: [
     {
       id: 1,

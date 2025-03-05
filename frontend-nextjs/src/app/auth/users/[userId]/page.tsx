@@ -6,7 +6,6 @@ import {
   Typography,
   CircularProgress,
   TextField,
-  MenuItem,
   Stack,
   TableContainer,
   Table,
@@ -14,9 +13,9 @@ import {
   TableCell,
   TableBody,
   TableRow,
-  Select,
   Divider,
   Switch,
+  FormControlLabel,
 } from "@mui/material";
 import { getUserByIdWithRolesAndPermissions } from "./_actions/userId.action";
 import EditIcon from "@mui/icons-material/Edit";
@@ -38,7 +37,7 @@ interface User {
   id: number;
   fullName: string;
   email: string;
-  accountStatus: string;
+  accountStatus: number;
   roles: Role[];
   directPermissions: Permission[];
 }
@@ -47,17 +46,6 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
-
-  const accountStatus = [
-    {
-      value: "active",
-      label: "Active",
-    },
-    {
-      value: "inactive",
-      label: "Inactive",
-    },
-  ];
 
   // editable text fields
   const [isEditableFullName, setIsEditableFullName] = useState<boolean>(false);
@@ -95,7 +83,14 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
   return (
     <Container>
       <Typography variant="h4">User Details</Typography>
-      <Stack spacing={2} style={{ margin: "20px 20px" }}>
+      <Stack
+        spacing={2}
+        style={{ margin: "20px 20px" }}
+        sx={{
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+        }}
+      >
         <TextField
           id="fullName-tfd"
           label="Fullname"
@@ -133,20 +128,18 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
           }}
         />
 
-        <Select
-          id="select-account-status"
+        <FormControlLabel
+          control={
+            <Switch
+              checked={Boolean(user.accountStatus)}
+              onChange={(e) => {
+                setUser({ ...user, accountStatus: e.target.checked ? 1 : 0 });
+              }}
+            />
+          }
           label="Account Status"
-          defaultValue={user.accountStatus}
-          variant="standard"
-          style={{ width: "100%" }}
-          onChange={(e) => setUser({ ...user, accountStatus: e.target.value })}
-        >
-          {accountStatus.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
+          labelPlacement="start"
+        />
       </Stack>
 
       <Divider className="my-8" />
