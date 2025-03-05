@@ -1,0 +1,26 @@
+Auth
+1. Roles 
+	- Create
+	- Read
+	- Update
+	- Delete
+2. Permission
+	- Create
+	- Read
+	- Update
+	- Delete
+3. User Roles & Permission
+	- Create
+	- Read
+	- Update
+	- Delete
+
+
+EDIT Roles Pages (main) -> Dialog (send or cancel) -> Transfer (edit roles)
+
+Pages -> Dialog : UserId
+Dialog -> Transfer : UserId
+Transfer -> API : UserId
+API -> Transfer : User with Roles and Roles (do the edition)
+Dialog -> API : Send or Cancel the rq
+Question: how can I gather the data from Transfer to Dialog, or transfer manage to know when Dialog click send.
