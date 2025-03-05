@@ -17,10 +17,10 @@ import {
   Select,
   Divider,
   Switch,
-  Button,
 } from "@mui/material";
 import { getUserByIdWithRolesAndPermissions } from "./_actions/userId.action";
 import EditIcon from "@mui/icons-material/Edit";
+import { EditAuthDialog } from "./dialogTransfer.userid";
 
 interface Permission {
   id: number;
@@ -150,11 +150,17 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
       </Stack>
 
       <Divider className="my-8" />
-
-      <Typography variant="h5">Roles:</Typography>
-      <Button variant="contained" endIcon={<EditIcon />}>
-        Edit
-      </Button>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={{ xs: 1, sm: 2, md: 4 }}
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h5">Roles:</Typography>
+        <EditAuthDialog />
+      </Stack>
       {user.roles.map((role) => (
         <div key={role.id} className="my-4">
           <Typography variant="h6">{role.name} Role Permissions:</Typography>
@@ -189,11 +195,18 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
 
       <Divider className="my-8" />
 
-      <Typography variant="h5">Direct Permissions:</Typography>
-      <Button variant="contained" endIcon={<EditIcon />}>
-        Edit
-      </Button>
-      <TableContainer component={Paper}>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={{ xs: 1, sm: 2, md: 4 }}
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h5">Direct Permissions:</Typography>
+        <EditAuthDialog />
+      </Stack>
+      <TableContainer component={Paper} className="my-4">
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
