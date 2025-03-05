@@ -15,6 +15,7 @@ import {
   TableBody,
   TableRow,
   Select,
+  Divider,
 } from "@mui/material";
 import { getUserByIdWithRolesAndPermissions } from "./_actions/userId.action";
 import EditIcon from "@mui/icons-material/Edit";
@@ -22,6 +23,7 @@ import EditIcon from "@mui/icons-material/Edit";
 interface Permission {
   id: number;
   name: string;
+  description: string;
 }
 
 interface Role {
@@ -145,29 +147,40 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
         </Select>
       </Stack>
 
-      <Typography variant="h6">Roles:</Typography>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell align="right">Role</TableCell>
-              <TableCell align="right">Permissions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {user.roles.map((role) => (
-              <TableRow key={role.id}>
-                <TableCell align="right">{role.name}</TableCell>
-                <TableCell align="right">
-                  {role.permissions.map((perm) => perm.name).join(", ")}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Divider className="my-8" />
 
-      <Typography variant="h6">Direct Permissions:</Typography>
+      <Typography variant="h5">Roles:</Typography>
+      {user.roles.map((role) => (
+        <div key={role.id}>
+          <Typography variant="h6">{role.name} Role Permissions:</Typography>
+          <TableContainer component={Paper}>
+            <Table
+              sx={{ minWidth: 650 }}
+              size="small"
+              aria-label="simple table"
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell align="left">Permission Name</TableCell>
+                  <TableCell align="left">Permission Description</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {role.permissions.map((perm) => (
+                  <TableRow key={perm.id}>
+                    <TableCell align="left">{perm.name}</TableCell>
+                    <TableCell align="left">{perm.description}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+      ))}
+
+      <Divider className="my-8" />
+
+      <Typography variant="h5">Direct Permissions:</Typography>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
           <TableHead>

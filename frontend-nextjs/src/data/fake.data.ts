@@ -20,10 +20,17 @@ export const fakeUserRolesPermissionAndDirectPermission = {
       id: 1,
       name: "admin",
       permissions: [
-        { id: 1, name: "read:users" },
-        { id: 3, name: "delete:users" },
+        { id: 1, name: "read:users", description: "read users" },
+        { id: 3, name: "delete:users", description: "delete users" },
       ],
     },
+    {
+      id: 2,
+      name: "finance",
+      permissions: [{ id: 2, name: "write:users", description: "write users" }],
+    },
   ],
-  directPermissions: [{ id: 2, name: "write:users" }],
+  directPermissions: [
+    { id: 2, name: "write:users", description: "write users" },
+  ],
 };
