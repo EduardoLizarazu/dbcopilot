@@ -7,8 +7,23 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import EditIcon from "@mui/icons-material/Edit";
 import { TransferAuth } from "./transferAuth.userid";
+import { UserWithRoles, UserWithRolesAndPermssions } from "../_types/user.type";
 
-export function EditAuthDialog() {
+export function EditAuthDialog({ user } : { user: UserWithRolesAndPermssions }) {
+
+  const userWithRoles: UserWithRoles = {
+    id: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    accountStatus: user.accountStatus,
+    roles: user.roles.map((role) => {
+      return {
+        id: role.id,
+        name: role.name,
+      };
+    }),
+  }
+  
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -39,7 +54,9 @@ export function EditAuthDialog() {
           <DialogContentText id="alert-dialog-description">
             Add and remove permissions and roles for this user
           </DialogContentText>
-          <TransferAuth />
+          <TransferAuth 
+            user={userWithRoles}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

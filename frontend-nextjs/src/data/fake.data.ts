@@ -34,3 +34,22 @@ export const fakeUserRolesPermissionAndDirectPermission = {
     { id: 2, name: "write:users", description: "write users" },
   ],
 };
+
+
+export const fakeRoles = [
+  { id: 1, name: "admin" },
+  { id: 2, name: "finance" },
+  { id: 3, name: "guest" },
+  { id: 4, name: "RRHH" },
+];
+
+export const fakeUserWithRoles = {
+  id: 1,
+  fullName: "Snow Jon",
+  email: "ex@gmail.com",
+  accountStatus: 1,
+  roles: [
+    { id: 1, name: "admin" },
+    { id: 2, name: "finance" },
+  ],
+}
