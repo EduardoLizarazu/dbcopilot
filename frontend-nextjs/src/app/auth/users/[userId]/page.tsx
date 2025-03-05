@@ -16,6 +16,8 @@ import {
   TableRow,
   Select,
   Divider,
+  Switch,
+  Button,
 } from "@mui/material";
 import { getUserByIdWithRolesAndPermissions } from "./_actions/userId.action";
 import EditIcon from "@mui/icons-material/Edit";
@@ -150,6 +152,9 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
       <Divider className="my-8" />
 
       <Typography variant="h5">Roles:</Typography>
+      <Button variant="contained" endIcon={<EditIcon />}>
+        Edit
+      </Button>
       {user.roles.map((role) => (
         <div key={role.id} className="my-4">
           <Typography variant="h6">{role.name} Role Permissions:</Typography>
@@ -163,6 +168,7 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
                 <TableRow>
                   <TableCell align="left">Permission Name</TableCell>
                   <TableCell align="left">Permission Description</TableCell>
+                  <TableCell align="left">Active/Inactive</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -170,6 +176,9 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
                   <TableRow key={perm.id}>
                     <TableCell align="left">{perm.name}</TableCell>
                     <TableCell align="left">{perm.description}</TableCell>
+                    <TableCell align="left">
+                      <Switch />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -181,6 +190,9 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
       <Divider className="my-8" />
 
       <Typography variant="h5">Direct Permissions:</Typography>
+      <Button variant="contained" endIcon={<EditIcon />}>
+        Edit
+      </Button>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
           <TableHead>
