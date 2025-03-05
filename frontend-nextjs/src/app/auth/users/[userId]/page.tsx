@@ -151,7 +151,7 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
 
       <Typography variant="h5">Roles:</Typography>
       {user.roles.map((role) => (
-        <div key={role.id}>
+        <div key={role.id} className="my-4">
           <Typography variant="h6">{role.name} Role Permissions:</Typography>
           <TableContainer component={Paper}>
             <Table
@@ -185,13 +185,15 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell align="left">Permission</TableCell>
+              <TableCell align="left">Permission Name</TableCell>
+              <TableCell align="left">Permission Description</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {user.directPermissions.map((perm) => (
               <TableRow key={perm.id}>
                 <TableCell align="left">{perm.name}</TableCell>
+                <TableCell align="left">{perm.description}</TableCell>
               </TableRow>
             ))}
           </TableBody>
