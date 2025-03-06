@@ -2,6 +2,7 @@ import {
   Role,
   UserWithRoles,
   UserWithRolesAndPermissions,
+  Permission,
 } from "@/app/auth/users/_types/user.type";
 
 export const fakeUserRoles: UserWithRoles[] = [
@@ -115,3 +116,9 @@ export const fakeUserWithRoles: UserWithRoles = {
     { id: 2, name: "finance" },
   ],
 };
+
+export const fakeDirectPermissions: Permission[] = [
+  { id: 1, name: "read:users", description: "read users" },
+  { id: 2, name: "write:users", description: "write users" },
+  { id: 3, name: "delete:users", description: "delete users" },
+];

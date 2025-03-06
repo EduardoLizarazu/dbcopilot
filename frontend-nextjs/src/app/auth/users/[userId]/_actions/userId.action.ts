@@ -5,7 +5,9 @@ import {
   fakeUserRolesPermissionAndDirectPermission,
   fakeRoles,
   fakeUserWithRoles,
+  fakeDirectPermissions,
 } from "@/data/fake.data";
+import { Permission } from "../../_types/user.type";
 
 export const getUserByIdWithRolesAndPermissions = async (userId: string) => {
   try {
@@ -47,6 +49,44 @@ export const updateUserRoles = async (userId: number, roles: number[]) => {
     console.log("User roles updated");
   } catch (error) {
     console.error("Error updating user roles:", error);
+    throw error;
+  }
+};
+
+export const getUserDirectPermissions = async (
+  userId: string
+): Promise<Permission[]> => {
+  try {
+    // const response = await axios.get(`https://yourapi.com/users/${userId}/permissions`);
+    // return response.data;
+    return fakeUserRolesPermissionAndDirectPermission.directPermissions;
+  } catch (error) {
+    console.error("Error fetching user permissions:", error);
+    throw error;
+  }
+};
+
+export const getPermissions = async () => {
+  try {
+    // const response = await axios.get(`https://yourapi.com/permissions`);
+    // return response.data;
+    return fakeDirectPermissions;
+  } catch (error) {
+    console.error("Error fetching permissions:", error);
+    throw error;
+  }
+};
+
+export const updateUserDirectPermissions = async (
+  userId: number,
+  permissions: number[]
+) => {
+  try {
+    // const response = await axios.put(`https://yourapi.com/users/${userId}`, { permissions });
+    // return response.data;
+    console.log("User permissions updated");
+  } catch (error) {
+    console.error("Error updating user permissions:", error);
     throw error;
   }
 };
