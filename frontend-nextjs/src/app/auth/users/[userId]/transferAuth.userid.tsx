@@ -18,19 +18,25 @@ function intersection(a, b) {
   return a.filter((value) => b.includes(value));
 }
 
-export function TransferAuth({ user }: { user: UserWithRoles }) {
+export function TransferAuth({
+  user,
+  isApply,
+}: {
+  user: UserWithRoles;
+  isApply: boolean;
+}) {
   const [checked, setChecked] = React.useState([]);
   const [left, setLeft] = React.useState<number[]>([]);
   const [right, setRight] = React.useState<number[]>([]);
 
-  // Get the user by id roles and roles
-  // User's roles go to the left
-  // Roles go to the right
-  // Remove the roles that are already on the left
   React.useEffect(() => {
+    // Get the user by id roles and roles
+    // User's roles go to the left
+    // Roles go to the right
+    // Remove the roles that are already on the left
     (async () => {
-      const roles = await getRoles();
-      const userRoles = user.roles.map((role) => role.id);
+      const roles = await getRoles(); // all roles
+      const userRoles = user.roles.map((role) => role.id); // user's roles
       setLeft(userRoles);
       setRight(
         not(
@@ -38,10 +44,17 @@ export function TransferAuth({ user }: { user: UserWithRoles }) {
           userRoles
         )
       );
-      console.log("user's roles: ", userRoles);
-      console.log("roles: ", roles);
     })();
-  }, [user.roles]);
+    (async () => {
+      if (isApply) {
+        console.log("Apply function");
+        console.log("---------------");
+        console.log("User's roles: ", left);
+        console.log("Roles: ", right);
+        console.log("---------------");
+      }
+    })();
+  }, [isApply]);
 
   const leftChecked = intersection(checked, left);
   const rightChecked = intersection(checked, right);
@@ -81,7 +94,7 @@ export function TransferAuth({ user }: { user: UserWithRoles }) {
     setRight([]);
   };
 
-  const customList = (items) => (
+  const customList = (items: number[]) => (
     <Paper sx={{ width: 200, height: 230, overflow: "auto" }}>
       <List dense component="div" role="list">
         {items.map((value) => {
@@ -103,7 +116,7 @@ export function TransferAuth({ user }: { user: UserWithRoles }) {
                   }}
                 />
               </ListItemIcon>
-              <ListItemText id={labelId} primary={`List item ${value + 1}`} />
+              <ListItemText id={labelId} primary={`List item ${value}`} />
             </ListItemButton>
           );
         })}

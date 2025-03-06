@@ -26,6 +26,7 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [user, setUser] = useState<UserWithRolesAndPermissions | null>(null);
+  const [wasEditedRoles, setWasEditedRoles] = useState<boolean>(false);
 
   // editable text fields
   const [isEditableFullName, setIsEditableFullName] = useState<boolean>(false);
@@ -39,18 +40,15 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
 
   // get user by id with roles, roles.permission and permissions
   useEffect(() => {
-    if (userId) {
-      getUserByIdWithRolesAndPermissions(userId)
-        .then((data) => {
-          setUser(data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching user:", error);
-          setLoading(false);
-        });
-    }
-  }, [userId]);
+    (async () => {
+      if (userId) {
+        setUser(await getUserByIdWithRolesAndPermissions(userId));
+        setLoading(false);
+      }
+    })();
+  }, [userId, wasEditedRoles]);
+
+  console.log("rendering user auth page");
 
   if (loading) {
     return <CircularProgress />;
@@ -132,7 +130,11 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
         }}
       >
         <Typography variant="h5">Roles:</Typography>
-        <EditAuthDialog user={user} />
+        <EditAuthDialog
+          user={user}
+          wasEdited={wasEditedRoles}
+          setWasEdited={setWasEditedRoles}
+        />
       </Stack>
       {user.roles.map((role) => (
         <div key={role.id} className="my-4">
@@ -177,7 +179,13 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
         }}
       >
         <Typography variant="h5">Direct Permissions:</Typography>
-        <EditAuthDialog user={user} />
+        <EditAuthDialog
+          user={user}
+          wasEdited={false}
+          setWasEdited={function (value: React.SetStateAction<boolean>): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
       </Stack>
       <TableContainer component={Paper} className="my-4">
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">

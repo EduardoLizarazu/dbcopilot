@@ -7,10 +7,20 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import EditIcon from "@mui/icons-material/Edit";
 import { TransferAuth } from "./transferAuth.userid";
-import { UserWithRoles, UserWithRolesAndPermssions } from "../_types/user.type";
+import {
+  UserWithRoles,
+  UserWithRolesAndPermissions,
+} from "../_types/user.type";
 
-export function EditAuthDialog({ user } : { user: UserWithRolesAndPermssions }) {
-
+export function EditAuthDialog({
+  user,
+  wasEdited,
+  setWasEdited,
+}: {
+  user: UserWithRolesAndPermissions;
+  wasEdited: boolean;
+  setWasEdited: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const userWithRoles: UserWithRoles = {
     id: user.id,
     fullName: user.fullName,
@@ -22,15 +32,23 @@ export function EditAuthDialog({ user } : { user: UserWithRolesAndPermssions }) 
         name: role.name,
       };
     }),
-  }
-  
-  const [open, setOpen] = React.useState(false);
+  };
+
+  const [open, setOpen] = React.useState<boolean>(false);
+  // const [isApply, setIsApply] = React.useState<boolean>(false);
 
   const handleClickOpen = () => {
+    setWasEdited(false);
     setOpen(true);
   };
 
   const handleClose = () => {
+    setWasEdited(false);
+    setOpen(false);
+  };
+
+  const handleApply = () => {
+    setWasEdited(true);
     setOpen(false);
   };
 
@@ -54,13 +72,11 @@ export function EditAuthDialog({ user } : { user: UserWithRolesAndPermssions }) 
           <DialogContentText id="alert-dialog-description">
             Add and remove permissions and roles for this user
           </DialogContentText>
-          <TransferAuth 
-            user={userWithRoles}
-          />
+          <TransferAuth user={userWithRoles} isApply={wasEdited} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose} autoFocus>
+          <Button onClick={handleApply} autoFocus>
             Apply
           </Button>
         </DialogActions>
