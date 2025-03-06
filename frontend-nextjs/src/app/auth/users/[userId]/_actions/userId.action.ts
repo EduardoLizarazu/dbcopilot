@@ -1,7 +1,11 @@
-'use server';
+"use server";
 // import axios from "axios";
 
-import { fakeUserRolesPermissionAndDirectPermission, fakeRoles, fakeUserWithRoles } from "@/data/fake.data";
+import {
+  fakeUserRolesPermissionAndDirectPermission,
+  fakeRoles,
+  fakeUserWithRoles,
+} from "@/data/fake.data";
 
 export const getUserByIdWithRolesAndPermissions = async (userId: string) => {
   try {
@@ -23,7 +27,7 @@ export const getRoles = async () => {
     console.error("Error fetching roles:", error);
     throw error;
   }
-}
+};
 
 export const getUserByIdWithRoles = async (userId: string) => {
   try {
@@ -34,4 +38,15 @@ export const getUserByIdWithRoles = async (userId: string) => {
     console.error("Error fetching user:", error);
     throw error;
   }
-}
+};
+
+export const updateUserRoles = async (userId: number, roles: number[]) => {
+  try {
+    // const response = await axios.put(`https://yourapi.com/users/${userId}`, { roles });
+    // return response.data;
+    console.log("User roles updated");
+  } catch (error) {
+    console.error("Error updating user roles:", error);
+    throw error;
+  }
+};

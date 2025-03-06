@@ -72,7 +72,11 @@ export function EditAuthDialog({
           <DialogContentText id="alert-dialog-description">
             Add and remove permissions and roles for this user
           </DialogContentText>
-          <TransferAuth user={userWithRoles} isApply={wasEdited} />
+          <TransferAuth
+            userRoles={userWithRoles.roles}
+            isApply={wasEdited}
+            userId={userWithRoles.id}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
