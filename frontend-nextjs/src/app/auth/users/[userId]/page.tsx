@@ -20,12 +20,12 @@ import {
 import { getUserByIdWithRolesAndPermissions } from "./_actions/userId.action";
 import EditIcon from "@mui/icons-material/Edit";
 import { EditAuthDialog } from "./dialogTransfer.userid";
-import { UserWithRolesAndPermssions } from "../_types/user.type";
+import { UserWithRolesAndPermissions } from "../_types/user.type";
 
 const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | null>(null);
-  const [user, setUser] = useState<UserWithRolesAndPermssions | null>(null);
+  const [user, setUser] = useState<UserWithRolesAndPermissions | null>(null);
 
   // editable text fields
   const [isEditableFullName, setIsEditableFullName] = useState<boolean>(false);
@@ -132,9 +132,7 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
         }}
       >
         <Typography variant="h5">Roles:</Typography>
-        <EditAuthDialog 
-          user={user}
-        />
+        <EditAuthDialog user={user} />
       </Stack>
       {user.roles.map((role) => (
         <div key={role.id} className="my-4">
@@ -179,9 +177,7 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
         }}
       >
         <Typography variant="h5">Direct Permissions:</Typography>
-        <EditAuthDialog
-          user={user}
-        />
+        <EditAuthDialog user={user} />
       </Stack>
       <TableContainer component={Paper} className="my-4">
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">

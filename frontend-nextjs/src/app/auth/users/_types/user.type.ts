@@ -1,4 +1,3 @@
-
 export interface Permission {
   id: number;
   name: string;
@@ -15,7 +14,7 @@ export interface Role {
   id: number;
   name: string;
 }
-export interface UserWithRolesAndPermssions {
+export interface UserWithRolesAndPermissions {
   id: number;
   fullName: string;
   email: string;

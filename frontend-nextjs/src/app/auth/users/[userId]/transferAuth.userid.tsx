@@ -7,7 +7,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
-import { getRoles, getUserByIdWithRoles } from "./_actions/userId.action";
+import { getRoles } from "./_actions/userId.action";
 import { UserWithRoles } from "../_types/user.type";
 
 function not(a, b) {
@@ -18,11 +18,10 @@ function intersection(a, b) {
   return a.filter((value) => b.includes(value));
 }
 
-export function TransferAuth({ user } : { user: UserWithRoles }) {
+export function TransferAuth({ user }: { user: UserWithRoles }) {
   const [checked, setChecked] = React.useState([]);
   const [left, setLeft] = React.useState<number[]>([]);
   const [right, setRight] = React.useState<number[]>([]);
-
 
   // Get the user by id roles and roles
   // User's roles go to the left
@@ -33,9 +32,16 @@ export function TransferAuth({ user } : { user: UserWithRoles }) {
       const roles = await getRoles();
       const userRoles = user.roles.map((role) => role.id);
       setLeft(userRoles);
-      setRight(not(roles.map((role) => role.id), userRoles));
+      setRight(
+        not(
+          roles.map((role) => role.id),
+          userRoles
+        )
+      );
+      console.log("user's roles: ", userRoles);
+      console.log("roles: ", roles);
     })();
-  }, []);
+  }, [user.roles]);
 
   const leftChecked = intersection(checked, left);
   const rightChecked = intersection(checked, right);
