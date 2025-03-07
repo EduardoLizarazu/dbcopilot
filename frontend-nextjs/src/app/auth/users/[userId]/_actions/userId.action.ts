@@ -7,7 +7,10 @@ import {
   fakeUserWithRoles,
   fakeDirectPermissions,
 } from "@/data/fake.data";
-import { Permission } from "../../_types/user.type";
+import {
+  Permission,
+  UserWithRolesAndPermissions,
+} from "../../_types/user.type";
 
 export const getUserByIdWithRolesAndPermissions = async (userId: string) => {
   try {
@@ -115,6 +118,22 @@ export const updateAccountStatus = async (userId: number, status: number) => {
     console.log("User status updated", userId, status);
   } catch (error) {
     console.error("Error updating user status:", error);
+    throw error;
+  }
+};
+
+export const updateUserWithRolesAndDirectPermissions = async (
+  userWithRolesAndDirectPermissions: UserWithRolesAndPermissions
+) => {
+  try {
+    // const response = await axios.put(
+    //   `https://yourapi.com/users/${userWithRolesAndDirectPermissions.id}`,
+    //   userWithRolesAndDirectPermissions
+    // );
+    // return response.data;
+    console.log("User updated", userWithRolesAndDirectPermissions);
+  } catch (error) {
+    console.error("Error updating user roles and permissions:", error);
     throw error;
   }
 };
