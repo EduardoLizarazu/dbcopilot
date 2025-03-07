@@ -69,11 +69,14 @@ export const getUserDirectPermissions = async (
   }
 };
 
-export const getPermissions = async () => {
+export const getPermissionsWithOutDescription = async () => {
   try {
     // const response = await axios.get(`https://yourapi.com/permissions`);
     // return response.data;
-    return fakeDirectPermissions;
+    return fakeDirectPermissions.map((permission) => ({
+      id: permission.id,
+      name: permission.name,
+    }));
   } catch (error) {
     console.error("Error fetching permissions:", error);
     throw error;
@@ -82,7 +85,7 @@ export const getPermissions = async () => {
 
 export const updateUserDirectPermissions = async (
   userId: number,
-  permissions: number[]
+  permissions: { id: number; name: string }[]
 ) => {
   try {
     // const response = await axios.put(`https://yourapi.com/users/${userId}`, { permissions });

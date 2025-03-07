@@ -21,6 +21,8 @@ import {
   getUserByIdWithRolesAndPermissions,
   getRoles,
   updateUserRoles,
+  getPermissionsWithOutDescription,
+  updateUserDirectPermissions,
 } from "./_actions/userId.action";
 import EditIcon from "@mui/icons-material/Edit";
 import { EditAuthDialog } from "./dialogTransfer.userid";
@@ -31,6 +33,8 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [user, setUser] = useState<UserWithRolesAndPermissions | null>(null);
   const [wasEditedRoles, setWasEditedRoles] = useState<boolean>(false);
+  const [wasEditedDirectPermissions, setWasEditedDirectPermissions] =
+    useState<boolean>(false);
 
   // editable text fields
   const [isEditableFullName, setIsEditableFullName] = useState<boolean>(false);
@@ -186,13 +190,14 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
         }}
       >
         <Typography variant="h5">Direct Permissions:</Typography>
-        {/* <EditAuthDialog
-          user={user}
-          wasEdited={false}
-          setWasEdited={function (value: React.SetStateAction<boolean>): void {
-            throw new Error("Function not implemented.");
-          }}
-        /> */}
+        <EditAuthDialog
+          wasEdited={wasEditedDirectPermissions}
+          setWasEdited={setWasEditedDirectPermissions}
+          getOriginalData={getPermissionsWithOutDescription}
+          updateBelongingData={updateUserDirectPermissions}
+          belongingData={user.directPermissions}
+          belongingDataId={user.id}
+        />
       </Stack>
       <TableContainer component={Paper} className="my-4">
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
