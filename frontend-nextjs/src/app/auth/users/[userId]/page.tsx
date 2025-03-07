@@ -25,6 +25,7 @@ import {
   getPermissionsWithOutDescription,
   updateUserDirectPermissions,
   deleteUser,
+  updateAccountStatus,
 } from "./_actions/userId.action";
 import EditIcon from "@mui/icons-material/Edit";
 import { EditAuthDialog } from "./dialogTransfer.userid";
@@ -37,13 +38,17 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
   const [wasEditedRoles, setWasEditedRoles] = useState<boolean>(false);
   const [wasEditedDirectPermissions, setWasEditedDirectPermissions] =
     useState<boolean>(false);
-
   // editable text fields
   const [isEditableFullName, setIsEditableFullName] = useState<boolean>(false);
 
   const handleRemoveUser = async () => {
     if (!user || !user.id) return;
     await deleteUser(user.id);
+  };
+
+  const handleAccountStatus = async () => {
+    if (!user || !user.id) return;
+    await updateAccountStatus(user.id, user.accountStatus);
   };
 
   // solve url param
@@ -62,6 +67,10 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
       }
     })();
   }, [userId, wasEditedRoles]);
+
+  React.useEffect(() => {
+    (async () => await handleAccountStatus())();
+  }, [user?.accountStatus]);
 
   console.log("rendering user auth page");
 

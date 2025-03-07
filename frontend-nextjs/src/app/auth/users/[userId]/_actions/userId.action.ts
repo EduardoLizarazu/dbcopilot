@@ -107,3 +107,14 @@ export const deleteUser = async (userId: number) => {
     throw error;
   }
 };
+
+export const updateAccountStatus = async (userId: number, status: number) => {
+  try {
+    // const response = await axios.put(`https://yourapi.com/users/${userId}`, { status });
+    // return response.data;
+    console.log("User status updated", userId, status);
+  } catch (error) {
+    console.error("Error updating user status:", error);
+    throw error;
+  }
+};
