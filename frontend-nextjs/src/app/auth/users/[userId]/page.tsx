@@ -16,6 +16,7 @@ import {
   Divider,
   Switch,
   FormControlLabel,
+  Button,
 } from "@mui/material";
 import {
   getUserByIdWithRolesAndPermissions,
@@ -23,6 +24,7 @@ import {
   updateUserRoles,
   getPermissionsWithOutDescription,
   updateUserDirectPermissions,
+  deleteUser,
 } from "./_actions/userId.action";
 import EditIcon from "@mui/icons-material/Edit";
 import { EditAuthDialog } from "./dialogTransfer.userid";
@@ -38,6 +40,11 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
 
   // editable text fields
   const [isEditableFullName, setIsEditableFullName] = useState<boolean>(false);
+
+  const handleRemoveUser = async () => {
+    if (!user || !user.id) return;
+    await deleteUser(user.id);
+  };
 
   // solve url param
   useEffect(() => {
@@ -126,6 +133,9 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
           label="Account Status"
           labelPlacement="start"
         />
+        <Button variant="contained" color="error" onClick={handleRemoveUser}>
+          Eliminar
+        </Button>
       </Stack>
 
       <Divider className="my-8" />

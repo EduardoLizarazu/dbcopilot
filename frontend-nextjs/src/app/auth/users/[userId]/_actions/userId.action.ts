@@ -96,3 +96,14 @@ export const updateUserDirectPermissions = async (
     throw error;
   }
 };
+
+export const deleteUser = async (userId: number) => {
+  try {
+    // const response = await axios.delete(`https://yourapi.com/users/${userId}`);
+    // return response.data;
+    console.log("User deleted", userId);
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw error;
+  }
+};
