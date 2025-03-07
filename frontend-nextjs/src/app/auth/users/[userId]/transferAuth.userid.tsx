@@ -7,35 +7,37 @@ import ListItemText from "@mui/material/ListItemText";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
-import { getRoles, updateUserRoles } from "./_actions/userId.action";
-
-interface TransferAuthListProps {
+interface TransferListProps {
   id: number;
   name: string;
 }
 
-function not(a: TransferAuthListProps[], b: TransferAuthListProps[]) {
+function not(a: TransferListProps[], b: TransferListProps[]) {
   // return a.filter((value) => !b.includes(value)); value: number
   return a.filter((value) => !b.some((bValue) => bValue.id === value.id));
 }
 
-function intersection(a: TransferAuthListProps[], b: TransferAuthListProps[]) {
+function intersection(a: TransferListProps[], b: TransferListProps[]) {
   // return a.filter((value) => b.includes(value));
   return a.filter((value) => b.some((bValue) => bValue.id === value.id));
 }
 
 export function TransferAuth({
-  userRoles,
+  belongingData,
   isApply,
-  userId,
+  belongingDataId,
+  getOriginalData,
+  updateBelongingData,
 }: {
-  userRoles: TransferAuthListProps[];
+  belongingData: TransferListProps[];
   isApply: boolean;
-  userId: number;
+  belongingDataId: number;
+  getOriginalData: () => Promise<TransferListProps[]>;
+  updateBelongingData: (id: number, data: TransferListProps[]) => Promise<void>;
 }) {
-  const [checked, setChecked] = React.useState<TransferAuthListProps[]>([]);
-  const [left, setLeft] = React.useState<TransferAuthListProps[]>([]);
-  const [right, setRight] = React.useState<TransferAuthListProps[]>([]);
+  const [checked, setChecked] = React.useState<TransferListProps[]>([]);
+  const [left, setLeft] = React.useState<TransferListProps[]>([]);
+  const [right, setRight] = React.useState<TransferListProps[]>([]);
 
   React.useEffect(() => {
     // Get the user by id roles and roles
@@ -44,15 +46,15 @@ export function TransferAuth({
     // Remove the roles that are already on the left
     (async () => {
       if (!isApply) {
-        const roles = await getRoles(); // all roles
-        setLeft(userRoles);
-        setRight(not(roles, userRoles));
+        const originalData = await getOriginalData();
+        setLeft(belongingData);
+        setRight(not(originalData, belongingData));
       }
     })();
     (async () => {
       if (isApply) {
-        const userRolesId = left.map((role) => role.id);
-        await updateUserRoles(userId, userRolesId);
+        // const userRolesId = left.map((role) => role.id);
+        await updateBelongingData(belongingDataId, left);
       }
     })();
   }, [isApply]);
@@ -60,7 +62,7 @@ export function TransferAuth({
   const leftChecked = intersection(checked, left);
   const rightChecked = intersection(checked, right);
 
-  const handleToggle = (value: TransferAuthListProps) => () => {
+  const handleToggle = (value: TransferListProps) => () => {
     // const currentIndex = checked.indexOf(value);
     // const newChecked = [...checked];
 
@@ -109,7 +111,7 @@ export function TransferAuth({
     setRight([]);
   };
 
-  const customList = (items: TransferAuthListProps[]) => (
+  const customList = (items: TransferListProps[]) => (
     <Paper sx={{ width: 200, height: 230, overflow: "auto" }}>
       <List dense component="div" role="list">
         {items.map((value) => {

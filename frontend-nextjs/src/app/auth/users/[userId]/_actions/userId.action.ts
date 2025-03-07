@@ -42,11 +42,14 @@ export const getUserByIdWithRoles = async (userId: string) => {
   }
 };
 
-export const updateUserRoles = async (userId: number, roles: number[]) => {
+export const updateUserRoles = async (
+  userId: number,
+  roles: { id: number; name: string }[]
+) => {
   try {
     // const response = await axios.put(`https://yourapi.com/users/${userId}`, { roles });
     // return response.data;
-    console.log("User roles updated");
+    console.log("User roles updated", userId, roles);
   } catch (error) {
     console.error("Error updating user roles:", error);
     throw error;

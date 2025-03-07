@@ -7,33 +7,27 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import EditIcon from "@mui/icons-material/Edit";
 import { TransferAuth } from "./transferAuth.userid";
-import {
-  UserWithRoles,
-  UserWithRolesAndPermissions,
-} from "../_types/user.type";
+
+interface listProps {
+  id: number;
+  name: string;
+}
 
 export function EditAuthDialog({
-  user,
+  belongingData,
   wasEdited,
   setWasEdited,
+  getOriginalData,
+  updateBelongingData,
+  belongingDataId,
 }: {
-  user: UserWithRolesAndPermissions;
+  belongingData: listProps[];
   wasEdited: boolean;
   setWasEdited: React.Dispatch<React.SetStateAction<boolean>>;
+  getOriginalData: () => Promise<listProps[]>;
+  updateBelongingData: (id: number, data: listProps[]) => Promise<void>;
+  belongingDataId: number;
 }) {
-  const userWithRoles: UserWithRoles = {
-    id: user.id,
-    fullName: user.fullName,
-    email: user.email,
-    accountStatus: user.accountStatus,
-    roles: user.roles.map((role) => {
-      return {
-        id: role.id,
-        name: role.name,
-      };
-    }),
-  };
-
   const [open, setOpen] = React.useState<boolean>(false);
   // const [isApply, setIsApply] = React.useState<boolean>(false);
 
@@ -73,9 +67,11 @@ export function EditAuthDialog({
             Add and remove permissions and roles for this user
           </DialogContentText>
           <TransferAuth
-            userRoles={userWithRoles.roles}
             isApply={wasEdited}
-            userId={userWithRoles.id}
+            getOriginalData={getOriginalData}
+            updateBelongingData={updateBelongingData}
+            belongingData={belongingData}
+            belongingDataId={belongingDataId}
           />
         </DialogContent>
         <DialogActions>

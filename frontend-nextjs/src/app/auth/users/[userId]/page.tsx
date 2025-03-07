@@ -17,7 +17,11 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
-import { getUserByIdWithRolesAndPermissions } from "./_actions/userId.action";
+import {
+  getUserByIdWithRolesAndPermissions,
+  getRoles,
+  updateUserRoles,
+} from "./_actions/userId.action";
 import EditIcon from "@mui/icons-material/Edit";
 import { EditAuthDialog } from "./dialogTransfer.userid";
 import { UserWithRolesAndPermissions } from "../_types/user.type";
@@ -131,9 +135,12 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
       >
         <Typography variant="h5">Roles:</Typography>
         <EditAuthDialog
-          user={user}
           wasEdited={wasEditedRoles}
           setWasEdited={setWasEditedRoles}
+          getOriginalData={getRoles}
+          updateBelongingData={updateUserRoles}
+          belongingData={user.roles}
+          belongingDataId={user.id}
         />
       </Stack>
       {user.roles.map((role) => (
@@ -179,13 +186,13 @@ const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
         }}
       >
         <Typography variant="h5">Direct Permissions:</Typography>
-        <EditAuthDialog
+        {/* <EditAuthDialog
           user={user}
           wasEdited={false}
           setWasEdited={function (value: React.SetStateAction<boolean>): void {
             throw new Error("Function not implemented.");
           }}
-        />
+        /> */}
       </Stack>
       <TableContainer component={Paper} className="my-4">
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
