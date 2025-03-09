@@ -1,6 +1,6 @@
 import { RoleRepository } from "@/data/repo/index.data.repo";
-import { RoleEntity } from "@domain/entities/index";
-import { IdValueObject } from "@domain/valueObject/index";
+import { RoleEntity } from "@/domain/entities/index.domain.entity";
+import { IdValueObject } from "@/domain/valueObject/index.domain.valueObject";
 
 // src/useCase/role/create.usecase.ts
 
