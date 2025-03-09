@@ -1,4 +1,4 @@
-import { RoleRepository } from "../../repositories/RoleRepository";
+import { RoleRepository } from "@data/repositories/index";
 import { RoleEntity } from "@domain/entities/index";
 import { IdValueObject } from "@domain/valueObject/index";
 
@@ -16,6 +16,6 @@ export class CreateRoleUseCase {
     const roleId = new IdValueObject(data.id);
     const role = new RoleEntity(roleId, data.name);
 
-    await this.roleRepository.save(role);
+    await this.roleRepository.addRole(role);
   }
 }
