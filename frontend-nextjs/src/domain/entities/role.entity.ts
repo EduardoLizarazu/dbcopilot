@@ -1,5 +1,5 @@
 "use server";
-import { IdValueObject } from "../valueObject/id.valueObejct";
+import { IdValueObject } from "../valueObject/id.valueObject";
 
 class RoleEntity {
   private readonly _id: IdValueObject;
