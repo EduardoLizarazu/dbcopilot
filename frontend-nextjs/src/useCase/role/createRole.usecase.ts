@@ -5,7 +5,6 @@ import { IdValueObject } from "@/domain/valueObject/index.domain.valueObject";
 // src/useCase/role/create.usecase.ts
 
 interface CreateRoleDTO {
-  id: number;
   name: string;
 }
 
@@ -13,7 +12,7 @@ export class CreateRoleUseCase {
   constructor(private roleRepository: RoleRepository) {}
 
   async execute(data: CreateRoleDTO): Promise<void> {
-    const roleId = new IdValueObject(data.id);
+    const roleId = new IdValueObject(data);
     const role = new RoleEntity(roleId, data.name);
 
     const createDto = {
