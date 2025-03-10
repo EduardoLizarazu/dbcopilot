@@ -12,6 +12,13 @@ import {
   CircularProgress,
   Container,
   Divider,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -19,10 +26,7 @@ import React from "react";
 
 export default function CreateRolePage() {
   const [loading, setLoading] = React.useState<boolean>(true);
-  const [roles, setRoles] = React.useState<CreateRoleDataModel>({
-    name: "",
-    permissions: [],
-  });
+  const [roleName, setRoleName] = React.useState<string>("");
 
   const [permissions, setPermissions] = React.useState<
     GetPermissionDataModel[]
@@ -33,13 +37,33 @@ export default function CreateRolePage() {
 
   React.useEffect(() => {
     (async () => {
-      setPermissions(await GetPermissions());
+      setPermissions(await GetPermissions()); // Set list of all permissions
       setLoading(false);
     })();
   }, []);
 
   async function handleCreateRole() {
-    await CreateRole(roles);
+    const createRoleDto: CreateRoleDataModel = {
+      name: roleName,
+      permissions: selectedPermissions,
+    };
+    await CreateRole(createRoleDto);
+  }
+
+  async function handleAddPermission(permission: GetPermissionDataModel) {
+    // add permission to selected permission
+    setSelectedPermissions([...selectedPermissions, permission]);
+    // remove permission from permissions
+    setPermissions(permissions.filter((perm) => perm.id !== permission.id));
+  }
+
+  async function handleRemovePermission(permission: GetPermissionDataModel) {
+    // remove permission from selected permission
+    setSelectedPermissions(
+      selectedPermissions.filter((perm) => perm.id !== permission.id)
+    );
+    // add permission to permissions
+    setPermissions([...permissions, permission]);
   }
 
   if (loading) {
@@ -56,23 +80,70 @@ export default function CreateRolePage() {
         label="Name"
         variant="standard"
         style={{ width: "100%" }}
-        value={roles.name}
-        onChange={(e) => setRoles({ ...roles, name: e.target.value })}
+        value={roleName}
+        onChange={(e) => setRoleName(e.target.value)}
       />
-
       <Divider className="my-8" />
-
-      {/* Selected for permissions */}
       <Typography variant="h6">Permissions Selected: </Typography>
+      <TableContainer component={Paper} className="my-4">
+        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="left">Name</TableCell>
+              <TableCell align="left">Description</TableCell>
+              <TableCell align="left">Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {selectedPermissions.map((perm) => (
+              <TableRow key={perm.id}>
+                <TableCell align="left">{perm.name}</TableCell>
+                <TableCell align="left">{perm.description}</TableCell>
+                <TableCell align="left">
+                  <Button
+                    variant="contained"
+                    onClick={() => handleRemovePermission(perm)}
+                  >
+                    Add
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <Divider className="my-8" />
-
-      {/* Select for permissions */}
       <Typography variant="h6">Permissions: </Typography>
+      <TableContainer component={Paper} className="my-4">
+        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="left">Name</TableCell>
+              <TableCell align="left">Description</TableCell>
+              <TableCell align="left">Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {permissions.map((perm) => (
+              <TableRow key={perm.id}>
+                <TableCell align="left">{perm.name}</TableCell>
+                <TableCell align="left">{perm.description}</TableCell>
+                <TableCell align="left">
+                  <Button
+                    variant="contained"
+                    onClick={() => handleAddPermission(perm)}
+                  >
+                    Add
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <Divider className="my-8" />
-
-      {/* Button to create role */}
       <Button variant="contained" onClick={handleCreateRole}>
         Create Role
       </Button>
