@@ -1,10 +1,12 @@
 import { GetPermissionDataModel } from "@/data/model/index.data.model";
 import { PermissionRepository } from "@/data/repo/index.data.repo";
 
-export class ReadPermissionUseCase {
+export class ReadPermissionByIdUseCase {
   constructor(private permissionRepository: PermissionRepository) {}
 
-  async execute(): Promise<GetPermissionDataModel[]> {
-    return await this.permissionRepository.getAllPermissions();
+  async execute(
+    permissionId: number
+  ): Promise<GetPermissionDataModel | undefined> {
+    return await this.permissionRepository.getPermissionById(permissionId);
   }
 }

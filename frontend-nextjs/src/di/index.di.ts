@@ -10,6 +10,9 @@ import {
   ReadRoleByIdUseCase,
   EditRoleUseCase,
   RemoveRoleUseCase,
+  ReadPermissionByIdUseCase,
+  UpdatePermissionUseCase,
+  DeletePermissionByIdUseCase,
 } from "@useCases/index.usecase";
 
 // ROLE SERVICE
@@ -24,5 +27,14 @@ export const CreatePermissionService = new CreatePermissionUseCase(
   new PermissionRepository()
 );
 export const GetPermissionsService = new ReadPermissionUseCase(
+  new PermissionRepository()
+);
+export const GetPermissionByIdService = new ReadPermissionByIdUseCase(
+  new PermissionRepository()
+);
+export const UpdatePermissionService = new UpdatePermissionUseCase(
+  new PermissionRepository()
+);
+export const DeletePermissionByIdService = new DeletePermissionByIdUseCase(
   new PermissionRepository()
 );

@@ -7,6 +7,7 @@ import {
 import {
   GetPermissionDataModel,
   CreatePermissionDataModel,
+  UpdatePermissionDataModel,
 } from "@data/model/permission/permission.data.model";
 
 export type {
@@ -15,4 +16,5 @@ export type {
   EditRoleDataModel,
   GetPermissionDataModel,
   CreatePermissionDataModel,
+  UpdatePermissionDataModel,
 };

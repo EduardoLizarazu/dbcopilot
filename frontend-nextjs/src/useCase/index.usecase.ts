@@ -8,6 +8,9 @@ import {
 import {
   CreatePermissionUseCase,
   ReadPermissionUseCase,
+  ReadPermissionByIdUseCase,
+  UpdatePermissionUseCase,
+  DeletePermissionByIdUseCase,
 } from "./permission/permission.usecase";
 
 export {
@@ -18,4 +21,7 @@ export {
   RemoveRoleUseCase,
   CreatePermissionUseCase,
   ReadPermissionUseCase,
+  ReadPermissionByIdUseCase,
+  UpdatePermissionUseCase,
+  DeletePermissionByIdUseCase,
 };

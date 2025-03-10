@@ -5,13 +5,23 @@ import {
   UpdateRole,
   DeleteRole,
 } from "../_actions/role/role.action";
-import { GetPermissions } from "./permission/permission.action";
+import {
+  GetPermissions,
+  GetPermissionById,
+  UpdatePermission,
+  DeletePermissionById,
+  CreatePermission,
+} from "./permission/permission.action";
 
 export {
-  GetRoles,
   CreateRole,
-  GetPermissions,
+  GetRoles,
   GetRoleById,
   UpdateRole,
   DeleteRole,
+  CreatePermission,
+  GetPermissions,
+  GetPermissionById,
+  UpdatePermission,
+  DeletePermissionById,
 };

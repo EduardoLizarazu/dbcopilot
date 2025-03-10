@@ -1,6 +1,7 @@
 import {
   CreatePermissionDataModel,
   GetPermissionDataModel,
+  UpdatePermissionDataModel,
 } from "@/data/model/index.data.model";
 import { IPermissionRepository } from "./IPermission.data.repo";
 
@@ -21,7 +22,7 @@ export class PermissionRepository extends IPermissionRepository {
     ];
   }
 
-  createPermission(permission: CreatePermissionDataModel): void {
+  async createPermission(permission: CreatePermissionDataModel): Promise<void> {
     try {
       console.log("PermissionRepository.createPermission");
       this.permission.push({
@@ -33,12 +34,43 @@ export class PermissionRepository extends IPermissionRepository {
       throw new Error("PermissionRepository.createPermission" + error);
     }
   }
-  getAllPermissions(): GetPermissionDataModel[] {
+  async getAllPermissions(): Promise<GetPermissionDataModel[]> {
     try {
       console.log("PermissionRepository.getAllPermissions");
       return this.permission;
     } catch (error) {
       throw new Error("PermissionRepository.getAllPermissions" + error);
+    }
+  }
+  async getPermissionById(
+    id: number
+  ): Promise<GetPermissionDataModel | undefined> {
+    try {
+      console.log("PermissionRepository.getPermissionById");
+      return this.permission.find((x) => x.id === id);
+    } catch (error) {
+      throw new Error("PermissionRepository.getPermissionById" + error);
+    }
+  }
+  async updatePermission(permission: UpdatePermissionDataModel): Promise<void> {
+    try {
+      console.log("PermissionRepository.updatePermission");
+      const index = this.permission.findIndex((x) => x.id === permission.id);
+      this.permission[index] = {
+        id: permission.id,
+        name: permission.name,
+        description: permission.description,
+      };
+    } catch (error) {
+      throw new Error("PermissionRepository.updatePermission" + error);
+    }
+  }
+  async deletePermission(id: number): Promise<void> {
+    try {
+      console.log("PermissionRepository.deletePermission");
+      this.permission = this.permission.filter((x) => x.id !== id);
+    } catch (error) {
+      throw new Error("PermissionRepository.deletePermission" + error);
     }
   }
 }
