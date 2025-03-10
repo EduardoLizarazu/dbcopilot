@@ -1,5 +1,3 @@
-"use server";
-
 import { RoleRepository } from "@data/repo/index.data.repo";
 import { CreateRoleUseCase, ReadRolesUseCase } from "@useCases/index.usecase";
 

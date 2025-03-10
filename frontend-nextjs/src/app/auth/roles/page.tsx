@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   Button,
@@ -21,12 +22,16 @@ export default function RolesPage() {
 
   const [roles, setRoles] = React.useState<GetRolesDataModel[]>([]);
 
-  async function handleRoleEdit(id: string) {
+  async function handleRoleEdit(id: number) {
     console.log("Edit Role with id: ", id);
   }
 
-  async function handleRoleDelete(id: string) {
+  async function handleRoleDelete(id: number) {
     console.log("Delete Role with id: ", id);
+  }
+
+  async function handleCreateRole() {
+    console.log("Create Role");
   }
 
   React.useEffect(() => {
@@ -43,6 +48,7 @@ export default function RolesPage() {
   return (
     <Container>
       <Typography variant="h6">Roles</Typography>
+      <Button onClick={handleCreateRole}>Create</Button>
       {roles.map((role) => (
         <div key={role.id} className="my-4">
           <Stack>

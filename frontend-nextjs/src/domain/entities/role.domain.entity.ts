@@ -1,4 +1,3 @@
-"use server";
 import { IdValueObject } from "../valueObject/id.domain.valueObject";
 
 class RoleEntity {

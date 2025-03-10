@@ -1,5 +1,5 @@
 export interface GetPermissionDataModel {
-  id: string;
+  id: number;
   name: string;
   description: string;
 }

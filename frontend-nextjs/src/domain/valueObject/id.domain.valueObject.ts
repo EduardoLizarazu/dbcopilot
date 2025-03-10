@@ -1,5 +1,3 @@
-"use server";
-
 export class IdValueObject {
   private readonly _value: number;
 
