@@ -1,4 +1,10 @@
-import { CreateRoleUseCase, ReadRolesUseCase } from "./role/role.usecase";
+import {
+  CreateRoleUseCase,
+  ReadRolesUseCase,
+  ReadRoleByIdUseCase,
+  EditRoleUseCase,
+  RemoveRoleUseCase,
+} from "./role/role.usecase";
 import {
   CreatePermissionUseCase,
   ReadPermissionUseCase,
@@ -7,6 +13,9 @@ import {
 export {
   CreateRoleUseCase,
   ReadRolesUseCase,
+  ReadRoleByIdUseCase,
+  EditRoleUseCase,
+  RemoveRoleUseCase,
   CreatePermissionUseCase,
   ReadPermissionUseCase,
 };

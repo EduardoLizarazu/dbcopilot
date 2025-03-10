@@ -11,8 +11,8 @@ class PermissionEntity {
     this._description = description;
   }
 
-  get id(): IdValueObject {
-    return this._id;
+  get id(): number {
+    return this._id.value;
   }
 
   get name(): string {

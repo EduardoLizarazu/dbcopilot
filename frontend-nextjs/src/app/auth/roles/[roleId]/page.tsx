@@ -1,5 +1,13 @@
 "use client";
-import { GetPermissionDataModel } from "@/data/model/index.data.model";
+import {
+  GetPermissions,
+  GetRoleById,
+  UpdateRole,
+} from "@/controller/_actions/index.actions";
+import {
+  EditRoleDataModel,
+  GetPermissionDataModel,
+} from "@/data/model/index.data.model";
 import {
   Button,
   CircularProgress,
@@ -57,15 +65,24 @@ export default function EditRolePage({ params }: EditRolePageProps) {
       name: roleName,
       permissions: selectedPermissions,
     };
-    await EditRole(editRoleDto);
+    await UpdateRole(editRoleDto);
   }
 
   React.useEffect(() => {
     (async () => {
       const { roleId } = await params;
       setRoleId(parseInt(roleId));
+      const role = await GetRoleById(parseInt(roleId));
+      if (role) {
+        setRoleName(role.name);
+        setSelectedPermissions(role.permissions);
+        const permissions = await GetPermissions();
+        setPermissions(
+          permissions.filter((perm) => !role.permissions.includes(perm))
+        );
+      }
+      setLoading(false);
     })();
-    setLoading(false);
   }, [params]);
 
   if (loading) {

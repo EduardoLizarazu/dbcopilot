@@ -1,6 +1,7 @@
 import {
   CreateRoleDataModel,
   GetRolesDataModel,
+  EditRoleDataModel,
 } from "@data/model/role/role.data.model";
 
 import {
@@ -11,6 +12,7 @@ import {
 export type {
   CreateRoleDataModel,
   GetRolesDataModel,
+  EditRoleDataModel,
   GetPermissionDataModel,
   CreatePermissionDataModel,
 };

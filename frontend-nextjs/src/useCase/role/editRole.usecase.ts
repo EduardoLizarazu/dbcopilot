@@ -3,20 +3,19 @@ import {
   PermissionEntity,
   RoleEntity,
 } from "@/domain/entities/index.domain.entity";
-import { IdValueObject } from "@/domain/valueObject/index.domain.valueObject";
+import { IdValueObject } from "@/domain/valueObject/id.domain.valueObject";
 
-// src/useCase/role/create.usecase.ts
-
-interface CreateRoleDTO {
+interface EditRoleDTO {
+  id: number;
   name: string;
   permissions: { id: number; name: string; description: string }[];
 }
 
-export class CreateRoleUseCase {
+export class EditRoleUseCase {
   constructor(private roleRepository: RoleRepository) {}
 
-  async execute(data: CreateRoleDTO): Promise<void> {
-    const roleId = new IdValueObject(1); // fake id
+  async execute(data: EditRoleDTO): Promise<void> {
+    const roleId = new IdValueObject(data.id);
     const role = new RoleEntity(roleId, data.name);
     const permissions: PermissionEntity[] = [];
     data.permissions.forEach((perm) => {
@@ -29,7 +28,8 @@ export class CreateRoleUseCase {
       permissions.push(permission);
     });
 
-    const createDto = {
+    const editDTO: EditRoleDTO = {
+      id: role.id,
       name: role.name,
       permissions: permissions.map((perm) => {
         return {
@@ -40,6 +40,6 @@ export class CreateRoleUseCase {
       }),
     };
 
-    await this.roleRepository.createRole(createDto);
+    await this.roleRepository.updateRole(editDTO);
   }
 }
