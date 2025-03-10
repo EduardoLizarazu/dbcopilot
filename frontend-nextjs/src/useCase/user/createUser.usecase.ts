@@ -1,5 +1,13 @@
 import { UserRepository } from "@/data/repo/index.data.repo";
 
+interface CreateUserInput {
+
+}
+
+interface CreateUserOutput {
+  
+}
+
 export class CreateUserUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
