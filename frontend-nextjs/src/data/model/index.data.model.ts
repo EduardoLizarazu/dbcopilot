@@ -10,6 +10,8 @@ import {
   UpdatePermissionDataModel,
 } from "@data/model/permission/permission.data.model";
 
+import { CreateUserDataModel, GetUsersDataModel, UpdateUserDataModel } from "./user/user.data.model";
+
 export type {
   CreateRoleDataModel,
   GetRolesDataModel,
@@ -17,4 +19,8 @@ export type {
   GetPermissionDataModel,
   CreatePermissionDataModel,
   UpdatePermissionDataModel,
+
+  CreateUserDataModel,
+  GetUsersDataModel,
+  UpdateUserDataModel,
 };
