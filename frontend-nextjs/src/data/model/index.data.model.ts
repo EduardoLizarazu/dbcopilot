@@ -3,4 +3,6 @@ import {
   GetRolesDataModel,
 } from "@data/model/role/role.data.model";
 
-export type { CreateRoleDataModel, GetRolesDataModel };
+import { GetPermissionDataModel } from "@data/model/permission/permission.data.model";
+
+export type { CreateRoleDataModel, GetRolesDataModel, GetPermissionDataModel };

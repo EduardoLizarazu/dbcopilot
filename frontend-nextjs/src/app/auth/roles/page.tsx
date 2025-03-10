@@ -67,7 +67,7 @@ export default function RolesPage() {
               <TableHead>
                 <TableRow>
                   <TableCell align="left">Name</TableCell>
-                  <TableCell align="left">Description</TableCell>{" "}
+                  <TableCell align="left">Description</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
