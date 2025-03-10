@@ -7,6 +7,6 @@ export interface GetUsersDataModel {
     phone: string;
     email: string;
     password: string;
-    role: GetRolesDataModel[];
-    directPermission: GetPermissionDataModel[];
+    roles: GetRolesDataModel[];
+    directPermissions: GetPermissionDataModel[];
 }
