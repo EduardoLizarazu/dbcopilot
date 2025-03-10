@@ -33,7 +33,7 @@ export class RoleRepository extends IRoleRepository {
 
   createRole(role: CreateRoleDataModel): void {
     try {
-      console.log("RoleRepository.createRole");
+      console.log("RoleRepository.createRole", role);
       this.role.push({
         id: this.role.length + 1,
         name: role.name,

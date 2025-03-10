@@ -13,6 +13,7 @@ import {
   Container,
   Divider,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -103,8 +104,9 @@ export default function CreateRolePage() {
                   <Button
                     variant="contained"
                     onClick={() => handleRemovePermission(perm)}
+                    color="error"
                   >
-                    Add
+                    Remove
                   </Button>
                 </TableCell>
               </TableRow>
@@ -144,9 +146,19 @@ export default function CreateRolePage() {
       </TableContainer>
 
       <Divider className="my-8" />
-      <Button variant="contained" onClick={handleCreateRole}>
-        Create Role
-      </Button>
+      <Stack direction="row" spacing={2}>
+        {/* Error color */}
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => history.back()}
+        >
+          Cancel
+        </Button>
+        <Button variant="contained" color="success" onClick={handleCreateRole}>
+          Create Role
+        </Button>
+      </Stack>
     </Container>
   );
 }
