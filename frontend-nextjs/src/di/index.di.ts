@@ -1,6 +1,7 @@
 import {
   PermissionRepository,
   RoleRepository,
+  UserRepository,
 } from "@data/repo/index.data.repo";
 import {
   CreatePermissionUseCase,
@@ -13,6 +14,11 @@ import {
   ReadPermissionByIdUseCase,
   UpdatePermissionUseCase,
   DeletePermissionByIdUseCase,
+  CreateUserUseCase,
+  ReadUsersUseCase,
+  ReadUserByIdUseCase,
+  UpdateUserUseCase,
+  DeleteUserUseCase,
 } from "@useCases/index.usecase";
 
 // ROLE SERVICE
@@ -38,3 +44,10 @@ export const UpdatePermissionService = new UpdatePermissionUseCase(
 export const DeletePermissionByIdService = new DeletePermissionByIdUseCase(
   new PermissionRepository()
 );
+
+// USER SERVICE
+export const CreateUserService = new CreateUserUseCase(new UserRepository());
+export const GetUsersService = new ReadUsersUseCase(new UserRepository());
+export const GetUserByIdService = new ReadUserByIdUseCase(new UserRepository());
+export const UpdateUserService = new UpdateUserUseCase(new UserRepository());
+export const DeleteUserService = new DeleteUserUseCase(new UserRepository());

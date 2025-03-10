@@ -12,6 +12,13 @@ import {
   DeletePermissionById,
   CreatePermission,
 } from "./permission/permission.action";
+import { 
+  CreateUser, 
+  DeleteUser, 
+  GetUserById, 
+  GetUsers, 
+  UpdateUser 
+} from "./user/user.action";
 
 export {
   CreateRole,
@@ -24,4 +31,9 @@ export {
   GetPermissionById,
   UpdatePermission,
   DeletePermissionById,
+  CreateUser,
+  GetUsers,
+  GetUserById,
+  UpdateUser,
+  DeleteUser
 };
