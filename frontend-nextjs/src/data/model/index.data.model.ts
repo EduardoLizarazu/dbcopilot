@@ -1,3 +1,6 @@
-import { CreateRoleDataModel } from "@data/model/role/role.data.model";
+import {
+  CreateRoleDataModel,
+  GetRolesDataModel,
+} from "@data/model/role/role.data.model";
 
-export type { CreateRoleDataModel };
+export type { CreateRoleDataModel, GetRolesDataModel };

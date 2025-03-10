@@ -1,6 +1,9 @@
 "use server";
 
 import { RoleRepository } from "@data/repo/index.data.repo";
-import { CreateRoleUseCase } from "@useCases/index.usecase";
+import { CreateRoleUseCase, ReadRolesUseCase } from "@useCases/index.usecase";
 
-export const RoleService = new CreateRoleUseCase(new RoleRepository());
+// ROLE SERVICE
+export const CreateRoleService = new CreateRoleUseCase(new RoleRepository());
+
+export const GetRolesService = new ReadRolesUseCase(new RoleRepository());

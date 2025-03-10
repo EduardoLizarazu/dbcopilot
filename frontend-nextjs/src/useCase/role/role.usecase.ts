@@ -1,3 +1,4 @@
 import { CreateRoleUseCase } from "./createRole.usecase";
+import { ReadRolesUseCase } from "./readRoles.usecase";
 
-export { CreateRoleUseCase };
+export { CreateRoleUseCase, ReadRolesUseCase };
