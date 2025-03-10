@@ -146,7 +146,7 @@ export default function CreateRolePage() {
       </TableContainer>
 
       <Divider className="my-8" />
-      <Stack direction="row" spacing={2}>
+      <Stack direction="row" spacing={2} sx={{ my: 2 }}>
         {/* Error color */}
         <Button
           variant="contained"

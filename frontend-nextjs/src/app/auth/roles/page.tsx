@@ -42,7 +42,9 @@ export default function RolesPage() {
     <Container>
       <Typography variant="h6">Roles</Typography>
       <Link href="/auth/roles/create">
-        <Button>Create</Button>
+        <Button variant="contained" color="primary">
+          Create
+        </Button>
       </Link>
       {roles.map((role) => (
         <div key={role.id} className="my-4">
@@ -51,11 +53,17 @@ export default function RolesPage() {
               {role.name} Role with Permissions:
             </Typography>
             <Container>
-              <Stack>
+              <Stack direction="row" spacing={2} sx={{ my: 2 }}>
                 <Link href={`/auth/roles/${role.id}`}>
-                  <Button>Editar</Button>
+                  <Button variant="contained" color="info">
+                    Editar
+                  </Button>
                 </Link>
-                <Button onClick={() => handleRoleDelete(role.id)}>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => handleRoleDelete(role.id)}
+                >
                   Eliminar
                 </Button>
               </Stack>
