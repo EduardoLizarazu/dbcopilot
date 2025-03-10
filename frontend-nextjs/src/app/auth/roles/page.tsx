@@ -4,6 +4,7 @@ import {
   Button,
   CircularProgress,
   Container,
+  Link,
   Paper,
   Stack,
   Table,
@@ -22,16 +23,8 @@ export default function RolesPage() {
 
   const [roles, setRoles] = React.useState<GetRolesDataModel[]>([]);
 
-  async function handleRoleEdit(id: number) {
-    console.log("Edit Role with id: ", id);
-  }
-
   async function handleRoleDelete(id: number) {
     console.log("Delete Role with id: ", id);
-  }
-
-  async function handleCreateRole() {
-    console.log("Create Role");
   }
 
   React.useEffect(() => {
@@ -48,7 +41,9 @@ export default function RolesPage() {
   return (
     <Container>
       <Typography variant="h6">Roles</Typography>
-      <Button onClick={handleCreateRole}>Create</Button>
+      <Link href="/auth/roles/create">
+        <Button>Create</Button>
+      </Link>
       {roles.map((role) => (
         <div key={role.id} className="my-4">
           <Stack>
@@ -57,7 +52,9 @@ export default function RolesPage() {
             </Typography>
             <Container>
               <Stack>
-                <Button onClick={() => handleRoleEdit(role.id)}>Editar</Button>
+                <Link href={`/auth/roles/${role.id}`}>
+                  <Button>Editar</Button>
+                </Link>
                 <Button onClick={() => handleRoleDelete(role.id)}>
                   Eliminar
                 </Button>

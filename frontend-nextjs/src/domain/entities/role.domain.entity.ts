@@ -1,4 +1,4 @@
-import { IdValueObject } from "../valueObject/id.domain.valueObject";
+import { IdValueObject } from "../valueObject/index.domain.valueObject";
 
 class RoleEntity {
   private readonly _id: IdValueObject;

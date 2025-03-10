@@ -1,8 +1,11 @@
 "use server";
-import { GetRolesDataModel } from "@/data/model/index.data.model";
+import {
+  CreateRoleDataModel,
+  GetRolesDataModel,
+} from "@/data/model/index.data.model";
 import { CreateRoleService, GetRolesService } from "@/di/index.di";
 
-export const CreateRole = async (data) => {
+export const CreateRole = async (data: CreateRoleDataModel) => {
   return await CreateRoleService.execute(data);
 };
 

@@ -12,11 +12,12 @@ export class CreateRoleUseCase {
   constructor(private roleRepository: RoleRepository) {}
 
   async execute(data: CreateRoleDTO): Promise<void> {
-    const roleId = new IdValueObject(data);
+    const roleId = new IdValueObject(1);
     const role = new RoleEntity(roleId, data.name);
 
     const createDto = {
       name: role.name,
+      permissions: [], // Add appropriate permissions here
     };
 
     await this.roleRepository.createRole(createDto);
