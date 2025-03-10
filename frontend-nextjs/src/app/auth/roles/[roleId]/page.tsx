@@ -77,9 +77,14 @@ export default function EditRolePage({ params }: EditRolePageProps) {
         setRoleName(role.name);
         setSelectedPermissions(role.permissions);
         const permissions = await GetPermissions();
-        setPermissions(
-          permissions.filter((perm) => !role.permissions.includes(perm))
+        // Filter out permissions that are already selected from the array of objects
+        const filteredPermissions = permissions.filter(
+          (perm) =>
+            !role.permissions.find(
+              (selectedPerm) => selectedPerm.id === perm.id
+            )
         );
+        setPermissions(filteredPermissions);
       }
       setLoading(false);
     })();
