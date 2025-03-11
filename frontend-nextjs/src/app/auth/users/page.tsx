@@ -83,7 +83,7 @@ export default function UsersPage() {
                 </TableCell>
                 <TableCell align="left">
                   <Stack direction="row" spacing={2}>
-                    <Link href={`/auth/user/${user.id}`}>
+                    <Link href={`/auth/users/${user.id}`}>
                       <Button variant="contained" color="info">
                         Edit
                       </Button>
