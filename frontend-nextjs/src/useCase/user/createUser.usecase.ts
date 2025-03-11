@@ -1,33 +1,30 @@
-import { CreateUserDataModel, GetPermissionDataModel, GetRolesDataModel } from "@/data/model/index.data.model";
 import { UserRepository } from "@/data/repo/index.data.repo";
-import { UserEntity } from "@/domain/entities/index.domain.entity";
-import { EmailValueObject, IdValueObject, PhoneValueObject } from "@/domain/valueObject/index.domain.valueObject";
+import {
+  CreateUserDTO,
+  CreateUserInput,
+} from "../dto/userDTO/CreateUserDTO.usecase.dto";
+import { ReadPermissionOutput, ReadRoleOutput } from "../dto/index.usecase.dto";
 
-interface CreateUserInput extends CreateUserDataModel{};
-
-interface CreateUserOutput {}
+interface CreateUserUseCaseInput {
+  user: CreateUserInput;
+  role: ReadRoleOutput[];
+  permission: ReadPermissionOutput[];
+}
 
 export class CreateUserUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(input: CreateUserInput): Promise<CreateUserOutput> {
-    const idVo = new IdValueObject(0);
-    const phoneVo = new PhoneValueObject(input.phone);
-    const emailVo = new EmailValueObject(input.email);
-    const userEntity: UserEntity = new UserEntity(
-      idVo,
-      input.firstName,
-      emailVo,
-      input.lastName,
-      phoneVo.value,
-      input.roles,
-      input.permissions,
-      input.isActive
-    );
+  async execute(input: CreateUserUseCaseInput): Promise<void> {
+    const userDTO = new CreateUserDTO(input.user);
+    userDTO.toEntity();
+    const basicUserObject = userDTO.toObject();
 
-    const user = await this.userRepository.createUser(input);
-    return {
-      user: user,
+    const userObject = {
+      ...basicUserObject,
+      roles: input.role,
+      directPermissions: input.permission,
     };
+
+    await this.userRepository.createUser(userObject);
   }
 }

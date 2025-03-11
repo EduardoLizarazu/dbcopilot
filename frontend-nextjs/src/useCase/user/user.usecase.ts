@@ -4,11 +4,10 @@ import { ReadUserByIdUseCase } from "./readUserById.usecase";
 import { ReadUsersUseCase } from "./readUsers.usecase";
 import { UpdateUserUseCase } from "./updateUser.usecase";
 
-
 export {
-    CreateUserUseCase,
-    ReadUsersUseCase,
-    ReadUserByIdUseCase,
-    UpdateUserUseCase,
-    DeleteUserUseCase
+  CreateUserUseCase,
+  ReadUsersUseCase,
+  ReadUserByIdUseCase,
+  UpdateUserUseCase,
+  DeleteUserUseCase,
 };

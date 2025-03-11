@@ -12,7 +12,6 @@ interface UserProps {
   firstName: string;
   lastName: string;
   phone: PhoneValueObject;
-  createdAt: Date;
 }
 
 export class UserEntity {
@@ -23,7 +22,6 @@ export class UserEntity {
   private readonly _firstName: string;
   private readonly _lastName: string;
   private readonly _phone: PhoneValueObject;
-  private readonly _createdAt: Date;
 
   constructor(props: UserProps) {
     this._id = props.id;
@@ -33,6 +31,33 @@ export class UserEntity {
     this._firstName = props.firstName;
     this._lastName = props.lastName;
     this._phone = props.phone;
-    this._createdAt = props.createdAt;
+  }
+
+  get id(): IdValueObject {
+    return this._id;
+  }
+
+  get username(): string {
+    return this._username;
+  }
+
+  get email(): EmailValueObject {
+    return this._email;
+  }
+
+  get password(): string {
+    return this._password;
+  }
+
+  get firstName(): string {
+    return this._firstName;
+  }
+
+  get lastName(): string {
+    return this._lastName;
+  }
+
+  get phone(): PhoneValueObject {
+    return this._phone;
   }
 }

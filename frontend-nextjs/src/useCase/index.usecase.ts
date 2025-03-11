@@ -12,12 +12,13 @@ import {
   UpdatePermissionUseCase,
   DeletePermissionByIdUseCase,
 } from "./permission/permission.usecase";
-import { 
-  CreateUserUseCase, 
-  DeleteUserUseCase, 
-  ReadUserByIdUseCase, 
-  ReadUsersUseCase, 
-  UpdateUserUseCase } from "./user/user.usecase";
+import {
+  CreateUserUseCase,
+  DeleteUserUseCase,
+  ReadUserByIdUseCase,
+  ReadUsersUseCase,
+  UpdateUserUseCase,
+} from "./user/user.usecase";
 
 export {
   CreateRoleUseCase,

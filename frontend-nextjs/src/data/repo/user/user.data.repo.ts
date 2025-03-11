@@ -1,129 +1,128 @@
-import { CreateUserDataModel, GetUsersDataModel, UpdateUserDataModel } from "@/data/model/index.data.model";
+import {
+  CreateUserDataModel,
+  GetUsersDataModel,
+  UpdateUserDataModel,
+} from "@/data/model/index.data.model";
 import { IUserRepository } from "./iUser.data.repo";
 
-
 export class UserRepository extends IUserRepository {
+  user: GetUsersDataModel[];
 
-    user: GetUsersDataModel[];
+  constructor() {
+    super();
+    this.user = [
+      {
+        id: 1,
+        firstName: "Snow Jon",
+        lastName: "Doe",
+        email: "ex@gmail.com",
+        phone: "689-555-5555",
+        password: "Passw0rd",
+        roles: [
+          {
+            id: 1,
+            name: "admin",
+            permissions: [
+              { id: 1, name: "read:users", description: "read users" },
+              { id: 3, name: "delete:users", description: "delete users" },
+            ],
+          },
+          {
+            id: 2,
+            name: "finance",
+            permissions: [
+              { id: 2, name: "write:users", description: "write users" },
+            ],
+          },
+        ],
+        directPermissions: [
+          { id: 2, name: "write:users", description: "write users" },
+        ],
+        username: "snowjon",
+      },
+      {
+        id: 2,
+        firstName: "Jane",
+        lastName: "Doe",
+        email: "ex@gmail.com",
+        phone: "689-555-5555",
+        password: "Passw0rd",
+        roles: [
+          {
+            id: 1,
+            name: "admin",
+            permissions: [
+              { id: 1, name: "read:users", description: "read users" },
+              { id: 3, name: "delete:users", description: "delete users" },
+            ],
+          },
+          {
+            id: 2,
+            name: "finance",
+            permissions: [
+              { id: 2, name: "write:users", description: "write users" },
+            ],
+          },
+        ],
+        directPermissions: [
+          { id: 2, name: "write:users", description: "write users" },
+        ],
+        username: "jane",
+      },
+    ];
+  }
 
-    constructor() {
-        super();
-        this.user = [
-            {
-                id: 1,
-                firstName: "Snow Jon",
-                lastName: "Doe",
-                email: "ex@gmail.com",
-                phone: "689-555-5555",
-                password: "Passw0rd",
-                roles: [
-                    {
-                        id: 1,
-                        name: "admin",
-                        permissions: [
-                            { id: 1, name: "read:users", description: "read users" },
-                            { id: 3, name: "delete:users", description: "delete users" },
-                        ],
-                    },
-                    {
-                        id: 2,
-                        name: "finance",
-                        permissions: [
-                            { id: 2, name: "write:users", description: "write users" },
-                        ],
-                    },
-                ],
-                directPermissions: [
-                    { id: 2, name: "write:users", description: "write users" },
-                ],
-
-            },
-            {
-                id: 2,
-                firstName: "Jane",
-                lastName: "Doe",
-                email: "ex@gmail.com",
-                phone: "689-555-5555",
-                password: "Passw0rd",
-                roles: [
-                    {
-                        id: 1,
-                        name: "admin",
-                        permissions: [
-                            { id: 1, name: "read:users", description: "read users" },
-                            { id: 3, name: "delete:users", description: "delete users" },
-                        ],
-                    },
-                    {
-                        id: 2,
-                        name: "finance",
-                        permissions: [
-                            { id: 2, name: "write:users", description: "write users" },
-                        ],
-                    },
-                ],
-                directPermissions: [
-                    { id: 2, name: "write:users", description: "write users" },
-                ],
-            }
-        ];
+  async createUser(user: CreateUserDataModel): Promise<void> {
+    try {
+      console.log("UserRepo.Create: ", user);
+      this.user.push({
+        id: this.user.length + 1,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        email: user.email,
+        password: user.password,
+        roles: user.roles,
+        directPermissions: user.directPermissions,
+        username: user.username,
+      });
+    } catch (error) {
+      throw new Error("UserRepo.Create: " + error);
     }
-
-    async createUser(user: CreateUserDataModel): Promise<void> {
-        try {
-            console.log("UserRepo.Create: ", user);
-            this.user.push({
-                id: this.user.length + 1,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                phone: user.phone,
-                email: user.email,
-                password: user.password,
-                roles: user.roles,
-                directPermissions: user.directPermissions
-            });
-        } catch (error) {
-            throw new Error("UserRepo.Create: "+ error);
-        }
+  }
+  async getAllUsers(): Promise<GetUsersDataModel[]> {
+    try {
+      console.log("UserRepo.getAllUsers");
+      return this.user;
+    } catch (error) {
+      throw new Error("UserRepo.getAllUsers: " + error);
     }
-    async getAllUsers(): Promise<GetUsersDataModel[]> {
-        try {
-            console.log("UserRepo.getAllUsers");
-            return this.user;
-        }
-        catch (error) {
-            throw new Error("UserRepo.getAllUsers: "+ error);
-        }
+  }
+  async getUserById(id: number): Promise<GetUsersDataModel | undefined> {
+    try {
+      console.log("UserRepo.getUserById: ", id);
+      return this.user.find((user) => user.id === id);
+    } catch (error) {
+      throw new Error("UserRepo.getUserById: " + error);
     }
-    async getUserById(id: number): Promise<GetUsersDataModel | undefined> {
-        try {
-            console.log("UserRepo.getUserById: ", id);
-            return this.user.find((user) => user.id === id);
-        }
-        catch (error) {
-            throw new Error("UserRepo.getUserById: "+ error);
-        }
+  }
+  async updateUser(user: UpdateUserDataModel): Promise<boolean> {
+    try {
+      console.log("UserRepo.updateUser: ", user);
+      const index = this.user.findIndex((u) => u.id === user.id);
+      this.user[index] = user;
+      return true;
+    } catch (error) {
+      throw new Error("UserRepo.updateUser: " + error);
     }
-    async updateUser(user: UpdateUserDataModel): Promise<boolean> {
-        try {
-            console.log("UserRepo.updateUser: ", user);
-            const index = this.user.findIndex((u) => u.id === user.id);
-            this.user[index] = user;
-            return true;
-        }
-        catch (error) {
-            throw new Error("UserRepo.updateUser: "+ error);    
-        }
+  }
+  async deleteUser(id: number): Promise<boolean> {
+    try {
+      console.log("UserRepo.deleteUser: ", id);
+      this.user = this.user.filter((user) => user.id !== id);
+      return true;
+    } catch (error) {
+      throw new Error("UserRepo.deleteUser: " + error);
     }
-    async deleteUser(id: number): Promise<boolean> {
-        try {
-            console.log("UserRepo.deleteUser: ", id);
-            this.user = this.user.filter((user) => user.id !== id);
-            return true;
-        }
-        catch (error) {
-            throw new Error("UserRepo.deleteUser: "+ error);
-        }
-    }
-    
+  }
 }
