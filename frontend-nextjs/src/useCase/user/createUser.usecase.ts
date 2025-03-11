@@ -6,7 +6,7 @@ import {
   CreateUserInput,
 } from "../dto/index.usecase.dto";
 
-interface CreateUserUseCaseInput {
+export interface CreateUserUseCaseInput {
   user: CreateUserInput;
   role: ReadRoleOutput[];
   permission: ReadPermissionOutput[];

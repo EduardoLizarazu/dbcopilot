@@ -14,7 +14,9 @@ export { RemoveRoleUseCase } from "./role/removeRole.usecase";
 
 // USER USE CASES
 export { CreateUserUseCase } from "./user/createUser.usecase";
+export type { CreateUserUseCaseInput } from "./user/createUser.usecase";
 export { ReadUsersUseCase } from "./user/readUsers.usecase";
+export type { ReadUserUseCaseOutput } from "./user/readUsers.usecase";
 export { ReadUserByIdUseCase } from "./user/readUserById.usecase";
 export { UpdateUserUseCase } from "./user/updateUser.usecase";
 export { DeleteUserUseCase } from "./user/deleteUser.usecase";

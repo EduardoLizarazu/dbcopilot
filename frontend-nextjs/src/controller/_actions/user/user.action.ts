@@ -1,25 +1,36 @@
 "use server";
+import {
+  CreateUserService,
+  DeleteUserService,
+  GetUserByIdService,
+  GetUsersService,
+  UpdateUserService,
+} from "@/di/index.di";
+import {
+  CreateUserUseCaseInput,
+  ReadUserUseCaseOutput,
+} from "@/useCase/index.usecase";
 
-import { CreateUserDataModel, UpdateUserDataModel } from "@/data/model/index.data.model";
-import { CreateUserService, GetUserByIdService, GetUsersService, UpdateUserService } from "@/di/index.di";
-
-
-export const CreateUser = async (data: CreateUserDataModel) => {
+export const CreateUser = async (data: CreateUserUseCaseInput) => {
   return await CreateUserService.execute(data);
-}
+};
 
-export const GetUsers = async () => {
-    return await GetUsersService.execute();
-}
+export const GetUsers = async (): Promise<ReadUserUseCaseOutput[]> => {
+  return await GetUsersService.execute();
+};
 
-export const GetUserById = async (id:number) => {
-    return await GetUserByIdService.execute(id);
-}
+export const GetUserById = async (
+  id: number
+): Promise<ReadUserUseCaseOutput> => {
+  return await GetUserByIdService.execute(id);
+};
 
-export const UpdateUser = async (data: UpdateUserDataModel) => {
-    return await UpdateUserService.execute(data);
-}
+export const UpdateUser = async (
+  data: UpdateUserUseCaseInput
+): Promise<void> => {
+  await UpdateUserService.execute(data);
+};
 
-export const DeleteUser = async (id: number) => {
-    return await CreateUserService.execute(id);
-}
+export const DeleteUser = async (id: number): Promise<void> => {
+  return await DeleteUserService.execute(id);
+};

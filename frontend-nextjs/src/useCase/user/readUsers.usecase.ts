@@ -6,7 +6,7 @@ import {
   ReadPermissionOutput,
 } from "../dto/index.usecase.dto";
 
-interface output {
+export interface ReadUserUseCaseOutput {
   user: ReadUserOutput;
   roles: ReadRoleOutput[];
   directPermissions: ReadPermissionOutput[];
@@ -15,7 +15,7 @@ interface output {
 export class ReadUsersUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(): Promise<output[]> {
+  async execute(): Promise<ReadUserUseCaseOutput[]> {
     const users = await this.userRepository.getAllUsers();
     const usersDTO = ReadUserDTO.createFromList(users);
     ReadUserDTO.toEntityFromList(usersDTO);
