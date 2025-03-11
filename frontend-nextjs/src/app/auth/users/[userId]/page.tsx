@@ -29,18 +29,17 @@ import {
 import React from "react";
 interface UpdateUserPageProps {
   params: Promise<{
-    userId: number;
+    userId: string;
   }>;
 }
 
-export default function UpdateUserPage(props: UpdateUserPageProps) {
+export default function UpdateUserPage({ params }: UpdateUserPageProps) {
   // HOOK
   const [loading, setLoading] = React.useState<boolean>(true);
   const [value, setValue] = React.useState("1");
   const [id, setId] = React.useState<number>(0);
   const [username, setUsername] = React.useState<string>("");
   const [email, setEmail] = React.useState<string>("");
-  const [password, setPassword] = React.useState<string>("");
   const [firstName, setFirstName] = React.useState<string>("");
   const [lastName, setLastName] = React.useState<string>("");
   const [phone, setPhone] = React.useState<string>("");
@@ -55,19 +54,28 @@ export default function UpdateUserPage(props: UpdateUserPageProps) {
 
   React.useEffect(() => {
     (async () => {
-      setId((await props.params).userId);
-      const user = await GetUserById(id);
+      const { userId } = await params;
+      const { user, roles, directPermissions } = await GetUserById(
+        parseInt(userId)
+      );
+      setId(user.id);
+      setUsername(user.username);
+      setEmail(user.email);
+      setFirstName(user.firstName);
+      setLastName(user.lastName);
+      setPhone(user.phone);
+
       if (value === "1") {
         setRoles(await GetRoles());
-        setSelectedRoles(user.roles);
+        setSelectedRoles(roles);
       }
       if (value === "2") {
         setPermissions(await GetPermissions());
-        setSelectedPermissions(user.directPermissions);
+        setSelectedPermissions(directPermissions);
       }
       setLoading(false);
     })();
-  }, [value, id]);
+  }, [value, params]);
 
   // HANDLERS
   function handleChange(event: React.SyntheticEvent, newValue: string) {
@@ -95,7 +103,7 @@ export default function UpdateUserPage(props: UpdateUserPageProps) {
         id,
         username,
         email,
-        password,
+        password: "password",
         firstName,
         lastName,
         phone,
@@ -160,15 +168,6 @@ export default function UpdateUserPage(props: UpdateUserPageProps) {
           style={{ width: "100%" }}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <TextField
-          id="password-textfield"
-          label="password"
-          variant="standard"
-          style={{ width: "100%" }}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
         />
         <TextField
           id="phone-textfield"
@@ -237,8 +236,8 @@ export default function UpdateUserPage(props: UpdateUserPageProps) {
                           <TableCell align="left">{perm.description}</TableCell>
                           <TableCell align="left">
                             <Switch
-                              checked={checkedPermission}
-                              onChange={handleChangeActivePermission}
+                            // checked={checkedPermission}
+                            // onChange={handleChangeActivePermission}
                             />
                           </TableCell>
                         </TableRow>
