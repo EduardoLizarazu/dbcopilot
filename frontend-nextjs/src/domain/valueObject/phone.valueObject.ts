@@ -1,37 +1,27 @@
 export class PhoneValueObject {
-    private readonly _value: string;
+  private readonly _value: string;
 
-    constructor(value: string) {
-        // Validate Phone format
-        if(!this.isValid()) {
-            throw new Error("Phone is not valid");
-        }
-        this._value = value;
-
+  constructor(value: string) {
+    this._value = value;
+    // Validate Phone format
+    if (!this.isValid()) {
+      throw new Error("Phone is not valid");
     }
+  }
 
-    get value(): string {
-        return this._value
-    }
+  get value(): string {
+    return this._value;
+  }
 
-    isValid(): boolean {
-        return (this.isString() && this.isPhone());
-    }
+  isValid(): boolean {
+    return this.isString();
+  }
 
-    isString(): boolean {
-        if (typeof this.value === "string") {
-            return true;
-        } else {
-            throw new Error("Value is not a string");
-        }
+  isString(): boolean {
+    if (typeof this._value === "string") {
+      return true;
+    } else {
+      throw new Error("Value is not a string, but: " + typeof this._value);
     }
-
-    isPhone(): boolean {
-        const phoneRegex = /^[0-9]{10}$/; 
-        if(phoneRegex.test(this.value)) {
-            return true;
-        } else {
-            throw new Error("Phone is not valid");
-        }
-    }
+  }
 }
