@@ -59,6 +59,17 @@ export class ReadUserDTO {
     return users.map((user) => user.toObject());
   }
 
+  static createDTO(user: ReadUserOutput | undefined) {
+    return new ReadUserDTO({
+      id: user?.id || 0,
+      username: user?.username || "",
+      email: user?.email || "",
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+      phone: user?.phone || "",
+    });
+  }
+
   toEntity() {
     return new UserEntity({
       id: new IdValueObject(this._id),
@@ -75,7 +86,7 @@ export class ReadUserDTO {
     return users.map((user) => user.toEntity());
   }
 
-  toObject() {
+  toObject(): ReadUserOutput {
     return {
       id: this._id,
       username: this._username,

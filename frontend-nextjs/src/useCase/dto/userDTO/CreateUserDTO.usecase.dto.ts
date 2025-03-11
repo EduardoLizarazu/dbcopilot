@@ -15,12 +15,12 @@ export interface CreateUserInput {
 }
 
 export class CreateUserDTO {
-  private readonly _username: string;
-  private readonly _email: string;
-  private readonly _password: string;
-  private readonly _firstName: string;
-  private readonly _lastName: string;
-  private readonly _phone: string;
+  protected readonly _username: string;
+  protected readonly _email: string;
+  protected readonly _password: string;
+  protected readonly _firstName: string;
+  protected readonly _lastName: string;
+  protected readonly _phone: string;
 
   constructor(props: CreateUserInput) {
     this._username = props.username;
@@ -55,7 +55,7 @@ export class CreateUserDTO {
     return this._phone;
   }
 
-  toEntity() {
+  toEntity(): UserEntity {
     return new UserEntity({
       id: new IdValueObject(1), // fake
       username: this._username,
