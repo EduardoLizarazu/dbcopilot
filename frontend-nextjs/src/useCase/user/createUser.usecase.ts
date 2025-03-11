@@ -1,9 +1,10 @@
 import { UserRepository } from "@/data/repo/index.data.repo";
 import {
+  ReadPermissionOutput,
+  ReadRoleOutput,
   CreateUserDTO,
   CreateUserInput,
-} from "../dto/userDTO/CreateUserDTO.usecase.dto";
-import { ReadPermissionOutput, ReadRoleOutput } from "../dto/index.usecase.dto";
+} from "../dto/index.usecase.dto";
 
 interface CreateUserUseCaseInput {
   user: CreateUserInput;

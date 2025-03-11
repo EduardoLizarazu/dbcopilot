@@ -1,6 +1,8 @@
 // USER DTO
 export { CreateUserDTO } from "./userDTO/CreateUserDTO.usecase.dto";
 export type { CreateUserInput } from "./userDTO/CreateUserDTO.usecase.dto";
+export { ReadUserDTO } from "./userDTO/ReadUserDTO.usecase.dto";
+export type { ReadUserOutput } from "./userDTO/ReadUserDTO.usecase.dto";
 
 // ROL DTO
 export type { CreateRolInput } from "./roleDTO/CreateRolDTO.usecase.dto";
