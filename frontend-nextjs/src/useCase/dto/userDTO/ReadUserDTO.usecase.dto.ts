@@ -71,6 +71,8 @@ export class ReadUserDTO {
   }
 
   toEntity() {
+    console.log("ReadUserDTO -> toEntity -> this._id", this._id);
+
     return new UserEntity({
       id: new IdValueObject(this._id),
       username: this._username,

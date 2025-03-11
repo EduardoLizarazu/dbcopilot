@@ -1,243 +1,365 @@
 "use client";
-import React, { useEffect, useState } from "react";
 import {
-  Container,
-  Paper,
-  Typography,
-  CircularProgress,
-  TextField,
-  Stack,
-  TableContainer,
-  Table,
-  TableHead,
-  TableCell,
-  TableBody,
-  TableRow,
-  Divider,
-  Switch,
-  FormControlLabel,
+  GetPermissions,
+  GetRoles,
+  GetUserById,
+  UpdateUser,
+} from "@/controller/_actions/index.actions";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
+import {
+  Box,
   Button,
+  CircularProgress,
+  Container,
+  Divider,
+  Link,
+  Paper,
+  Stack,
+  Switch,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
 } from "@mui/material";
-import {
-  getUserByIdWithRolesAndPermissions,
-  getRoles,
-  updateUserRoles,
-  getPermissionsWithOutDescription,
-  updateUserDirectPermissions,
-  deleteUser,
-  updateAccountStatus,
-} from "./_actions/userId.action";
-import EditIcon from "@mui/icons-material/Edit";
-import { EditAuthDialog } from "./dialogTransfer.userid";
-import { UserWithRolesAndPermissions } from "../_types/user.type";
+import React from "react";
+interface UpdateUserPageProps {
+  params: Promise<{
+    userId: number;
+  }>;
+}
 
-const UserPage = ({ params }: { params: Promise<{ userId: string }> }) => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [user, setUser] = useState<UserWithRolesAndPermissions | null>(null);
-  const [wasEditedRoles, setWasEditedRoles] = useState<boolean>(false);
-  const [wasEditedDirectPermissions, setWasEditedDirectPermissions] =
-    useState<boolean>(false);
-  // editable text fields
-  const [isEditableFullName, setIsEditableFullName] = useState<boolean>(false);
+export default function UpdateUserPage(props: UpdateUserPageProps) {
+  // HOOK
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [value, setValue] = React.useState("1");
+  const [id, setId] = React.useState<number>(0);
+  const [username, setUsername] = React.useState<string>("");
+  const [email, setEmail] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string>("");
+  const [firstName, setFirstName] = React.useState<string>("");
+  const [lastName, setLastName] = React.useState<string>("");
+  const [phone, setPhone] = React.useState<string>("");
 
-  const handleRemoveUser = async () => {
-    if (!user || !user.id) return;
-    await deleteUser(user.id);
-  };
+  const [roles, setRoles] = React.useState<any[]>([]);
+  const [selectedRoles, setSelectedRoles] = React.useState<any[]>([]);
 
-  const handleAccountStatus = async () => {
-    if (!user || !user.id) return;
-    await updateAccountStatus(user.id, user.accountStatus);
-  };
-
-  // solve url param
-  useEffect(() => {
-    params.then((resolvedParams) => {
-      setUserId(resolvedParams.userId);
-    });
-  }, [params]);
-
-  // get user by id with roles, roles.permission and permissions
-  useEffect(() => {
-    (async () => {
-      if (userId) {
-        setUser(await getUserByIdWithRolesAndPermissions(userId));
-        setLoading(false);
-      }
-    })();
-  }, [userId, wasEditedRoles]);
+  const [permissions, setPermissions] = React.useState<any[]>([]);
+  const [selectedPermissions, setSelectedPermissions] = React.useState<any[]>(
+    []
+  );
 
   React.useEffect(() => {
-    (async () => await handleAccountStatus())();
-  }, [user?.accountStatus]);
+    (async () => {
+      setId((await props.params).userId);
+      const user = await GetUserById(id);
+      if (value === "1") {
+        setRoles(await GetRoles());
+        setSelectedRoles(user.roles);
+      }
+      if (value === "2") {
+        setPermissions(await GetPermissions());
+        setSelectedPermissions(user.directPermissions);
+      }
+      setLoading(false);
+    })();
+  }, [value, id]);
 
-  console.log("rendering user auth page");
+  // HANDLERS
+  function handleChange(event: React.SyntheticEvent, newValue: string) {
+    setValue(newValue);
+  }
 
+  function handleAddPermission(permission) {
+    // add permission to selected permission
+    setSelectedPermissions([...selectedPermissions, permission]);
+    // remove permission from permissions
+    setPermissions(permissions.filter((perm) => perm.id !== permission.id));
+  }
+  function handleRemovePermission(permission) {
+    // remove permission from selected permission
+    setSelectedPermissions(
+      selectedPermissions.filter((perm) => perm.id !== permission.id)
+    );
+    // add permission to permissions
+    setPermissions([...permissions, permission]);
+  }
+
+  async function handleUpdate() {
+    const createUserDto = {
+      user: {
+        id,
+        username,
+        email,
+        password,
+        firstName,
+        lastName,
+        phone,
+      },
+      role: selectedRoles,
+      permission: selectedPermissions,
+    };
+    await UpdateUser(createUserDto);
+    // go back to users page
+    window.location.href = "/auth/users";
+  }
+
+  function handleAddRole(roleId) {
+    const role = roles.find((role) => role.id === roleId);
+    setSelectedRoles([...selectedRoles, role]);
+    setRoles(roles.filter((r) => r.id !== roleId));
+  }
+
+  function handleRemoveRole(roleId) {
+    const role = selectedRoles.find((role) => role.id === roleId);
+    setRoles([...roles, role]);
+    setSelectedRoles(selectedRoles.filter((r) => r.id !== roleId));
+  }
+
+  // RENDERS
   if (loading) {
     return <CircularProgress />;
   }
 
-  if (!user) {
-    return <Typography variant="h6">User not found</Typography>;
-  }
-
   return (
     <Container>
-      <Typography variant="h4">User Details</Typography>
-      <Stack
-        spacing={2}
-        style={{ margin: "20px 20px" }}
-        sx={{
-          justifyContent: "flex-start",
-          alignItems: "flex-start",
-        }}
-      >
+      <Typography variant="h4">Create User:</Typography>
+      <Stack spacing={2}>
         <TextField
-          id="fullName-tfd"
-          label="Fullname"
+          id="firstName-textfield"
+          label="firstName"
           variant="standard"
           style={{ width: "100%" }}
-          value={user.fullName}
-          onChange={(e) => setUser({ ...user, fullName: e.target.value })}
-          slotProps={{
-            input: {
-              readOnly: !isEditableFullName,
-              endAdornment: (
-                <EditIcon
-                  onClick={() => setIsEditableFullName(!isEditableFullName)}
-                  style={{
-                    cursor: "pointer",
-                    color: isEditableFullName ? "black" : "gray",
-                  }}
-                />
-              ),
-            },
-          }}
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+        />
+        <TextField
+          id="lastName-textfield"
+          label="lastName"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+        />
+        <TextField
+          id="username-textfield"
+          label="username"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <TextField
+          id="email-textfield"
+          label="email"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <TextField
-          id="email-tfd"
-          label="Email"
+          id="password-textfield"
+          label="password"
           variant="standard"
-          value={user.email}
           style={{ width: "100%" }}
-          helperText="This field is read-only"
-          slotProps={{
-            input: {
-              readOnly: true,
-            },
-          }}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
-
-        <FormControlLabel
-          control={
-            <Switch
-              checked={Boolean(user.accountStatus)}
-              onChange={(e) => {
-                setUser({ ...user, accountStatus: e.target.checked ? 1 : 0 });
-              }}
-            />
-          }
-          label="Account Status"
-          labelPlacement="start"
+        <TextField
+          id="phone-textfield"
+          label="phone"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
         />
-        <Button variant="contained" color="error" onClick={handleRemoveUser}>
-          Eliminar
-        </Button>
+        <Stack direction="row" spacing={2}>
+          <Button color="primary" variant="contained" onClick={handleUpdate}>
+            Update
+          </Button>
+          <Link href="/auth/users">
+            <Button color="error" variant="contained">
+              Cancel
+            </Button>
+          </Link>
+        </Stack>
       </Stack>
 
       <Divider className="my-8" />
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={{ xs: 1, sm: 2, md: 4 }}
-        sx={{
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h5">Roles:</Typography>
-        <EditAuthDialog
-          wasEdited={wasEditedRoles}
-          setWasEdited={setWasEditedRoles}
-          getOriginalData={getRoles}
-          updateBelongingData={updateUserRoles}
-          belongingData={user.roles}
-          belongingDataId={user.id}
-        />
-      </Stack>
-      {user.roles.map((role) => (
-        <div key={role.id} className="my-4">
-          <Typography variant="h6">{role.name} Role Permissions:</Typography>
-          <TableContainer component={Paper}>
-            <Table
-              sx={{ minWidth: 650 }}
-              size="small"
-              aria-label="simple table"
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell align="left">Permission Name</TableCell>
-                  <TableCell align="left">Permission Description</TableCell>
-                  <TableCell align="left">Active/Inactive</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {role.permissions.map((perm) => (
-                  <TableRow key={perm.id}>
-                    <TableCell align="left">{perm.name}</TableCell>
-                    <TableCell align="left">{perm.description}</TableCell>
-                    <TableCell align="left">
-                      <Switch />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-      ))}
 
-      <Divider className="my-8" />
-
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={{ xs: 1, sm: 2, md: 4 }}
-        sx={{
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h5">Direct Permissions:</Typography>
-        <EditAuthDialog
-          wasEdited={wasEditedDirectPermissions}
-          setWasEdited={setWasEditedDirectPermissions}
-          getOriginalData={getPermissionsWithOutDescription}
-          updateBelongingData={updateUserDirectPermissions}
-          belongingData={user.directPermissions}
-          belongingDataId={user.id}
-        />
-      </Stack>
-      <TableContainer component={Paper} className="my-4">
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell align="left">Permission Name</TableCell>
-              <TableCell align="left">Permission Description</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {user.directPermissions.map((perm) => (
-              <TableRow key={perm.id}>
-                <TableCell align="left">{perm.name}</TableCell>
-                <TableCell align="left">{perm.description}</TableCell>
-              </TableRow>
+      <Box sx={{ width: "100%", typography: "body1" }}>
+        <TabContext value={value}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <TabList onChange={handleChange} aria-label="authorization tabs">
+              <Tab label="Roles" value="1" />
+              <Tab label="Direct Permission" value="2" />
+            </TabList>
+          </Box>
+          <TabPanel value="1">
+            <Typography variant="h5">Add and remove roles:</Typography>
+            <Typography variant="h6">Selected roles:</Typography>
+            {selectedRoles.map((role) => (
+              <div key={role.id} className="my-4">
+                <Stack direction="row" spacing={2}>
+                  <Typography variant="h6">
+                    {role.name} Role with Permissions:
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => handleRemoveRole(role.id)}
+                  >
+                    Remover
+                  </Button>
+                </Stack>
+                <TableContainer component={Paper}>
+                  <Table
+                    sx={{ minWidth: 650 }}
+                    size="small"
+                    aria-label="simple table"
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="left">Name</TableCell>
+                        <TableCell align="left">Description</TableCell>
+                        <TableCell align="left">Active/Inactive</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {role.permissions.map((perm) => (
+                        <TableRow key={perm.id}>
+                          <TableCell align="left">{perm.name}</TableCell>
+                          <TableCell align="left">{perm.description}</TableCell>
+                          <TableCell align="left">
+                            <Switch
+                              checked={checkedPermission}
+                              onChange={handleChangeActivePermission}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            <Divider className="my-8" />
+            <Typography variant="h6">Roles to be selected:</Typography>
+            {roles.map((role) => (
+              <div key={role.id} className="my-4">
+                <Stack direction="row" spacing={2}>
+                  <Typography variant="h6">
+                    {role.name} Role with Permissions:
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleAddRole(role.id)}
+                  >
+                    Add
+                  </Button>
+                </Stack>
+                <TableContainer component={Paper}>
+                  <Table
+                    sx={{ minWidth: 650 }}
+                    size="small"
+                    aria-label="simple table"
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="left">Name</TableCell>
+                        <TableCell align="left">Description</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {role.permissions.map((perm) => (
+                        <TableRow key={perm.id}>
+                          <TableCell align="left">{perm.name}</TableCell>
+                          <TableCell align="left">{perm.description}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+            ))}
+          </TabPanel>
+          <TabPanel value="2">
+            <Typography variant="h6">Permissions Selected: </Typography>
+            <TableContainer component={Paper} className="my-4">
+              <Table
+                sx={{ minWidth: 650 }}
+                size="small"
+                aria-label="simple table"
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="left">Name</TableCell>
+                    <TableCell align="left">Description</TableCell>
+                    <TableCell align="left">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {selectedPermissions.map((perm) => (
+                    <TableRow key={perm.id}>
+                      <TableCell align="left">{perm.name}</TableCell>
+                      <TableCell align="left">{perm.description}</TableCell>
+                      <TableCell align="left">
+                        <Button
+                          variant="contained"
+                          onClick={() => handleRemovePermission(perm)}
+                          color="error"
+                        >
+                          Remove
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            <Divider className="my-8" />
+            <Typography variant="h6">Permissions: </Typography>
+            <TableContainer component={Paper} className="my-4">
+              <Table
+                sx={{ minWidth: 650 }}
+                size="small"
+                aria-label="simple table"
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="left">Name</TableCell>
+                    <TableCell align="left">Description</TableCell>
+                    <TableCell align="left">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {permissions.map((perm) => (
+                    <TableRow key={perm.id}>
+                      <TableCell align="left">{perm.name}</TableCell>
+                      <TableCell align="left">{perm.description}</TableCell>
+                      <TableCell align="left">
+                        <Button
+                          variant="contained"
+                          onClick={() => handleAddPermission(perm)}
+                        >
+                          Add
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </TabPanel>
+        </TabContext>
+      </Box>
     </Container>
   );
-};
-
-export default UserPage;
+}

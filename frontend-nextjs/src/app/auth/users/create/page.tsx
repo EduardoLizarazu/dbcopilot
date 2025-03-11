@@ -14,6 +14,7 @@ import {
   Link,
   Paper,
   Stack,
+  Switch,
   Tab,
   Table,
   TableBody,
@@ -210,6 +211,7 @@ export default function CreateUserPage() {
                       <TableRow>
                         <TableCell align="left">Name</TableCell>
                         <TableCell align="left">Description</TableCell>
+                        <TableCell align="left">Active/Inactive</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -217,6 +219,12 @@ export default function CreateUserPage() {
                         <TableRow key={perm.id}>
                           <TableCell align="left">{perm.name}</TableCell>
                           <TableCell align="left">{perm.description}</TableCell>
+                          <TableCell align="left">
+                            <Switch
+                              checked={checkedPermission}
+                              onChange={handleChangeActivePermission}
+                            />
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

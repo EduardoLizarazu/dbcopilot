@@ -48,7 +48,7 @@ export default function UsersPage() {
   return (
     <Container>
       <Typography variant="h6">Roles</Typography>
-      <Link href="/auth/user/create">
+      <Link href="/auth/users/create">
         <Button variant="contained" color="primary">
           Create
         </Button>
