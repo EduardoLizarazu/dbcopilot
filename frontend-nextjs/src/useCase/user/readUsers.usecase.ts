@@ -18,7 +18,7 @@ export class ReadUsersUseCase {
   async execute(): Promise<ReadUserUseCaseOutput[]> {
     const users = await this.userRepository.getAllUsers();
     const usersDTO = ReadUserDTO.createFromList(users);
-    ReadUserDTO.toEntityFromList(usersDTO);
+    // ReadUserDTO.toEntityFromList(usersDTO);
     const basicUserOutput = ReadUserDTO.toListOfObjects(usersDTO);
 
     const basicRoleOutput = users.map((user) => user.roles);
@@ -28,12 +28,12 @@ export class ReadUsersUseCase {
 
     const output = basicUserOutput.map((user, index) => {
       return {
-        user: user,
+        user,
         roles: basicRoleOutput[index],
         directPermissions: basicDirectPermissionOutput[index],
       };
     });
-
+    console.log("ReadUsersUseCaseOutput", output);
     return output;
   }
 }

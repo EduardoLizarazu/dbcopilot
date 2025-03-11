@@ -9,6 +9,7 @@ import {
 import {
   CreateUserUseCaseInput,
   ReadUserUseCaseOutput,
+  UpdateUserUseCaseInput,
 } from "@/useCase/index.usecase";
 
 export const CreateUser = async (data: CreateUserUseCaseInput) => {

@@ -19,4 +19,5 @@ export { ReadUsersUseCase } from "./user/readUsers.usecase";
 export type { ReadUserUseCaseOutput } from "./user/readUsers.usecase";
 export { ReadUserByIdUseCase } from "./user/readUserById.usecase";
 export { UpdateUserUseCase } from "./user/updateUser.usecase";
+export type { UpdateUserUseCaseInput } from "./user/updateUser.usecase";
 export { DeleteUserUseCase } from "./user/deleteUser.usecase";
