@@ -1,6 +1,3 @@
-import { RoleEntity } from "./role.domain.entity";
-import { PermissionEntity } from "./permission.domain.entity";
-import { UserEntity } from "./user.domain.entity";
-
-
-export { RoleEntity, PermissionEntity, UserEntity };
+export { RoleEntity } from "./role.domain.entity";
+export { PermissionEntity } from "./permission.domain.entity";
+export { UserEntity } from "./user.domain.entity";

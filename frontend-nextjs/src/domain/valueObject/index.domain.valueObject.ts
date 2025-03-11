@@ -1,5 +1,3 @@
-import { IdValueObject } from "./id.domain.valueObject";
-import { EmailValueObject } from "./email.valueObject" ;
-import { PhoneValueObject } from "./phone.valueObject" ;
-
-export { IdValueObject, EmailValueObject, PhoneValueObject };
+export { IdValueObject } from "./id.domain.valueObject";
+export { EmailValueObject } from "./email.valueObject";
+export { PhoneValueObject } from "./phone.valueObject";
