@@ -66,6 +66,13 @@ export default function CreateUserPage() {
           );
         });
 
+        // Filter the selectedPermissions that are already on the role's permissions
+        setSelectedPermissions(
+          selectedPermissions.filter((perm) => {
+            return permissionsFiltered.some((p) => p.id === perm.id);
+          })
+        );
+
         // Filter the permissions that are already on the selected permissions
         const permissionsFiltered2 = permissionsFiltered.filter((perm) => {
           return !selectedPermissions.some((p) => p.id === perm.id);
