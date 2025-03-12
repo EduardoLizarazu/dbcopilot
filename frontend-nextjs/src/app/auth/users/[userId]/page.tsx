@@ -52,40 +52,63 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
     []
   );
 
+  // Fetch user data once when params change
   React.useEffect(() => {
     (async () => {
+      setLoading(true);
       const { userId } = await params;
       const { user, roles, directPermissions } = await GetUserById(
         parseInt(userId)
       );
       setId(user.id);
-      setUsername(user.username);
-      setEmail(user.email);
-      setFirstName(user.firstName);
-      setLastName(user.lastName);
-      setPhone(user.phone);
+      setUsername(user.username || "");
+      setEmail(user.email || "");
+      setFirstName(user.firstName || "");
+      setLastName(user.lastName || "");
+      setPhone(user.phone || "");
+      setSelectedRoles(roles || []);
+      setSelectedPermissions(directPermissions || []);
+      setLoading(false);
+    })();
+  }, [params]);
 
+  // Fetch roles and permissions once and store them`
+  React.useEffect(() => {
+    (async () => {
       if (value === "1") {
-        setSelectedRoles(roles);
         const allRoles = await GetRoles();
         setRoles(
-          allRoles.filter((role) => !roles.some((r) => r.id === role.id))
-        );
-      }
-      if (value === "2") {
-        setSelectedPermissions(directPermissions);
-        const allPermissions = await GetPermissions();
-        setPermissions(
-          allPermissions.filter(
-            (perm) => !directPermissions.some((p) => p.id === perm.id)
+          allRoles.filter(
+            (role) => !selectedRoles.some((r) => r.id === role.id)
           )
         );
       }
-      setLoading(false);
+      if (value === "2") {
+        const allPermissions = await GetPermissions();
+        // Filter the permissions that are already on the role's permissions
+        const permissionsFiltered = allPermissions.filter((perm) => {
+          return !selectedRoles.some((role) =>
+            role.permissions.some((p) => p.id === perm.id)
+          );
+        });
+
+        // Filter the permissions that are already on the selected permissions
+        const permissionsFiltered2 = permissionsFiltered.filter((perm) => {
+          return !selectedPermissions.some((p) => p.id === perm.id);
+        });
+
+        console.log("allPermissions", allPermissions);
+        console.log("permissionsFiltered", permissionsFiltered);
+        console.log("permissionsFiltered2", permissionsFiltered2);
+        console.log("selectedRoles", selectedRoles);
+
+        setPermissions(permissionsFiltered2);
+      }
     })();
-  }, [value, params]);
+  }, [selectedPermissions, selectedRoles, value]);
 
   // HANDLERS
+
   function handleChange(event: React.SyntheticEvent, newValue: string) {
     setValue(newValue);
   }

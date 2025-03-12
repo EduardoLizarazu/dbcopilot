@@ -23,20 +23,24 @@ export class UserRepository extends IUserRepository {
             id: 1,
             name: "admin",
             permissions: [
-              { id: 1, name: "read:users", description: "read users" },
-              { id: 3, name: "delete:users", description: "delete users" },
+              { id: 1, name: "Create", description: "Create" },
+              { id: 2, name: "Read", description: "Read" },
+              { id: 3, name: "Update", description: "Update" },
+              { id: 4, name: "Delete", description: "Delete" },
             ],
           },
           {
             id: 2,
             name: "finance",
             permissions: [
-              { id: 2, name: "write:users", description: "write users" },
+              { id: 5, name: "Create 2", description: "Create 2" },
+              { id: 6, name: "Read 2", description: "Read 2" },
+              { id: 7, name: "Update 2", description: "Update 2" },
             ],
           },
         ],
         directPermissions: [
-          { id: 2, name: "write:users", description: "write users" },
+          { id: 8, name: "Delete 2", description: "Delete 2" },
         ],
         username: "snowjon",
       },
