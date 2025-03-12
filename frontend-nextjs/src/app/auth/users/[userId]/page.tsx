@@ -66,12 +66,20 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
       setPhone(user.phone);
 
       if (value === "1") {
-        setRoles(await GetRoles());
         setSelectedRoles(roles);
+        const allRoles = await GetRoles();
+        setRoles(
+          allRoles.filter((role) => !roles.some((r) => r.id === role.id))
+        );
       }
       if (value === "2") {
-        setPermissions(await GetPermissions());
         setSelectedPermissions(directPermissions);
+        const allPermissions = await GetPermissions();
+        setPermissions(
+          allPermissions.filter(
+            (perm) => !directPermissions.some((p) => p.id === perm.id)
+          )
+        );
       }
       setLoading(false);
     })();
@@ -236,8 +244,7 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
                           <TableCell align="left">{perm.description}</TableCell>
                           <TableCell align="left">
                             <Switch
-                            // checked={checkedPermission}
-                            // onChange={handleChangeActivePermission}
+                            //
                             />
                           </TableCell>
                         </TableRow>
