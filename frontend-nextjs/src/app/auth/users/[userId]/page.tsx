@@ -85,14 +85,23 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
       }
       if (value === "2") {
         const allPermissions = await GetPermissions();
-        // Filter the permissions that are already on the role's permissions
+        // Filter the permissions on allPermissions that are already on the role's permissions
         const permissionsFiltered = allPermissions.filter((perm) => {
           return !selectedRoles.some((role) =>
             role.permissions.some((p) => p.id === perm.id)
           );
         });
 
-        // Filter the permissions that are already on the selected permissions
+        // Filter the permissions on selectedPermissions that are already on the role's permissions
+        setSelectedPermissions(
+          selectedPermissions.filter((perm) => {
+            return !selectedRoles.some((role) =>
+              role.permissions.some((p) => p.id === perm.id)
+            );
+          })
+        );
+
+        // Filter the permissions on allPermissions that are already on the selected permissions
         const permissionsFiltered2 = permissionsFiltered.filter((perm) => {
           return !selectedPermissions.some((p) => p.id === perm.id);
         });
@@ -100,7 +109,7 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
         setPermissions(permissionsFiltered2);
       }
     })();
-  }, [selectedPermissions, selectedRoles, value]);
+  }, [value]);
 
   // HANDLERS
 
