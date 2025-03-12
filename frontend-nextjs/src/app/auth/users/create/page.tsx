@@ -48,8 +48,31 @@ export default function CreateUserPage() {
 
   React.useEffect(() => {
     (async () => {
-      if (value === "1") setRoles(await GetRoles());
-      if (value === "2") setPermissions(await GetPermissions());
+      if (value === "1") {
+        const allRoles = await GetRoles();
+        setRoles(
+          allRoles.filter(
+            (role) => !selectedRoles.some((r) => r.id === role.id)
+          )
+        );
+      }
+      if (value === "2") {
+        const allPermissions = await GetPermissions();
+
+        // Filter the permissions that are already on the role's permissions
+        const permissionsFiltered = allPermissions.filter((perm) => {
+          return !selectedRoles.some((role) =>
+            role.permissions.some((p) => p.id === perm.id)
+          );
+        });
+
+        // Filter the permissions that are already on the selected permissions
+        const permissionsFiltered2 = permissionsFiltered.filter((perm) => {
+          return !selectedPermissions.some((p) => p.id === perm.id);
+        });
+
+        setPermissions(permissionsFiltered2);
+      }
       setLoading(false);
     })();
   }, [value]);
@@ -221,8 +244,8 @@ export default function CreateUserPage() {
                           <TableCell align="left">{perm.description}</TableCell>
                           <TableCell align="left">
                             <Switch
-                              checked={checkedPermission}
-                              onChange={handleChangeActivePermission}
+                            // checked={checkedPermission}
+                            // onChange={handleChangeActivePermission}
                             />
                           </TableCell>
                         </TableRow>
