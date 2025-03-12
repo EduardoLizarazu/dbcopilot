@@ -97,11 +97,6 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
           return !selectedPermissions.some((p) => p.id === perm.id);
         });
 
-        console.log("allPermissions", allPermissions);
-        console.log("permissionsFiltered", permissionsFiltered);
-        console.log("permissionsFiltered2", permissionsFiltered2);
-        console.log("selectedRoles", selectedRoles);
-
         setPermissions(permissionsFiltered2);
       }
     })();
