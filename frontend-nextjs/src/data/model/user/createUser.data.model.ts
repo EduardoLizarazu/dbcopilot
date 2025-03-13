@@ -1,4 +1,3 @@
 import { GetUsersDataModel } from "./getUser.data.model";
 
-export interface CreateUserDataModel extends Omit<GetUsersDataModel, 'id'> {}
-
+export type CreateUserDataModel = Omit<GetUsersDataModel, "id">;

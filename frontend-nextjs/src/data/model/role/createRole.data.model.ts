@@ -1,6 +1,3 @@
-import { GetPermissionDataModel } from "../index.data.model";
+import { GetRolesDataModel } from "../index.data.model";
 
-export interface CreateRoleDataModel {
-  name: string;
-  permissions: GetPermissionDataModel[];
-}
+export type CreateRoleDataModel = Omit<GetRolesDataModel, "id">;

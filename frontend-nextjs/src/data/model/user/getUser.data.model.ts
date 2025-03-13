@@ -1,4 +1,7 @@
-import { GetPermissionDataModel, GetRolesDataModel } from "../index.data.model";
+import {
+  GetPermissionDataModel,
+  GetRolesForUserDataModel,
+} from "../index.data.model";
 
 export interface GetUsersDataModel {
   id: number;
@@ -8,6 +11,6 @@ export interface GetUsersDataModel {
   username: string;
   email: string;
   password: string;
-  roles: GetRolesDataModel[];
+  roles: GetRolesForUserDataModel[];
   directPermissions: GetPermissionDataModel[];
 }

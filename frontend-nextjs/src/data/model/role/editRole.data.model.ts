@@ -1,3 +1,3 @@
-import { GetRolesDataModel } from "./role.data.model";
+import { GetRolesDataModel } from "../index.data.model";
 
-export interface EditRoleDataModel extends GetRolesDataModel {}
+export type EditRoleDataModel = GetRolesDataModel;

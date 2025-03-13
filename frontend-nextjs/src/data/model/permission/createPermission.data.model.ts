@@ -1,4 +1,3 @@
-export interface CreatePermissionDataModel {
-  name: string;
-  description: string;
-}
+import { GetPermissionDataModel } from "../index.data.model";
+
+export type CreatePermissionDataModel = Omit<GetPermissionDataModel, "id">;
