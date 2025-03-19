@@ -1,18 +1,14 @@
 import { IdValueObject } from "../valueObject/index.domain.valueObject";
+import { AbstractEntity } from "./abstract.domain.entity";
 
-class PermissionEntity {
-  private readonly _id: IdValueObject;
+class PermissionEntity extends AbstractEntity {
   private readonly _name: string;
   private readonly _description: string;
 
   constructor(id: IdValueObject, name: string, description: string) {
-    this._id = id;
+    super(id);
     this._name = name;
     this._description = description;
-  }
-
-  get id(): number {
-    return this._id.value;
   }
 
   get name(): string {

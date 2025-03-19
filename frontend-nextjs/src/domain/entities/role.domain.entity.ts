@@ -1,16 +1,12 @@
 import { IdValueObject } from "../valueObject/index.domain.valueObject";
+import { AbstractEntity } from "./abstract.domain.entity";
 
-class RoleEntity {
-  private readonly _id: IdValueObject;
+class RoleEntity extends AbstractEntity {
   private readonly _name: string;
 
   constructor(id: IdValueObject, name: string) {
-    this._id = id;
+    super(id);
     this._name = name;
-  }
-
-  get id(): number {
-    return this._id.value;
   }
 
   get name(): string {
