@@ -68,13 +68,13 @@ export class UserRepository extends IUserRepository {
             permissions: [
               {
                 id: 1,
-                name: "read:users",
+                name: "read users",
                 description: "read users",
                 isActive: true,
               },
               {
                 id: 3,
-                name: "delete:users",
+                name: "delete users",
                 description: "delete users",
                 isActive: true,
               },
@@ -86,7 +86,7 @@ export class UserRepository extends IUserRepository {
             permissions: [
               {
                 id: 2,
-                name: "write:users",
+                name: "write users",
                 description: "write users",
                 isActive: true,
               },
@@ -94,7 +94,7 @@ export class UserRepository extends IUserRepository {
           },
         ],
         directPermissions: [
-          { id: 2, name: "write:users", description: "write users" },
+          { id: 2, name: "write users", description: "write users" },
         ],
         username: "jane",
       },
