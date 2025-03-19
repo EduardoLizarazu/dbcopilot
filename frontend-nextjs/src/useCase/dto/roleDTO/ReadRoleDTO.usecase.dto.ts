@@ -36,4 +36,8 @@ export class ReadRoleDTO extends CreateRoleDTO {
   toEntity(): RoleEntity {
     return new RoleEntity(new IdValueObject(this.id), this.name);
   }
+
+  static createEntityFromListOfDTO(dto: ReadRoleDTO[]): RoleEntity[] {
+    return dto.map((role) => role.toEntity());
+  }
 }
