@@ -117,6 +117,26 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
     setValue(newValue);
   }
 
+  function handleOnChangeRolePerm(rolePermId: number) {
+    // find the permission
+    const permission = selectedRoles
+      .map((role) => role.permissions)
+      .flat()
+      .find((perm) => perm.id === rolePermId);
+    // find the role
+    const role = selectedRoles.find((role) =>
+      role.permissions.some((perm) => perm.id === rolePermId)
+    );
+    // update the permission
+    permission.isActive = !permission.isActive;
+    // update the role
+    role.permissions = role.permissions.map((perm) =>
+      perm.id === rolePermId ? permission : perm
+    );
+    // update the selected roles
+    setSelectedRoles(selectedRoles.map((r) => (r.id === role.id ? role : r)));
+  }
+
   function handleAddPermission(permission) {
     // add permission to selected permission
     setSelectedPermissions([...selectedPermissions, permission]);
@@ -271,7 +291,8 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
                           <TableCell align="left">{perm.description}</TableCell>
                           <TableCell align="left">
                             <Switch
-                            //
+                              checked={perm.isActive}
+                              onChange={() => handleOnChangeRolePerm(perm.id)}
                             />
                           </TableCell>
                         </TableRow>
