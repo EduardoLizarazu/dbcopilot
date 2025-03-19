@@ -1,7 +1,9 @@
+import { PermissionWithActivationEntity } from "@/domain/entities/permissionWithActivation.domain.entity";
 import {
   UpdatePermissionActivationDTO,
   UpdatePermissionActivationInput,
 } from "../index.usecase.dto";
+import { IdValueObject } from "@/domain/valueObject/index.domain.valueObject";
 
 export interface ReadPermissionActivationOutput
   extends UpdatePermissionActivationInput {
@@ -27,13 +29,30 @@ export class ReadPermissionActivationDTO extends UpdatePermissionActivationDTO {
     };
   }
 
-  static toObjectList(
+  toEntity(): PermissionWithActivationEntity {
+    return new PermissionWithActivationEntity(
+      new IdValueObject(this._id),
+      this._name,
+      this._description,
+      this._isActive
+    );
+  }
+
+  static fromDTOtoList(
     data: ReadPermissionActivationDTO[]
   ): ReadPermissionActivationOutput[] {
     return data.map((item) => item.toObject());
   }
 
-  static toDTOFromObjectList(
+  static fromDTOListToEntityList(
+    dtoList: ReadPermissionActivationDTO[]
+  ): PermissionWithActivationEntity[] {
+    return dtoList.map((dto) =>
+      new ReadPermissionActivationDTO(dto).toEntity()
+    );
+  }
+
+  static fromListToDTOList(
     data: ReadPermissionActivationOutput[]
   ): ReadPermissionActivationDTO[] {
     return data.map((item) => new ReadPermissionActivationDTO(item));
