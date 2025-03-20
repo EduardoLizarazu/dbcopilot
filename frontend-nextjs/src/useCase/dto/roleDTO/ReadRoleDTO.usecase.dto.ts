@@ -22,19 +22,19 @@ export class ReadRoleDTO extends CreateRoleDTO {
     return roles.map((role) => new ReadRoleDTO(role));
   }
 
-  static toListOfObjects(roles: ReadRoleDTO[]): ReadRoleOutput[] {
+  static toObjectListFromDTO(roles: ReadRoleDTO[]): ReadRoleOutput[] {
     return roles.map((role) => role.toObject());
   }
 
   toObject(): ReadRoleOutput {
     return {
       id: this._id,
-      name: this.name,
+      name: this._name,
     };
   }
 
   toEntity(): RoleEntity {
-    return new RoleEntity(new IdValueObject(this.id), this.name);
+    return new RoleEntity(new IdValueObject(this._id), this._name);
   }
 
   static createEntityFromListOfDTO(dto: ReadRoleDTO[]): RoleEntity[] {
