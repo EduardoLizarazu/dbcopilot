@@ -42,7 +42,7 @@ export class ReadUserByIdUseCase {
 
     // OUTPUT
     const userOutput = userDTO.toObject();
-    const rolesObject = ReadRoleDTO.toListOfObjects(roleDTO);
+    const rolesObject = ReadRoleDTO.toObjectListFromDTO(roleDTO);
     const directPermissionsOutput =
       ReadPermissionDTO.fromDTOtoListOfObject(directPermissionsDTO);
     const permissionOfRoleObject =
