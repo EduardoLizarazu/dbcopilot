@@ -68,11 +68,11 @@ export default function ChatPage() {
   }
 
   return (
-    <Stack spacing={3} sx={{ width: "100%", mx: 10 }}>
+    <Stack spacing={3} direction="column">
       <Typography variant="h4">Chat with your database</Typography>
 
       {/* Select database */}
-      <FormControl required sx={{ minWidth: 500 }}>
+      <FormControl required sx={{ minWidth: 100 }}>
         <InputLabel id="demo-simple-select-required-label">
           Select Database
         </InputLabel>
@@ -99,7 +99,7 @@ export default function ChatPage() {
       {/* Prompt */}
       <Box
         component="form"
-        sx={{ "& .MuiTextField-root": { minWidth: 500 } }}
+        sx={{ "& .MuiTextField-root": { minWidth: 100 } }}
         autoComplete="off"
       >
         <TextField
