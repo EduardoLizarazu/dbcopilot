@@ -24,3 +24,11 @@ Transfer -> API : UserId
 API -> Transfer : User with Roles and Roles (do the edition)
 Dialog -> API : Send or Cancel the rq
 Question: how can I gather the data from Transfer to Dialog, or transfer manage to know when Dialog click send.
+
+--------------------------------------------------
+Chat
+1. Prompt
+2. Retrievable Excel
+3. Chat Story
+4. Dashboard
+5. Schema
