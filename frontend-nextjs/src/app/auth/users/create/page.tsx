@@ -26,6 +26,15 @@ import {
   Typography,
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { CreateUserUseCaseInput } from "@/useCase/index.usecase";
+import {
+  ReadPermissionOutput,
+  UpdatePermissionActivationInput,
+} from "@/useCase/dto/index.usecase.dto";
+import {
+  GetRolesDataModel,
+  GetRolesForUserDataModel,
+} from "@/data/model/index.data.model";
 
 export default function CreateUserPage() {
   // HOOK
@@ -38,13 +47,17 @@ export default function CreateUserPage() {
   const [lastName, setLastName] = React.useState<string>("");
   const [phone, setPhone] = React.useState<string>("");
 
-  const [roles, setRoles] = React.useState<any[]>([]);
-  const [selectedRoles, setSelectedRoles] = React.useState<any[]>([]);
+  const [roles, setRoles] = React.useState<GetRolesDataModel[]>([]);
+  const [selectedRoles, setSelectedRoles] = React.useState<
+    GetRolesForUserDataModel[]
+  >([]);
 
-  const [permissions, setPermissions] = React.useState<any[]>([]);
-  const [selectedPermissions, setSelectedPermissions] = React.useState<any[]>(
+  const [permissions, setPermissions] = React.useState<ReadPermissionOutput[]>(
     []
   );
+  const [selectedPermissions, setSelectedPermissions] = React.useState<
+    ReadPermissionOutput[]
+  >([]);
 
   React.useEffect(() => {
     (async () => {
@@ -89,13 +102,40 @@ export default function CreateUserPage() {
     setValue(newValue);
   }
 
-  function handleAddPermission(permission) {
+  function handleOnChangeRolePerm(rolePermId: number, roleId: number) {
+    // find the permission
+    const permission = selectedRoles
+      .find((role) => role.id === roleId)
+      ?.permissions.find((perm) => perm.id === rolePermId);
+
+    if (permission) {
+      permission.isActive = !permission.isActive;
+      setSelectedRoles(
+        selectedRoles.map((role) => {
+          if (role.id === roleId) {
+            return {
+              ...role,
+              permissions: role.permissions.map((perm) => {
+                if (perm.id === rolePermId) {
+                  return permission;
+                }
+                return perm;
+              }),
+            };
+          }
+          return role;
+        })
+      );
+    }
+  }
+
+  function handleAddPermission(permission: ReadPermissionOutput) {
     // add permission to selected permission
     setSelectedPermissions([...selectedPermissions, permission]);
     // remove permission from permissions
     setPermissions(permissions.filter((perm) => perm.id !== permission.id));
   }
-  function handleRemovePermission(permission) {
+  function handleRemovePermission(permission: ReadPermissionOutput) {
     // remove permission from selected permission
     setSelectedPermissions(
       selectedPermissions.filter((perm) => perm.id !== permission.id)
@@ -105,7 +145,24 @@ export default function CreateUserPage() {
   }
 
   async function handleCreate() {
-    const createUserDto = {
+    // Only permissions of the role with the ID of its specific role
+    const rolePermission: (UpdatePermissionActivationInput & {
+      roleId: number;
+    })[] = selectedRoles
+      .map((role) => {
+        return role.permissions.map((perm) => {
+          return {
+            roleId: role.id,
+            id: perm.id,
+            name: perm.name,
+            description: perm.description,
+            isActive: perm.isActive,
+          };
+        });
+      })
+      .flat();
+
+    const createUserDto: CreateUserUseCaseInput = {
       user: {
         username,
         email,
@@ -116,21 +173,36 @@ export default function CreateUserPage() {
       },
       role: selectedRoles,
       permission: selectedPermissions,
+      rolePermission: rolePermission,
     };
+    console.log(createUserDto);
     await CreateUser(createUserDto);
     // go back to users page
-    window.location.href = "/auth/users";
+    // window.location.href = "/auth/users";
   }
 
-  function handleAddRole(roleId) {
+  function handleAddRole(roleId: number) {
     const role = roles.find((role) => role.id === roleId);
-    setSelectedRoles([...selectedRoles, role]);
+    if (role) {
+      setSelectedRoles([
+        ...selectedRoles,
+        {
+          ...role,
+          permissions: role.permissions.map((perm) => ({
+            ...perm,
+            isActive: false,
+          })),
+        },
+      ]);
+    }
     setRoles(roles.filter((r) => r.id !== roleId));
   }
 
-  function handleRemoveRole(roleId) {
+  function handleRemoveRole(roleId: number) {
     const role = selectedRoles.find((role) => role.id === roleId);
-    setRoles([...roles, role]);
+    if (role) {
+      setRoles([...roles, role]);
+    }
     setSelectedRoles(selectedRoles.filter((r) => r.id !== roleId));
   }
 
@@ -251,8 +323,10 @@ export default function CreateUserPage() {
                           <TableCell align="left">{perm.description}</TableCell>
                           <TableCell align="left">
                             <Switch
-                            // checked={checkedPermission}
-                            // onChange={handleChangeActivePermission}
+                              checked={perm.isActive}
+                              onChange={() =>
+                                handleOnChangeRolePerm(perm.id, role.id)
+                              }
                             />
                           </TableCell>
                         </TableRow>
