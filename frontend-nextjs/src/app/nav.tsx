@@ -17,8 +17,45 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+import InfoIcon from "@mui/icons-material/Info";
+import HomeIcon from "@mui/icons-material/Home";
+import ContactsIcon from "@mui/icons-material/Contacts";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PeopleIcon from "@mui/icons-material/People";
+import TheaterComedyIcon from "@mui/icons-material/TheaterComedy";
+import SecurityIcon from "@mui/icons-material/Security";
+import ChatIcon from "@mui/icons-material/Chat";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
+
+const links = [
+  { href: "/", label: "Home", icon: <HomeIcon /> },
+  { href: "/auth/users", label: "User Management", icon: <PeopleIcon /> },
+  {
+    href: "/auth/roles",
+    label: "Role",
+    icon: <TheaterComedyIcon />,
+  },
+  {
+    href: "/auth/permissions",
+    label: "Permission",
+    icon: <SecurityIcon />,
+  },
+  {
+    href: "/chat",
+    label: "Chat",
+    icon: <ChatIcon />,
+  },
+  {
+    href: "/profile",
+    label: "Profile",
+    icon: <AccountBoxIcon />,
+  },
+  { href: "/contact", label: "Contact", icon: <ContactsIcon /> },
+  { href: "/about", label: "About", icon: <InfoIcon /> },
+  { href: "/login", label: "Login", icon: <LoginIcon /> },
+  { href: "/logout", label: "Logout", icon: <LogoutIcon /> },
+];
 
 const drawerWidth = 240;
 
@@ -136,7 +173,7 @@ export default function MiniDrawer() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
+            NaturalQuery
           </Typography>
         </Toolbar>
       </AppBar>
@@ -152,8 +189,8 @@ export default function MiniDrawer() {
         </DrawerHeader>
         <Divider />
         <List>
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block" }}>
+          {links.map((item) => (
+            <ListItem key={item.label} disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 sx={[
                   {
@@ -184,62 +221,10 @@ export default function MiniDrawer() {
                         },
                   ]}
                 >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  {item.icon}
                 </ListItemIcon>
                 <ListItemText
-                  primary={text}
-                  sx={[
-                    open
-                      ? {
-                          opacity: 1,
-                        }
-                      : {
-                          opacity: 0,
-                        },
-                  ]}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          {["All mail", "Trash", "Spam"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                sx={[
-                  {
-                    minHeight: 48,
-                    px: 2.5,
-                  },
-                  open
-                    ? {
-                        justifyContent: "initial",
-                      }
-                    : {
-                        justifyContent: "center",
-                      },
-                ]}
-              >
-                <ListItemIcon
-                  sx={[
-                    {
-                      minWidth: 0,
-                      justifyContent: "center",
-                    },
-                    open
-                      ? {
-                          mr: 3,
-                        }
-                      : {
-                          mr: "auto",
-                        },
-                  ]}
-                >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText
-                  primary={text}
+                  primary={item.label}
                   sx={[
                     open
                       ? {
