@@ -2,13 +2,13 @@ import { UserRepository } from "@/data/repo/index.data.repo";
 import {
   ReadUserOutput,
   ReadUserDTO,
-  ReadRoleOutput,
   ReadPermissionOutput,
 } from "../dto/index.usecase.dto";
+import { GetRolesForUserDataModel } from "@/data/model/index.data.model";
 
 export interface ReadUserUseCaseOutput {
   user: ReadUserOutput;
-  roles: ReadRoleOutput[];
+  roles: GetRolesForUserDataModel[];
   directPermissions: ReadPermissionOutput[];
 }
 
