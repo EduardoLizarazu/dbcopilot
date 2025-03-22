@@ -142,7 +142,11 @@ const Drawer = styled(MuiDrawer, {
   ],
 }));
 
-export default function MiniDrawer() {
+export default function MiniDrawer({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -192,7 +196,7 @@ export default function MiniDrawer() {
         <List>
           {links.map((item) => (
             <ListItem key={item.label} disablePadding sx={{ display: "block" }}>
-              <Link href={item.href} underline="none">
+              <Link href={item.href} underline="none" color="inherit">
                 <ListItemButton
                   sx={[
                     {
@@ -243,6 +247,11 @@ export default function MiniDrawer() {
           ))}
         </List>
       </Drawer>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <DrawerHeader />
+        {/* Add your content here */}
+        {children}
+      </Box>
     </Box>
   );
 }
