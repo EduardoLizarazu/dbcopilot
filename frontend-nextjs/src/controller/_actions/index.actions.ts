@@ -19,3 +19,4 @@ export {
   GetUsers,
   UpdateUser,
 } from "./user/user.action";
+export { GetConnectionAction } from "./connection/connection.action";

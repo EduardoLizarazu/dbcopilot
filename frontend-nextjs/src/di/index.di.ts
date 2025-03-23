@@ -1,4 +1,5 @@
 import {
+  ConnectionRepository,
   PermissionRepository,
   RoleRepository,
   UserRepository,
@@ -19,6 +20,7 @@ import {
   ReadUserByIdUseCase,
   UpdateUserUseCase,
   DeleteUserUseCase,
+  ReadConnectionsUseCase,
 } from "@useCases/index.usecase";
 
 // ROLE SERVICE
@@ -51,3 +53,8 @@ export const GetUsersService = new ReadUsersUseCase(new UserRepository());
 export const GetUserByIdService = new ReadUserByIdUseCase(new UserRepository());
 export const UpdateUserService = new UpdateUserUseCase(new UserRepository());
 export const DeleteUserService = new DeleteUserUseCase(new UserRepository());
+
+// CONNECTION SERVICE
+export const ReadConnectionsService = new ReadConnectionsUseCase(
+  new ConnectionRepository()
+);

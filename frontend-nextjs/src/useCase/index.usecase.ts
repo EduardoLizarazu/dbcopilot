@@ -21,3 +21,7 @@ export { ReadUserByIdUseCase } from "./user/readUserById.usecase";
 export { UpdateUserUseCase } from "./user/updateUser.usecase";
 export type { UpdateUserUseCaseInput } from "./user/updateUser.usecase";
 export { DeleteUserUseCase } from "./user/deleteUser.usecase";
+
+// CONNECTION USE CASES
+export { ReadConnectionsUseCase } from "./connection/readConnection.usecase";
+export type { ReadConnectionUseCaseOutput } from "./connection/readConnection.usecase";

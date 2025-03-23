@@ -13,3 +13,8 @@ export type { UpdatePermissionDataModel } from "@data/model/permission/updatePer
 export type { CreateUserDataModel } from "@data/model/user/createUser.data.model";
 export type { GetUsersDataModel } from "@data/model/user/getUser.data.model";
 export type { UpdateUserDataModel } from "@data/model/user/updateUser.data.model";
+
+// CONNECTION DATA MODEL
+export type { CreateConnectionDataModel } from "@data/model/connection/createConnection.data.model";
+export type { ReadConnectionDataModel } from "@data/model/connection/readConnection.data.model";
+export type { UpdateConnectionDataModel } from "@data/model/connection/updateConnection.data.model";

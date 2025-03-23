@@ -14,11 +14,9 @@ import {
   Typography,
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { GetConnectionAction } from "@/controller/_actions/index.actions";
+import { ReadConnectionUseCaseOutput } from "@useCases/index.usecase";
 
-interface DatabaseUseState {
-  id: string;
-  name: string;
-}
 enum TabResultValueEnum {
   Result = "1",
   SqlEditor = "2",
@@ -28,7 +26,9 @@ enum TabResultValueEnum {
 export default function ChatPage() {
   // USE STATES
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [database, setDatabase] = React.useState<DatabaseUseState[]>([]);
+  const [database, setDatabase] = React.useState<ReadConnectionUseCaseOutput[]>(
+    []
+  );
   const [selectedDatabase, setSelectedDatabase] = React.useState<string>("");
   const [prompt, setPrompt] = React.useState<string>("");
   const [result, setResult] = React.useState<string>("");
@@ -44,6 +44,8 @@ export default function ChatPage() {
     (async () => {
       setLoading(true);
       // Fetch data
+      const connDbs = await GetConnectionAction();
+      setDatabase(connDbs);
       setLoading(false);
     })();
   }, []);
