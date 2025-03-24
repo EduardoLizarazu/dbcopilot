@@ -28,9 +28,9 @@ export class PromptRepository extends IPromptRepository {
     await this.prompt.push({ ...data, id: this.prompt.length });
   }
   async getAllPrompts(): Promise<ReadPromptDataModel[]> {
-    return this.prompt;
+    return await this.prompt;
   }
   async getPromptById(id: number): Promise<ReadPromptDataModel | undefined> {
-    return this.prompt.find((prompt) => prompt.id === id);
+    return await this.prompt.find((prompt) => prompt.id === id);
   }
 }

@@ -38,3 +38,6 @@ export type { UpdateQueryDataModel } from "@data/model/query/updateQuery.data.mo
 export type { CreateInsightDataModel } from "@data/model/insight/createInsight.data.model";
 export type { ReadInsightDataModel } from "@data/model/insight/readInsight.data.model";
 export type { UpdateInsightDataModel } from "@data/model/insight/updateInsight.data.model";
+
+// CHAT DATA MODEL
+export type { CreateChatDataModel } from "@data/model/chat/createChat.data.model";
