@@ -11,66 +11,61 @@ export class ConnectionRepository extends IConnectionRepository {
   constructor() {
     super();
     this.connection = [
-      { id: 1, name: "Connection 1", description: "Connection 1" },
-      { id: 2, name: "Connection 2", description: "Connection 2" },
-      { id: 3, name: "Connection 3", description: "Connection 3" },
-      { id: 4, name: "Connection 4", description: "Connection 4" },
-      { id: 5, name: "Connection 5", description: "Connection 5" },
-      { id: 6, name: "Connection 6", description: "Connection 6" },
-      { id: 7, name: "Connection 7", description: "Connection 7" },
-      { id: 8, name: "Connection 8", description: "Connection 8" },
+      {
+        connectionName: "Connection 1",
+        description: "Connection 1 description",
+        databaseType: "PostgreSQL",
+        host: "localhost",
+        port: 5432,
+        databaseName: "postgres",
+        username: "postgres",
+        password: "password",
+        id: 0,
+      },
+      {
+        connectionName: "Connection 2",
+        description: "Connection 2 description",
+        databaseType: "MySQL",
+        host: "localhost",
+        port: 3306,
+        databaseName: "mysql",
+        username: "mysql",
+        password: "password",
+        id: 1,
+      },
+      {
+        connectionName: "Connection 3",
+        description: "Connection 3 description",
+        databaseType: "SQLite",
+        host: "localhost",
+        port: 0,
+        databaseName: "sqlite",
+        username: "sqlite",
+        password: "password",
+        id: 2,
+      },
     ];
   }
 
-  async createConnection(connection: CreateConnectionDataModel): Promise<void> {
-    try {
-      console.log("ConnectionRepository.createConnection");
-      this.connection.push({
-        id: this.connection.length + 1,
-        name: connection.name,
-        description: connection.description,
-      });
-    } catch (error) {
-      throw new Error("ConnectionRepository.createConnection" + error);
-    }
+  async createConnection(data: CreateConnectionDataModel): Promise<void> {
+    await this.connection.push({ ...data, id: this.connection.length });
   }
+
   async getAllConnections(): Promise<ReadConnectionDataModel[]> {
-    try {
-      console.log("ConnectionRepository.getAllConnections");
-      return this.connection;
-    } catch (error) {
-      throw new Error("ConnectionRepository.getAllConnections" + error);
-    }
+    return this.connection;
   }
+
   async getConnectionById(
     id: number
   ): Promise<ReadConnectionDataModel | undefined> {
-    try {
-      console.log("ConnectionRepository.getConnectionById");
-      return this.connection.find((x) => x.id === id);
-    } catch (error) {
-      throw new Error("ConnectionRepository.getConnectionById" + error);
-    }
+    return await Promise.resolve(this.connection.find((c) => c.id === id));
   }
   async updateConnection(connection: UpdateConnectionDataModel): Promise<void> {
-    try {
-      console.log("ConnectionRepository.updateConnection");
-      const index = this.connection.findIndex((x) => x.id === connection.id);
-      this.connection[index] = {
-        id: connection.id,
-        name: connection.name,
-        description: connection.description,
-      };
-    } catch (error) {
-      throw new Error("ConnectionRepository.updateConnection" + error);
-    }
+    this.connection = this.connection.map((c) =>
+      c.id === connection.id ? connection : c
+    );
   }
   async deleteConnection(id: number): Promise<void> {
-    try {
-      console.log("ConnectionRepository.deleteConnection");
-      this.connection = this.connection.filter((x) => x.id !== id);
-    } catch (error) {
-      throw new Error("ConnectionRepository.deleteConnection" + error);
-    }
+    this.connection = this.connection.filter((c) => c.id !== id);
   }
 }

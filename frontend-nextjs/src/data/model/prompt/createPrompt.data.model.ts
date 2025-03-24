@@ -1,3 +1,3 @@
 export interface CreatePromptDataModel {
-    text: string;
+  text: string;
 }

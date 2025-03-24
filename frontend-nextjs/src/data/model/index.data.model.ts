@@ -18,3 +18,23 @@ export type { UpdateUserDataModel } from "@data/model/user/updateUser.data.model
 export type { CreateConnectionDataModel } from "@data/model/connection/createConnection.data.model";
 export type { ReadConnectionDataModel } from "@data/model/connection/readConnection.data.model";
 export type { UpdateConnectionDataModel } from "@data/model/connection/updateConnection.data.model";
+
+// PROMPT DATA MODEL
+export type { CreatePromptDataModel } from "@data/model/prompt/createPrompt.data.model";
+export type { ReadPromptDataModel } from "@data/model/prompt/readPrompt.data.model";
+export type { UpdatePromptDataModel } from "@data/model/prompt/updatePrompt.data.model";
+
+// RESULT DATA MODEL
+export type { CreateResultDataModel } from "@data/model/result/createResult.data.model";
+export type { ReadResultDataModel } from "@data/model/result/readResult.data.model";
+export type { UpdateResultDataModel } from "@data/model/result/updateResult.data.model";
+
+// QUERY DATA MODEL
+export type { CreateQueryDataModel } from "@data/model/query/createQuery.data.model";
+export type { ReadQueryDataModel } from "@data/model/query/readQuery.data.model";
+export type { UpdateQueryDataModel } from "@data/model/query/updateQuery.data.model";
+
+// INSIGHT DATA MODEL
+export type { CreateInsightDataModel } from "@data/model/insight/createInsight.data.model";
+export type { ReadInsightDataModel } from "@data/model/insight/readInsight.data.model";
+export type { UpdateInsightDataModel } from "@data/model/insight/updateInsight.data.model";
