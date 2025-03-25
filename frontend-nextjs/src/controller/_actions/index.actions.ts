@@ -20,3 +20,5 @@ export {
   UpdateUser,
 } from "./user/user.action";
 export { GetConnectionAction } from "./connection/connection.action";
+
+export { CreateChatAction } from "./chat/chat.action";

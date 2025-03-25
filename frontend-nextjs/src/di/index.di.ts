@@ -1,4 +1,5 @@
 import {
+  ChatRepo,
   ConnectionRepository,
   PermissionRepository,
   RoleRepository,
@@ -21,6 +22,7 @@ import {
   UpdateUserUseCase,
   DeleteUserUseCase,
   ReadConnectionsUseCase,
+  CreateChatUseCase,
 } from "@useCases/index.usecase";
 
 // ROLE SERVICE
@@ -58,3 +60,6 @@ export const DeleteUserService = new DeleteUserUseCase(new UserRepository());
 export const ReadConnectionsService = new ReadConnectionsUseCase(
   new ConnectionRepository()
 );
+
+// CHAT SERVICE
+export const CreateChatService = new CreateChatUseCase(new ChatRepo());

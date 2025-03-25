@@ -25,3 +25,8 @@ export { DeleteUserUseCase } from "./user/deleteUser.usecase";
 // CONNECTION USE CASES
 export { ReadConnectionsUseCase } from "./connection/readConnection.usecase";
 export type { ReadConnectionUseCaseOutput } from "./connection/readConnection.usecase";
+
+// CHAT USE CASES
+export { CreateChatUseCase } from "./chat/createChat.usecase";
+export type { CreateChatUseCaseInput } from "./chat/createChat.usecase";
+export type { CreateChatUseCaseOutput } from "./chat/createChat.usecase";

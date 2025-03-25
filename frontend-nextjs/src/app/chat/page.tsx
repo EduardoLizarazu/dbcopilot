@@ -3,11 +3,15 @@ import React from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Container,
   FormControl,
   FormHelperText,
+  IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
+  OutlinedInput,
   Select,
   Stack,
   Tab,
@@ -15,9 +19,12 @@ import {
   Typography,
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { GetConnectionAction } from "@/controller/_actions/index.actions";
+import {
+  CreateChatAction,
+  GetConnectionAction,
+} from "@/controller/_actions/index.actions";
 import { ReadConnectionUseCaseOutput } from "@useCases/index.usecase";
-
+import EditIcon from "@mui/icons-material/Edit";
 enum TabResultValueEnum {
   Result = "1",
   SqlEditor = "2",
@@ -33,7 +40,9 @@ export default function ChatPage() {
   const [selectedDatabase, setSelectedDatabase] = React.useState<string>("");
   const [prompt, setPrompt] = React.useState<string>("");
   const [result, setResult] = React.useState<string>("");
-  const [sqlEditor, setSqlEditor] = React.useState<string>("");
+  const [sqlQuery, setSqlQuery] = React.useState<string>("");
+  const [isEditableSqlQuery, setIsEditableSqlQuery] =
+    React.useState<boolean>(false);
   const [insight, setInsight] = React.useState<string>("");
   const [schema, setSchema] = React.useState<string>("");
 
@@ -55,6 +64,19 @@ export default function ChatPage() {
   const handlerSubmitPrompt = async () => {
     // Fetch data
     console.log("Submit prompt", prompt);
+
+    const res = await CreateChatAction({
+      userId: { id: 1 },
+      connectionId: { id: 1 },
+      prompt: {
+        text: prompt,
+        userId: 1,
+      },
+    });
+
+    setResult(res.response.result.text);
+    setSqlQuery(res.response.query.originalQuery);
+    setInsight(res.response.insight.originalInsight);
   };
 
   const handleChangeTapResultBar = (event, newValue) => {
@@ -65,15 +87,19 @@ export default function ChatPage() {
     setSelectedDatabase(event.target.value);
   };
 
+  const handleClickEditSqlQuery = () => {
+    setIsEditableSqlQuery(!isEditableSqlQuery);
+  };
+
   // RENDERS
   if (loading) {
-    return <div>Loading...</div>;
+    return <CircularProgress />;
   }
 
   return (
     <Container>
       <Stack spacing={3} direction="column">
-        <Typography variant="h4">Chat with your database</Typography>
+        <Typography variant="h4">Chat with your database </Typography>
 
         {/* Select database */}
         <FormControl required sx={{ minWidth: 100 }}>
@@ -140,9 +166,49 @@ export default function ChatPage() {
                 <Tab label="INSIGHT" value="3" />
               </TabList>
             </Box>
-            <TabPanel value="1">RESULTS TAP: {result}</TabPanel>
-            <TabPanel value="2">SQL EDITOR TAP: {sqlEditor}</TabPanel>
-            <TabPanel value="3">INSIGHT TAP: {insight}</TabPanel>
+            <TabPanel value="1">
+              <TextField
+                label=""
+                placeholder=""
+                value={result}
+                multiline
+                variant="outlined"
+                rows={4}
+                fullWidth
+              />
+            </TabPanel>
+            <TabPanel value="2">
+              <TextField
+                label=""
+                placeholder=""
+                value={sqlQuery}
+                onChange={(e) => setSqlQuery(e.target.value)}
+                multiline
+                variant="outlined"
+                rows={4}
+                fullWidth
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleClickEditSqlQuery}
+                endIcon={<EditIcon />}
+              >
+                {isEditableSqlQuery ? "Save" : "Edit"}
+              </Button>
+            </TabPanel>
+            <TabPanel value="3">
+              <TextField
+                label=""
+                placeholder=""
+                value={insight}
+                onChange={(e) => setInsight(e.target.value)}
+                multiline
+                variant="outlined"
+                rows={4}
+                fullWidth
+              />
+            </TabPanel>
           </TabContext>
         </Box>
 

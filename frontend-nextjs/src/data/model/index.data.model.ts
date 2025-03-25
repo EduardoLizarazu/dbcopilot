@@ -40,4 +40,5 @@ export type { ReadInsightDataModel } from "@data/model/insight/readInsight.data.
 export type { UpdateInsightDataModel } from "@data/model/insight/updateInsight.data.model";
 
 // CHAT DATA MODEL
-export type { CreateChatDataModel } from "@data/model/chat/createChat.data.model";
+export type { ReqCreateChatDataModel } from "@/data/model/chat/reqCreateChat.data.model";
+export type { ResCreateChatDataModel } from "@/data/model/chat/resCreateChat.data.model";
