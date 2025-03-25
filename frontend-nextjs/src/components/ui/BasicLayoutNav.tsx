@@ -27,6 +27,7 @@ import TheaterComedyIcon from "@mui/icons-material/TheaterComedy";
 import SecurityIcon from "@mui/icons-material/Security";
 import ChatIcon from "@mui/icons-material/Chat";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import CableIcon from "@mui/icons-material/Cable";
 import { Link } from "@mui/material";
 
 const links = [
@@ -46,6 +47,11 @@ const links = [
     href: "/chat",
     label: "Chat",
     icon: <ChatIcon />,
+  },
+  {
+    href: "/connection",
+    label: "Db Connection",
+    icon: <CableIcon />,
   },
   {
     href: "/profile",
