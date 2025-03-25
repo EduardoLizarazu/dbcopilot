@@ -124,20 +124,34 @@ export default function CreateConnectionPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <Button variant="contained" color="secondary" onClick={handleTest}>
-          Test Connection
-        </Button>
-
-        <Stack direction="row" spacing={2}>
-          {/* Button for create */}
-          <Button variant="contained" color="primary" onClick={handleCreate}>
-            Create
-          </Button>
-
-          {/* Button for cancel */}
-          <Button variant="contained" color="error" onClick={handleCancel}>
-            Cancel
-          </Button>
+        <Stack
+          spacing={2}
+          direction="row"
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+          }}
+        >
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              alignItems: "center",
+            }}
+          >
+            <Button variant="contained" color="secondary" onClick={handleTest}>
+              Test Connection
+            </Button>
+            <Typography variant="body2">Success or Fail Connection</Typography>
+          </Stack>
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" color="primary" onClick={handleCreate}>
+              Create
+            </Button>
+            <Button variant="contained" color="error" onClick={handleCancel}>
+              Cancel
+            </Button>
+          </Stack>
         </Stack>
       </Stack>
     </Container>
