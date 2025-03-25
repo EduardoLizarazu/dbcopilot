@@ -166,17 +166,7 @@ export default function ChatPage() {
                 <Tab label="INSIGHT" value="3" />
               </TabList>
             </Box>
-            <TabPanel value="1">
-              <TextField
-                label=""
-                placeholder=""
-                value={result}
-                multiline
-                variant="outlined"
-                rows={4}
-                fullWidth
-              />
-            </TabPanel>
+            <TabPanel value="1">Dynamic table</TabPanel>
             <TabPanel value="2">
               <TextField
                 label=""
