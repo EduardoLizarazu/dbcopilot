@@ -7,11 +7,9 @@ import {
   Container,
   FormControl,
   FormHelperText,
-  IconButton,
-  InputAdornment,
   InputLabel,
+  Menu,
   MenuItem,
-  OutlinedInput,
   Select,
   Stack,
   Tab,
@@ -25,6 +23,8 @@ import {
 } from "@/controller/_actions/index.actions";
 import { ReadConnectionUseCaseOutput } from "@useCases/index.usecase";
 import EditIcon from "@mui/icons-material/Edit";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+
 enum TabResultValueEnum {
   Result = "1",
   SqlEditor = "2",
@@ -46,8 +46,20 @@ export default function ChatPage() {
   const [insight, setInsight] = React.useState<string>("");
   const [schema, setSchema] = React.useState<string>("");
 
+  const [exportType, setExportType] = React.useState<string>("");
+
   const [tabResultValue, setTabResultValue] =
     React.useState<TabResultValueEnum>(TabResultValueEnum.Result);
+
+  // Menu for export
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   // EFFECTS
   React.useEffect(() => {
@@ -91,9 +103,63 @@ export default function ChatPage() {
     setIsEditableSqlQuery(!isEditableSqlQuery);
   };
 
+  function handleExecuteSQLQuery(): void {
+    console.log("Execute SQL Query", sqlQuery);
+  }
+
   // RENDERS
   if (loading) {
     return <CircularProgress />;
+  }
+
+  const columns: GridColDef<(typeof rows)[number]>[] = [
+    { field: "id", headerName: "ID", width: 90 },
+    {
+      field: "firstName",
+      headerName: "First name",
+      width: 150,
+      editable: true,
+    },
+    {
+      field: "lastName",
+      headerName: "Last name",
+      width: 150,
+      editable: true,
+    },
+    {
+      field: "age",
+      headerName: "Age",
+      type: "number",
+      width: 110,
+      editable: true,
+    },
+    {
+      field: "fullName",
+      headerName: "Full name",
+      description: "This column has a value getter and is not sortable.",
+      sortable: false,
+      width: 160,
+      valueGetter: (value, row) =>
+        `${row.firstName || ""} ${row.lastName || ""}`,
+    },
+  ];
+
+  const rows = [
+    { id: 1, lastName: "Snow", firstName: "Jon", age: 14 },
+    { id: 2, lastName: "Lannister", firstName: "Cersei", age: 31 },
+    { id: 3, lastName: "Lannister", firstName: "Jaime", age: 31 },
+    { id: 4, lastName: "Stark", firstName: "Arya", age: 11 },
+    { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
+    { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
+    { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
+    { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
+    { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
+  ];
+
+  function handleExport(
+    event: MouseEvent<HTMLButtonElement, MouseEvent>
+  ): void {
+    console.log("Export", exportType);
   }
 
   return (
@@ -166,7 +232,49 @@ export default function ChatPage() {
                 <Tab label="INSIGHT" value="3" />
               </TabList>
             </Box>
-            <TabPanel value="1">Dynamic table</TabPanel>
+            <TabPanel value="1">
+              <Container sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  id="basic-button"
+                  aria-controls={open ? "basic-menu" : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? "true" : undefined}
+                  onClick={handleClick}
+                  variant="text"
+                >
+                  Export
+                </Button>
+                <Menu
+                  id="basic-menu"
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                  MenuListProps={{
+                    "aria-labelledby": "basic-button",
+                  }}
+                >
+                  <MenuItem onClick={handleClose}>Excel</MenuItem>
+                  <MenuItem onClick={handleClose}>CSV</MenuItem>
+                  <MenuItem onClick={handleClose}>PDF</MenuItem>
+                </Menu>
+              </Container>
+              <Box sx={{ height: 400, width: "100%" }}>
+                <DataGrid
+                  rows={rows}
+                  columns={columns}
+                  initialState={{
+                    pagination: {
+                      paginationModel: {
+                        pageSize: 5,
+                      },
+                    },
+                  }}
+                  pageSizeOptions={[5]}
+                  checkboxSelection
+                  disableRowSelectionOnClick
+                />
+              </Box>
+            </TabPanel>
             <TabPanel value="2">
               <TextField
                 label=""
@@ -175,17 +283,35 @@ export default function ChatPage() {
                 onChange={(e) => setSqlQuery(e.target.value)}
                 multiline
                 variant="outlined"
-                rows={4}
+                minRows={10}
+                maxRows={50}
                 fullWidth
+                aria-readonly={!isEditableSqlQuery}
+                disabled={!isEditableSqlQuery}
               />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleClickEditSqlQuery}
-                endIcon={<EditIcon />}
-              >
-                {isEditableSqlQuery ? "Save" : "Edit"}
-              </Button>
+              <Stack direction="row" spacing={2} style={{ marginTop: 10 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleClickEditSqlQuery}
+                  endIcon={
+                    isEditableSqlQuery ? (
+                      <EditIcon style={{ opacity: 0.3 }} />
+                    ) : (
+                      <EditIcon style={{ opacity: 1 }} />
+                    )
+                  }
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleExecuteSQLQuery}
+                >
+                  Execute
+                </Button>
+              </Stack>
             </TabPanel>
             <TabPanel value="3">
               <TextField
@@ -195,7 +321,8 @@ export default function ChatPage() {
                 onChange={(e) => setInsight(e.target.value)}
                 multiline
                 variant="outlined"
-                rows={4}
+                minRows={10}
+                maxRows={50}
                 fullWidth
               />
             </TabPanel>
