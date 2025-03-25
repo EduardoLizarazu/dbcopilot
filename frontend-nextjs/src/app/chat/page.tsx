@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import {
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -168,29 +169,14 @@ export default function ChatPage() {
         <Typography variant="h4">Chat with your database </Typography>
 
         {/* Select database */}
-        <FormControl required sx={{ minWidth: 100 }}>
-          <InputLabel id="demo-simple-select-required-label">
-            Select Database
-          </InputLabel>
-          <Select
-            labelId="demo-simple-select-required-label"
-            id="demo-simple-select-required"
-            value={selectedDatabase}
-            label="Select database *"
-            onChange={handleChangeSltDatabase}
-            fullWidth
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            {database.map((db) => (
-              <MenuItem key={db.id} value={db.id}>
-                {db.connectionName}
-              </MenuItem>
-            ))}
-          </Select>
-          <FormHelperText>Required</FormHelperText>
-        </FormControl>
+        <Autocomplete
+          disablePortal
+          options={database}
+          getOptionLabel={(option) => option.connectionName || ""}
+          sx={{ width: 300 }}
+          aria-label="Select database connection"
+          renderInput={(params) => <TextField {...params} label="Database" />}
+        />
 
         {/* Prompt */}
         <Box
