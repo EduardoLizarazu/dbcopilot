@@ -93,7 +93,7 @@ export default function ChatPage() {
             </MenuItem>
             {database.map((db) => (
               <MenuItem key={db.id} value={db.id}>
-                {db.name}
+                {db.connectionName}
               </MenuItem>
             ))}
           </Select>
