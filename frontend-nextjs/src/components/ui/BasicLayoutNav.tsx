@@ -28,7 +28,7 @@ import SecurityIcon from "@mui/icons-material/Security";
 import ChatIcon from "@mui/icons-material/Chat";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import CableIcon from "@mui/icons-material/Cable";
-import { Link } from "@mui/material";
+import { Link, Tooltip } from "@mui/material";
 
 const links = [
   { href: "/", label: "Home", icon: <HomeIcon /> },
@@ -36,7 +36,11 @@ const links = [
   {
     href: "/auth/roles",
     label: "Role",
-    icon: <TheaterComedyIcon />,
+    icon: (
+      <Tooltip title="Role" arrow placement="right-start">
+        <TheaterComedyIcon />
+      </Tooltip>
+    ),
   },
   {
     href: "/auth/permissions",

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signup } from "./_actions/signup.action";
-import { TextField, Button, Typography, Box } from "@mui/material";
+import { TextField, Button, Typography, Box, Stack } from "@mui/material";
 
 const SignupForm: React.FC = () => {
   // useState of object register (email, password, username)
@@ -44,71 +44,77 @@ const SignupForm: React.FC = () => {
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        id="username"
-        label="Username"
-        name="username"
-        autoComplete="username"
-        autoFocus
-        value={register.username}
-        onChange={(e) => setRegister({ ...register, username: e.target.value })}
-      />
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        id="email"
-        label="Email"
-        name="email"
-        autoComplete="email"
-        autoFocus
-        value={register.email}
-        onChange={(e) => setRegister({ ...register, email: e.target.value })}
-      />
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        name="password"
-        label="Password"
-        type="password"
-        id="password"
-        autoComplete="password"
-        value={register.password}
-        onChange={(e) => setRegister({ ...register, password: e.target.value })}
-      />
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        name="repeat-password"
-        label="Repeat Password"
-        type="password"
-        id="repeat-password"
-        autoComplete="repeat password"
-        value={register.repeatPassword}
-        onChange={(e) =>
-          setRegister({ ...register, repeatPassword: e.target.value })
-        }
-      />
-      {error && (
-        <Typography color="error" variant="body2">
-          {error}
-        </Typography>
-      )}
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        color="primary"
-        disabled={isSubmitting}
-        sx={{ mt: 3, mb: 2 }}
-      >
-        {isSubmitting ? "Submitting..." : "Login"}
-      </Button>
+      <Stack spacing={2} direction="column">
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="username"
+          label="Username"
+          name="username"
+          autoComplete="username"
+          autoFocus
+          value={register.username}
+          onChange={(e) =>
+            setRegister({ ...register, username: e.target.value })
+          }
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="email"
+          label="Email"
+          name="email"
+          autoComplete="email"
+          autoFocus
+          value={register.email}
+          onChange={(e) => setRegister({ ...register, email: e.target.value })}
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          name="password"
+          label="Password"
+          type="password"
+          id="password"
+          autoComplete="password"
+          value={register.password}
+          onChange={(e) =>
+            setRegister({ ...register, password: e.target.value })
+          }
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          name="repeat-password"
+          label="Repeat Password"
+          type="password"
+          id="repeat-password"
+          autoComplete="repeat password"
+          value={register.repeatPassword}
+          onChange={(e) =>
+            setRegister({ ...register, repeatPassword: e.target.value })
+          }
+        />
+        {error && (
+          <Typography color="error" variant="body2">
+            {error}
+          </Typography>
+        )}
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          color="primary"
+          disabled={isSubmitting}
+          size="large"
+        >
+          {isSubmitting ? "Submitting..." : "Login"}
+        </Button>
+      </Stack>
     </Box>
   );
 };
