@@ -9,6 +9,13 @@ import {
   Typography,
 } from "@mui/material";
 
+enum isSuccessConnEnum {
+  NULL = 0,
+  SUCCESS = 1,
+  FAIL = 2,
+  PROCESS = 3,
+}
+
 export default function CreateConnectionPage() {
   // USE STATE
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -20,6 +27,10 @@ export default function CreateConnectionPage() {
   const [databaseName, setDatabaseName] = React.useState<string>("");
   const [username, setUsername] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
+
+  const [isSuccessConn, setIsSuccessConn] = React.useState<isSuccessConnEnum>(
+    isSuccessConnEnum.NULL
+  );
 
   // USE EFFECT
   React.useEffect(() => {
@@ -47,6 +58,7 @@ export default function CreateConnectionPage() {
   async function handleTest() {
     // Test connection
     console.log("Test connection");
+    setIsSuccessConn(isSuccessConnEnum.PROCESS);
   }
 
   // RENDERS
@@ -90,7 +102,7 @@ export default function CreateConnectionPage() {
           value={host}
           onChange={(e) => setHost(e.target.value)}
         />
-        {/* Textfield for port */}
+        {/* Textfield for port -- only numbers */}
         <TextField
           label="Port"
           variant="standard"
@@ -142,7 +154,22 @@ export default function CreateConnectionPage() {
             <Button variant="contained" color="secondary" onClick={handleTest}>
               Test Connection
             </Button>
-            <Typography variant="body2">Success or Fail Connection</Typography>
+
+            {isSuccessConn === isSuccessConnEnum.PROCESS && (
+              <CircularProgress color="secondary" />
+            )}
+
+            {isSuccessConn === isSuccessConnEnum.SUCCESS && (
+              <Typography variant="body2" color="success">
+                Connection Success
+              </Typography>
+            )}
+
+            {isSuccessConn === isSuccessConnEnum.FAIL && (
+              <Typography variant="body2" color="error">
+                Connection Fail
+              </Typography>
+            )}
           </Stack>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleCreate}>
