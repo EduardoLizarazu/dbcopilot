@@ -22,6 +22,7 @@ import { ReadConnectionUseCaseOutput } from "@useCases/index.usecase";
 import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { DrawerRightChat } from "@/components/DrawerRightChat";
+import { ChatStoryList } from "@/components/chatStoryList";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -354,6 +355,7 @@ export default function ChatPage() {
             </TabPanel>
           </TabContext>
         </Box>
+        <ChatStoryList />
       </Stack>
     </Container>
   );

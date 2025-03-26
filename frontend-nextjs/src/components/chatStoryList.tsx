@@ -15,18 +15,12 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 function createData(
   tableName: string,
   tableDesc: string,
-  columnName: string,
-  columnDesc: string
+  columns: { columnName: string; columnDesc: string }[]
 ) {
   return {
     tableName: tableName,
     tableDesc: tableDesc,
-    columns: [
-      {
-        columnName: columnName,
-        columnDesc: columnDesc,
-      },
-    ],
+    columns: columns,
   };
 }
 
@@ -55,11 +49,6 @@ function Row(props: { row: ReturnType<typeof createData> }) {
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Table size="small" aria-label="purchases">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Columns</TableCell>
-                  </TableRow>
-                </TableHead>
                 <TableBody>
                   {row.columns.map((column) => (
                     <TableRow key={column.columnName}>
@@ -78,8 +67,43 @@ function Row(props: { row: ReturnType<typeof createData> }) {
   );
 }
 const rows = [
-  createData("User", "user description", "id", "user id"),
-  createData("Role", "role description", "name", "role name"),
+  createData("User", "user description", [
+    {
+      columnName: "id",
+      columnDesc: "id of the user",
+    },
+    {
+      columnName: "name",
+      columnDesc: "name of the user",
+    },
+    {
+      columnName: "email",
+      columnDesc: "email of the user",
+    },
+    {
+      columnName: "password",
+      columnDesc: "password of the user",
+    },
+    {
+      columnName: "created_at",
+      columnDesc: "created at",
+    },
+    {
+      columnName: "updated_at",
+      columnDesc: "updated at",
+    },
+  ]),
+  createData("Chat", "chat description", [
+    { columnName: "id", columnDesc: "id of the chat" },
+    { columnName: "message", columnDesc: "message of the chat" },
+    { columnName: "user_id", columnDesc: "user id of the chat" },
+    { columnName: "created_at", columnDesc: "created at" },
+    { columnName: "updated_at", columnDesc: "updated at" },
+  ]),
+  createData("UserChat", "user chat description", [
+    { columnName: "id", columnDesc: "id of the user chat" },
+    { columnName: "user_id", columnDesc: "user id of the user chat" },
+  ]),
 ];
 export function ChatStoryList() {
   return (
