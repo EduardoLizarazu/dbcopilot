@@ -19,7 +19,11 @@ export function DrawerRightChat() {
   };
 
   const DrawerList = (
-    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
+    <Box
+      sx={{ width: 400, marginTop: 10 }}
+      role="presentation"
+      onClick={toggleDrawer(false)}
+    >
       <List>
         {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
           <ListItem key={text} disablePadding>
