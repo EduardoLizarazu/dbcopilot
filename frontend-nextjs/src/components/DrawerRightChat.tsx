@@ -24,7 +24,12 @@ export function DrawerRightChat() {
     <Box sx={{ width: 400, marginTop: 10 }} role="presentation">
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example">
+          <TabList
+            onChange={handleChange}
+            aria-label="lab API tabs example"
+            centered
+            variant="fullWidth"
+          >
             <Tab label="Schema" value="1" />
             <Tab label="Chat" value="2" />
           </TabList>
