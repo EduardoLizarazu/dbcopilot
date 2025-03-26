@@ -4,6 +4,7 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
 import { TreeViewBaseItem, TreeViewItemId } from "@mui/x-tree-view/models";
+import { TextField } from "@mui/material";
 
 const MUI_X_PRODUCTS: TreeViewBaseItem[] = [
   {
@@ -97,12 +98,15 @@ export function SchemaList() {
   return (
     <Stack spacing={2}>
       <div>
-        <input
+        <TextField
           type="text"
-          placeholder="Search..."
+          label="Search"
           value={searchQuery}
           onChange={handleSearchChange}
-          style={{ marginBottom: "8px", padding: "4px", width: "100%" }}
+          variant="outlined"
+          fullWidth
+          size="small"
+          sx={{ marginBottom: 1 }}
         />
         <Button onClick={handleExpandClick}>
           {expandedItems.length === 0 ? "Expand all" : "Collapse all"}
