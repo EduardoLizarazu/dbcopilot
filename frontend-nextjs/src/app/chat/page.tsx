@@ -5,10 +5,16 @@ import {
   Box,
   Button,
   CircularProgress,
+  Collapse,
   Container,
   FormControl,
   FormHelperText,
   InputLabel,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
   Menu,
   MenuItem,
   Select,
@@ -25,6 +31,8 @@ import {
 import { ReadConnectionUseCaseOutput } from "@useCases/index.usecase";
 import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { SchemaList } from "@/components/ui/schemaList";
+import { ChatStoryList } from "@/components/ui/chatStoryList";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -318,7 +326,9 @@ export default function ChatPage() {
         {/* right sidebar bar: schema */}
         <Box sx={{ width: "100%", typography: "body1" }}>
           <Typography variant="h6">Schema Left Side Bar</Typography>
+           <SchemaList />
           <Typography variant="h6">History Left Side Bar</Typography>
+          <ChatStoryList />
         </Box>
       </Stack>
     </Container>
