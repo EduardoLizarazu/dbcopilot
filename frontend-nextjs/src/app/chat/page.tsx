@@ -355,7 +355,6 @@ export default function ChatPage() {
             </TabPanel>
           </TabContext>
         </Box>
-        <ChatStoryList />
       </Stack>
     </Container>
   );
