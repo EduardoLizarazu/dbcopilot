@@ -21,8 +21,6 @@ import {
 import { ReadConnectionUseCaseOutput } from "@useCases/index.usecase";
 import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { SchemaList } from "@/components/schemaList";
-import { ChatStoryList } from "@/components/chatStoryList";
 import { DrawerRightChat } from "@/components/DrawerRightChat";
 
 enum TabResultValueEnum {
@@ -178,9 +176,14 @@ export default function ChatPage() {
     <Container>
       <Stack spacing={3} direction="column">
         {/* DRAWER */}
-        <DrawerRightChat />
 
-        <Typography variant="h4">Chat with your database </Typography>
+        <Stack
+          direction="row"
+          sx={{ justifyContent: "space-between", alignItems: "center" }}
+        >
+          <Typography variant="h4">Chat with your database </Typography>
+          <DrawerRightChat />
+        </Stack>
 
         {/* Select database */}
         <Autocomplete
@@ -350,14 +353,6 @@ export default function ChatPage() {
               />
             </TabPanel>
           </TabContext>
-        </Box>
-
-        {/* right sidebar bar: schema */}
-        <Box sx={{ width: "100%", typography: "body1" }}>
-          <Typography variant="h6">Schema Left Side Bar</Typography>
-          <SchemaList />
-          <Typography variant="h6">History Left Side Bar</Typography>
-          <ChatStoryList />
         </Box>
       </Stack>
     </Container>
