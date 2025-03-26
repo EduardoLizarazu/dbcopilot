@@ -5,19 +5,9 @@ import {
   Box,
   Button,
   CircularProgress,
-  Collapse,
   Container,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  ListSubheader,
   Menu,
   MenuItem,
-  Select,
   Stack,
   Tab,
   TextField,
@@ -171,6 +161,18 @@ export default function ChatPage() {
     console.log("Export", exportType);
   }
 
+  function handlerReset(
+    event: MouseEvent<HTMLButtonElement, MouseEvent>
+  ): void {
+    throw new Error("Function not implemented.");
+  }
+
+  function handlerError(
+    event: MouseEvent<HTMLButtonElement, MouseEvent>
+  ): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <Container>
       <Stack spacing={3} direction="column">
@@ -205,13 +207,33 @@ export default function ChatPage() {
           />
         </Box>
         {/* Submit prompt button */}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handlerSubmitPrompt}
+        <Stack
+          direction="row"
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
-          Submit
-        </Button>
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handlerSubmitPrompt}
+            >
+              Submit
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handlerReset}
+            >
+              Reset
+            </Button>
+          </Stack>
+          <Button color="error" onClick={handlerError}>
+            Error
+          </Button>
+        </Stack>
 
         {/* Result bar: Result, SQL Editor, Insight */}
         <Box sx={{ width: "100%", typography: "body1" }}>
@@ -326,7 +348,7 @@ export default function ChatPage() {
         {/* right sidebar bar: schema */}
         <Box sx={{ width: "100%", typography: "body1" }}>
           <Typography variant="h6">Schema Left Side Bar</Typography>
-           <SchemaList />
+          <SchemaList />
           <Typography variant="h6">History Left Side Bar</Typography>
           <ChatStoryList />
         </Box>
