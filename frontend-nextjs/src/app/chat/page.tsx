@@ -21,8 +21,8 @@ import {
 import { ReadConnectionUseCaseOutput } from "@useCases/index.usecase";
 import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { SchemaList } from "@/components/ui/schemaList";
-import { ChatStoryList } from "@/components/ui/chatStoryList";
+import { SchemaList } from "@/components/schemaList";
+import { ChatStoryList } from "@/components/chatStoryList";
 
 enum TabResultValueEnum {
   Result = "1",
