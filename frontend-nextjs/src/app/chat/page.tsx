@@ -23,6 +23,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { SchemaList } from "@/components/schemaList";
 import { ChatStoryList } from "@/components/chatStoryList";
+import { DrawerRightChat } from "@/components/DrawerRightChat";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -176,6 +177,9 @@ export default function ChatPage() {
   return (
     <Container>
       <Stack spacing={3} direction="column">
+        {/* DRAWER */}
+        <DrawerRightChat />
+
         <Typography variant="h4">Chat with your database </Typography>
 
         {/* Select database */}
