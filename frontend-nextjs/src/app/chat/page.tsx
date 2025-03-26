@@ -206,6 +206,9 @@ export default function ChatPage() {
             fullWidth
           />
         </Box>
+
+        <Typography variant="body1">Suggestions: ...</Typography>
+
         {/* Submit prompt button */}
         <Stack
           direction="row"
