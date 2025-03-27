@@ -13,11 +13,13 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 function createData(
+  tableId: number,
   tableName: string,
   tableDesc: string,
-  columns: { columnName: string; columnDesc: string }[]
+  columns: { columnId: number; columnName: string; columnDesc: string }[]
 ) {
   return {
+    tableId: tableId,
     tableName: tableName,
     tableDesc: tableDesc,
     columns: columns,
@@ -67,42 +69,76 @@ function Row(props: { row: ReturnType<typeof createData> }) {
   );
 }
 const rows = [
-  createData("User", "user description", [
+  createData(1, "User", "user description", [
     {
       columnName: "id",
       columnDesc: "id of the user",
+      columnId: 1,
     },
     {
       columnName: "name",
       columnDesc: "name of the user",
+      columnId: 2,
     },
     {
       columnName: "email",
       columnDesc: "email of the user",
+      columnId: 3,
     },
     {
       columnName: "password",
       columnDesc: "password of the user",
+      columnId: 4,
     },
     {
       columnName: "created_at",
       columnDesc: "created at",
+      columnId: 5,
     },
     {
       columnName: "updated_at",
       columnDesc: "updated at",
+      columnId: 6,
     },
   ]),
-  createData("Chat", "chat description", [
-    { columnName: "id", columnDesc: "id of the chat" },
-    { columnName: "message", columnDesc: "message of the chat" },
-    { columnName: "user_id", columnDesc: "user id of the chat" },
-    { columnName: "created_at", columnDesc: "created at" },
-    { columnName: "updated_at", columnDesc: "updated at" },
+  createData(2, "Chat", "chat description", [
+    {
+      columnName: "id",
+      columnDesc: "id of the chat",
+      columnId: 7,
+    },
+    {
+      columnName: "message",
+      columnDesc: "message of the chat",
+      columnId: 8,
+    },
+    {
+      columnName: "user_id",
+      columnDesc: "user id of the chat",
+      columnId: 9,
+    },
+    {
+      columnName: "created_at",
+      columnDesc: "created at",
+      columnId: 10,
+    },
+    {
+      columnName: "updated_at",
+      columnDesc: "updated at",
+      columnId: 13,
+    },
   ]),
-  createData("UserChat", "user chat description", [
-    { columnName: "id", columnDesc: "id of the user chat" },
-    { columnName: "user_id", columnDesc: "user id of the user chat" },
+  createData(3, "UserChat", "user chat description", [
+    {
+      columnName: "id",
+      columnDesc: "id of the user chat",
+      columnId: 11,
+    },
+    {
+      columnName: "user_id",
+      columnDesc: "user id of the user chat",
+      columnId: 12,
+    },
   ]),
 ];
 export function SchemaTableList() {
