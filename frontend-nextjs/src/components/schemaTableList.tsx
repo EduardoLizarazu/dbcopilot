@@ -12,8 +12,8 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
-import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from "@mui/icons-material/Save";
 
 import { Stack } from "@mui/material";
 function createData(
@@ -63,7 +63,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
         <TableCell>
           <Stack direction="row" spacing={2}>
             <IconButton onClick={() => setIsEditable(!isEditable)}>
-              {isEditable ? <SettingsBackupRestoreIcon /> : <EditIcon />}
+              {isEditable ? <SaveIcon /> : <EditIcon />}
             </IconButton>
             <IconButton>
               <DeleteIcon />
