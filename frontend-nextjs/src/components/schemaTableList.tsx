@@ -161,12 +161,6 @@ export function SchemaTableList() {
       />
       <TableContainer component={Paper}>
         <Table aria-label="collapsible table">
-          <TableHead>
-            <TableRow>
-              <TableCell />
-              <TableCell>Tables and Columns</TableCell>
-            </TableRow>
-          </TableHead>
           <TableBody>
             {filteredRows.map((row) => (
               <Row key={row.tableName} row={row} />
