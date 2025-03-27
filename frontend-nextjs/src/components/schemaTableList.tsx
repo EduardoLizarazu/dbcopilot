@@ -105,7 +105,7 @@ const rows = [
     { columnName: "user_id", columnDesc: "user id of the user chat" },
   ]),
 ];
-export function ChatStoryList() {
+export function SchemaTableList() {
   return (
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table">
