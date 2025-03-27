@@ -6,13 +6,16 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import TextField from "@mui/material/TextField";
+import EditIcon from "@mui/icons-material/Edit";
+import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
+import DeleteIcon from "@mui/icons-material/Delete";
 
+import { Stack } from "@mui/material";
 function createData(
   tableId: number,
   tableName: string,
@@ -30,6 +33,7 @@ function createData(
 function Row(props: { row: ReturnType<typeof createData> }) {
   const { row } = props;
   const [open, setOpen] = React.useState(false);
+  const [isEditable, setIsEditable] = React.useState(false);
 
   return (
     <React.Fragment>
@@ -44,7 +48,27 @@ function Row(props: { row: ReturnType<typeof createData> }) {
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">
-          {row.tableName}
+          {/* Table name */}
+          {isEditable ? (
+            <TextField
+              variant="outlined"
+              size="small"
+              defaultValue={row.tableName}
+              onBlur={() => setIsEditable(false)}
+            />
+          ) : (
+            <span>{row.tableName}</span>
+          )}
+        </TableCell>
+        <TableCell>
+          <Stack direction="row" spacing={2}>
+            <IconButton onClick={() => setIsEditable(!isEditable)}>
+              {isEditable ? <SettingsBackupRestoreIcon /> : <EditIcon />}
+            </IconButton>
+            <IconButton>
+              <DeleteIcon />
+            </IconButton>
+          </Stack>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -56,7 +80,16 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                   {row.columns.map((column) => (
                     <TableRow key={column.columnName}>
                       <TableCell component="th" scope="row">
-                        {column.columnName}
+                        {isEditable ? (
+                          <TextField
+                            variant="outlined"
+                            size="small"
+                            defaultValue={column.columnName}
+                            onBlur={() => setIsEditable(false)}
+                          />
+                        ) : (
+                          <span>{column.columnName}</span>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
