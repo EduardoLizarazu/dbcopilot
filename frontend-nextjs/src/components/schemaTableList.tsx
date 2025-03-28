@@ -15,6 +15,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import { Stack } from "@mui/material";
+import { GetSchemaData } from "@/controller/_actions/index.actions"; // Assuming you have a data file with rows
+import CloseIcon from "@mui/icons-material/Close";
 
 interface RowData {
   tableId: number;
@@ -23,10 +25,23 @@ interface RowData {
   columns: { columnId: number; columnName: string; columnDesc: string }[];
 }
 
-function Row(props: { row: RowData }) {
-  const { row } = props;
+function Row(props: {
+  row: RowData;
+  setRow: React.Dispatch<React.SetStateAction<RowData[]>>;
+}) {
+  const { row, setRow } = props;
   const [open, setOpen] = React.useState(false);
   const [isEditable, setIsEditable] = React.useState(false);
+  const [tempTable, setTempTable] = React.useState<RowData>({
+    tableId: 0,
+    tableName: "",
+    tableDesc: "",
+    columns: [],
+  });
+
+  function handleSaveBtn() {
+    setIsEditable(false);
+  }
 
   return (
     <React.Fragment>
@@ -46,8 +61,10 @@ function Row(props: { row: RowData }) {
             <TextField
               variant="outlined"
               size="small"
-              defaultValue={row.tableName}
-              onBlur={() => setIsEditable(false)}
+              value={row.tableName}
+              onBlur={(e) => {
+                setTempTable({ ...tempTable, tableName: e.target.value });
+              }}
             />
           ) : (
             <span>{row.tableName}</span>
@@ -55,10 +72,25 @@ function Row(props: { row: RowData }) {
         </TableCell>
         <TableCell>
           <Stack direction="row" spacing={2}>
-            <IconButton onClick={() => setIsEditable(!isEditable)}>
-              {isEditable ? <SaveIcon /> : <EditIcon />}
-            </IconButton>
-            <IconButton>
+            {isEditable ? (
+              <>
+                <IconButton onClick={() => setIsEditable(false)}>
+                  <CloseIcon />
+                </IconButton>
+                <IconButton onClick={handleSaveBtn}>
+                  <SaveIcon />
+                </IconButton>
+              </>
+            ) : (
+              <IconButton onClick={() => setIsEditable(true)}>
+                <EditIcon />
+              </IconButton>
+            )}
+            <IconButton
+              onClick={() =>
+                setRow((prev) => prev.filter((r) => r.tableId !== row.tableId))
+              }
+            >
               <DeleteIcon />
             </IconButton>
           </Stack>
@@ -77,7 +109,7 @@ function Row(props: { row: RowData }) {
                           <TextField
                             variant="outlined"
                             size="small"
-                            defaultValue={column.columnName}
+                            value={column.columnName}
                             onBlur={() => setIsEditable(false)}
                           />
                         ) : (
@@ -95,44 +127,26 @@ function Row(props: { row: RowData }) {
     </React.Fragment>
   );
 }
-const rows: RowData[] = [
-  {
-    tableId: 1,
-    tableName: "Users",
-    tableDesc: "User information",
-    columns: [
-      { columnId: 1, columnName: "user_id", columnDesc: "User ID" },
-      { columnId: 2, columnName: "username", columnDesc: "Username" },
-      { columnId: 3, columnName: "email", columnDesc: "Email" },
-    ],
-  },
-  {
-    tableId: 2,
-    tableName: "Products",
-    tableDesc: "Product information",
-    columns: [
-      { columnId: 1, columnName: "product_id", columnDesc: "Product ID" },
-      { columnId: 2, columnName: "product_name", columnDesc: "Product Name" },
-      { columnId: 3, columnName: "price", columnDesc: "Price" },
-    ],
-  },
-  {
-    tableId: 3,
-    tableName: "Orders",
-    tableDesc: "Order information",
-    columns: [
-      { columnId: 1, columnName: "order_id", columnDesc: "Order ID" },
-      { columnId: 2, columnName: "user_id", columnDesc: "User ID" },
-      { columnId: 3, columnName: "product_id", columnDesc: "Product ID" },
-    ],
-  },
-];
+
 export function SchemaTableList() {
+  const [rows, setRows] = React.useState<RowData[]>([]);
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const filteredRows = rows.filter((row) =>
     row.tableName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  console.log("Original rows: ", rows);
+
+  React.useEffect(() => {
+    (async () => {
+      const data = await GetSchemaData();
+      console.log("Fetched rows: ", data);
+      setRows(data);
+    })();
+  }, []);
+
+  React.useEffect(() => {}, [rows]);
 
   return (
     <Box>
@@ -148,7 +162,7 @@ export function SchemaTableList() {
         <Table aria-label="collapsible table">
           <TableBody>
             {filteredRows.map((row) => (
-              <Row key={row.tableName} row={row} />
+              <Row key={row.tableName} row={row} setRow={setRows} />
             ))}
           </TableBody>
         </Table>
