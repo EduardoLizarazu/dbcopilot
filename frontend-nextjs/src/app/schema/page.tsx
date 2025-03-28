@@ -6,7 +6,7 @@ export default function SchemaPage() {
   return (
     <Container>
       <Typography variant="h4">Schema</Typography>
-      <SchemaTableList />
+      {/* <SchemaTableList /> */}
     </Container>
   );
 }
