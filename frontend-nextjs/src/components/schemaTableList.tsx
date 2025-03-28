@@ -14,7 +14,7 @@ import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
-import { Stack } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import { GetSchemaData } from "@/controller/_actions/index.actions"; // Assuming you have a data file with rows
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -179,6 +179,20 @@ export function SchemaTableList() {
 
   React.useEffect(() => {}, [rows]);
 
+  function handleNewRecord() {
+    const newRow: RowData = {
+      tableId: rows.length + 1,
+      tableName: `Table ${rows.length + 1}`,
+      tableDesc: "",
+      columns: [
+        { columnId: 1, columnName: "Column 1", columnDesc: "" },
+        { columnId: 2, columnName: "Column 2", columnDesc: "" },
+      ],
+    };
+    setRows((prev) => [...prev, newRow]);
+    console.log("New row added: ", newRow);
+  }
+
   return (
     <Box>
       <TextField
@@ -189,11 +203,12 @@ export function SchemaTableList() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
+      <Button onClick={handleNewRecord}>Add record</Button>
       <TableContainer component={Paper}>
         <Table aria-label="collapsible table">
           <TableBody>
             {filteredRows.map((row) => (
-              <Row key={row.tableName} row={row} setRow={setRows} />
+              <Row key={row.tableId} row={row} setRow={setRows} />
             ))}
           </TableBody>
         </Table>
