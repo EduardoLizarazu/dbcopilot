@@ -14,23 +14,16 @@ import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
-
 import { Stack } from "@mui/material";
-function createData(
-  tableId: number,
-  tableName: string,
-  tableDesc: string,
-  columns: { columnId: number; columnName: string; columnDesc: string }[]
-) {
-  return {
-    tableId: tableId,
-    tableName: tableName,
-    tableDesc: tableDesc,
-    columns: columns,
-  };
+
+interface RowData {
+  tableId: number;
+  tableName: string;
+  tableDesc: string;
+  columns: { columnId: number; columnName: string; columnDesc: string }[];
 }
 
-function Row(props: { row: ReturnType<typeof createData> }) {
+function Row(props: { row: RowData }) {
   const { row } = props;
   const [open, setOpen] = React.useState(false);
   const [isEditable, setIsEditable] = React.useState(false);
@@ -102,78 +95,37 @@ function Row(props: { row: ReturnType<typeof createData> }) {
     </React.Fragment>
   );
 }
-const rows = [
-  createData(1, "User", "user description", [
-    {
-      columnName: "id",
-      columnDesc: "id of the user",
-      columnId: 1,
-    },
-    {
-      columnName: "name",
-      columnDesc: "name of the user",
-      columnId: 2,
-    },
-    {
-      columnName: "email",
-      columnDesc: "email of the user",
-      columnId: 3,
-    },
-    {
-      columnName: "password",
-      columnDesc: "password of the user",
-      columnId: 4,
-    },
-    {
-      columnName: "created_at",
-      columnDesc: "created at",
-      columnId: 5,
-    },
-    {
-      columnName: "updated_at",
-      columnDesc: "updated at",
-      columnId: 6,
-    },
-  ]),
-  createData(2, "Chat", "chat description", [
-    {
-      columnName: "id",
-      columnDesc: "id of the chat",
-      columnId: 7,
-    },
-    {
-      columnName: "message",
-      columnDesc: "message of the chat",
-      columnId: 8,
-    },
-    {
-      columnName: "user_id",
-      columnDesc: "user id of the chat",
-      columnId: 9,
-    },
-    {
-      columnName: "created_at",
-      columnDesc: "created at",
-      columnId: 10,
-    },
-    {
-      columnName: "updated_at",
-      columnDesc: "updated at",
-      columnId: 13,
-    },
-  ]),
-  createData(3, "UserChat", "user chat description", [
-    {
-      columnName: "id",
-      columnDesc: "id of the user chat",
-      columnId: 11,
-    },
-    {
-      columnName: "user_id",
-      columnDesc: "user id of the user chat",
-      columnId: 12,
-    },
-  ]),
+const rows: RowData[] = [
+  {
+    tableId: 1,
+    tableName: "Users",
+    tableDesc: "User information",
+    columns: [
+      { columnId: 1, columnName: "user_id", columnDesc: "User ID" },
+      { columnId: 2, columnName: "username", columnDesc: "Username" },
+      { columnId: 3, columnName: "email", columnDesc: "Email" },
+    ],
+  },
+  {
+    tableId: 2,
+    tableName: "Products",
+    tableDesc: "Product information",
+    columns: [
+      { columnId: 1, columnName: "product_id", columnDesc: "Product ID" },
+      { columnId: 2, columnName: "product_name", columnDesc: "Product Name" },
+      { columnId: 3, columnName: "price", columnDesc: "Price" },
+    ],
+  },
+  {
+    tableId: 3,
+    tableName: "Orders",
+    tableDesc: "Order information",
+    columns: [
+      { columnId: 1, columnName: "order_id", columnDesc: "Order ID" },
+      { columnId: 2, columnName: "user_id", columnDesc: "User ID" },
+      { columnId: 3, columnName: "product_id", columnDesc: "Product ID" },
+    ],
+  },
 ];
 export function SchemaTableList() {
   const [searchTerm, setSearchTerm] = React.useState("");
