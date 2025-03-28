@@ -123,14 +123,25 @@ function Row(props: {
               <Table size="small" aria-label="purchases">
                 <TableBody>
                   {row.columns.map((column) => (
-                    <TableRow key={column.columnName}>
+                    <TableRow key={column.columnId}>
                       <TableCell component="th" scope="row">
                         {isEditable ? (
                           <TextField
                             variant="outlined"
                             size="small"
-                            value={column.columnName}
-                            onBlur={() => setIsEditable(false)}
+                            defaultValue={column.columnName}
+                            onBlur={(e) => {
+                              // Update the column name with "e" in the tempTable state based on the column id
+                              setTempTable((prev) => {
+                                const updatedColumns = prev.columns.map((c) => {
+                                  if (c.columnId === column.columnId) {
+                                    return { ...c, columnName: e.target.value };
+                                  }
+                                  return c;
+                                });
+                                return { ...prev, columns: updatedColumns };
+                              });
+                            }}
                           />
                         ) : (
                           <span>{column.columnName}</span>
