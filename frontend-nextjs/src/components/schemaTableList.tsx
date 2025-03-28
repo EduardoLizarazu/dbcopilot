@@ -39,7 +39,27 @@ function Row(props: {
     columns: [],
   });
 
+  React.useEffect(() => {
+    setTempTable(row);
+    console.log("Use Effect ROWS");
+  }, [row]);
+
   function handleSaveBtn() {
+    setRow((prev) =>
+      prev.map((r) => {
+        if (r.tableId === tempTable.tableId) {
+          return { ...tempTable };
+        }
+        return r;
+      })
+    );
+    console.log("Updated rows: ", tempTable);
+    setTempTable({
+      tableId: 0,
+      tableName: "",
+      tableDesc: "",
+      columns: [],
+    });
     setIsEditable(false);
   }
 
@@ -61,7 +81,7 @@ function Row(props: {
             <TextField
               variant="outlined"
               size="small"
-              value={row.tableName}
+              defaultValue={row.tableName}
               onBlur={(e) => {
                 setTempTable({ ...tempTable, tableName: e.target.value });
               }}
