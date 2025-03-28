@@ -22,3 +22,5 @@ export {
 export { GetConnectionAction } from "./connection/connection.action";
 
 export { CreateChatAction } from "./chat/chat.action";
+
+export { GetSchemaData } from "./schema/schema.action";
