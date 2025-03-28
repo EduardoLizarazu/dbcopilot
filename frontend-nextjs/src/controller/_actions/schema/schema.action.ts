@@ -1,4 +1,10 @@
 "use server";
+interface RowData {
+  tableId: number;
+  tableName: string;
+  tableDesc: string;
+  columns: { columnId: number; columnName: string; columnDesc: string }[];
+}
 const rows: RowData[] = [
   {
     tableId: 1,
