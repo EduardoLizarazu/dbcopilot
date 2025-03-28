@@ -90,6 +90,21 @@ function Row(props: {
             <span>{row.tableName}</span>
           )}
         </TableCell>
+        <TableCell component="th" scope="row">
+          {/* Table name */}
+          {isEditable ? (
+            <TextField
+              variant="outlined"
+              size="small"
+              defaultValue={row.tableDesc}
+              onBlur={(e) => {
+                setTempTable({ ...tempTable, tableDesc: e.target.value });
+              }}
+            />
+          ) : (
+            <span>{row.tableDesc}</span>
+          )}
+        </TableCell>
         <TableCell>
           <Stack direction="row" spacing={2}>
             {isEditable ? (
@@ -145,6 +160,29 @@ function Row(props: {
                           />
                         ) : (
                           <span>{column.columnName}</span>
+                        )}
+                      </TableCell>
+                      <TableCell component="th" scope="row">
+                        {isEditable ? (
+                          <TextField
+                            variant="outlined"
+                            size="small"
+                            defaultValue={column.columnDesc}
+                            onBlur={(e) => {
+                              // Update the column name with "e" in the tempTable state based on the column id
+                              setTempTable((prev) => {
+                                const updatedColumns = prev.columns.map((c) => {
+                                  if (c.columnId === column.columnId) {
+                                    return { ...c, columnDesc: e.target.value };
+                                  }
+                                  return c;
+                                });
+                                return { ...prev, columns: updatedColumns };
+                              });
+                            }}
+                          />
+                        ) : (
+                          <span>{column.columnDesc}</span>
                         )}
                       </TableCell>
                     </TableRow>
