@@ -78,6 +78,9 @@ export class ConnectionService {
 
       // Initialize and check connection
       await dataSource.initialize();
+
+      // Select schema base on database type
+
       await dataSource.destroy(); // Close connection after test
       
       return true;
