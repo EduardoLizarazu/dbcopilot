@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { CreateConnectionDto } from './dto/create-connection.dto';
 import { UpdateConnectionDto } from './dto/update-connection.dto';
+import { Connection } from './entities/connection.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ConnectionService {
-  create(createConnectionDto: CreateConnectionDto) {
-    return 'This action adds a new connection';
+  constructor(
+    @InjectRepository(Connection)
+    private connectionRepository: Repository<Connection>,
+  ) {}
+  async create(createConnectionDto: CreateConnectionDto) {
+    const connection = this.connectionRepository.create(createConnectionDto);
+    return await this.connectionRepository.save(connection);
   }
 
-  findAll() {
-    return `This action returns all connection`;
+  async findAll() {
+    return await this.connectionRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} connection`;
+  async findOne(id: number) {
+    return await this.connectionRepository.findOneBy({ id });
   }
 
-  update(id: number, updateConnectionDto: UpdateConnectionDto) {
-    return `This action updates a #${id} connection`;
+  async update(id: number, updateConnectionDto: UpdateConnectionDto) {
+    return await this.connectionRepository.update(id, updateConnectionDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} connection`;
+  async remove(id: number) {
+    return await this.connectionRepository.delete(id);
   }
 }

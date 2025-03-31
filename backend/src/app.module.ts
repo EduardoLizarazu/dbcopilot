@@ -19,11 +19,11 @@ import { ConnectionModule } from './connection/connection.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      database: 'dbcopilot',
-      port: 5432,
-      username: 'postgres',
-      password: 'Passw0rd',
+      type: process.env.DB_TYPE as any,
+      database: process.env.DB_NAME as any,
+      port: process.env.DB_PORT as any,
+      username: process.env.DB_USER as any,
+      password: process.env.DB_PASSWORD as any,
       // entities: [User],
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, // for demo/development
@@ -37,18 +37,18 @@ import { ConnectionModule } from './connection/connection.module';
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: PermissionsGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard,
+    // },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: PermissionsGuard,
+    // },
   ],
 })
 export class AppModule {}
