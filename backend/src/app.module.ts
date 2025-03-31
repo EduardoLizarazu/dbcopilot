@@ -11,6 +11,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import { DemoHelperModule } from './demo-helper/demo-helper.module';
 import { UsersModule } from './users/users.module';
 import { CaslModule } from './casl/casl.module';
+import { ConnectionModule } from './connection/connection.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CaslModule } from './casl/casl.module';
     AuthModule,
     DemoHelperModule,
     CaslModule,
+    ConnectionModule,
   ],
   controllers: [AppController],
   providers: [
