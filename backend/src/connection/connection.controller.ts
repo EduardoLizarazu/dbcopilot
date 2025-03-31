@@ -31,4 +31,9 @@ export class ConnectionController {
   remove(@Param('id') id: string) {
     return this.connectionService.remove(+id);
   }
+
+  @Post('test')
+  testConnection(@Body() createConnectionDto: CreateConnectionDto) {
+    return this.connectionService.testConnection(createConnectionDto);
+  }
 }

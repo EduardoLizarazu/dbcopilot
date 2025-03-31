@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateConnectionDto } from './dto/create-connection.dto';
 import { UpdateConnectionDto } from './dto/update-connection.dto';
 import { Connection } from './entities/connection.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -55,6 +55,33 @@ export class ConnectionService {
     } catch (error) {
       console.error('Error deleting connection:', error);
       throw new Error('Failed to delete connection');
+    }
+  }
+
+  async testConnection(connection: Partial<Connection>): Promise<boolean> {
+    const { dbType, dbHost, dbPort, dbUsername, dbPassword, dbName } = connection;
+
+    try {
+      // Create a temporary DataSource configuration
+      const dataSource = new DataSource({
+        type: dbType as any, // Cast to TypeORM's DatabaseType
+        host: dbHost,
+        port: dbPort,
+        username: dbUsername,
+        password: dbPassword,
+        database: dbName,
+        synchronize: false,
+        logging: false,
+      });
+
+      // Initialize and check connection
+      await dataSource.initialize();
+      await dataSource.destroy(); // Close connection after test
+      
+      return true;
+    } catch (error) {
+      console.error('Connection test failed:', error.message);
+      return false;
     }
   }
 }
