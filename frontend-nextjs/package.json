@@ -17,6 +17,7 @@
     "@mui/x-data-grid": "^7.27.2",
     "@mui/x-data-grid-generator": "^7.28.1",
     "@mui/x-tree-view": "^7.28.1",
+    "@nestjs/mapped-types": "*",
     "@toolpad/core": "^0.13.0",
     "@xyflow/react": "^12.5.1",
     "axios": "^1.8.1",

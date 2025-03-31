@@ -3,7 +3,7 @@ import { ConnectionService } from './connection.service';
 import { ConnectionController } from './connection.controller';
 
 @Module({
+  controllers: [ConnectionController],
   providers: [ConnectionService],
-  controllers: [ConnectionController]
 })
 export class ConnectionModule {}
