@@ -12,6 +12,7 @@ import { DemoHelperModule } from './demo-helper/demo-helper.module';
 import { UsersModule } from './users/users.module';
 import { CaslModule } from './casl/casl.module';
 import { ConnectionModule } from './connection/connection.module';
+import { DatabasetypeModule } from './databasetype/databasetype.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ConnectionModule } from './connection/connection.module';
     DemoHelperModule,
     CaslModule,
     ConnectionModule,
+    DatabasetypeModule,
   ],
   controllers: [AppController],
   providers: [
