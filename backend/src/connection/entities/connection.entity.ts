@@ -13,9 +13,6 @@ export class Connection {
     description?: string;
 
     @Column()
-    dbType: string;
-
-    @Column()
     dbName: string;
 
     @Column()

@@ -28,7 +28,6 @@ export class DatabasetypeService {
     } catch (error) {
       console.error('Error fetching databasetypes:', error);
       throw new Error('Failed to fetch databasetypes');
-      
     }
   }
 

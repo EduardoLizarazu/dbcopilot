@@ -60,7 +60,7 @@ export class ConnectionService {
     }
   }
 
-  async testConnection(connection: Partial<Connection>): Promise<boolean> {
+  async testConnection(connection: Partial<CreateConnectionDto>): Promise<boolean> {
     const { dbType, dbHost, dbPort, dbUsername, dbPassword, dbName } = connection;
 
     try {

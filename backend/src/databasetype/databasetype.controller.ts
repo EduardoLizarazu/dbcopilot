@@ -19,7 +19,12 @@ export class DatabasetypeController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.databasetypeService.findOne(+id);
+    return this.databasetypeService.findOneById(+id); 
+  }
+
+  @Get(':type')
+  findOneByType(@Param('type') type: string) {
+    return this.databasetypeService.findOneByType(type); 
   }
 
   @Patch(':id')
