@@ -61,12 +61,24 @@ export class ConnectionService {
   }
 
   async testConnection(connection: Partial<CreateConnectionDto>): Promise<boolean> {
-    const { dbType, dbHost, dbPort, dbUsername, dbPassword, dbName } = connection;
+    const { dbTypeId, dbHost, dbPort, dbUsername, dbPassword, dbName } = connection;
 
     try {
+
+      // Search the type base on id on the databasetype table
+      const dbType = await this.connectionRepository.manager.connection.getRepository('DatabaseType').findOneBy({ id: dbTypeId });
+
+
+      if (!dbType) {
+        throw new Error('Database type not found');
+      }
+
+      console.log(`Testing connection to ${dbType} database...`);
+      
+
       // Create a temporary DataSource configuration
       const dataSource = new DataSource({
-        type: dbType as any, // Cast to TypeORM's DatabaseType
+        type: dbType.type as any, // Cast to TypeORM's DatabaseType
         host: dbHost,
         port: dbPort,
         username: dbUsername,

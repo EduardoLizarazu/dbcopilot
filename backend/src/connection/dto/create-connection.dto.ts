@@ -15,7 +15,7 @@ export class CreateConnectionDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    dbType: string;
+    dbTypeId: number;
 
     @ApiProperty()
     @IsString()
