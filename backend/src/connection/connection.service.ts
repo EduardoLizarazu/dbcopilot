@@ -36,6 +36,7 @@ export class ConnectionService {
             dbUsername: true,
             dbPassword: true,
             databasetype: {
+              id: true,
               type: true,
             },
           },
