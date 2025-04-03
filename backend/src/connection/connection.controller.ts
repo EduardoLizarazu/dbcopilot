@@ -9,31 +9,61 @@ export class ConnectionController {
 
   @Post()
   create(@Body() createConnectionDto: CreateConnectionDto) {
-    return this.connectionService.create(createConnectionDto);
+    try {
+      return this.connectionService.create(createConnectionDto);
+    } catch (error) { 
+      console.error('Error creating connection:', error);
+      throw new Error('Failed to create connection');
+    }
   }
 
   @Get()
   findAll() {
-    return this.connectionService.findAll();
+    try {
+      return this.connectionService.findAll();
+    } catch (error) {
+      console.error('Error fetching connections:', error);
+      throw new Error('Failed to fetch connections');
+    }
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.connectionService.findOne(+id);
+    try {
+      return this.connectionService.findOne(+id);
+    } catch (error) {
+      console.error('Error fetching connection:', error);
+      throw new Error('Failed to fetch connection');
+    }
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateConnectionDto: UpdateConnectionDto) {
-    return this.connectionService.update(+id, updateConnectionDto);
+    try {
+      return this.connectionService.update(+id, updateConnectionDto);
+    } catch (error) {
+      console.error('Error updating connection:', error);
+      throw new Error('Failed to update connection');
+    }
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.connectionService.remove(+id);
+    try {
+      return this.connectionService.remove(+id);     
+    } catch (error) {
+      console.error('Error deleting connection:', error);
+      throw new Error('Failed to delete connection');
+    }
   }
 
   @Post('test')
   testConnection(@Body() createConnectionDto: CreateConnectionDto) {
-    return this.connectionService.testConnection(createConnectionDto);
+    try {
+      return this.connectionService.testConnection(createConnectionDto);
+    } catch (error) {
+      console.error('Error testing connection:', error);
+      throw new Error('Failed to test connection');
+    }	
   }
 }
