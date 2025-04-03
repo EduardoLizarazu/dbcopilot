@@ -9,7 +9,7 @@ export class Connection {
     @Column({unique: true})
     name: string;
 
-    @Column()
+
     description?: string;
 
     @Column()
@@ -24,10 +24,11 @@ export class Connection {
     @Column()
     dbUsername: string;
 
-    @Column()
+    @Column({ select: false })
     dbPassword?: string;
     
     // Connection only has one and only one database type
     @ManyToOne(() => Databasetype, (databasetype) => databasetype.connections)
     databasetype: Databasetype;
 }
+
