@@ -48,7 +48,6 @@ export class ConnectionService {
     } catch (error) {
       console.error('Error updating connection:', error);
       throw new Error('Failed to update connection');
-      
     }
   }
 
