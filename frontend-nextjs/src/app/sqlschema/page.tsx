@@ -39,12 +39,6 @@ export default function Page() {
 
 
     // HANDLER
-
-    // RENDER
-    if(loading) {
-        return <CircularProgress />;
-    }
-
     async function handleRemove(id: number): Promise<void> {
       try {
         await deleteSqlSchemaAction(id);  
@@ -52,6 +46,12 @@ export default function Page() {
       } catch (error) {
         console.error("Error removing SQL schema:", error);
       }
+    }
+
+
+    // RENDER
+    if(loading) {
+        return <CircularProgress />;
     }
 
     return (
