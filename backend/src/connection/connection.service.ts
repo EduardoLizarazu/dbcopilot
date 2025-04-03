@@ -13,7 +13,7 @@ export class ConnectionService {
   ) {}
   async create(createConnectionDto: CreateConnectionDto) {
     try {
-      if((await this.testConnection(createConnectionDto)) === false) 
+      if((await this.testConnection(createConnectionDto)).result === false) 
         throw new Error('Connection test failed: Invalid database credentials or connection details.');
       const connection = this.connectionRepository.create(createConnectionDto);
       return await this.connectionRepository.save(connection);
@@ -60,13 +60,13 @@ export class ConnectionService {
     }
   }
 
-  async testConnection(connection: Partial<CreateConnectionDto>): Promise<boolean> {
+  async testConnection(connection: Partial<CreateConnectionDto>): Promise<{schema: string, result: boolean}> {
     const { dbTypeId, dbHost, dbPort, dbUsername, dbPassword, dbName } = connection;
 
     try {
 
       // Search the type base on id on the databasetype table
-      const dbType = await this.connectionRepository.manager.connection.getRepository('DatabaseType').findOneBy({ id: dbTypeId });
+      const dbType = await this.connectionRepository.manager.connection.getRepository('Databasetype').findOneBy({ id: dbTypeId });
 
 
       if (!dbType) {
@@ -89,16 +89,14 @@ export class ConnectionService {
       });
 
       // Initialize and check connection
-      await dataSource.initialize();
-
-      // Select schema base on database type
-
+      const db = await dataSource.initialize();
+      const schema = await db.query(`${dbType.query}`);
       await dataSource.destroy(); // Close connection after test
       
-      return true;
+      return {schema: schema, result: true};
     } catch (error) {
       console.error('Connection test failed:', error.message);
-      return false;
+      return { schema: '', result: false };
     }
   }
 }
