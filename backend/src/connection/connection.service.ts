@@ -16,7 +16,8 @@ export class ConnectionService {
       if((await this.testConnection(createConnectionDto)).result === false) 
         throw new Error('Connection test failed: Invalid database credentials or connection details.');
       const connection = this.connectionRepository.create(createConnectionDto);
-      return await this.connectionRepository.save(connection);
+      const connectionSaved =  await this.connectionRepository.save(connection);
+      return connectionSaved;
     } catch (error) {
       console.error('Error creating connection:', error);
       throw new Error('Failed to create connection');
