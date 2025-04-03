@@ -8,7 +8,7 @@ interface ListInterface {
     id: number;
     name: string;
     type: string;
-    sqlSchema: string;
+    query: string;
 }
 
 export default function Page() {
@@ -21,12 +21,19 @@ export default function Page() {
         (async () => {
             setLoading(true);
             const response = await readAllSqlSchemaAction();
-            if (response) {
-                setSqlSchema(response);
-            } else {
-                console.log("No data found");
-            }
+            setSqlSchema(
+                response.map((item: any) => {
+                    return {
+                        id: item.id || 0,
+                        name: item.name || "",
+                        type: item.type || "",
+                        query: item.query || "",
+                    };
+                })
+            );
             setLoading(false);
+            console.log(response);
+            
         })();
     }, []);
 
@@ -67,7 +74,7 @@ export default function Page() {
                 <TableCell align="left">{item.type}</TableCell>
                 <TableCell align="left">{
                     // if it is more than 50 characters, show only 50 characters and add ... at the end
-                    item.sqlSchema.length > 50 ? item.sqlSchema.substring(0, 50) + "..." : item.sqlSchema
+                    item.query.length > 50 ? item.query.substring(0, 30) + "..." : item.query
                     }</TableCell>
                 <TableCell align="left">
                   <Stack direction="row" spacing={2}>

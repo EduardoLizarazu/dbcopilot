@@ -9,7 +9,7 @@ interface SqlSchemaAction {
 const BASE_URL = process.env.BASE_URL;
 
 export const readAllSqlSchemaAction = async (): Promise<SqlSchemaAction[]> => {
-  const response = await fetch(`${BASE_URL}/sqlschema`, {
+  const response = await fetch(`${BASE_URL}/databasetype`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
