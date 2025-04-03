@@ -9,27 +9,52 @@ export class DatabasetypeController {
 
   @Post()
   create(@Body() createDatabasetypeDto: CreateDatabasetypeDto) {
-    return this.databasetypeService.create(createDatabasetypeDto);
+    try {
+      return this.databasetypeService.create(createDatabasetypeDto);
+    } catch (error) {
+      console.error('Error creating database type:', error);
+      throw error; // Rethrow the error to be handled by NestJS
+    }
   }
 
   @Get()
   findAll() {
-    return this.databasetypeService.findAll();
+    try {
+      return this.databasetypeService.findAll();
+    } catch (error) {
+      console.error('Error fetching all database types:', error);
+      throw error; // Rethrow the error to be handled by NestJS
+    }
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.databasetypeService.findOneById(+id); 
+    try {
+      return this.databasetypeService.findOneById(+id);
+    } catch (error) {
+      console.error('Error fetching database type by ID:', error);
+      throw error; // Rethrow the error to be handled by NestJS
+    }
   }
 
   @Get(':type')
   findOneByType(@Param('type') type: string) {
-    return this.databasetypeService.findOneByType(type); 
+    try {
+      return this.databasetypeService.findOneByType(type); 
+    } catch (error) {
+      console.error('Error fetching database type by type:', error);
+      throw error; // Rethrow the error to be handled by NestJS
+    }
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDatabasetypeDto: UpdateDatabasetypeDto) {
-    return this.databasetypeService.update(+id, updateDatabasetypeDto);
+    try {
+      return this.databasetypeService.update(+id, updateDatabasetypeDto);
+    } catch (error) {
+      console.error('Error updating database type:', error);
+      throw error; // Rethrow the error to be handled by NestJS
+    }
   }
 
   @Delete(':id')
