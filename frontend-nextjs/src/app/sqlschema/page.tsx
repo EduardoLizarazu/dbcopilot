@@ -1,23 +1,34 @@
 "use client";
-import { Button, CircularProgress, Container, Stack, TextField, Typography } from "@mui/material";
+import { readAllSqlSchemaAction } from "@/controller/_actions/index.actions";
+import { Button, CircularProgress, Container, Link, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
+
+
+interface ListInterface {
+    id: number;
+    name: string;
+    type: string;
+    sqlSchema: string;
+}
+
 export default function Page() {
     // USE STATE
     const [loading, setLoading] = useState(false);
-    const [sqlSchema, setSqlSchema] = React.useState<{
-        id: number;
-        name: string;
-        type: string;
-        sqlSchema: string;
-    }>({
-        id: 0,
-        name: "",
-        type: "",
-        sqlSchema: ""
-    });
+    const [sqlSchema, setSqlSchema] = React.useState<ListInterface[]>([]);
 
     // USE EFFECT
-    React.useEffect(() => {}, []);
+    React.useEffect(() => {
+        (async () => {
+            setLoading(true);
+            const response = await readAllSqlSchemaAction();
+            if (response) {
+                setSqlSchema(response);
+            } else {
+                console.log("No data found");
+            }
+            setLoading(false);
+        })();
+    }, []);
 
 
     // HANDLER
@@ -27,40 +38,58 @@ export default function Page() {
         return <CircularProgress />;
     }
 
+    function handleRemove(id: number): void {
+        throw new Error("Function not implemented.");
+    }
+
     return (
         <Container>
-            <Stack spacing={2}>
-                <Typography variant="h4">SQL Schema</Typography>
-                <TextField 
-                    label="Name"
-                    variant="outlined"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    fullWidth
-                />
-                <TextField 
-                    label="Type"
-                    variant="outlined"
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    fullWidth
-                />
-                <TextField 
-                    label="SQL Schema"
-                    variant="outlined"
-                    value={sqlSchema}
-                    onChange={(e) => setSqlSchema(e.target.value)}
-                    fullWidth
-                    multiline
-                    rows={4}
-                />
-                <Stack direction="row" spacing={2} justifyContent="flex-end">
-                    <Button onClick={() => setLoading(true)}>Submit</Button>
-                    <Button onClick={() => {setName(""); setType(""); setSqlSchema("");}}>Clear</Button>
-                </Stack>
-
-            </Stack>
-        </Container>
+      <Typography variant="h4">Connections</Typography>
+      <Link href="/connection/create">
+        <Button variant="contained" color="primary">
+          Create
+        </Button>
+      </Link>
+      <TableContainer component={Paper} className="my-4">
+        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="left">Name</TableCell>
+              <TableCell align="left">Type</TableCell>
+              <TableCell align="left">SQL</TableCell>
+              <TableCell align="left">Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sqlSchema.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell align="left">{item.name}</TableCell>
+                <TableCell align="left">{item.type}</TableCell>
+                <TableCell align="left">{
+                    // if it is more than 50 characters, show only 50 characters and add ... at the end
+                    item.sqlSchema.length > 50 ? item.sqlSchema.substring(0, 50) + "..." : item.sqlSchema
+                    }</TableCell>
+                <TableCell align="left">
+                  <Stack direction="row" spacing={2}>
+                    <Link href={`/sqlschema/${item.id}`}>
+                      <Button variant="contained" color="info">
+                        Edit
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleRemove(item.id)}
+                      color="error"
+                    >
+                      Remove
+                    </Button>
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Container>
     );
-
 }

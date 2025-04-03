@@ -1,3 +1,4 @@
+"use server";
 interface SqlSchemaAction {
   id: number;
   name: string;
@@ -5,24 +6,17 @@ interface SqlSchemaAction {
   sqlSchema: string;
 }
 
-export const sqlSchemaAction = async (sqlSchema: SqlSchemaAction) => {
-  const { id, name, type, sqlSchema: sqlSchemaValue } = sqlSchema;
-  const response = await fetch("/api/sqlschema", {
-    method: "POST",
+const BASE_URL = process.env.BASE_URL;
+
+export const readAllSqlSchemaAction = async (): Promise<SqlSchemaAction[]> => {
+  const response = await fetch(`${BASE_URL}/sqlschema`, {
+    method: 'GET',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      id,
-      name,
-      type,
-      sqlSchema: sqlSchemaValue,
-    }),
   });
-
   if (!response.ok) {
-    throw new Error("Failed to fetch data");
+    throw new Error('Failed to fetch SQL schema actions');
   }
-
   return response.json();
 }
