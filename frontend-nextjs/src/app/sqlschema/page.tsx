@@ -1,5 +1,5 @@
 "use client";
-import { readAllSqlSchemaAction } from "@/controller/_actions/index.actions";
+import { deleteSqlSchemaAction, readAllSqlSchemaAction } from "@/controller/_actions/index.actions";
 import { Button, CircularProgress, Container, Link, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 
@@ -45,8 +45,13 @@ export default function Page() {
         return <CircularProgress />;
     }
 
-    function handleRemove(id: number): void {
-        throw new Error("Function not implemented.");
+    async function handleRemove(id: number): Promise<void> {
+      try {
+        await deleteSqlSchemaAction(id);  
+        setSqlSchema((prev) => prev.filter((item) => item.id !== id));
+      } catch (error) {
+        console.error("Error removing SQL schema:", error);
+      }
     }
 
     return (
