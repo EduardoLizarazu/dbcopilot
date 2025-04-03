@@ -29,6 +29,7 @@ import ChatIcon from "@mui/icons-material/Chat";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import CableIcon from "@mui/icons-material/Cable";
 import { Link, Tooltip } from "@mui/material";
+import SchemaIcon from '@mui/icons-material/Schema';
 
 const links = [
   { href: "/", label: "Home", icon: <HomeIcon /> },
@@ -56,6 +57,11 @@ const links = [
     href: "/connection",
     label: "Db Connection",
     icon: <CableIcon />,
+  },
+  {
+    href: "/sqlschema",
+    label: "SQL Schema",
+    icon: <SchemaIcon />,
   },
   {
     href: "/profile",
