@@ -26,4 +26,9 @@ export { CreateChatAction } from "./chat/chat.action";
 export { GetSchemaData } from "./schema/schema.action";
 
 
-export { readAllSqlSchemaAction } from "./sqlschema/sqlschema.action";
+export { 
+  readAllSqlSchemaAction, 
+  createSqlSchemaAction, 
+  readSqlSchemaActionById, 
+  updateSqlSchemaAction, 
+  deleteSqlSchemaAction } from "./sqlschema/sqlschema.action";

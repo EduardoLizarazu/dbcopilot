@@ -1,5 +1,6 @@
 "use client";
-import { Button, CircularProgress, Container, Stack, TextField, Typography } from "@mui/material";
+import { createSqlSchemaAction } from "@/controller/_actions/index.actions";
+import { Autocomplete, Button, CircularProgress, Container, Stack, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 export default function Page() {
     // USE STATE
@@ -14,10 +15,31 @@ export default function Page() {
 
     // HANDLER
 
+    async function handleSubmit(): Promise<void> {
+        try {
+            await createSqlSchemaAction({
+                name: name,
+                type: type,
+                query: sqlSchema,
+            });
+        }
+        catch (error) {
+            console.error("Error creating SQL schema:", error);
+            alert("Error creating SQL schema. Please try again.");
+        }
+    }
+
     // RENDER
     if(loading) {
         return <CircularProgress />;
     }
+
+    const dbTypes = [
+        { label: 'posgres' },
+        { label: 'oracle' },
+        { label: 'mysql'},
+        { label: 'mssql' },
+    ];
 
     return (
         <Container>
@@ -30,12 +52,14 @@ export default function Page() {
                     onChange={(e) => setName(e.target.value)}
                     fullWidth
                 />
-                <TextField 
-                    label="Type"
-                    variant="outlined"
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    fullWidth
+                <Autocomplete
+                    disablePortal
+                    options={dbTypes}
+                    sx={{ width: 300 }}
+                    onChange={(event, newValue) => {
+                        setType(newValue?.label || "");
+                    }}
+                    renderInput={(params) => <TextField {...params} label="Database Types" />}
                 />
                 <TextField 
                     label="SQL Schema"
@@ -47,10 +71,9 @@ export default function Page() {
                     rows={4}
                 />
                 <Stack direction="row" spacing={2} justifyContent="flex-end">
-                    <Button onClick={() => setLoading(true)}>Submit</Button>
+                    <Button onClick={() => handleSubmit()}>Submit</Button>
                     <Button onClick={() => {setName(""); setType(""); setSqlSchema("");}}>Clear</Button>
                 </Stack>
-
             </Stack>
         </Container>
     );

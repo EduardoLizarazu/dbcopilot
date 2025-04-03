@@ -1,22 +1,85 @@
 "use server";
-interface SqlSchemaAction {
+interface ReadSqlSchemaActionOutput {
   id: number;
   name: string;
   type: string;
-  sqlSchema: string;
+  query: string;
 }
+
+
+interface CreateSqlSchemaActionInput 
+  extends Omit<ReadSqlSchemaActionOutput, 'id'> {}
+
 
 const BASE_URL = process.env.BASE_URL;
 
-export const readAllSqlSchemaAction = async (): Promise<SqlSchemaAction[]> => {
-  const response = await fetch(`${BASE_URL}/databasetype`, {
+export const readAllSqlSchemaAction = async (): Promise<ReadSqlSchemaActionOutput[]> => {
+  try {
+    const response = await fetch(`${BASE_URL}/databasetype`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch SQL schema actions');
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching SQL schema actions:', error);
+    throw new Error('Failed to fetch SQL schema actions');
+  }
+}
+
+
+export const readSqlSchemaActionById = async (id: number): Promise<ReadSqlSchemaActionOutput> => {
+  const response = await fetch(`${BASE_URL}/databasetype/${id}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
   });
   if (!response.ok) {
-    throw new Error('Failed to fetch SQL schema actions');
+    throw new Error('Failed to fetch SQL schema action by ID');
   }
   return response.json();
+}
+
+export const createSqlSchemaAction = async (data: CreateSqlSchemaActionInput): Promise<void> => {
+  const response = await fetch(`${BASE_URL}/databasetype`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create SQL schema action');
+  }
+}
+
+
+export const updateSqlSchemaAction = async (id: number, data: CreateSqlSchemaActionInput): Promise<void> => {
+  const response = await fetch(`${BASE_URL}/databasetype/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update SQL schema action');
+  }
+}
+
+export const deleteSqlSchemaAction = async (id: number): Promise<void> => {
+  const response = await fetch(`${BASE_URL}/databasetype/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete SQL schema action');
+  }
 }

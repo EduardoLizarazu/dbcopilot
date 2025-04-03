@@ -22,7 +22,7 @@ export default function Page() {
             setLoading(true);
             const response = await readAllSqlSchemaAction();
             setSqlSchema(
-                response.map((item: any) => {
+                response.map((item: ListInterface) => {
                     return {
                         id: item.id || 0,
                         name: item.name || "",
@@ -52,7 +52,7 @@ export default function Page() {
     return (
         <Container>
       <Typography variant="h4">Connections</Typography>
-      <Link href="/connection/create">
+      <Link href="/sqlschema/create">
         <Button variant="contained" color="primary">
           Create
         </Button>
