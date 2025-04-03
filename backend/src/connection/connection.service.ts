@@ -13,8 +13,6 @@ export class ConnectionService {
   ) {}
   async create(createConnectionDto: CreateConnectionDto) {
     try {
-      if((await this.testConnection(createConnectionDto)).result === false) 
-        throw new Error('Connection test failed: Invalid database credentials or connection details.');
       const connection = this.connectionRepository.create(createConnectionDto);
       const connectionSaved =  await this.connectionRepository.save(connection);
       return connectionSaved;
@@ -26,8 +24,23 @@ export class ConnectionService {
 
   async findAll() {
     try {
-      // find with the name of the database type
-      return await this.connectionRepository.find();
+      // find with the name of the database type and only select the type
+      return await this.connectionRepository.find(
+        {
+          relations: ['databasetype'],
+          select: {
+            id: true,
+            dbName: true,
+            dbHost: true,
+            dbPort: true,
+            dbUsername: true,
+            dbPassword: true,
+            databasetype: {
+              type: true,
+            },
+          },
+        },
+      );
     } catch (error) {
       console.error('Error fetching connections:', error);
       throw new Error('Failed to fetch connections');
@@ -61,7 +74,7 @@ export class ConnectionService {
     }
   }
 
-  async testConnection(connection: Partial<CreateConnectionDto>): Promise<{schema: string, result: boolean}> {
+  async testConnection(connection: CreateConnectionDto): Promise<{schema: string, result: boolean}> {
     const { dbTypeId, dbHost, dbPort, dbUsername, dbPassword, dbName } = connection;
 
     try {
