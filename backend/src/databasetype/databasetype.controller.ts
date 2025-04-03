@@ -50,6 +50,9 @@ export class DatabasetypeController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDatabasetypeDto: UpdateDatabasetypeDto) {
     try {
+      console.log('CONTROLLER - Updating database type with ID:', id); // Debugging line
+      console.log('CONTROLLER - Type of ID:', typeof id); // Debugging line
+      
       return this.databasetypeService.update(+id, updateDatabasetypeDto);
     } catch (error) {
       console.error('Error updating database type:', error);

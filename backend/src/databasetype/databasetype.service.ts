@@ -33,6 +33,8 @@ export class DatabasetypeService {
 
   async findOneById(id: number) {
     try {
+      console.log('Fetching databasetype with ID:', id); // Debugging line
+      console.log('Type of ID:', typeof id); // Debugging line
       return await  this.databasetypeRepository.findOneBy({ id });      
     } catch (error) {
       console.error('Error fetching databasetype:', error);
@@ -56,6 +58,8 @@ export class DatabasetypeService {
 
   async update(id: number, updateDatabasetypeDto: UpdateDatabasetypeDto) {
     try {
+      console.log('Updating databasetype with ID:', id); // Debugging line
+      console.log('Type of ID:', typeof id); // Debugging line
       return await this.databasetypeRepository.update(id, updateDatabasetypeDto);      
     } catch (error) {
       console.error('Error updating databasetype:', error);

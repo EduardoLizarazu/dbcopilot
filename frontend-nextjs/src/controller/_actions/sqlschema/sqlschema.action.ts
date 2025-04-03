@@ -32,13 +32,13 @@ export const readAllSqlSchemaAction = async (): Promise<ReadSqlSchemaActionOutpu
 }
 
 
-export const readSqlSchemaActionById = async (id: number): Promise<ReadSqlSchemaActionOutput> => {
+export const readSqlSchemaActionById = async (id: string): Promise<ReadSqlSchemaActionOutput> => {
   const response = await fetch(`${BASE_URL}/databasetype/${id}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
-  });
+  });  
   if (!response.ok) {
     throw new Error('Failed to fetch SQL schema action by ID');
   }
@@ -60,8 +60,10 @@ export const createSqlSchemaAction = async (data: CreateSqlSchemaActionInput): P
 
 
 export const updateSqlSchemaAction = async (id: number, data: CreateSqlSchemaActionInput): Promise<void> => {
+
+  console.log("updateSqlSchemaAction", id, data);
   const response = await fetch(`${BASE_URL}/databasetype/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
