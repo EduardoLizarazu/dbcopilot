@@ -26,6 +26,7 @@ export class ConnectionService {
 
   async findAll() {
     try {
+      // find with the name of the database type
       return await this.connectionRepository.find();
     } catch (error) {
       console.error('Error fetching connections:', error);

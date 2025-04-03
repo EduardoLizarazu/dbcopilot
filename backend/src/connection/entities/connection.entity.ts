@@ -1,5 +1,5 @@
 import { Databasetype } from "src/databasetype/entities/databasetype.entity";
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Connection {
@@ -28,6 +28,6 @@ export class Connection {
     dbPassword?: string;
     
     // Connection only has one and only one database type
-    @OneToMany(() => Databasetype, (databasetype) => databasetype.id)
+    @ManyToOne(() => Databasetype, (databasetype) => databasetype.connections)
     databasetype: Databasetype;
 }
