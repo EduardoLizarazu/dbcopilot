@@ -19,7 +19,17 @@ export {
   GetUsers,
   UpdateUser,
 } from "./user/user.action";
-export { GetConnectionAction } from "./connection/connection.action";
+
+
+// CONNECTION ACTIONS
+
+export { ReadConnectionAction } from "./connection/connection.action";
+export type {
+   ReadConnectionOutput, 
+   CreateConnectionInput, 
+   UpdateConnectionInput 
+} from "./connection/connection.action";
+
 
 export { CreateChatAction } from "./chat/chat.action";
 
