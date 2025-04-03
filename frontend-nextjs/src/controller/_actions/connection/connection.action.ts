@@ -19,7 +19,7 @@ export type UpdateConnectionInput = ReadConnectionOutput;
 
 const BASE_URL = process.env.BASE_URL;
 
-export const ReadConnectionAction = async (): Promise<ReadConnectionOutput> => {
+export const ReadConnectionAction = async (): Promise<ReadConnectionOutput[]> => {
   try {
     const response = await fetch(`${BASE_URL}/connection`, {
       method: 'GET',

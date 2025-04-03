@@ -1,7 +1,7 @@
 'use client';
 import React from "react";
 import { Button, CircularProgress, Container, Link, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import { ReadConnectionOutput } from "@/controller/_actions/index.actions";
+import { ReadConnectionAction, ReadConnectionOutput } from "@/controller/_actions/index.actions";
 
 
 export default function ConnectionPage() {
@@ -15,9 +15,8 @@ export default function ConnectionPage() {
     (async () => {
       setLoading(true);
       // Fetch connections
-
-
-      setConnList();
+      const response = await ReadConnectionAction();
+      setConnList(response);
 
       setLoading(false);
     })();
