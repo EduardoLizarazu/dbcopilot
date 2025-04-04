@@ -17,9 +17,24 @@ export default function ConnectionPage() {
       // Fetch connections
       const response = await ReadConnectionAction();
       console.log("Connection response: ", response);
-      if (response) {
-        setConnList(response);
-      } 
+      setConnList(
+        response.map((item: ReadConnectionOutput) => {
+          return {
+            id: item.id || 0,
+            name: item.name || "",
+            description: item.description || "",
+            dbName: item.dbName || "",
+            dbHost: item.dbHost || "",
+            dbPort: item.dbPort || 0,
+            dbUsername: item.dbUsername || "",
+            dbPassword: item.dbPassword || "",
+            dbTypeId: item.dbTypeId || 0,
+            dbType: item.dbType || "",
+          };
+        }
+      ));
+
+      console.log("Connection list: ", connList);
       setLoading(false);
     })();
   }, []);
@@ -61,7 +76,7 @@ export default function ConnectionPage() {
               <TableRow key={item.id}>
                 <TableCell align="left">{item.name}</TableCell>
                 <TableCell align="left">{item.description}</TableCell>
-                <TableCell align="left">{item.dbType.type}</TableCell>
+                <TableCell align="left">{item.dbType}</TableCell>
                 <TableCell align="left">{item.dbName}</TableCell>
                 <TableCell align="left">{item.dbHost}</TableCell>
                 <TableCell align="left">

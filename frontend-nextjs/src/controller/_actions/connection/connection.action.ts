@@ -7,7 +7,8 @@ export interface CreateConnectionInput {
   dbPort: number;
   dbUsername: string;
   dbPassword?: string;
-  dbType: { id: number; type: string };
+  dbTypeId: number;
+  dbType: string;
 }
 
 export interface ReadConnectionOutput extends CreateConnectionInput {
@@ -42,10 +43,8 @@ export const ReadConnectionAction = async (): Promise<ReadConnectionOutput[]> =>
       dbPort: item.dbPort,
       dbUsername: item.dbUsername,
       dbPassword: item.dbPassword,
-      dbType: {
-        id: item.databasetype.id,
-        type: item.databasetype.type,
-      },
+      dbTypeId: item.databasetype.id,
+      dbType: item.databasetype.type, 
     }))];
 
     console.log('Parsed data:', output);
