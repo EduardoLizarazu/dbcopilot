@@ -28,7 +28,7 @@ export default function CreateConnectionPage() {
   const [password, setPassword] = React.useState<string>("");
   const [openFeedback, setOpenFeedback] = React.useState<boolean>(false);
   const [feedbackMessage, setFeedbackMessage] = React.useState<string>("");
-  const [feedbackSeverity, setFeedbackSeverity] = React.useState<"success" | "error">("success");
+  const [feedbackSeverity, setFeedbackSeverity] = React.useState<"success" | "error" | undefined>(undefined);
 
   // USE EFFECT
   React.useEffect(() => {

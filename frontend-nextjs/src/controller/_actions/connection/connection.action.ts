@@ -26,7 +26,7 @@ export interface ReadConnectionOutput extends CreateConnectionInput {
   dbType: string; // Added dbType field
 }
 
-export type UpdateConnectionInput = ReadConnectionOutput;
+export type UpdateConnectionInput = Omit<ReadConnectionOutput, 'dbType'>;
 
 
 const BASE_URL = process.env.BASE_URL;
@@ -129,6 +129,60 @@ export const ReadAllDatabaseTypeAction = async (): Promise<ReadDatabaseTypeOutpu
   } catch (error) {
     console.error('Error fetching database types:', error);
     throw new Error('Failed to fetch database types');
+  }
+}
+
+export const ReadConnectionByIdAction = async (id: number): Promise<ReadConnectionOutput> => {
+  try {
+    const response = await fetch(`${BASE_URL}/connection/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch connection by ID');
+    }
+    const data = await response.json();
+    
+    const output: ReadConnectionOutput = {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      dbName: data.dbName,
+      dbHost: data.dbHost,
+      dbPort: data.dbPort,
+      dbUsername: data.dbUsername,
+      dbPassword: data.dbPassword,
+      dbTypeId: data.databasetype.id,
+      dbType: data.databasetype.type, 
+    };
+
+    return output;
+  } catch (error) {
+    console.error('Error fetching connection by ID:', error);
+    throw new Error('Failed to fetch connection by ID');
+  }
+}
+
+export const UpdateConnectionAction = async (input: UpdateConnectionInput): Promise<void> => {
+  try {
+    const response = await fetch(`${BASE_URL}/connection/${input.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update connection');
+    }
+
+    revalidatePath(CONTEXT_PATH); // Revalidate the path to refresh the data
+
+  } catch (error) {
+    console.error('Error updating connection:', error);
+    throw new Error('Failed to update connection');
   }
 }
 

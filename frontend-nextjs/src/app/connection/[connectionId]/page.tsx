@@ -1,9 +1,266 @@
-import { Container, Typography } from "@mui/material";
+"use client";
+import React from "react";
+import {
+  Autocomplete,
+  Button,
+  CircularProgress,
+  Container,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { ReadAllDatabaseTypeAction, ReadConnectionByIdAction, ReadDatabaseTypeOutput, TestConnectionAction, UpdateConnectionAction } from "@/controller/_actions/index.actions";
+import { FeedbackSnackBar } from "@/components/feedbackStanckBar";
+import Link from "next/link";
 
-export default function EditConnectionPage() {
+
+export default function CreateConnectionPage({  params }: { params: { connectionId: string } }) {
+  // USE STATE
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [connId, setConnId] = React.useState<number>(0);
+  const [connName, setConnName] = React.useState<string>("");
+  const [description, setDescription] = React.useState<string>("");
+  const [databaseType, setDatabaseType] = React.useState<ReadDatabaseTypeOutput[]>([]);
+  const [databaseTypeId, setDatabaseTypeId] = React.useState<number>(0);
+  const [host, setHost] = React.useState<string>("");
+  const [port, setPort] = React.useState<string>("");
+  const [databaseName, setDatabaseName] = React.useState<string>("");
+  const [username, setUsername] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string>("");
+  const [openFeedback, setOpenFeedback] = React.useState<boolean>(false);
+  const [feedbackMessage, setFeedbackMessage] = React.useState<string>("");
+  const [feedbackSeverity, setFeedbackSeverity] = React.useState<"success" | "error" | undefined>(undefined);
+
+  // USE EFFECT
+  React.useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const {  connectionId } = params;
+
+      const connRes = await ReadConnectionByIdAction(parseInt(connectionId))
+      setConnId(parseInt(connectionId));
+      setConnName(connRes.name || "");
+      setDescription(connRes.description || "");
+      setDatabaseTypeId(connRes.dbTypeId || 0);
+      setHost(connRes.dbHost || "");
+      setPort(connRes.dbPort.toString() || "");
+      setDatabaseName(connRes.dbName || "");
+      setUsername(connRes.dbUsername || "");
+      setPassword(connRes.dbPassword || "")
+
+
+      // Fetch data here
+      const responseDbTypes = await ReadAllDatabaseTypeAction();
+      setDatabaseType(() => {
+        return responseDbTypes.map((item) => ({
+          id: item.id || 0,
+          name: item.name || "",
+          type: item.type || "",
+        }));
+      });
+
+      setLoading(false);
+    })();
+  }, []);
+
+  // HANDLERS
+
+  async function handleCreate() {
+    // Create connection here
+    console.log("Create connection");
+
+    await UpdateConnectionAction({
+      id: connId,
+      name: connName,
+      description,
+      dbTypeId: databaseTypeId,
+      dbHost: host,
+      dbPort: parseInt(port),
+      dbName: databaseName,
+      dbUsername: username,
+      dbPassword: password,
+    })
+      .then((res) => {
+        console.log("Create connection response: ", res);
+        setFeedbackMessage("Connection created successfully");
+        setFeedbackSeverity("success");
+        setOpenFeedback(true);
+      })
+      .catch((err) => {
+        console.error("Error creating connection: ", err);
+        setFeedbackMessage("Error creating connection");
+        setFeedbackSeverity("error");
+        setOpenFeedback(true);
+      });
+
+  }
+
+  async function handleCancel() {
+    // Cancel create connection
+    console.log("Cancel create connection");
+  }
+
+  async function handleTest() {
+    // Test connection
+    console.log("Test connection");
+    await TestConnectionAction({
+      name: connName,
+      description,
+      dbTypeId: databaseTypeId,
+      dbHost: host,
+      dbPort: parseInt(port),
+      dbName: databaseName,
+      dbUsername: username,
+      dbPassword: password,
+    })
+      .then((res) => {
+        console.log("Test connection response: ", res);
+        setFeedbackMessage("Connection tested successfully");
+        setFeedbackSeverity("success");
+        setOpenFeedback(true);
+      })
+      .catch((err) => {
+        console.error("Error testing connection: ", err);
+        setFeedbackMessage("Error testing connection");
+        setFeedbackSeverity("error");
+        setOpenFeedback(true);
+      });
+  }
+
+  // RENDERS
+  if (loading) {
+    return <CircularProgress />;
+  }
+
   return (
     <Container>
-      <Typography variant="h4">Edit Connection</Typography>
+      <Stack spacing={3}>
+        <Typography variant="h4">Edit Connection</Typography>
+        {/* Textfield for connection name */}
+        <TextField
+          label="Connection Name"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={connName}
+          onChange={(e) => setConnName(e.target.value)}
+        />
+        {/* Textfield for description */}
+        <TextField
+          label="Description"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        {/* Textfield for database type */}
+        <Autocomplete
+          disablePortal
+          id="combo-box-demo"
+          options={databaseType}
+          getOptionLabel={(option) => option.type}
+          onChange={(event, newValue) => {
+            if (newValue) {
+              setDatabaseTypeId(newValue.id);
+            } else {
+              setDatabaseTypeId(0); // or handle null case appropriately
+            }
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Database Type" variant="standard" />
+          )}
+        />
+        {/* Textfield for host */}
+        <TextField
+          label="Host"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={host}
+          onChange={(e) => setHost(e.target.value)}
+        />
+        {/* Textfield for port -- only numbers */}
+        <TextField
+          label="Port"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={port}
+          onChange={(e) => setPort(e.target.value)}
+        />
+        {/* Textfield for database name */}
+        <TextField
+          label="Database Name"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={databaseName}
+          onChange={(e) => setDatabaseName(e.target.value)}
+        />
+
+        {/* Textfield for username */}
+        <TextField
+          label="Username"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        {/* Textfield for password */}
+        <TextField
+          label="Password"
+          variant="standard"
+          style={{ width: "100%" }}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <Stack
+          spacing={2}
+          direction="row"
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+          }}
+        >
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              alignItems: "center",
+            }}
+          >
+            <Button variant="contained" color="secondary" onClick={handleTest}>
+              Test Connection
+            </Button>
+            { feedbackSeverity === "success" && (
+              <Typography variant="body1" color="green">
+                Connection successful
+              </Typography>
+            )}
+
+            { feedbackSeverity === "error" && (
+              <Typography variant="body1" color="red">
+                Connection failed
+              </Typography>
+            )}
+
+
+
+          </Stack>
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" color="primary" onClick={handleCreate}>
+              Create
+            </Button>
+            <Button variant="contained" color="error" onClick={handleCancel}>
+              <Link href={"/connection"}>CANCEL</Link>
+            </Button>
+          </Stack>
+        </Stack>
+      </Stack>
+      {/* Feedback message */}
+      <FeedbackSnackBar
+        open={openFeedback}
+        setOpen={setOpenFeedback}
+        message={feedbackMessage}
+        severity={feedbackSeverity}
+      />
     </Container>
   );
 }
