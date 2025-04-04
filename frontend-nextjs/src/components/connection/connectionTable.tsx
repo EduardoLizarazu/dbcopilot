@@ -9,42 +9,46 @@ interface Props {
 }
 
 export function ConnectionTable(
-    { connList }: Props
-    ) {
+  { connList }: Props
+  ) {
 
-    const alConnection = use(connList)
     
-    console.log("alConnection", alConnection);
-  
 
-    // RENDER
-    return (
-        <TableBody>
-          {alConnection.map((item, index) => (
-            <TableRow key={item.id}>
-              <TableCell align="left">{item.name}</TableCell>
-              <TableCell align="left">{item.description}</TableCell>
-              <TableCell align="left">{item.dbType}</TableCell>
-              <TableCell align="left">{item.dbName}</TableCell>
-              <TableCell align="left">{item.dbHost}</TableCell>
-              <TableCell align="left">
-                <Stack direction="row" spacing={2}>
-                  <Link href={`/connection/${item.id}`}>
-                    <Button variant="contained" color="info">
-                      Edit
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="contained"
-                    onClick={() => { DeleteConnectionAction(item.id) }}
-                    color="error"
-                  >
-                    Remove
+  const alConnection = use(connList)
+  
+  console.log("alConnection", alConnection);
+
+
+  // RENDER
+  return (
+      <TableBody>
+        {alConnection.map((item, index) => (
+          <TableRow key={item.id}>
+            <TableCell align="left">{item.name}</TableCell>
+            <TableCell align="left">{item.description}</TableCell>
+            <TableCell align="left">{item.dbType}</TableCell>
+            <TableCell align="left">{item.dbName}</TableCell>
+            <TableCell align="left">{item.dbHost}</TableCell>
+            <TableCell align="left">
+              <Stack direction="row" spacing={2}>
+                <Link href={`/connection/${item.id}`}>
+                  <Button variant="contained" color="info">
+                    Edit
                   </Button>
-                </Stack>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-    );
+                </Link>
+                <Button
+                  variant="contained"
+                  onClick={() => { 
+                    DeleteConnectionAction(item.id)
+                  }}
+                  color="error"
+                >
+                  Remove
+                </Button>
+              </Stack>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+  );
 } 
