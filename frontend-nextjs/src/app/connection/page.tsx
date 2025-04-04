@@ -26,7 +26,7 @@ export default function ConnectionPage() {
                 <TableCell align="left">Type</TableCell>
                 <TableCell align="left">Database Name</TableCell>
                 <TableCell align="left">Host</TableCell>
-                <TableCell align="left">Action</TableCell>
+                <TableCell align="center">Action</TableCell>
               </TableRow>
             </TableHead>
               <Suspense fallback={<TableBody>

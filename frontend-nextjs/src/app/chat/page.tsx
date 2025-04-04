@@ -16,7 +16,6 @@ import {
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import {
   CreateChatAction,
-  GetConnectionAction,
 } from "@/controller/_actions/index.actions";
 import { ReadConnectionUseCaseOutput } from "@useCases/index.usecase";
 import EditIcon from "@mui/icons-material/Edit";
@@ -65,8 +64,8 @@ export default function ChatPage() {
     (async () => {
       setLoading(true);
       // Fetch data
-      const connDbs = await GetConnectionAction();
-      setDatabase(connDbs);
+      // const connDbs = await GetConnectionAction();
+      // setDatabase(connDbs);
       setLoading(false);
     })();
   }, []);

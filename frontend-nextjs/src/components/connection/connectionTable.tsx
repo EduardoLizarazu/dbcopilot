@@ -31,6 +31,11 @@ export function ConnectionTable(
             <TableCell align="left">{item.dbHost}</TableCell>
             <TableCell align="left">
               <Stack direction="row" spacing={2}>
+                <Link href={`/connection/${item.id}/schema`}>
+                  <Button variant="contained" color="secondary">
+                    Schema
+                  </Button>
+                </Link>
                 <Link href={`/connection/${item.id}`}>
                   <Button variant="contained" color="info">
                     Edit
