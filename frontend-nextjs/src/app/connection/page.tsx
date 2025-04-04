@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { Button, CircularProgress, Container, Link, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { ReadConnectionAction, ReadConnectionOutput } from "@/controller/_actions/index.actions";
-import { ConnectionTable } from "@/components/connectionTable";
+import { ConnectionTable } from "@/components/connection/connectionTable";
 
 
 export default function ConnectionPage() {
