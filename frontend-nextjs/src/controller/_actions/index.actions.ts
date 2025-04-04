@@ -23,7 +23,7 @@ export {
 
 // CONNECTION ACTIONS
 
-export { ReadConnectionAction } from "./connection/connection.action";
+export { ReadConnectionAction, DeleteConnectionAction } from "./connection/connection.action";
 export type {
    ReadConnectionOutput, 
    CreateConnectionInput, 

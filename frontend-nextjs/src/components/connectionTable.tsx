@@ -1,6 +1,6 @@
 "use client";
 import React, { use } from "react";
-import { ReadConnectionOutput } from "@/controller/_actions/index.actions";
+import { DeleteConnectionAction, ReadConnectionOutput } from "@/controller/_actions/index.actions";
 import { Button, Link, Stack, TableBody, TableCell, TableRow } from "@mui/material";
 
 
@@ -15,16 +15,13 @@ export function ConnectionTable(
     const alConnection = use(connList)
     
     console.log("alConnection", alConnection);
-    
-    async function handleRemove(id: number) {
-      await 
-    }
+  
 
     // RENDER
     return (
         <TableBody>
           {alConnection.map((item, index) => (
-            <TableRow key={index}>
+            <TableRow key={item.id}>
               <TableCell align="left">{item.name}</TableCell>
               <TableCell align="left">{item.description}</TableCell>
               <TableCell align="left">{item.dbType}</TableCell>
@@ -39,7 +36,7 @@ export function ConnectionTable(
                   </Link>
                   <Button
                     variant="contained"
-                    onClick={() => {}}
+                    onClick={() => { DeleteConnectionAction(item.id) }}
                     color="error"
                   >
                     Remove

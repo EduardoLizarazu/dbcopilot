@@ -1,4 +1,7 @@
 "use server";
+
+import { revalidatePath  } from "next/cache"
+
 export interface CreateConnectionInput {
   name: string;
   description: string;
@@ -54,5 +57,25 @@ export const ReadConnectionAction = async (): Promise<ReadConnectionOutput[]> =>
   catch (error) {
     console.error('Error fetching SQL schema actions:', error);
     throw new Error('Failed to fetch SQL schema actions');
+  }
+}
+
+export const DeleteConnectionAction = async (id: number): Promise<void> => {
+  try {
+    const response = await fetch(`${BASE_URL}/connection/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete connection');
+    }
+
+    revalidatePath('/connection'); // Revalidate the path to refresh the data
+
+  } catch (error) {
+    console.error('Error deleting connection:', error);
+    throw new Error('Failed to delete connection');
   }
 }
