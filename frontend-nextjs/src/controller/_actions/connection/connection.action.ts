@@ -34,7 +34,7 @@ export const ReadConnectionAction = async (): Promise<ReadConnectionOutput[]> =>
     const data = await response.json();
 
     // Check the object structure of the response
-    const output: ReadConnectionOutput[] = [data.map((item: any) => ({
+    const output: ReadConnectionOutput[] = data.map((item: any) => ({
       id: item.id,
       name: item.name,
       description: item.description,
@@ -45,7 +45,7 @@ export const ReadConnectionAction = async (): Promise<ReadConnectionOutput[]> =>
       dbPassword: item.dbPassword,
       dbTypeId: item.databasetype.id,
       dbType: item.databasetype.type, 
-    }))];
+    }));
 
     console.log('Parsed data:', output);
     
