@@ -128,3 +128,22 @@ export const ReadAllDatabaseTypeAction = async (): Promise<ReadDatabaseTypeOutpu
     throw new Error('Failed to fetch database types');
   }
 }
+
+export const TestConnectionAction = async (input: CreateConnectionInput): Promise<boolean> => {
+  try {
+    const response = await fetch(`${BASE_URL}/connection/test`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to test connection');
+    }
+    return true;
+  } catch (error) {
+    console.error('Error testing connection:', error);
+    throw new Error('Failed to test connection');
+  }
+}
