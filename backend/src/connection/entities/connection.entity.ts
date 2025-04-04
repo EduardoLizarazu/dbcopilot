@@ -1,5 +1,5 @@
 import { Databasetype } from "src/databasetype/entities/databasetype.entity";
-import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Connection {
@@ -9,7 +9,7 @@ export class Connection {
     @Column({unique: true})
     name: string;
 
-
+    @Column({ nullable: true })
     description?: string;
 
     @Column()

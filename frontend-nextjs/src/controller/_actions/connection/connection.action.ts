@@ -30,10 +30,27 @@ export const ReadConnectionAction = async (): Promise<ReadConnectionOutput[]> =>
     if (!response.ok) {
       throw new Error('Failed to fetch SQL schema actions');
     }
-    console.log('Response:', response);
+    const data = await response.json();
+
+    // Check the object structure of the response
+    const output: ReadConnectionOutput[] = [data.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      dbName: item.dbName,
+      dbHost: item.dbHost,
+      dbPort: item.dbPort,
+      dbUsername: item.dbUsername,
+      dbPassword: item.dbPassword,
+      dbType: {
+        id: item.databasetype.id,
+        type: item.databasetype.type,
+      },
+    }))];
+
+    console.log('Parsed data:', output);
     
-    const data: ReadConnectionOutput[] = await response.json();
-    return data;
+    return output;
   }
   catch (error) {
     console.error('Error fetching SQL schema actions:', error);

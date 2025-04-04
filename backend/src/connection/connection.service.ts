@@ -30,6 +30,8 @@ export class ConnectionService {
           relations: ['databasetype'],
           select: {
             id: true,
+            name: true,
+            description: true,
             dbName: true,
             dbHost: true,
             dbPort: true,
