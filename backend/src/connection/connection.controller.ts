@@ -20,6 +20,7 @@ export class ConnectionController {
   @Get()
   findAll() {
     try {
+      console.log('Fetching all connections...');
       return this.connectionService.findAll();
     } catch (error) {
       console.error('Error fetching connections:', error);
