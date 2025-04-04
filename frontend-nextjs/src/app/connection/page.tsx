@@ -16,8 +16,10 @@ export default function ConnectionPage() {
       setLoading(true);
       // Fetch connections
       const response = await ReadConnectionAction();
-      setConnList(response);
-
+      console.log("Connection response: ", response);
+      if (response) {
+        setConnList(response);
+      } 
       setLoading(false);
     })();
   }, []);
@@ -55,23 +57,23 @@ export default function ConnectionPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {connList.map((conn) => (
-              <TableRow key={conn.id}>
-                <TableCell align="left">{conn.connectionName}</TableCell>
-                <TableCell align="left">{conn.description}</TableCell>
-                <TableCell align="left">{conn.databaseType}</TableCell>
-                <TableCell align="left">{conn.databaseName}</TableCell>
-                <TableCell align="left">{conn.host}</TableCell>
+            {connList.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell align="left">{item.name}</TableCell>
+                <TableCell align="left">{item.description}</TableCell>
+                <TableCell align="left">{item.dbType.type}</TableCell>
+                <TableCell align="left">{item.dbName}</TableCell>
+                <TableCell align="left">{item.dbHost}</TableCell>
                 <TableCell align="left">
                   <Stack direction="row" spacing={2}>
-                    <Link href={`/connection/${conn.id}`}>
+                    <Link href={`/connection/${item.id}`}>
                       <Button variant="contained" color="info">
                         Edit
                       </Button>
                     </Link>
                     <Button
                       variant="contained"
-                      onClick={() => handleRemoveUser(conn.id)}
+                      onClick={() => handleRemoveUser(item.id)}
                       color="error"
                     >
                       Remove
