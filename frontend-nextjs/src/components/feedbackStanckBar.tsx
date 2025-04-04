@@ -18,12 +18,6 @@ export function FeedbackSnackBar(
             open={open}
             autoHideDuration={6000}
             onClose={(e) => {
-                if (e.type === "timeout") {
-                    setOpen(false);
-                }
-                if (e.type === "clickaway") {
-                    return;
-                }
                 setOpen(false);
             }}
         >

@@ -27,7 +27,8 @@ export {
   ReadConnectionAction, 
   DeleteConnectionAction, 
   CreateConnectionAction,
-  ReadAllDatabaseTypeAction
+  ReadAllDatabaseTypeAction,
+  TestConnectionAction
 } from "./connection/connection.action";
 export type {
    ReadConnectionOutput, 

@@ -9,16 +9,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { CreateConnectionAction, ReadAllDatabaseTypeAction, ReadDatabaseTypeOutput } from "@/controller/_actions/index.actions";
+import { CreateConnectionAction, ReadAllDatabaseTypeAction, ReadDatabaseTypeOutput, TestConnectionAction } from "@/controller/_actions/index.actions";
 import { FeedbackSnackBar } from "@/components/feedbackStanckBar";
 import Link from "next/link";
 
-enum isSuccessConnEnum {
-  NULL = 0,
-  SUCCESS = 1,
-  FAIL = 2,
-  PROCESS = 3,
-}
 
 export default function CreateConnectionPage() {
   // USE STATE
@@ -28,17 +22,13 @@ export default function CreateConnectionPage() {
   const [databaseType, setDatabaseType] = React.useState<ReadDatabaseTypeOutput[]>([]);
   const [databaseTypeId, setDatabaseTypeId] = React.useState<number>(0);
   const [host, setHost] = React.useState<string>("");
-  const [port, setPort] = React.useState<number>(0);
+  const [port, setPort] = React.useState<string>("");
   const [databaseName, setDatabaseName] = React.useState<string>("");
   const [username, setUsername] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
   const [openFeedback, setOpenFeedback] = React.useState<boolean>(false);
   const [feedbackMessage, setFeedbackMessage] = React.useState<string>("");
   const [feedbackSeverity, setFeedbackSeverity] = React.useState<"success" | "error">("success");
-
-  const [isSuccessConn, setIsSuccessConn] = React.useState<isSuccessConnEnum>(
-    isSuccessConnEnum.NULL
-  );
 
   // USE EFFECT
   React.useEffect(() => {
@@ -70,7 +60,7 @@ export default function CreateConnectionPage() {
       description,
       dbTypeId: databaseTypeId,
       dbHost: host,
-      dbPort: port,
+      dbPort: parseInt(port),
       dbName: databaseName,
       dbUsername: username,
       dbPassword: password,
@@ -98,7 +88,28 @@ export default function CreateConnectionPage() {
   async function handleTest() {
     // Test connection
     console.log("Test connection");
-    setIsSuccessConn(isSuccessConnEnum.PROCESS);
+    await TestConnectionAction({
+      name: connName,
+      description,
+      dbTypeId: databaseTypeId,
+      dbHost: host,
+      dbPort: parseInt(port),
+      dbName: databaseName,
+      dbUsername: username,
+      dbPassword: password,
+    })
+      .then((res) => {
+        console.log("Test connection response: ", res);
+        setFeedbackMessage("Connection tested successfully");
+        setFeedbackSeverity("success");
+        setOpenFeedback(true);
+      })
+      .catch((err) => {
+        console.error("Error testing connection: ", err);
+        setFeedbackMessage("Error testing connection");
+        setFeedbackSeverity("error");
+        setOpenFeedback(true);
+      });
   }
 
   // RENDERS
@@ -157,7 +168,7 @@ export default function CreateConnectionPage() {
           variant="standard"
           style={{ width: "100%" }}
           value={port}
-          onChange={(e) => setPort(parseInt(e.target.value))}
+          onChange={(e) => setPort(e.target.value)}
         />
         {/* Textfield for database name */}
         <TextField
@@ -203,22 +214,6 @@ export default function CreateConnectionPage() {
             <Button variant="contained" color="secondary" onClick={handleTest}>
               Test Connection
             </Button>
-
-            {isSuccessConn === isSuccessConnEnum.PROCESS && (
-              <CircularProgress color="secondary" />
-            )}
-
-            {isSuccessConn === isSuccessConnEnum.SUCCESS && (
-              <Typography variant="body2" color="success">
-                Connection Success
-              </Typography>
-            )}
-
-            {isSuccessConn === isSuccessConnEnum.FAIL && (
-              <Typography variant="body2" color="error">
-                Connection Fail
-              </Typography>
-            )}
           </Stack>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleCreate}>

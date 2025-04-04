@@ -5,6 +5,9 @@ import { revalidatePath  } from "next/cache"
 
 const CONTEXT_PATH = '/connection';
 
+
+export interface TestConnOutput {schema: string, result: boolean};
+
 export interface ReadDatabaseTypeOutput { id: number; name: string; type: string }
 
 export interface CreateConnectionInput {
@@ -129,7 +132,7 @@ export const ReadAllDatabaseTypeAction = async (): Promise<ReadDatabaseTypeOutpu
   }
 }
 
-export const TestConnectionAction = async (input: CreateConnectionInput): Promise<boolean> => {
+export const TestConnectionAction = async (input: CreateConnectionInput): Promise<TestConnOutput> => {
   try {
     const response = await fetch(`${BASE_URL}/connection/test`, {
       method: 'POST',
@@ -141,7 +144,12 @@ export const TestConnectionAction = async (input: CreateConnectionInput): Promis
     if (!response.ok) {
       throw new Error('Failed to test connection');
     }
-    return true;
+
+    const data = await response.json();
+
+    console.log('Test connection response:', data);
+    
+    return data;
   } catch (error) {
     console.error('Error testing connection:', error);
     throw new Error('Failed to test connection');
