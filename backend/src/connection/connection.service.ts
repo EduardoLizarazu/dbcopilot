@@ -13,7 +13,11 @@ export class ConnectionService {
   ) {}
   async create(createConnectionDto: CreateConnectionDto) {
     try {
-      const connection = this.connectionRepository.create(createConnectionDto);
+      // Create with the databasetype relation
+      const connection = this.connectionRepository.create({
+        ...createConnectionDto,
+        databasetype: { id: createConnectionDto.dbTypeId },
+      });
       const connectionSaved =  await this.connectionRepository.save(connection);
       return connectionSaved;
     } catch (error) {
