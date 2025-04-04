@@ -56,7 +56,24 @@ export class ConnectionService {
 
   async findOne(id: number) {
     try {
-      return await this.connectionRepository.findOneBy({ id });
+      return await this.connectionRepository.findOne({
+        where: { id: id },
+        relations: ['databasetype'],
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          dbName: true,
+          dbHost: true,
+          dbPort: true,
+          dbUsername: true,
+          dbPassword: true,
+          databasetype: {
+            id: true,
+            type: true,
+          },
+        },
+      });
     } catch (error) {
       console.error('Error fetching connection:', error);
       throw new Error('Failed to fetch connection');
