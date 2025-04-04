@@ -246,7 +246,7 @@ export default function CreateConnectionPage({  params }: { params: { connection
           </Stack>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleCreate}>
-              Create
+              Update
             </Button>
             <Button variant="contained" color="error" onClick={handleCancel}>
               <Link href={"/connection"}>CANCEL</Link>
