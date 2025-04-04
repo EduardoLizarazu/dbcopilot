@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { CreateConnectionAction, ReadAllDatabaseTypeAction, ReadDatabaseTypeOutput } from "@/controller/_actions/index.actions";
 import { FeedbackSnackBar } from "@/components/feedbackStanckBar";
+import Link from "next/link";
 
 enum isSuccessConnEnum {
   NULL = 0,
@@ -224,7 +225,7 @@ export default function CreateConnectionPage() {
               Create
             </Button>
             <Button variant="contained" color="error" onClick={handleCancel}>
-              Cancel
+              <Link href={"/connection"}>CANCEL</Link>
             </Button>
           </Stack>
         </Stack>
