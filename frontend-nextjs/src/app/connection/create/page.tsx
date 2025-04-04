@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { CreateConnectionAction, ReadAllDatabaseTypeAction, ReadDatabaseTypeOutput, TestConnectionAction } from "@/controller/_actions/index.actions";
-import { FeedbackSnackBar } from "@/components/feedbackStanckBar";
+import { FeedbackSnackBar } from "@/components/schema/feedbackStanckBar";
 import Link from "next/link";
 
 
