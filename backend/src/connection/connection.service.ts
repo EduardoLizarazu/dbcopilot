@@ -117,7 +117,7 @@ export class ConnectionService {
       return {schema: schema, result: true};
     } catch (error) {
       console.error('Connection test failed:', error.message);
-      return { schema: '', result: false };
+      throw new Error('Connection test failed');
     }
   }
 }

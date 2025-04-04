@@ -214,6 +214,20 @@ export default function CreateConnectionPage() {
             <Button variant="contained" color="secondary" onClick={handleTest}>
               Test Connection
             </Button>
+            { feedbackSeverity === "success" && (
+              <Typography variant="body1" color="green">
+                Connection successful
+              </Typography>
+            )}
+
+            { feedbackSeverity === "error" && (
+              <Typography variant="body1" color="red">
+                Connection failed
+              </Typography>
+            )}
+
+
+
           </Stack>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleCreate}>
