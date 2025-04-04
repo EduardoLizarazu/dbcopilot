@@ -41,6 +41,8 @@ export class ConnectionController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateConnectionDto: UpdateConnectionDto) {
     try {
+      console.log('Updating connection with ID:', id);
+      console.log('Update data:', updateConnectionDto);
       return this.connectionService.update(+id, updateConnectionDto);
     } catch (error) {
       console.error('Error updating connection:', error);

@@ -26,7 +26,7 @@ export interface ReadConnectionOutput extends CreateConnectionInput {
   dbType: string; // Added dbType field
 }
 
-export type UpdateConnectionInput = Omit<ReadConnectionOutput, 'dbType'>;
+export type UpdateConnectionInput = CreateConnectionInput;
 
 
 const BASE_URL = process.env.BASE_URL;
@@ -165,9 +165,9 @@ export const ReadConnectionByIdAction = async (id: number): Promise<ReadConnecti
   }
 }
 
-export const UpdateConnectionAction = async (input: UpdateConnectionInput): Promise<void> => {
+export const UpdateConnectionAction = async (id: number, input: UpdateConnectionInput): Promise<void> => {
   try {
-    const response = await fetch(`${BASE_URL}/connection/${input.id}`, {
+    const response = await fetch(`${BASE_URL}/connection/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

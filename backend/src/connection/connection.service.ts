@@ -82,7 +82,19 @@ export class ConnectionService {
 
   async update(id: number, updateConnectionDto: UpdateConnectionDto) {
     try {
-      return await this.connectionRepository.update(id, updateConnectionDto);
+
+      const update = {
+        name: updateConnectionDto.name,
+        description: updateConnectionDto.description,
+        dbName: updateConnectionDto.dbName,
+        dbHost: updateConnectionDto.dbHost,
+        dbPort: updateConnectionDto.dbPort,
+        dbUsername: updateConnectionDto.dbUsername,
+        dbPassword: updateConnectionDto.dbPassword,
+        databasetype: { id: updateConnectionDto.dbTypeId },
+      };
+
+      return await this.connectionRepository.update(id, update);
     } catch (error) {
       console.error('Error updating connection:', error);
       throw new Error('Failed to update connection');

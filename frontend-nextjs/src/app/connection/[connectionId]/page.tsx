@@ -65,21 +65,23 @@ export default function CreateConnectionPage({  params }: { params: { connection
 
   // HANDLERS
 
-  async function handleCreate() {
+  async function handleUpdate() {
     // Create connection here
     console.log("Create connection");
 
-    await UpdateConnectionAction({
-      id: connId,
-      name: connName,
-      description,
-      dbTypeId: databaseTypeId,
-      dbHost: host,
-      dbPort: parseInt(port),
-      dbName: databaseName,
-      dbUsername: username,
-      dbPassword: password,
-    })
+    await UpdateConnectionAction(
+      connId, 
+      {
+        name: connName,
+        description,
+        dbTypeId: databaseTypeId,
+        dbHost: host,
+        dbPort: parseInt(port),
+        dbName: databaseName,
+        dbUsername: username,
+        dbPassword: password,
+      }
+    )
       .then((res) => {
         console.log("Create connection response: ", res);
         setFeedbackMessage("Connection created successfully");
@@ -245,7 +247,7 @@ export default function CreateConnectionPage({  params }: { params: { connection
 
           </Stack>
           <Stack direction="row" spacing={2}>
-            <Button variant="contained" color="primary" onClick={handleCreate}>
+            <Button variant="contained" color="primary" onClick={handleUpdate}>
               Update
             </Button>
             <Button variant="contained" color="error" onClick={handleCancel}>
