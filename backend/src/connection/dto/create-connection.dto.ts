@@ -20,7 +20,6 @@ export class CreateConnectionDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    @ApiProperty()
     dbName: string;
 
     @ApiProperty()
