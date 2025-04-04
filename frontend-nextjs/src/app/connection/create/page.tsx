@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { CreateConnectionAction, ReadAllDatabaseTypeAction, ReadDatabaseTypeOutput } from "@/controller/_actions/index.actions";
+import { FeedbackSnackBar } from "@/components/feedbackStanckBar";
 
 enum isSuccessConnEnum {
   NULL = 0,
@@ -30,6 +31,9 @@ export default function CreateConnectionPage() {
   const [databaseName, setDatabaseName] = React.useState<string>("");
   const [username, setUsername] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
+  const [openFeedback, setOpenFeedback] = React.useState<boolean>(false);
+  const [feedbackMessage, setFeedbackMessage] = React.useState<string>("");
+  const [feedbackSeverity, setFeedbackSeverity] = React.useState<"success" | "error">("success");
 
   const [isSuccessConn, setIsSuccessConn] = React.useState<isSuccessConnEnum>(
     isSuccessConnEnum.NULL
@@ -70,6 +74,19 @@ export default function CreateConnectionPage() {
       dbUsername: username,
       dbPassword: password,
     })
+      .then((res) => {
+        console.log("Create connection response: ", res);
+        setFeedbackMessage("Connection created successfully");
+        setFeedbackSeverity("success");
+        setOpenFeedback(true);
+      })
+      .catch((err) => {
+        console.error("Error creating connection: ", err);
+        setFeedbackMessage("Error creating connection");
+        setFeedbackSeverity("error");
+        setOpenFeedback(true);
+      });
+
   }
 
   async function handleCancel() {
@@ -212,6 +229,13 @@ export default function CreateConnectionPage() {
           </Stack>
         </Stack>
       </Stack>
+      {/* Feedback message */}
+      <FeedbackSnackBar
+        open={openFeedback}
+        setOpen={setOpenFeedback}
+        message={feedbackMessage}
+        severity={feedbackSeverity}
+      />
     </Container>
   );
 }

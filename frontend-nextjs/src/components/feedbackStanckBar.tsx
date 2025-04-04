@@ -1,24 +1,43 @@
+import React from "react";
 import { Alert, Snackbar } from "@mui/material";
 
 
 interface FeedbackSnackBarProps {
     message: string;
     severity: "success" | "error" | "warning" | "info";
+    open: boolean;
+    setOpen: (open: boolean) => void;
 }
 
 export function FeedbackSnackBar(
-    {  message, severity }: FeedbackSnackBarProps
+    {  message, severity, open, setOpen }: FeedbackSnackBarProps
 ) {
+
     return (
         <Snackbar
-            open={true}
+            open={open}
             autoHideDuration={6000}
-            onClose={() => {}}
+            onClose={(e) => {
+                if (e.type === "timeout") {
+                    setOpen(false);
+                }
+                if (e.type === "clickaway") {
+                    return;
+                }
+                setOpen(false);
+            }}
         >
             <Alert 
-                onClose={() => {}} 
+            onClose={(event) => {
+                if ((event as any).reason === "clickaway") {
+                    return;
+                }
+                setOpen(false);
+            }}
                 severity={severity} 
-                sx={{ width: "100%" }}>
+                sx={{ width: "100%" }}
+                variant="filled"
+                >
                 {message}
             </Alert>
         </Snackbar>
