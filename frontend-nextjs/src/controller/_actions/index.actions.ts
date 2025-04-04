@@ -26,11 +26,14 @@ export {
 export { 
   ReadConnectionAction, 
   DeleteConnectionAction, 
-  CreateConnectionAction } from "./connection/connection.action";
+  CreateConnectionAction,
+  ReadAllDatabaseTypeAction
+} from "./connection/connection.action";
 export type {
    ReadConnectionOutput, 
    CreateConnectionInput, 
-   UpdateConnectionInput 
+   UpdateConnectionInput,
+   ReadDatabaseTypeOutput
 } from "./connection/connection.action";
 
 

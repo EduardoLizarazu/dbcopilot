@@ -2,6 +2,9 @@
 
 import { revalidatePath  } from "next/cache"
 
+
+export interface ReadDatabaseTypeOutput { id: number; name: string; type: string }
+
 export interface CreateConnectionInput {
   name: string;
   description: string;
@@ -11,11 +14,11 @@ export interface CreateConnectionInput {
   dbUsername: string;
   dbPassword?: string;
   dbTypeId: number;
-  dbType: string;
 }
 
 export interface ReadConnectionOutput extends CreateConnectionInput {
   id: number;
+  dbType: string; // Added dbType field
 }
 
 export type UpdateConnectionInput = ReadConnectionOutput;
@@ -98,5 +101,28 @@ export const CreateConnectionAction = async (input: CreateConnectionInput): Prom
   } catch (error) {
     console.error('Error creating connection:', error);
     throw new Error('Failed to create connection');
+  }
+}
+
+export const ReadAllDatabaseTypeAction = async (): Promise<ReadDatabaseTypeOutput[]> => {
+  try {
+    const response = await fetch(`${BASE_URL}/databasetype`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch database types');
+    }
+    const data = await response.json();
+    return data.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      type: item.type,
+    }));
+  } catch (error) {
+    console.error('Error fetching database types:', error);
+    throw new Error('Failed to fetch database types');
   }
 }

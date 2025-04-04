@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import {
+  Autocomplete,
   Button,
   CircularProgress,
   Container,
@@ -8,6 +9,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { CreateConnectionAction, ReadAllDatabaseTypeAction, ReadDatabaseTypeOutput } from "@/controller/_actions/index.actions";
 
 enum isSuccessConnEnum {
   NULL = 0,
@@ -21,7 +23,8 @@ export default function CreateConnectionPage() {
   const [loading, setLoading] = React.useState<boolean>(true);
   const [connName, setConnName] = React.useState<string>("");
   const [description, setDescription] = React.useState<string>("");
-  const [databaseType, setDatabaseType] = React.useState<string>("");
+  const [databaseType, setDatabaseType] = React.useState<ReadDatabaseTypeOutput[]>([]);
+  const [databaseTypeId, setDatabaseTypeId] = React.useState<number>(0);
   const [host, setHost] = React.useState<string>("");
   const [port, setPort] = React.useState<number>(0);
   const [databaseName, setDatabaseName] = React.useState<string>("");
@@ -38,6 +41,14 @@ export default function CreateConnectionPage() {
       setLoading(true);
 
       // Fetch data here
+      const responseDbTypes = await ReadAllDatabaseTypeAction();
+      setDatabaseType(() => {
+        return responseDbTypes.map((item) => ({
+          id: item.id || 0,
+          name: item.name || "",
+          type: item.type || "",
+        }));
+      });
 
       setLoading(false);
     })();
@@ -48,6 +59,17 @@ export default function CreateConnectionPage() {
   async function handleCreate() {
     // Create connection here
     console.log("Create connection");
+
+    await CreateConnectionAction({
+      name: connName,
+      description,
+      dbTypeId: databaseTypeId,
+      dbHost: host,
+      dbPort: port,
+      dbName: databaseName,
+      dbUsername: username,
+      dbPassword: password,
+    })
   }
 
   async function handleCancel() {
@@ -87,12 +109,21 @@ export default function CreateConnectionPage() {
           onChange={(e) => setDescription(e.target.value)}
         />
         {/* Textfield for database type */}
-        <TextField
-          label="Database Type"
-          variant="standard"
-          style={{ width: "100%" }}
-          value={databaseType}
-          onChange={(e) => setDatabaseType(e.target.value)}
+        <Autocomplete
+          disablePortal
+          id="combo-box-demo"
+          options={databaseType}
+          getOptionLabel={(option) => option.type}
+          onChange={(event, newValue) => {
+            if (newValue) {
+              setDatabaseTypeId(newValue.id);
+            } else {
+              setDatabaseTypeId(0); // or handle null case appropriately
+            }
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Database Type" variant="standard" />
+          )}
         />
         {/* Textfield for host */}
         <TextField
