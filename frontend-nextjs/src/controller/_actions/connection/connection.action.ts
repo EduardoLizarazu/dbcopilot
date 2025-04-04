@@ -3,6 +3,8 @@
 import { revalidatePath  } from "next/cache"
 
 
+const CONTEXT_PATH = '/connection';
+
 export interface ReadDatabaseTypeOutput { id: number; name: string; type: string }
 
 export interface CreateConnectionInput {
@@ -96,7 +98,7 @@ export const CreateConnectionAction = async (input: CreateConnectionInput): Prom
       throw new Error('Failed to create connection');
     }
 
-    revalidatePath('/connection'); // Revalidate the path to refresh the data
+    revalidatePath(CONTEXT_PATH); // Revalidate the path to refresh the data
 
   } catch (error) {
     console.error('Error creating connection:', error);
