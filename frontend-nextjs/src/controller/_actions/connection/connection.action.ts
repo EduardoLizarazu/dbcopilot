@@ -79,3 +79,24 @@ export const DeleteConnectionAction = async (id: number): Promise<void> => {
     throw new Error('Failed to delete connection');
   }
 }
+
+export const CreateConnectionAction = async (input: CreateConnectionInput): Promise<void> => {
+  try {
+    const response = await fetch(`${BASE_URL}/connection`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create connection');
+    }
+
+    revalidatePath('/connection'); // Revalidate the path to refresh the data
+
+  } catch (error) {
+    console.error('Error creating connection:', error);
+    throw new Error('Failed to create connection');
+  }
+}
