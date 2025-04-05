@@ -19,7 +19,7 @@ export class SchemaTableController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.schemaTableService.findOne(+id);
+    return this.schemaTableService.findOneById(+id);
   }
 
   @Patch(':id')

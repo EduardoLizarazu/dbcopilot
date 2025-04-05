@@ -11,23 +11,72 @@ export class SchemaTableService {
     @InjectRepository(SchemaTable)
     private schemaTableRepository: Repository<SchemaTable>,
   ) {}
-  create(createSchemaTableDto: CreateSchemaTableDto) {
-    return 'This action adds a new schemaTable';
+  async create(createSchemaTableDto: CreateSchemaTableDto) {
+    try {
+      const schemaTable = this.schemaTableRepository.create({
+        ...createSchemaTableDto,
+        schemaColumns: createSchemaTableDto.schemaColumns?.map(id => ({ id })),
+      });
+      return await this.schemaTableRepository.save(schemaTable);
+    } catch (error) {
+      throw new Error(`Error creating schema table: ${error.message}`);
+    }
   }
 
-  findAll() {
-    return `This action returns all schemaTable`;
+  async findAll() {
+    try {
+      return await this.schemaTableRepository.find({
+        relations: ['schemaColumns'],
+      });
+    } catch (error) {
+      throw new Error(`Error fetching schema tables: ${error.message}`);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} schemaTable`;
+  async findOneById(id: number) {
+    try {
+      return await this.schemaTableRepository.findOne({
+        where: { id },
+        relations: ['schemaColumns'],
+      }); 
+    } catch (error) {
+      throw new Error(`Error fetching schema table with id ${id}: ${error.message}`);
+    }
   }
 
-  update(id: number, updateSchemaTableDto: UpdateSchemaTableDto) {
-    return `This action updates a #${id} schemaTable`;
+  async findOneByTechnicalName(technicalName: string) {
+    try {
+      return await this.schemaTableRepository.findOne({
+        where: { technicalName },
+        relations: ['schemaColumns'],
+      });
+    } catch (error) {
+      throw new Error(`Error fetching schema table with technical name ${technicalName}: ${error.message}`);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} schemaTable`;
+  async update(id: number, updateSchemaTableDto: UpdateSchemaTableDto) {
+    try {
+      const schemaTable = await this.schemaTableRepository.findOne({ where: { id } });
+      if (!schemaTable) {
+        throw new Error(`Schema table with id ${id} not found`);
+      }
+      Object.assign(schemaTable, updateSchemaTableDto);
+      return await this.schemaTableRepository.save(schemaTable);
+    } catch (error) {
+      throw new Error(`Error updating schema table with id ${id}: ${error.message}`);
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      const schemaTable = await this.schemaTableRepository.findOne({ where: { id } });
+      if (!schemaTable) {
+        throw new Error(`Schema table with id ${id} not found`);
+      }
+      return await this.schemaTableRepository.remove(schemaTable);
+    } catch (error) {
+      throw new Error(`Error removing schema table with id ${id}: ${error.message}`);
+    }
   }
 }
