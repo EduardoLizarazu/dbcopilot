@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSchemaTableDto } from './dto/create-schema_table.dto';
 import { UpdateSchemaTableDto } from './dto/update-schema_table.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { SchemaTable } from './entities/schema_table.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SchemaTableService {
+  constructor(
+    @InjectRepository(SchemaTable)
+    private schemaTableRepository: Repository<SchemaTable>,
+  ) {}
   create(createSchemaTableDto: CreateSchemaTableDto) {
     return 'This action adds a new schemaTable';
   }
