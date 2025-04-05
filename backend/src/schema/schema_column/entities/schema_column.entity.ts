@@ -9,7 +9,7 @@ export class SchemaColumn {
     @Column()
     technicalName: string;
 
-    @Column()
+    @Column({  nullable: true })
     alias: string;
 
     @Column()
