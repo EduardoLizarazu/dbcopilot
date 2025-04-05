@@ -13,6 +13,7 @@ import { UsersModule } from './users/users.module';
 import { CaslModule } from './casl/casl.module';
 import { ConnectionModule } from './connection/connection.module';
 import { DatabasetypeModule } from './databasetype/databasetype.module';
+import { SchemaModule } from './schema/schema.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { DatabasetypeModule } from './databasetype/databasetype.module';
     CaslModule,
     ConnectionModule,
     DatabasetypeModule,
+    SchemaModule,
   ],
   controllers: [AppController],
   providers: [
