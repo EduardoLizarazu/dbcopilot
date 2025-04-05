@@ -1,5 +1,6 @@
 import { Databasetype } from "src/databasetype/entities/databasetype.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { SchemaTable } from "src/schema/schema_table/entities/schema_table.entity";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Connection {
@@ -30,5 +31,9 @@ export class Connection {
     // Connection only has one and only one database type
     @ManyToOne(() => Databasetype, (databasetype) => databasetype.connections)
     databasetype: Databasetype;
+
+    @OneToMany(() => SchemaTable,
+        (schemaTable) => schemaTable.connection, { onDelete: "CASCADE" })
+    schemaTables: SchemaTable[]; 
 }
 
