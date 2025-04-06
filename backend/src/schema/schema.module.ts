@@ -4,10 +4,21 @@ import { SchemaController } from './schema.controller';
 import { SchemaTableModule } from './schema_table/schema_table.module';
 import { SchemaColumnModule } from './schema_column/schema_column.module';
 import { SchemaRelationModule } from './schema_relation/schema_relation.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SchemaTable } from './schema_table/entities/schema_table.entity';
+import { SchemaColumn } from './schema_column/entities/schema_column.entity';
 
 @Module({
   controllers: [SchemaController],
   providers: [SchemaService],
-  imports: [SchemaTableModule, SchemaColumnModule, SchemaRelationModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      SchemaTable,
+      SchemaColumn,
+    ]),
+    SchemaTableModule, 
+    SchemaColumnModule, 
+    SchemaRelationModule
+  ],
 })
 export class SchemaModule {}
