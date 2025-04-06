@@ -11,6 +11,10 @@ export class SchemaTableController {
   create(@Body() createSchemaTableDto: CreateSchemaTableDto) {
     return this.schemaTableService.create(createSchemaTableDto);
   }
+  @Post('bulk')
+  createBulk(@Body() createSchemaTableDtos: CreateSchemaTableDto[]) {
+    return this.schemaTableService.createBulk(createSchemaTableDtos);
+  }
 
   @Get()
   findAll() {
@@ -20,6 +24,11 @@ export class SchemaTableController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.schemaTableService.findOneById(+id);
+  }
+
+  @Get('connection/:connectionId')
+  findAllByConnectionId(@Param('connectionId') connectionId: string) {
+    return this.schemaTableService.findAllByConnectionId(+connectionId);
   }
 
   @Patch(':id')

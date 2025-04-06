@@ -32,3 +32,10 @@ Chat
 3. Chat Story
 4. Dashboard
 5. Schema
+
+
+On the Tables Endpoint:
+Alternatively, if tables are treated as standalone entities that happen to reference a connection 
+ID, you can call /tables/:connection_id. 
+This approach decouples the tables' retrieval from the connection logic, 
+which might be useful if tables are shared across connections or need independent access.

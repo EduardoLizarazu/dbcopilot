@@ -23,6 +23,20 @@ export class SchemaTableService {
     }
   }
 
+  async createBulk(createSchemaTableDtos: CreateSchemaTableDto[]) {
+    try {
+      const schemaTables = this.schemaTableRepository.create(
+        createSchemaTableDtos.map(dto => ({
+          ...dto,
+          schemaColumns: dto.schemaColumns?.map(id => ({ id })),
+        })),
+      );
+      return await this.schemaTableRepository.save(schemaTables);
+    } catch (error) {
+      throw new Error(`Error creating bulk schema tables: ${error.message}`);
+    }
+  }
+
   async findAll() {
     try {
       return await this.schemaTableRepository.find({
@@ -30,6 +44,17 @@ export class SchemaTableService {
       });
     } catch (error) {
       throw new Error(`Error fetching schema tables: ${error.message}`);
+    }
+  }
+
+  async findAllByConnectionId(connectionId: number) {
+    try {
+      return await this.schemaTableRepository.find({
+        where: { connection: { id: connectionId } }, // Ensure connectionId exists in SchemaTable entity
+        relations: ['schemaColumns'],
+      });
+    } catch (error) {
+      throw new Error(`Error fetching schema tables for connection id ${connectionId}: ${error.message}`);
     }
   }
 
