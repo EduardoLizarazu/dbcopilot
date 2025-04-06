@@ -8,7 +8,7 @@ export class SchemaController {
   constructor(private readonly schemaService: SchemaService) {}
 
   @Post()
-  create(@Body() createSchemaDto: CreateSchemaDto) {
+  create(@Body() createSchemaDto: CreateSchemaDto[]) {
     return this.schemaService.create(createSchemaDto);
   }
 
