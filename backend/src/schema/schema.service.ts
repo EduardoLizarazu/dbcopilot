@@ -35,7 +35,40 @@ export class SchemaService {
 
   create(createSchemaDto: CreateSchemaDto[]) {
     try {
-      return "not implemented yet";
+      // Insert the createSchemaDto using the schemaTableRepository, 
+      // schemaColumnRepository, and schemaRelationRepository.
+      // Assuming createSchemaDto is an array of schema objects
+      // You might need to adjust this based on your actual data structure.
+      const schemaTable = this.schemaTableRepository.create({
+        table_name: createSchemaDto[0].table_name,
+      });
+      const schemaColumn = this.schemaColumnRepository.create({
+        column_name: createSchemaDto[0].column_name,
+        data_type: createSchemaDto[0].data_type,
+        key_type: createSchemaDto[0].key_type,
+        reference_table: createSchemaDto[0].reference_table,
+        reference_column: createSchemaDto[0].reference_column,
+      });
+      const schemaRelation = this.schemaRelationRepository.create({
+        table_name: createSchemaDto[0].table_name,
+        column_name: createSchemaDto[0].column_name,
+        data_type: createSchemaDto[0].data_type,
+        key_type: createSchemaDto[0].key_type,
+        reference_table: createSchemaDto[0].reference_table,
+        reference_column: createSchemaDto[0].reference_column,
+      });
+      // Save the entities to the database
+      return Promise.all([
+        this.schemaTableRepository.save(schemaTable),
+        this.schemaColumnRepository.save(schemaColumn),
+        this.schemaRelationRepository.save(schemaRelation),
+      ]).then(([savedTable, savedColumn, savedRelation]) => {
+        return {
+          table: savedTable,
+          column: savedColumn,
+          relation: savedRelation,
+        };
+      });
 
     } catch (error) {
       console.error('Error creating schema ' + error);
