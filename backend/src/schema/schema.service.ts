@@ -59,16 +59,20 @@ export class SchemaService {
       // Transform the input data into the desired format, remember to group the table by the name. 
       const transformedData = createSchemaDto.reduce((acc, item) => {
         const { table_name, column_name, data_type, primary_key, foreign_key, unique_key, referenced_table, referenced_column } = item;
-        console.log('item', item);
+        
 
-        if (!acc[table_name]) {
-          acc[table_name] = {
-            table_name,
+        // Remove '' or "" from tabla_name and column_name
+        const synthesized_table_name = table_name.replace(/['"]+/g, '');
+        const synthesized_column_name = column_name ? column_name.replace(/['"]+/g, '') : null;
+
+        if (!acc[synthesized_table_name]) {
+          acc[synthesized_table_name] = {
+            table_name: synthesized_table_name,
             columns: [],
           };
         }
-        acc[table_name].columns.push({
-          column_name,
+        acc[synthesized_table_name].columns.push({
+          column_name: synthesized_column_name,
           data_type,
           primary_key,
           foreign_key,
@@ -80,7 +84,23 @@ export class SchemaService {
       }, {});
       
 
-      return transformedData
+      // Convert the object back to an array
+      const transformedDataArray = Object.values(transformedData).map((item: { table_name: string; columns: any[] }) => {
+        return {
+          table_name: item.table_name,
+          columns: item.columns.map((col) => ({
+            column_name: col.column_name,
+            data_type: col.data_type,
+            primary_key: col.primary_key,
+            foreign_key: col.foreign_key,
+            unique_key: col.unique_key,
+            referenced_table: col.referenced_table,
+            referenced_column: col.referenced_column,
+          })),
+        };
+      }
+      );
+
 
     } catch (error) {
       console.error('Error creating schema ' + error);
