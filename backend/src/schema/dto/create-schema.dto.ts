@@ -44,9 +44,9 @@ export class CreateSchemaDto {
 
     @ApiProperty()
     @IsString()
-    reference_table?: string;
+    referenced_table?: string;
 
     @ApiProperty()
     @IsString()
-    reference_column?: string;
+    referenced_column?: string;
 }

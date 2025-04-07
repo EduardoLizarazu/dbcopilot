@@ -58,7 +58,9 @@ export class SchemaService {
 
       // Transform the input data into the desired format, remember to group the table by the name. 
       const transformedData = createSchemaDto.reduce((acc, item) => {
-        const { table_name, column_name, data_type, primary_key, foreign_key, unique_key, reference_table, reference_column } = item;
+        const { table_name, column_name, data_type, primary_key, foreign_key, unique_key, referenced_table, referenced_column } = item;
+        console.log('item', item);
+
         if (!acc[table_name]) {
           acc[table_name] = {
             table_name,
@@ -71,8 +73,8 @@ export class SchemaService {
           primary_key,
           foreign_key,
           unique_key,
-          reference_table,
-          reference_column,
+          referenced_table,
+          referenced_column,
         });
         return acc;
       }, {});
