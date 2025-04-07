@@ -49,8 +49,8 @@ export class SchemaService {
               "primary_key"?: string,
               "foreign_key"?: string,
               "unique_key"?: string,
-              "referenced_table": string,
-              "referenced_column": string
+              "referenced_table": string, // technical name of the table
+              "referenced_column": string // technical name of the column
             }
           }
         }
@@ -101,7 +101,10 @@ export class SchemaService {
       }
       );
 
+      console.log(transformedData);
+
       // Save the transformed data to the database
+      // Save tables
       const schemaTablesDb = transformedDataArray.map(async (tableData) => {
         const schemaTable = this.schemaTableRepository.create({
           technicalName: tableData.table_name,
@@ -148,6 +151,7 @@ export class SchemaService {
 
         return Promise.all(relations);
       });
+      return Promise.all([schemaTablesDb, schemaRelationsDb]);
 
     } catch (error) {
       console.error('Error creating schema ' + error);
