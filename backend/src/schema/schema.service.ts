@@ -102,14 +102,14 @@ export class SchemaService {
       );
 
       // Save the transformed data to the database
-      const schemaTables = transformedDataArray.map(async (tableData) => {
+      const schemaTablesDb = transformedDataArray.map(async (tableData) => {
         const schemaTable = this.schemaTableRepository.create({
           technicalName: tableData.table_name,
         });
         await this.schemaTableRepository.save(schemaTable);
 
         // Save columns
-        const schema_columns = tableData.columns.map(async (column) => {
+        const schemaColumnsDb = tableData.columns.map(async (column) => {
           const schemaColumn = this.schemaColumnRepository.create({
             ...column,
             schemaTable: { id: schemaTable.id }, // Set the relation to the schemaTable
@@ -120,7 +120,7 @@ export class SchemaService {
       });
 
       // Save relations Relation(columnIdFather=columnId and columnIdChild=columnId)
-      const schemaRelations = transformedDataArray.map(async (tableData) => {
+      const schemaRelationsDb = transformedDataArray.map(async (tableData) => {
         const schemaTable = await this.schemaTableRepository.findOne({
           where: { technicalName: tableData.table_name },
         });
@@ -140,7 +140,7 @@ export class SchemaService {
           if (referencedColumn) {
             const schemaRelation = this.schemaRelationRepository.create({
               columnIdFather: referencedColumn.id,
-              columnIdChild: column.id,
+              // columnIdChild: column.id,
             });
             return await this.schemaRelationRepository.save(schemaRelation);
           }
