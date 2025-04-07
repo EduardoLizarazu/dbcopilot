@@ -119,6 +119,36 @@ export class SchemaService {
         );
       });
 
+      // Save relations Relation(columnIdFather=columnId and columnIdChild=columnId)
+      const schemaRelations = transformedDataArray.map(async (tableData) => {
+        const schemaTable = await this.schemaTableRepository.findOne({
+          where: { technicalName: tableData.table_name },
+        });
+        if (!schemaTable) {
+          throw new Error(`Schema table not found for ${tableData.table_name}`);
+        }
+
+        const columns = await this.schemaColumnRepository.find({
+          where: { schemaTable: { id: schemaTable.id } },
+        });
+
+        const relations = tableData.columns.map(async (column) => {
+          // What are you doing here? You are trying to find the column that is referenced by the current column.
+          // If the column has a referenced_table and referenced_column, create a relation
+          // between the current column and the referenced column.
+          const referencedColumn = columns.find((col) => col.technicalName === column.referenced_column);
+          if (referencedColumn) {
+            const schemaRelation = this.schemaRelationRepository.create({
+              columnIdFather: referencedColumn.id,
+              columnIdChild: column.id,
+            });
+            return await this.schemaRelationRepository.save(schemaRelation);
+          }
+        });
+
+        return Promise.all(relations);
+      });
+
     } catch (error) {
       console.error('Error creating schema ' + error);
       throw new Error('Error creating schema: ' + error.message);
