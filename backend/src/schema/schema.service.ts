@@ -101,6 +101,23 @@ export class SchemaService {
       }
       );
 
+      // Save the transformed data to the database
+      const schemaTables = transformedDataArray.map(async (tableData) => {
+        const schemaTable = this.schemaTableRepository.create({
+          technicalName: tableData.table_name,
+        });
+        await this.schemaTableRepository.save(schemaTable);
+
+        // Save columns
+        const schema_columns = tableData.columns.map(async (column) => {
+          const schemaColumn = this.schemaColumnRepository.create({
+            ...column,
+            schemaTable: { id: schemaTable.id }, // Set the relation to the schemaTable
+          });
+          return await this.schemaColumnRepository.save(schemaColumn);
+        }
+        );
+      });
 
     } catch (error) {
       console.error('Error creating schema ' + error);
