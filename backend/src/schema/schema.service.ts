@@ -9,14 +9,17 @@ import { SchemaRelation } from './schema_relation/entities/schema_relation.entit
 
 /**
  * 
- * export class CreateSchemaDto {
-    table_name: string;
-    column_name: string;
-    data_type: string;
-    key_type: string;
-    reference_table: string;
-    reference_column: string;
-}
+ * CreateSchemaDto example:{
+      "table_name": "connection",
+      "column_name": "databasetypeId",
+      "data_type": "integer",
+      "primary_key": null,
+      "foreign_key": "foreign key",
+      "unique_key": null,
+      "key_type": "foreign key",
+      "referenced_table": "databasetype",
+      "referenced_column": "id"
+    },
  */
 
 
