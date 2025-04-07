@@ -38,28 +38,47 @@ export class SchemaService {
 
   create(createSchemaDto: CreateSchemaDto[]) {
     try {
-      // Insert the createSchemaDto using the schemaTableRepository, 
-      // schemaColumnRepository, and schemaRelationRepository.
-      // Assuming createSchemaDto is an array of schema objects
-      // You might need to adjust this based on your actual data structure.
+      // Change the CreateSchemaDto to a more suitable type for your needs
+      /* Array of Objects:
+        {
+          "table": {
+            "table_name": string,
+            "column": {
+              "column_name": string,
+              "data_type": "integer",
+              "primary_key"?: string,
+              "foreign_key"?: string,
+              "unique_key"?: string,
+              "referenced_table": string,
+              "referenced_column": string
+            }
+          }
+        }
+      */
 
-      // Tables
-      const schemaTables = createSchemaDto.map(schema => {
-        const table = this.schemaTableRepository.create({
-          technicalName: schema.table_name,
+      // Transform the input data into the desired format, remember to group the table by the name. 
+      const transformedData = createSchemaDto.reduce((acc, item) => {
+        const { table_name, column_name, data_type, primary_key, foreign_key, unique_key, reference_table, reference_column } = item;
+        if (!acc[table_name]) {
+          acc[table_name] = {
+            table_name,
+            columns: [],
+          };
+        }
+        acc[table_name].columns.push({
+          column_name,
+          data_type,
+          primary_key,
+          foreign_key,
+          unique_key,
+          reference_table,
+          reference_column,
         });
-        return table;
-      });
+        return acc;
+      }, {});
+      
 
-      // Columns
-      // const schemaColumns = createSchemaDto.map(schema => {
-      //   const column = this.schemaColumnRepository.create({
-      //     technicalName: schema.column_name,
-      //     dataType: schema.data_type,
-      //     keyType: schema.key_type, // not a number
-      //   });
-      //   return column;
-      // });
+      return transformedData
 
     } catch (error) {
       console.error('Error creating schema ' + error);
