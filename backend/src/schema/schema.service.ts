@@ -36,7 +36,7 @@ export class SchemaService {
     private schemaRelationRepository: Repository<SchemaRelation>,
   ) {}
 
-  create(createSchemaDto: CreateSchemaDto[]) {
+  async create(createSchemaDto: CreateSchemaDto[]) {
     try {
       // Change the CreateSchemaDto to a more suitable type for your needs
       /* Array of Objects:
@@ -101,7 +101,8 @@ export class SchemaService {
       }
       );
 
-      console.log(transformedData);
+      console.log("before saving");
+      
 
       // Save the transformed data to the database
       // Save tables
@@ -111,13 +112,15 @@ export class SchemaService {
         });
         await this.schemaTableRepository.save(schemaTable);
 
+        console.log("I am saving the table", schemaTable);
         // Save columns
         const schemaColumnsDb = tableData.columns.map(async (column) => {
           const schemaColumn = this.schemaColumnRepository.create({
             ...column,
             schemaTable: { id: schemaTable.id }, // Set the relation to the schemaTable
           });
-          return await this.schemaColumnRepository.save(schemaColumn);
+          await this.schemaColumnRepository.save(schemaColumn);
+          console.log("I am saving the column");
         }
         );
       });
