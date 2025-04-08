@@ -36,7 +36,7 @@ export class SchemaService {
     private schemaRelationRepository: Repository<SchemaRelation>,
   ) {}
 
-  async create(createSchemaDto: CreateSchemaDto[]) {
+  async create(connectionId: number, createSchemaDto: CreateSchemaDto[]) {
     try {
       // Change the CreateSchemaDto to a more suitable type for your needs
       /* Array of Objects:
@@ -101,61 +101,28 @@ export class SchemaService {
       }
       );
 
-      console.log("before saving");
-      
+      console.log("before saving..."); 
+      transformedDataArray.forEach(async (table) => {
 
-      // Save the transformed data to the database
-      // Save tables
-      const schemaTablesDb = transformedDataArray.map(async (tableData) => {
+        // Saving tables
         const schemaTable = this.schemaTableRepository.create({
-          technicalName: tableData.table_name,
-        });
-        await this.schemaTableRepository.save(schemaTable);
-
-        console.log("I am saving the table", schemaTable);
-        // Save columns
-        const schemaColumnsDb = tableData.columns.map(async (column) => {
-          const schemaColumn = this.schemaColumnRepository.create({
-            ...column,
-            schemaTable: { id: schemaTable.id }, // Set the relation to the schemaTable
-          });
-          await this.schemaColumnRepository.save(schemaColumn);
-          console.log("I am saving the column");
-        }
-        );
-      });
-
-      // Save relations Relation(columnIdFather=columnId and columnIdChild=columnId)
-      const schemaRelationsDb = transformedDataArray.map(async (tableData) => {
-        const schemaTable = await this.schemaTableRepository.findOne({
-          where: { technicalName: tableData.table_name },
-        });
-        if (!schemaTable) {
-          throw new Error(`Schema table not found for ${tableData.table_name}`);
-        }
-
-        const columns = await this.schemaColumnRepository.find({
-          where: { schemaTable: { id: schemaTable.id } },
-        });
-
-        const relations = tableData.columns.map(async (column) => {
-          // What are you doing here? You are trying to find the column that is referenced by the current column.
-          // If the column has a referenced_table and referenced_column, create a relation
-          // between the current column and the referenced column.
-          const referencedColumn = columns.find((col) => col.technicalName === column.referenced_column);
-          if (referencedColumn) {
-            const schemaRelation = this.schemaRelationRepository.create({
-              columnIdFather: referencedColumn.id,
-              // columnIdChild: column.id,
+          technicalName: table.table_name,
+          connection: { id: connectionId },   
+        }); 
+        await this.schemaTableRepository.save(schemaTable).then(async (savedTable) => {
+          console.log("I am saving the table", savedTable);
+          // save columns
+          table.columns.forEach(async (column) => {
+            const schemaColumn = this.schemaColumnRepository.create({
+              technicalName: column.column_name,
+              dataType: column.data_type,
+              schemaTable: { id: savedTable.id }, // Set the relation to the schemaTable
             });
-            return await this.schemaRelationRepository.save(schemaRelation);
-          }
+            await this.schemaColumnRepository.save(schemaColumn);
+          });
         });
-
-        return Promise.all(relations);
       });
-      return Promise.all([schemaTablesDb, schemaRelationsDb]);
-
+      console.log("after saving...");
     } catch (error) {
       console.error('Error creating schema ' + error);
       throw new Error('Error creating schema: ' + error.message);
