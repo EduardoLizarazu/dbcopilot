@@ -101,29 +101,7 @@ export class SchemaService {
       }
       );
 
-      console.log("before saving..."); 
-      transformedDataArray.forEach(async (table) => {
-        // Saving tables
-        const schemaTable = this.schemaTableRepository.create({
-          technicalName: table.table_name,
-          connection: { id: connectionId },   
-        }); 
-        await this.schemaTableRepository.save(schemaTable).then(async (savedTable) => {
-          console.log("I am saving the table", savedTable);
-          // save columns
-          table.columns.forEach(async (column) => {
-            const schemaColumn = this.schemaColumnRepository.create({
-              technicalName: column.column_name,
-              dataType: column.data_type,
-              schemaTable: { id: savedTable.id }, // Set the relation to the schemaTable
-            });
-            await this.schemaColumnRepository.save(schemaColumn).then(async (savedColumn) => {
-              console.log("I am saving the column", savedColumn);
-            })
-          });
-        });
-      });
-      console.log("after saving...");
+      
     } catch (error) {
       console.error('Error creating schema ' + error);
       throw new Error('Error creating schema: ' + error.message);
