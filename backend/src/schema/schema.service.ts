@@ -103,7 +103,6 @@ export class SchemaService {
 
       console.log("before saving..."); 
       transformedDataArray.forEach(async (table) => {
-
         // Saving tables
         const schemaTable = this.schemaTableRepository.create({
           technicalName: table.table_name,
@@ -118,7 +117,9 @@ export class SchemaService {
               dataType: column.data_type,
               schemaTable: { id: savedTable.id }, // Set the relation to the schemaTable
             });
-            await this.schemaColumnRepository.save(schemaColumn);
+            await this.schemaColumnRepository.save(schemaColumn).then(async (savedColumn) => {
+              console.log("I am saving the column", savedColumn);
+            })
           });
         });
       });
