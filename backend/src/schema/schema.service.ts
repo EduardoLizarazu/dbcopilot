@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateSchemaDto } from './dto/create-schema.dto';
 import { UpdateSchemaDto } from './dto/update-schema.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { SchemaTable } from './schema_table/entities/schema_table.entity';
-import { Repository } from 'typeorm';
 import { SchemaColumn } from './schema_column/entities/schema_column.entity';
 import { SchemaRelation } from './schema_relation/entities/schema_relation.entity';
 
@@ -22,41 +22,18 @@ import { SchemaRelation } from './schema_relation/entities/schema_relation.entit
     },
  */
 
-
-
 @Injectable()
 export class SchemaService {
-
   constructor(
-    @InjectRepository(SchemaTable)
-    private schemaTableRepository: Repository<SchemaTable>,
-    @InjectRepository(SchemaColumn)
-    private schemaColumnRepository: Repository<SchemaColumn>,
-    @InjectRepository(SchemaRelation)
-    private schemaRelationRepository: Repository<SchemaRelation>,
+    private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
 
   async create(connectionId: number, createSchemaDto: CreateSchemaDto[]) {
-    try {
-      // Change the CreateSchemaDto to a more suitable type for your needs
-      /* Array of Objects:
-        {
-          "table": {
-            "table_name": string,
-            "column": {
-              "column_name": string,
-              "data_type": "integer",
-              "primary_key"?: string,
-              "foreign_key"?: string,
-              "unique_key"?: string,
-              "referenced_table": string, // technical name of the table
-              "referenced_column": string // technical name of the column
-            }
-          }
-        }
-      */
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-      // Transform the input data into the desired format, remember to group the table by the name. 
+    try {
       const transformedData = createSchemaDto.reduce((acc, item) => {
         const { table_name, column_name, data_type, primary_key, foreign_key, unique_key, referenced_table, referenced_column } = item;
         
@@ -98,13 +75,36 @@ export class SchemaService {
             referenced_column: col.referenced_column,
           })),
         };
-      }
-      );
+      });
 
-      
+      console.log("before saving...");
+      for (const table of transformedDataArray) {
+        const schemaTable = queryRunner.manager.create(SchemaTable, {
+          technicalName: table.table_name,
+          connection: { id: connectionId },
+        });
+        const savedTable = await queryRunner.manager.save(schemaTable);
+        console.log("I am saving the table", savedTable);
+
+        for (const column of table.columns) {
+          const schemaColumn = queryRunner.manager.create(SchemaColumn, {
+            technicalName: column.column_name,
+            dataType: column.data_type,
+            schemaTable: { id: savedTable.id }, // Set the relation to the saved schemaTable
+          });
+          const savedColumn = await queryRunner.manager.save(schemaColumn);
+          console.log("I am saving the column", savedColumn);
+        }
+      }
+      console.log("after saving...");
+
+      await queryRunner.commitTransaction();
     } catch (error) {
-      console.error('Error creating schema ' + error);
+      console.error('Error creating schema: ', error);
+      await queryRunner.rollbackTransaction();
       throw new Error('Error creating schema: ' + error.message);
+    } finally {
+      await queryRunner.release();
     }
   }
 
