@@ -7,9 +7,9 @@ import { UpdateSchemaDto } from './dto/update-schema.dto';
 export class SchemaController {
   constructor(private readonly schemaService: SchemaService) {}
 
-  @Post()
-  create(@Body() createSchemaDto: CreateSchemaDto[]) {
-    return this.schemaService.create(createSchemaDto);
+  @Post(":connectionId")
+  create(@Param('connectionId') connectionId: string, @Body() createSchemaDto: CreateSchemaDto[]) {
+    return this.schemaService.create(+connectionId, createSchemaDto);
   }
 
   @Get()
