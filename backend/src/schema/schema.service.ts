@@ -143,6 +143,9 @@ export class SchemaService {
       console.log("after saving...");
     
       await queryRunner.commitTransaction();
+
+
+      return this.findSchemaByConnectionId(connectionId);
     } catch (error) {
       console.error('Error creating schema: ', error);
       await queryRunner.rollbackTransaction();
@@ -155,6 +158,23 @@ export class SchemaService {
   findAll() {
     return `This action returns all schema`;
   }
+
+  async findSchemaByConnectionId(connectionId: number) {
+    try {
+      const schemaTables = await this.dataSource.getRepository(SchemaTable)
+        .createQueryBuilder('schema_table')
+        .leftJoinAndSelect('schema_table.schemaColumns', 'schema_column')
+        // .leftJoinAndSelect('schema_table.schemaRelations', 'schema_relation')
+        .where('schema_table.connectionId = :connectionId', { connectionId })
+        .getMany();
+
+      return schemaTables;
+    } catch (error) {
+      console.error('Error finding schema by connection ID: ', error);
+      throw new Error('Error finding schema by connection ID: ' + error.message);
+    }
+  }
+
 
   findOne(id: number) {
     return `This action returns a #${id} schema`;

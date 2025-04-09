@@ -17,9 +17,9 @@ export class SchemaController {
     return this.schemaService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.schemaService.findOne(+id);
+  @Get(':connectionId') 
+  findOneByConnectionId(@Param('connectionId') connectionId: string) {
+    return this.schemaService.findSchemaByConnectionId(+connectionId);
   }
 
   @Patch(':id')
