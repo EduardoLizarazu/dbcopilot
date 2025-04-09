@@ -161,14 +161,67 @@ export class SchemaService {
 
   async findSchemaByConnectionId(connectionId: number) {
     try {
-      const schemaTables = await this.dataSource.getRepository(SchemaTable)
-        .createQueryBuilder('schema_table')
-        .leftJoinAndSelect('schema_table.schemaColumns', 'schema_column')
-        // .leftJoinAndSelect('schema_table.schemaRelations', 'schema_relation')
-        .where('schema_table.connectionId = :connectionId', { connectionId })
-        .getMany();
+      const schemaData = await this.dataSource
+        .createQueryBuilder()
+        .select([
+          'schema_table.id',
+          'schema_table.technicalName',
+          'schema_column.id',
+          'schema_column.technicalName',
+          'schema_relation.columnIdChild',
+          'schema_relation.columnIdFather'
+        ])
+        .from('schema_table', 'schema_table')
+        .leftJoin('schema_column', 'schema_column', 'schema_table.id = schema_column.schemaTableId')
+        .leftJoin('schema_relation', 'schema_relation', 'schema_column.id = schema_relation.columnIdChild')
+        .where('schema_table.connectionId = :connectionId', { connectionId: connectionId })
+        .getRawMany();
 
-      return schemaTables;
+      console.log(schemaData);
+      
+      // Transform the raw data into a more structured format
+      const transformedData = schemaData.reduce((acc, row) => {
+        const tableId = row.schema_table_id;
+        const columnId = row.schema_column_id;
+
+        if (!acc[tableId]) {
+          acc[tableId] = {
+            table_id: tableId,
+            table_name: row.schema_table_technicalName,
+            columns: [],
+          };
+        }
+
+        if (columnId) {
+          acc[tableId].columns.push({
+            column_id: columnId,
+            column_name: row.schema_column_technicalName,
+            foreign_key: row.schema_relation_columnIdChild,
+            primary_key: row.schema_relation_columnIdFather,
+          });
+        }
+
+        return acc;
+      }
+      , {});
+
+      // Convert the object back to an array
+      const schemaDataArray = Object.values(transformedData).map((item: { table_id: number; table_name: string; columns: any[] }) => {
+        return {
+          table_id: item.table_id,
+          table_name: item.table_name,
+          columns: item.columns.map((col) => ({
+            column_id: col.column_id,
+            column_name: col.column_name,
+            foreign_key: col.foreign_key,
+            primary_key: col.primary_key,
+          })),
+        };
+      }
+      );
+
+
+      return schemaDataArray;
     } catch (error) {
       console.error('Error finding schema by connection ID: ', error);
       throw new Error('Error finding schema by connection ID: ' + error.message);
