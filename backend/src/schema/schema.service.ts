@@ -98,6 +98,10 @@ export class SchemaService {
           const savedColumn = await queryRunner.manager.save(schemaColumn);
           transformedDataArray[tableIndex].columns[columnIndex].column_id = savedColumn.id; // Store the saved column ID back in the transformed data
           console.log("I am saving the column", savedColumn);
+
+          // Save the key type
+
+
         }
       }
 
