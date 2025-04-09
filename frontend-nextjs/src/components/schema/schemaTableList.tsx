@@ -15,7 +15,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import { Button, Stack, TableHead } from "@mui/material";
-import { GetSchemaData, IReadSchemaData } from "@/controller/_actions/index.actions"; // Assuming you have a data file with rows
+import { GetSchemaData, IReadSchemaData, ReadSchemaData } from "@/controller/_actions/index.actions"; // Assuming you have a data file with rows
 import CloseIcon from "@mui/icons-material/Close";
 
 interface RowData {
@@ -288,6 +288,7 @@ export function SchemaTableList() {
   React.useEffect(() => {
     (async () => {
       const data = await GetSchemaData();
+      // const data = await ReadSchemaData(6);
       console.log("Fetched rows: ", data);
       setRows(data);
     })();

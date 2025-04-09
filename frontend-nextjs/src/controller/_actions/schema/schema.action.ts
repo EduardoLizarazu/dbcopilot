@@ -110,6 +110,13 @@ export interface IReadSchemaData {
   }[];
 }
 
+export interface ISchemaTable {
+  table_id: number;
+  table_name: string;
+  table_alias: string;
+  table_description: string;
+}
+
 export async function GetSchemaData() {
   return rows;
 }
@@ -130,6 +137,26 @@ export async function ReadSchemaData(connectionId: number): Promise<IReadSchemaD
     return data;
   } catch (error) {
     console.error('Error finding schema by connection ID: ', error);
+    return []; // Return an empty array in case of an error
+  }
+}
+
+// Find all table by connection id
+export async function ReadAllTableByConnectionId(connectionId: number): Promise<ISchemaTable[]> {
+  try {
+    const response = await fetch(`${process.env.BASE_URL}/schema/connection/${connectionId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch schema data');
+    }
+    const data: ISchemaTable[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error finding all tables by connection ID: ', error);
     return []; // Return an empty array in case of an error
   }
 }
