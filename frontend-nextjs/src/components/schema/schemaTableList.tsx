@@ -14,7 +14,7 @@ import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
-import { Button, Stack } from "@mui/material";
+import { Button, Stack, TableHead } from "@mui/material";
 import { GetSchemaData, IReadSchemaData } from "@/controller/_actions/index.actions"; // Assuming you have a data file with rows
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -93,7 +93,22 @@ function Row(props: {
           )}
         </TableCell>
         <TableCell component="th" scope="row">
-          {/* Table name */}
+          {/* Table alias */}
+          {isEditable ? (
+            <TextField
+              variant="outlined"
+              size="small"
+              defaultValue={row.table_alias}
+              onBlur={(e) => {
+                setTempTable({ ...tempTable, table_name: e.target.value });
+              }}
+            />
+          ) : (
+            <span>{row.table_alias}</span>
+          )}
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {/* Table description */}
           {isEditable ? (
             <TextField
               variant="outlined"
@@ -138,9 +153,18 @@ function Row(props: {
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Table size="small" aria-label="purchases">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Column Name</TableCell>
+                    <TableCell>Column Alias</TableCell>
+                    <TableCell>Column Description</TableCell>
+                    <TableCell>Column Data Type</TableCell>
+                  </TableRow>
+                </TableHead>
                 <TableBody>
                   {row.columns.map((column) => (
                     <TableRow key={column.column_id}>
+                      {/* column name */}
                       <TableCell component="th" scope="row">
                         {isEditable ? (
                           <TextField
@@ -164,6 +188,33 @@ function Row(props: {
                           <span>{column.column_name}</span>
                         )}
                       </TableCell>
+
+                      {/* column alias */}
+                      <TableCell component="th" scope="row">
+                        {isEditable ? (
+                          <TextField
+                            variant="outlined"
+                            size="small"
+                            defaultValue={column.column_alias}
+                            onBlur={(e) => {
+                              // Update the column name with "e" in the tempTable state based on the column id
+                              setTempTable((prev) => {
+                                const updatedColumns = prev.columns.map((c) => {
+                                  if (c.column_id === column.column_id) {
+                                    return { ...c, column_alias: e.target.value };
+                                  }
+                                  return c;
+                                });
+                                return { ...prev, columns: updatedColumns };
+                              });
+                            }}
+                          />
+                        ) : (
+                          <span>{column.column_alias}</span>
+                        )}
+                      </TableCell>
+
+                      {/* column description */}
                       <TableCell component="th" scope="row">
                         {isEditable ? (
                           <TextField
@@ -185,6 +236,31 @@ function Row(props: {
                           />
                         ) : (
                           <span>{column.column_description}</span>
+                        )}
+                      </TableCell>
+
+                      {/* column data type */}
+                      <TableCell component="th" scope="row">
+                        {isEditable ? (
+                          <TextField
+                            variant="outlined"
+                            size="small"
+                            defaultValue={column.column_data_type}
+                            onBlur={(e) => {
+                              // Update the column name with "e" in the tempTable state based on the column id
+                              setTempTable((prev) => {
+                                const updatedColumns = prev.columns.map((c) => {
+                                  if (c.column_id === column.column_id) {
+                                    return { ...c, column_data_type: e.target.value };
+                                  }
+                                  return c;
+                                });
+                                return { ...prev, columns: updatedColumns };
+                              });
+                            }}
+                          />
+                        ) : (
+                          <span>{column.column_data_type}</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -261,6 +337,15 @@ export function SchemaTableList() {
       <Button onClick={handleNewRecord}>Add record</Button>
       <TableContainer component={Paper}>
         <Table aria-label="collapsible table">
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell>Table Name</TableCell>
+              <TableCell>Table Alias</TableCell>
+              <TableCell>Table Description</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
           <TableBody>
             {filteredRows.map((row) => (
               <Row key={row.table_id} row={row} setRow={setRows} />
