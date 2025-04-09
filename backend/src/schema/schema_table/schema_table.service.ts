@@ -49,10 +49,20 @@ export class SchemaTableService {
 
   async findAllByConnectionId(connectionId: number) {
     try {
-      return await this.schemaTableRepository.find({
+      const schemaTable = await this.schemaTableRepository.find({
         where: { connection: { id: connectionId } }, // Ensure connectionId exists in SchemaTable entity
         relations: ['schemaColumns'],
       });
+
+      const schemaTableFormat = schemaTable.map(table => ({
+        table_id: table.id,
+        table_name: table.technicalName,
+        table_alias: table.alias,
+        table_description: table.description,
+      }));
+
+      return schemaTableFormat;
+
     } catch (error) {
       throw new Error(`Error fetching schema tables for connection id ${connectionId}: ${error.message}`);
     }
