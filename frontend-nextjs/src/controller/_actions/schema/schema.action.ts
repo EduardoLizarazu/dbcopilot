@@ -5,40 +5,95 @@ interface RowData {
   tableDesc: string;
   columns: { columnId: number; columnName: string; columnDesc: string }[];
 }
-const rows: RowData[] = [
+const rows: IReadSchemaData[] = [
+  //  Fake
   {
-    tableId: 1,
-    tableName: "Users",
-    tableDesc: "User information",
+    table_id: 1,
+    table_name: "users",
+    table_alias: "u",
+    table_description: "User information",
     columns: [
-      { columnId: 1, columnName: "user_id", columnDesc: "User ID" },
-      { columnId: 2, columnName: "username", columnDesc: "Username" },
-      { columnId: 3, columnName: "email", columnDesc: "Email" },
+      {
+        column_id: 1,
+        column_name: "user_id",
+        column_alias: "id",
+        column_description: "Unique identifier for the user",
+        column_data_type: "int",
+        foreign_key: 0,
+        primary_key: 1,
+        relation_description: "",
+      },
+      {
+        column_id: 2,
+        column_name: "username",
+        column_alias: "name",
+        column_description: "Username of the user",
+        column_data_type: "varchar",
+        foreign_key: 0,
+        primary_key: 0,
+        relation_description: "",
+      },
     ],
   },
   {
-    tableId: 2,
-    tableName: "Products",
-    tableDesc: "Product information",
+    table_id: 2,
+    table_name: "products",
+    table_alias: "p",
+    table_description: "Product information",
     columns: [
-      { columnId: 1, columnName: "product_id", columnDesc: "Product ID" },
-      { columnId: 2, columnName: "product_name", columnDesc: "Product Name" },
-      { columnId: 3, columnName: "price", columnDesc: "Price" },
+      {
+        column_id: 1,
+        column_name: "product_id",
+        column_alias: "id",
+        column_description: "Unique identifier for the product",
+        column_data_type: "int",
+        foreign_key: 0,
+        primary_key: 1,
+        relation_description: "",
+      },
+      {
+        column_id: 2,
+        column_name: "product_name",
+        column_alias: "name",
+        column_description: "Name of the product",
+        column_data_type: "varchar",
+        foreign_key: 0,
+        primary_key: 0,
+        relation_description: "",
+      },
     ],
   },
   {
-    tableId: 3,
-    tableName: "Orders",
-    tableDesc: "Order information",
+    table_id: 3,
+    table_name: "orders",
+    table_alias: "o",
+    table_description: "Order information",
     columns: [
-      { columnId: 1, columnName: "order_id", columnDesc: "Order ID" },
-      { columnId: 2, columnName: "user_id", columnDesc: "User ID" },
-      { columnId: 3, columnName: "product_id", columnDesc: "Product ID" },
+      {
+        column_id: 1,
+        column_name: "order_id",
+        column_alias: "id",
+        column_description: "Unique identifier for the order",
+        column_data_type: "int",
+        foreign_key: 0,
+        primary_key: 1,
+        relation_description: "",
+      },
+      {
+        column_id: 2,
+        column_name: "user_id",
+        column_alias: "userId",
+        column_description: "Identifier for the user who placed the order",
+        column_data_type: "int",
+        foreign_key: 1,
+        primary_key: 0,
+        relation_description: "Foreign key to users table",
+      },
     ],
   },
 ];
 
-interface IReadSchemaData {
+export interface IReadSchemaData {
   table_id: number;
   table_name: string;
   table_alias: string;

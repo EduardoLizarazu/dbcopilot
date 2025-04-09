@@ -15,27 +15,28 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import { Button, Stack } from "@mui/material";
-import { GetSchemaData } from "@/controller/_actions/index.actions"; // Assuming you have a data file with rows
+import { GetSchemaData, IReadSchemaData } from "@/controller/_actions/index.actions"; // Assuming you have a data file with rows
 import CloseIcon from "@mui/icons-material/Close";
 
 interface RowData {
-  tableId: number;
-  tableName: string;
-  tableDesc: string;
-  columns: { columnId: number; columnName: string; columnDesc: string }[];
+  tabla_id: number;
+  table_name: string;
+  table_description: string;
+  columns: { column_id: number; column_name: string; column_description: string }[];
 }
 
 function Row(props: {
-  row: RowData;
-  setRow: React.Dispatch<React.SetStateAction<RowData[]>>;
+  row: IReadSchemaData;
+  setRow: React.Dispatch<React.SetStateAction<IReadSchemaData[]>>;
 }) {
   const { row, setRow } = props;
   const [open, setOpen] = React.useState(false);
   const [isEditable, setIsEditable] = React.useState(false);
-  const [tempTable, setTempTable] = React.useState<RowData>({
-    tableId: 0,
-    tableName: "",
-    tableDesc: "",
+  const [tempTable, setTempTable] = React.useState<IReadSchemaData>({
+    table_id: 0,
+    table_name: "",
+    table_description: "",
+    table_alias: "",
     columns: [],
   });
 
@@ -47,7 +48,7 @@ function Row(props: {
   function handleSaveBtn() {
     setRow((prev) =>
       prev.map((r) => {
-        if (r.tableId === tempTable.tableId) {
+        if (r.table_id === tempTable.table_id) {
           return { ...tempTable };
         }
         return r;
@@ -55,9 +56,10 @@ function Row(props: {
     );
     console.log("Updated rows: ", tempTable);
     setTempTable({
-      tableId: 0,
-      tableName: "",
-      tableDesc: "",
+      table_id: 0,
+      table_name: "",
+      table_description: "",
+      table_alias: "",
       columns: [],
     });
     setIsEditable(false);
@@ -81,13 +83,13 @@ function Row(props: {
             <TextField
               variant="outlined"
               size="small"
-              defaultValue={row.tableName}
+              defaultValue={row.table_name}
               onBlur={(e) => {
-                setTempTable({ ...tempTable, tableName: e.target.value });
+                setTempTable({ ...tempTable, table_name: e.target.value });
               }}
             />
           ) : (
-            <span>{row.tableName}</span>
+            <span>{row.table_name}</span>
           )}
         </TableCell>
         <TableCell component="th" scope="row">
@@ -96,13 +98,13 @@ function Row(props: {
             <TextField
               variant="outlined"
               size="small"
-              defaultValue={row.tableDesc}
+              defaultValue={row.table_description}
               onBlur={(e) => {
-                setTempTable({ ...tempTable, tableDesc: e.target.value });
+                setTempTable({ ...tempTable, table_description: e.target.value });
               }}
             />
           ) : (
-            <span>{row.tableDesc}</span>
+            <span>{row.table_description}</span>
           )}
         </TableCell>
         <TableCell>
@@ -123,7 +125,7 @@ function Row(props: {
             )}
             <IconButton
               onClick={() =>
-                setRow((prev) => prev.filter((r) => r.tableId !== row.tableId))
+                setRow((prev) => prev.filter((r) => r.table_id !== row.table_id))
               }
             >
               <DeleteIcon />
@@ -138,19 +140,19 @@ function Row(props: {
               <Table size="small" aria-label="purchases">
                 <TableBody>
                   {row.columns.map((column) => (
-                    <TableRow key={column.columnId}>
+                    <TableRow key={column.column_id}>
                       <TableCell component="th" scope="row">
                         {isEditable ? (
                           <TextField
                             variant="outlined"
                             size="small"
-                            defaultValue={column.columnName}
+                            defaultValue={column.column_name}
                             onBlur={(e) => {
                               // Update the column name with "e" in the tempTable state based on the column id
                               setTempTable((prev) => {
                                 const updatedColumns = prev.columns.map((c) => {
-                                  if (c.columnId === column.columnId) {
-                                    return { ...c, columnName: e.target.value };
+                                  if (c.column_id === column.column_id) {
+                                    return { ...c, column_name: e.target.value };
                                   }
                                   return c;
                                 });
@@ -159,7 +161,7 @@ function Row(props: {
                             }}
                           />
                         ) : (
-                          <span>{column.columnName}</span>
+                          <span>{column.column_name}</span>
                         )}
                       </TableCell>
                       <TableCell component="th" scope="row">
@@ -167,13 +169,13 @@ function Row(props: {
                           <TextField
                             variant="outlined"
                             size="small"
-                            defaultValue={column.columnDesc}
+                            defaultValue={column.column_description}
                             onBlur={(e) => {
                               // Update the column name with "e" in the tempTable state based on the column id
                               setTempTable((prev) => {
                                 const updatedColumns = prev.columns.map((c) => {
-                                  if (c.columnId === column.columnId) {
-                                    return { ...c, columnDesc: e.target.value };
+                                  if (c.column_id === column.column_id) {
+                                    return { ...c, column_description: e.target.value };
                                   }
                                   return c;
                                 });
@@ -182,7 +184,7 @@ function Row(props: {
                             }}
                           />
                         ) : (
-                          <span>{column.columnDesc}</span>
+                          <span>{column.column_description}</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -198,11 +200,11 @@ function Row(props: {
 }
 
 export function SchemaTableList() {
-  const [rows, setRows] = React.useState<RowData[]>([]);
+  const [rows, setRows] = React.useState<IReadSchemaData[]>([]);
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const filteredRows = rows.filter((row) =>
-    row.tableName.toLowerCase().includes(searchTerm.toLowerCase())
+    row.table_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   console.log("Original rows: ", rows);
@@ -218,13 +220,28 @@ export function SchemaTableList() {
   React.useEffect(() => {}, [rows]);
 
   function handleNewRecord() {
-    const newRow: RowData = {
-      tableId: rows.length + 1,
-      tableName: `Table ${rows.length + 1}`,
-      tableDesc: "",
+    const newRow: IReadSchemaData = {
+      table_id: rows.length + 1,
+      table_name: `Table ${rows.length + 1}`,
+      table_alias: "",
+      table_description: "",
       columns: [
-        { columnId: 1, columnName: "Column 1", columnDesc: "" },
-        { columnId: 2, columnName: "Column 2", columnDesc: "" },
+        {
+          column_id: 1, column_name: "Column 1", column_description: "",
+          column_alias: "",
+          column_data_type: "",
+          foreign_key: 0,
+          primary_key: 0,
+          relation_description: ""
+        },
+        {
+          column_id: 2, column_name: "Column 2", column_description: "",
+          column_alias: "",
+          column_data_type: "",
+          foreign_key: 0,
+          primary_key: 0,
+          relation_description: ""
+        },
       ],
     };
     setRows((prev) => [...prev, newRow]);
@@ -246,7 +263,7 @@ export function SchemaTableList() {
         <Table aria-label="collapsible table">
           <TableBody>
             {filteredRows.map((row) => (
-              <Row key={row.tableId} row={row} setRow={setRows} />
+              <Row key={row.table_id} row={row} setRow={setRows} />
             ))}
           </TableBody>
         </Table>
