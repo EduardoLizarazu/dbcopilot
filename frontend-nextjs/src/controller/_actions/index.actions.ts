@@ -43,7 +43,7 @@ export type {
 export { CreateChatAction } from "./chat/chat.action";
 
 export { GetSchemaData, ReadSchemaData } from "./schema/schema.action";
-
+export type { IReadSchemaData } from "./schema/schema.action";
 
 export { 
   readAllSqlSchemaAction, 

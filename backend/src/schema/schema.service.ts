@@ -166,10 +166,15 @@ export class SchemaService {
         .select([
           'schema_table.id',
           'schema_table.technicalName',
+          'schema_table.alias',
+          'schema_table.description',
           'schema_column.id',
           'schema_column.technicalName',
+          'schema_column.alias',
+          'schema_column.dataType',
           'schema_relation.columnIdChild',
-          'schema_relation.columnIdFather'
+          'schema_relation.columnIdFather',
+          'schema_relation.description',
         ])
         .from('schema_table', 'schema_table')
         .leftJoin('schema_column', 'schema_column', 'schema_table.id = schema_column.schemaTableId')
@@ -188,6 +193,8 @@ export class SchemaService {
           acc[tableId] = {
             table_id: tableId,
             table_name: row.schema_table_technicalName,
+            table_alias: row.schema_table_alias,
+            table_description: row.schema_table_description,
             columns: [],
           };
         }
@@ -196,8 +203,12 @@ export class SchemaService {
           acc[tableId].columns.push({
             column_id: columnId,
             column_name: row.schema_column_technicalName,
+            column_alias: row.schema_column_alias,
+            column_description: row.schema_column_description,
+            column_data_type: row.schema_column_dataType,
             foreign_key: row.schema_relation_columnIdChild,
             primary_key: row.schema_relation_columnIdFather,
+            relation_description: row.schema_relation_description,
           });
         }
 
@@ -206,15 +217,28 @@ export class SchemaService {
       , {});
 
       // Convert the object back to an array
-      const schemaDataArray = Object.values(transformedData).map((item: { table_id: number; table_name: string; columns: any[] }) => {
+      const schemaDataArray = Object.values(transformedData).map(
+        (
+          item: { 
+            table_id: number; table_name: string; table_alias: string; table_description: string; 
+            columns: {column_id: number; column_name: string; column_alias: string; column_description: string; column_data_type: string;
+              foreign_key: number; primary_key: number; relation_description: string}[] }
+
+        ) => {
         return {
           table_id: item.table_id,
           table_name: item.table_name,
+          table_alias: item.table_alias,
+          table_description: item.table_description,
           columns: item.columns.map((col) => ({
             column_id: col.column_id,
             column_name: col.column_name,
+            column_alias: col.column_alias,
+            column_description: col.column_description,
+            column_data_type: col.column_data_type,
             foreign_key: col.foreign_key,
             primary_key: col.primary_key,
+            relation_description: col.relation_description,
           })),
         };
       }

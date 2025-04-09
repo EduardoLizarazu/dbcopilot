@@ -38,14 +38,20 @@ const rows: RowData[] = [
   },
 ];
 
-interface ReadSchemaData {
+interface IReadSchemaData {
   table_id: number;
   table_name: string;
+  table_alias: string;
+  table_description: string;
   columns: {
       column_id: number;
       column_name: string;
+      column_alias: string;
+      column_description: string;
+      column_data_type: string;
       foreign_key: number;
       primary_key: number;
+      relation_description: string;
   }[];
 }
 
@@ -53,7 +59,7 @@ export async function GetSchemaData() {
   return rows;
 }
 
-export async function ReadSchemaData(connectionId: number): Promise<ReadSchemaData[]> {
+export async function ReadSchemaData(connectionId: number): Promise<IReadSchemaData[]> {
   try {
     // fetch schema data from the database using the connectionId
     const response = await fetch(`${process.env.BASE_URL}/schema/${connectionId}`, {
@@ -65,7 +71,7 @@ export async function ReadSchemaData(connectionId: number): Promise<ReadSchemaDa
     if (!response.ok) {
       throw new Error('Failed to fetch schema data');
     }
-    const data: ReadSchemaData[] = await response.json();
+    const data: IReadSchemaData[] = await response.json();
     return data;
   } catch (error) {
     console.error('Error finding schema by connection ID: ', error);
