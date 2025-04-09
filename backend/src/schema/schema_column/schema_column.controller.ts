@@ -22,6 +22,11 @@ export class SchemaColumnController {
     return this.schemaColumnService.findOne(+id);
   }
 
+  @Get('table/:id')
+  findByTableId(@Param('id') id: string) {
+    return this.schemaColumnService.findByTableId(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSchemaColumnDto: UpdateSchemaColumnDto) {
     return this.schemaColumnService.update(+id, updateSchemaColumnDto);
