@@ -8,6 +8,8 @@ import CancelIcon from "@mui/icons-material/Cancel";
 export function SchemaAction({
   isEditable,
   setIsEditable,
+  // handle save
+  // handle delete
 }: {
   isEditable: boolean;
   setIsEditable: React.Dispatch<React.SetStateAction<boolean>>;
@@ -17,16 +19,18 @@ export function SchemaAction({
   return (
     <>
       {!isEditable ? (
-        <Tooltip title="Edit">
-          <IconButton
-            aria-label="edit"
-            size="small"
-            onClick={() => setIsEditable((prev) => !prev)}
-            loading={false}
-          >
-            <EditIcon fontSize="inherit" />
-          </IconButton>
-        </Tooltip>
+        <>
+          <Tooltip title="Edit">
+            <IconButton
+              aria-label="edit"
+              size="small"
+              onClick={() => setIsEditable((prev) => !prev)}
+              loading={false}
+            >
+              <EditIcon fontSize="inherit" />
+            </IconButton>
+          </Tooltip>
+        </>
       ) : (
         <>
           <Tooltip title="Save">
