@@ -7,6 +7,7 @@ import {
 import React from "react";
 import { ISchemaTable } from "@/controller/_actions/index.actions";
 import { SchemaColumnHead } from "./schemaColumnHead";
+import { SchemaAction } from "./schemaBtnActions";
 
 export function SchemaTableBody({
   schemaTableData,
@@ -22,12 +23,33 @@ export function SchemaTableBody({
     table_description: "",
   });
 
+  const [btnState, setBtnState] = React.useState({
+    save: false,
+    delete: false,
+  });
+
   React.useEffect(() => {
     (async () => {
       const data = await schemaTableData;
       setSchemaTable(data);
     })();
   }, []);
+
+  function handleSaveBtn() {
+    try {
+      console.log("Save schema table:", schemaTable?.table_id);
+    } catch (error) {
+      console.log("Error saving schema table:", error);
+    }
+  }
+
+  function handleDelete() {
+    try {
+      console.log("Delete schema table:", schemaTable?.table_id);
+    } catch (error) {
+      console.log("Error deleting schema table:", error);
+    }
+  }
 
   return (
     <>
@@ -44,7 +66,9 @@ export function SchemaTableBody({
         <TableCell>{schemaTable?.table_name}</TableCell>
         <TableCell>{schemaTable?.table_alias}</TableCell>
         <TableCell>{schemaTable?.table_description}</TableCell>
-        <TableCell>Actions</TableCell>
+        <TableCell>
+          <SchemaAction />
+        </TableCell>
       </TableRow>
       <TableRow key={schemaTable?.table_id + "columns"}>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
