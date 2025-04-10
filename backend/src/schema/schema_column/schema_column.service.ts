@@ -16,12 +16,13 @@ export class SchemaColumnService {
     try {
       const newSchemaColumn = this.schemaColumnRepository.create({
         ...createSchemaColumnDto,
-        schemaColumnKeys: createSchemaColumnDto.schemaColumnKeys?.map(id => ({ id })),
+        schemaColumnKeys: createSchemaColumnDto.schemaColumnKeys?.map((id) => ({
+          id,
+        })),
       });
       await this.schemaColumnRepository.save(newSchemaColumn);
       return newSchemaColumn;
-    }
-    catch (error) {
+    } catch (error) {
       throw new Error(`Error creating schema column: ${error.message}`);
     }
   }
@@ -38,8 +39,9 @@ export class SchemaColumnService {
 
   async findOne(id: number) {
     try {
-      const schemaColumn = await this.schemaColumnRepository.findOne(
-        { where: { id }});
+      const schemaColumn = await this.schemaColumnRepository.findOne({
+        where: { id },
+      });
       return schemaColumn;
     } catch (error) {
       throw new Error(`Error fetching schema column: ${error.message}`);
@@ -58,24 +60,29 @@ export class SchemaColumnService {
       */
       // with datasource
       const schemaColumns = await this.dataSource.query(
-        `SELECT schema_column.id, schema_column."technicalName", schema_relation."columnIdChild", schema_relation."columnIdFather"
+        `SELECT schema_column.id, schema_column."technicalName", schema_column.alias, schema_column."dataType",
+        schema_relation."columnIdChild", schema_relation."columnIdFather", schema_relation.description
         FROM schema_column
         LEFT JOIN schema_relation ON schema_column.id = schema_relation."columnIdChild"
-        WHERE schema_column."schemaTableId" = $1`, [tableId],
+        WHERE schema_column."schemaTableId" = $1`,
+        [tableId],
       );
       if (!schemaColumns) {
         throw new Error(`Schema columns for table ID ${tableId} not found`);
       }
       return schemaColumns;
-    }
-    catch (error) {
-      throw new Error(`Error fetching schema columns by table ID: ${error.message}`);
+    } catch (error) {
+      throw new Error(
+        `Error fetching schema columns by table ID: ${error.message}`,
+      );
     }
   }
 
   async update(id: number, updateSchemaColumnDto: UpdateSchemaColumnDto) {
     try {
-      const schemaColumn = await this.schemaColumnRepository.findOne({ where: { id } });
+      const schemaColumn = await this.schemaColumnRepository.findOne({
+        where: { id },
+      });
       if (!schemaColumn) {
         throw new Error(`Schema column with ID ${id} not found`);
       }
@@ -89,7 +96,9 @@ export class SchemaColumnService {
 
   async remove(id: number) {
     try {
-      const schemaColumn = await this.schemaColumnRepository.findOne({ where: { id } });
+      const schemaColumn = await this.schemaColumnRepository.findOne({
+        where: { id },
+      });
       if (!schemaColumn) {
         throw new Error(`Schema column with ID ${id} not found`);
       }

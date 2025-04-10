@@ -99,14 +99,14 @@ export interface IReadSchemaData {
   table_alias: string;
   table_description: string;
   columns: {
-      column_id: number;
-      column_name: string;
-      column_alias: string;
-      column_description: string;
-      column_data_type: string;
-      foreign_key: number;
-      primary_key: number;
-      relation_description: string;
+    column_id: number;
+    column_name: string;
+    column_alias: string;
+    column_description: string;
+    column_data_type: string;
+    foreign_key: number;
+    primary_key: number;
+    relation_description: string;
   }[];
 }
 
@@ -121,7 +121,7 @@ export interface ISchemaColumn {
   column_id: number;
   column_name: string;
   column_alias: string;
-  column_description: string;
+  column_description?: string;
   column_data_type: string;
   foreign_key: number;
   primary_key: number;
@@ -132,61 +132,88 @@ export async function GetSchemaData() {
   return rows;
 }
 
-export async function ReadSchemaData(connectionId: number): Promise<IReadSchemaData[]> {
+export async function ReadSchemaData(
+  connectionId: number
+): Promise<IReadSchemaData[]> {
   try {
     // fetch schema data from the database using the connectionId
-    const response = await fetch(`${process.env.BASE_URL}/schema/${connectionId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${process.env.BASE_URL}/schema/${connectionId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (!response.ok) {
-      throw new Error('Failed to fetch schema data');
+      throw new Error("Failed to fetch schema data");
     }
     const data: IReadSchemaData[] = await response.json();
     return data;
   } catch (error) {
-    console.error('Error finding schema by connection ID: ', error);
+    console.error("Error finding schema by connection ID: ", error);
     return []; // Return an empty array in case of an error
   }
 }
 
 // Find all table by connection id
-export async function ReadTableByConnectionId(connectionId: number): Promise<ISchemaTable[]> {
+export async function ReadTableByConnectionId(
+  connectionId: number
+): Promise<ISchemaTable[]> {
   try {
-    const response = await fetch(`${process.env.BASE_URL}/schema-table/connection/${connectionId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${process.env.BASE_URL}/schema-table/connection/${connectionId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (!response.ok) {
-      throw new Error('Failed to fetch schema data');
+      throw new Error("Failed to fetch schema data");
     }
     const data: ISchemaTable[] = await response.json();
     return data;
   } catch (error) {
-    console.error('Error finding all tables by connection ID: ', error);
+    console.error("Error finding all tables by connection ID: ", error);
     return []; // Return an empty array in case of an error
   }
 }
 
-export async function ReadColumnByTableId(tableId: number): Promise<ISchemaColumn[]> {
+export async function ReadColumnByTableId(
+  tableId: number
+): Promise<ISchemaColumn[]> {
   try {
-    const response = await fetch(`${process.env.BASE_URL}/schema-column/table/${tableId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    console.log("READ COLUMN BY TABLE ID: ", tableId);
+    const response = await fetch(
+      `${process.env.BASE_URL}/schema-column/table/${tableId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (!response.ok) {
-      throw new Error('Failed to fetch schema data');
+      throw new Error("Failed to fetch schema data");
     }
-    const data: ISchemaColumn[] = await response.json();
-    return data;
+    const data = await response.json();
+
+    const dataFormatted: ISchemaColumn[] = data.map((column: any) => ({
+      column_id: column.id,
+      column_name: column.technicalName,
+      column_alias: column.alias,
+      column_data_type: column.dataType,
+      foreign_key: column.columnIdChild,
+      primary_key: column.columnIdFather,
+      relation_description: column.description,
+    }));
+
+    return dataFormatted;
   } catch (error) {
-    console.error('Error finding all columns by table ID: ', error);
+    console.error("Error finding all columns by table ID: ", error);
     return []; // Return an empty array in case of an error
   }
 }
