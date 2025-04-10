@@ -8,13 +8,15 @@ import CancelIcon from "@mui/icons-material/Cancel";
 export function SchemaAction({
   actionStatus,
   setActionStatus,
-  // handle save
-  // handle delete
+  handleSaveBtn,
+  handleDeleteBtn,
 }: {
   actionStatus: { isEditable: boolean; isSaved: boolean };
   setActionStatus: React.Dispatch<
     React.SetStateAction<{ isEditable: boolean; isSaved: boolean }>
   >;
+  handleSaveBtn: () => void;
+  handleDeleteBtn: () => void;
 }) {
   return (
     <>
@@ -42,12 +44,13 @@ export function SchemaAction({
             <IconButton
               aria-label="save"
               size="small"
-              onClick={() =>
+              onClick={() => {
                 setActionStatus((prev) => ({
                   isSaved: !prev.isSaved,
                   isEditable: !prev.isEditable,
-                }))
-              }
+                }));
+                handleSaveBtn();
+              }}
               loading={false}
             >
               <SaveIcon fontSize="inherit" />

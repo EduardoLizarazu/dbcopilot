@@ -42,15 +42,15 @@ export function SchemaTableBody({
     })();
   }, []);
 
-  function handleSaveBtn() {
+  async function handleSaveBtn() {
     try {
-      console.log("Save schema table:", schemaTable?.table_id);
+      console.log("Save schema table:", schemaTable);
     } catch (error) {
       console.log("Error saving schema table:", error);
     }
   }
 
-  function handleDelete() {
+  async function handleDeleteBtn() {
     try {
       console.log("Delete schema table:", schemaTable?.table_id);
     } catch (error) {
@@ -83,6 +83,8 @@ export function SchemaTableBody({
           <SchemaAction
             actionStatus={actionStatus}
             setActionStatus={setActionStatus}
+            handleSaveBtn={handleSaveBtn}
+            handleDeleteBtn={handleDeleteBtn}
           />
         </TableCell>
       </TableRow>
