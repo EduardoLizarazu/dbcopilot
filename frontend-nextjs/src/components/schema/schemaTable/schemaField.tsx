@@ -1,19 +1,29 @@
 import { TextField } from "@mui/material";
 
 export function SchemaField({
-  isEditable,
+  actionStatus,
   value,
+  setSchemaTable,
+  //   isSaved,
 }: {
-  isEditable: boolean;
+  actionStatus: { isEditable: boolean; isSaved: boolean };
   value: string;
+  setSchemaTable: React.Dispatch<React.SetStateAction<any>>;
 }) {
   return (
     <>
-      {isEditable ? (
+      {actionStatus.isEditable ? (
         <TextField
           defaultValue={value}
           size="small"
-          onBlur={(e) => {}}
+          onChange={(e) => {
+            if (actionStatus.isSaved) {
+              setSchemaTable((prev: any) => ({
+                ...prev,
+                table_name: e.target.value,
+              }));
+            }
+          }}
           variant="outlined"
         />
       ) : (

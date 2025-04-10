@@ -30,7 +30,10 @@ export function SchemaTableBody({
     table_description: "",
   });
 
-  const [isEditable, setIsEditable] = React.useState(false);
+  const [actionStatus, setActionStatus] = React.useState({
+    isEditable: false,
+    isSaved: false,
+  });
 
   React.useEffect(() => {
     (async () => {
@@ -69,14 +72,18 @@ export function SchemaTableBody({
         </TableCell>
         <TableCell>
           <SchemaField
-            isEditable={isEditable}
+            actionStatus={actionStatus}
+            setSchemaTable={setSchemaTable}
             value={schemaTable?.table_name}
           />
         </TableCell>
         <TableCell>{schemaTable?.table_alias}</TableCell>
         <TableCell>{schemaTable?.table_description}</TableCell>
         <TableCell>
-          <SchemaAction isEditable={isEditable} setIsEditable={setIsEditable} />
+          <SchemaAction
+            actionStatus={actionStatus}
+            setActionStatus={setActionStatus}
+          />
         </TableCell>
       </TableRow>
       <TableRow key={schemaTable?.table_id + "columns"}>

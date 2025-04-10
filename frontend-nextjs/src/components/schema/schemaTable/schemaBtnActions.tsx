@@ -6,25 +6,30 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 export function SchemaAction({
-  isEditable,
-  setIsEditable,
+  actionStatus,
+  setActionStatus,
   // handle save
   // handle delete
 }: {
-  isEditable: boolean;
-  setIsEditable: React.Dispatch<React.SetStateAction<boolean>>;
+  actionStatus: { isEditable: boolean; isSaved: boolean };
+  setActionStatus: React.Dispatch<
+    React.SetStateAction<{ isEditable: boolean; isSaved: boolean }>
+  >;
 }) {
-  const handleIsEditable = () => setIsEditable((prev) => !prev);
-
   return (
     <>
-      {!isEditable ? (
+      {!actionStatus.isEditable ? (
         <>
           <Tooltip title="Edit">
             <IconButton
               aria-label="edit"
               size="small"
-              onClick={() => setIsEditable((prev) => !prev)}
+              onClick={() =>
+                setActionStatus((prev) => ({
+                  ...prev,
+                  isEditable: !prev.isEditable,
+                }))
+              }
               loading={false}
             >
               <EditIcon fontSize="inherit" />
@@ -37,7 +42,12 @@ export function SchemaAction({
             <IconButton
               aria-label="save"
               size="small"
-              onClick={() => setIsEditable((prev) => !prev)}
+              onClick={() =>
+                setActionStatus((prev) => ({
+                  isSaved: !prev.isSaved,
+                  isEditable: !prev.isEditable,
+                }))
+              }
               loading={false}
             >
               <SaveIcon fontSize="inherit" />
@@ -48,7 +58,12 @@ export function SchemaAction({
             <IconButton
               aria-label="cancel"
               size="small"
-              onClick={() => setIsEditable((prev) => !prev)}
+              onClick={() =>
+                setActionStatus((prev) => ({
+                  ...prev,
+                  isEditable: !prev.isEditable,
+                }))
+              }
               loading={false}
             >
               <CancelIcon fontSize="inherit" />
@@ -61,7 +76,12 @@ export function SchemaAction({
         <IconButton
           aria-label="delete"
           size="small"
-          onClick={() => setIsEditable((prev) => !prev)}
+          onClick={() =>
+            setActionStatus((prev) => ({
+              ...prev,
+              isEditable: !prev.isEditable,
+            }))
+          }
           loading={false}
         >
           <DeleteIcon fontSize="inherit" />
