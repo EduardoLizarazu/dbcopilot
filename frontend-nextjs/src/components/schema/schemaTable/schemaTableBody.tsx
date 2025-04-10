@@ -107,8 +107,20 @@ export function SchemaTableBody({
             value={schemaTable?.table_name}
           />
         </TableCell>
-        <TableCell>{schemaTable?.table_alias}</TableCell>
-        <TableCell>{schemaTable?.table_description}</TableCell>
+        <TableCell>
+          <SchemaField
+            actionStatus={actionStatus}
+            setSchemaTable={setSchemaTable}
+            value={schemaTable?.table_alias}
+          />
+        </TableCell>
+        <TableCell>
+          <SchemaField
+            actionStatus={actionStatus}
+            setSchemaTable={setSchemaTable}
+            value={schemaTable?.table_description}
+          />
+        </TableCell>
         <TableCell>
           <SchemaAction
             actionStatus={actionStatus}
