@@ -20,34 +20,43 @@ export {
   UpdateUser,
 } from "./user/user.action";
 
-
 // CONNECTION ACTIONS
 
-export { 
-  ReadConnectionAction, 
-  DeleteConnectionAction, 
+export {
+  ReadConnectionAction,
+  DeleteConnectionAction,
   CreateConnectionAction,
   ReadAllDatabaseTypeAction,
   TestConnectionAction,
   UpdateConnectionAction,
-  ReadConnectionByIdAction
+  ReadConnectionByIdAction,
 } from "./connection/connection.action";
 export type {
-   ReadConnectionOutput, 
-   CreateConnectionInput, 
-   UpdateConnectionInput,
-   ReadDatabaseTypeOutput
+  ReadConnectionOutput,
+  CreateConnectionInput,
+  UpdateConnectionInput,
+  ReadDatabaseTypeOutput,
 } from "./connection/connection.action";
-
 
 export { CreateChatAction } from "./chat/chat.action";
 
-export { GetSchemaData, ReadSchemaData, ReadTableByConnectionId, ReadColumnByTableId } from "./schema/schema.action";
-export type { IReadSchemaData, ISchemaTable, ISchemaColumn } from "./schema/schema.action";
+export {
+  GetSchemaData,
+  ReadSchemaData,
+  ReadTableByConnectionId,
+  ReadColumnByTableId,
+  UpdateSchemaTable,
+} from "./schema/schema.action";
+export type {
+  IReadSchemaData,
+  ISchemaTable,
+  ISchemaColumn,
+} from "./schema/schema.action";
 
-export { 
-  readAllSqlSchemaAction, 
-  createSqlSchemaAction, 
-  readSqlSchemaActionById, 
-  updateSqlSchemaAction, 
-  deleteSqlSchemaAction } from "./sqlschema/sqlschema.action";
+export {
+  readAllSqlSchemaAction,
+  createSqlSchemaAction,
+  readSqlSchemaActionById,
+  updateSqlSchemaAction,
+  deleteSqlSchemaAction,
+} from "./sqlschema/sqlschema.action";
