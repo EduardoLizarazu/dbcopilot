@@ -14,6 +14,7 @@ import React from "react";
 import { ISchemaTable } from "@/controller/_actions/index.actions";
 import { SchemaColumnHead } from "./schemaColumnHead";
 import { SchemaAction } from "./schemaBtnActions";
+import { SchemaField } from "./schemaField";
 
 export function SchemaTableBody({
   schemaTableData,
@@ -67,21 +68,10 @@ export function SchemaTableBody({
           </IconButton>
         </TableCell>
         <TableCell>
-          {isEditable ? (
-            <TextField
-              defaultValue={schemaTable?.table_name}
-              size="small"
-              onBlur={(e) =>
-                setSchemaTable((prev) => ({
-                  ...prev,
-                  table_name: e.target.value,
-                }))
-              }
-              variant="outlined"
-            />
-          ) : (
-            <span>{schemaTable?.table_name}</span>
-          )}
+          <SchemaField
+            isEditable={isEditable}
+            value={schemaTable?.table_name}
+          />
         </TableCell>
         <TableCell>{schemaTable?.table_alias}</TableCell>
         <TableCell>{schemaTable?.table_description}</TableCell>
