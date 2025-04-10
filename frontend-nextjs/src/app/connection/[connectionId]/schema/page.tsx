@@ -1,7 +1,6 @@
 import { Container, Typography } from "@mui/material";
 import { SchemaTableList } from "@/components/schema/schemaTableList";
 import { ReadTableByConnectionId } from "@/controller/_actions/index.actions";
-import { SchemaTable } from "@/components/schema/schemaTable/schemaTable";
 import { Suspense } from "react";
 import { SchemaTableHead } from "@/components/schema/schemaTable/schemaTableHead";
 
