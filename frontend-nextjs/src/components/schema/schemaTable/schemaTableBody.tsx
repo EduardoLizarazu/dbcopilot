@@ -1,5 +1,11 @@
 "use client";
-import { Collapse, IconButton, TableCell, TableRow } from "@mui/material";
+import {
+  Collapse,
+  IconButton,
+  TableCell,
+  TableRow,
+  TextField,
+} from "@mui/material";
 import {
   KeyboardArrowUp as KeyboardArrowUpIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
@@ -23,10 +29,7 @@ export function SchemaTableBody({
     table_description: "",
   });
 
-  const [btnState, setBtnState] = React.useState({
-    save: false,
-    delete: false,
-  });
+  const [isEditable, setIsEditable] = React.useState(false);
 
   React.useEffect(() => {
     (async () => {
@@ -63,11 +66,27 @@ export function SchemaTableBody({
             {openColumn ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>{schemaTable?.table_name}</TableCell>
+        <TableCell>
+          {isEditable ? (
+            <TextField
+              defaultValue={schemaTable?.table_name}
+              size="small"
+              onBlur={(e) =>
+                setSchemaTable((prev) => ({
+                  ...prev,
+                  table_name: e.target.value,
+                }))
+              }
+              variant="outlined"
+            />
+          ) : (
+            <span>{schemaTable?.table_name}</span>
+          )}
+        </TableCell>
         <TableCell>{schemaTable?.table_alias}</TableCell>
         <TableCell>{schemaTable?.table_description}</TableCell>
         <TableCell>
-          <SchemaAction />
+          <SchemaAction isEditable={isEditable} setIsEditable={setIsEditable} />
         </TableCell>
       </TableRow>
       <TableRow key={schemaTable?.table_id + "columns"}>
