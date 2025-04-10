@@ -11,10 +11,14 @@ import {
   KeyboardArrowDown as KeyboardArrowDownIcon,
 } from "@mui/icons-material";
 import React from "react";
-import { ISchemaTable } from "@/controller/_actions/index.actions";
+import {
+  ISchemaTable,
+  UpdateSchemaTable,
+} from "@/controller/_actions/index.actions";
 import { SchemaColumnHead } from "./schemaColumnHead";
 import { SchemaAction } from "./schemaBtnActions";
 import { SchemaField } from "./schemaField";
+import { FeedbackSnackBar } from "../feedbackStanckBar";
 
 export function SchemaTableBody({
   schemaTableData,
@@ -45,6 +49,7 @@ export function SchemaTableBody({
   async function handleSaveBtn() {
     try {
       console.log("Save schema table:", schemaTable);
+      const res = await UpdateSchemaTable(schemaTable);
     } catch (error) {
       console.log("Error saving schema table:", error);
     }
@@ -95,6 +100,12 @@ export function SchemaTableBody({
           </Collapse>
         </TableCell>
       </TableRow>
+      <FeedbackSnackBar
+        open={actionStatus.isSaved}
+        setOpen={setActionStatus}
+        severity="success"
+        message="Schema table saved successfully!"
+      />
     </>
   );
 }

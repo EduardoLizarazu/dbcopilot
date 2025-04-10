@@ -4,12 +4,13 @@ export function SchemaField({
   actionStatus,
   value,
   setSchemaTable,
-  //   isSaved,
 }: {
   actionStatus: { isEditable: boolean; isSaved: boolean };
   value: string;
   setSchemaTable: React.Dispatch<React.SetStateAction<any>>;
 }) {
+  console.log("i am schema field");
+
   return (
     <>
       {actionStatus.isEditable ? (
