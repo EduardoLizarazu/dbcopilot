@@ -18,7 +18,7 @@ import {
 import { SchemaColumnHead } from "./schemaColumnHead";
 import { SchemaAction } from "./schemaBtnActions";
 import { SchemaField } from "./schemaField";
-import { FeedbackSnackBar } from "../feedbackStanckBar";
+import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
 
 export function SchemaTableBody({
   schemaTableData,
@@ -39,6 +39,12 @@ export function SchemaTableBody({
     isSaved: false,
   });
 
+  const [feedback, setFeedback] = React.useState({
+    isActive: false,
+    message: "",
+    severity: null as "success" | "error" | "warning" | "info" | null,
+  });
+
   React.useEffect(() => {
     (async () => {
       const data = await schemaTableData;
@@ -49,9 +55,28 @@ export function SchemaTableBody({
   async function handleSaveBtn() {
     try {
       console.log("Save schema table:", schemaTable);
+      console.log("Action status is saved:", actionStatus.isSaved);
+
       const res = await UpdateSchemaTable(schemaTable);
+      console.log("Response from save schema table:", res);
+
+      setFeedback({
+        isActive: true,
+        message: "Schema table updated successfully",
+        severity: "success",
+      });
     } catch (error) {
       console.log("Error saving schema table:", error);
+      setFeedback({
+        isActive: true,
+        message: "Error updating schema table",
+        severity: "error",
+      });
+    } finally {
+      // time
+      setTimeout(() => {
+        setFeedback({ isActive: false, message: "", severity: null });
+      }, 3000);
     }
   }
 
@@ -91,21 +116,22 @@ export function SchemaTableBody({
             handleSaveBtn={handleSaveBtn}
             handleDeleteBtn={handleDeleteBtn}
           />
+          {feedback.isActive && (
+            <FeedbackSnackBar
+              message={feedback.message}
+              severity={feedback.severity}
+            />
+          )}
         </TableCell>
       </TableRow>
       <TableRow key={schemaTable?.table_id + "columns"}>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
           <Collapse in={openColumn} timeout="auto" unmountOnExit>
+            {/* schema column */}
             <SchemaColumnHead tableId={schemaTable?.table_id} />
           </Collapse>
         </TableCell>
       </TableRow>
-      <FeedbackSnackBar
-        open={actionStatus.isSaved}
-        setOpen={setActionStatus}
-        severity="success"
-        message="Schema table saved successfully!"
-      />
     </>
   );
 }
