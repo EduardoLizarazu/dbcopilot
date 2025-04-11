@@ -6,13 +6,13 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 export function SchemaAction({
-  actionStatus,
+  isEditable,
   handleEditBtn,
   handleSaveBtn,
   handleCancelBtn,
   handleDeleteBtn,
 }: {
-  actionStatus: { isEditable: boolean; isSaved: boolean };
+  isEditable: boolean;
   handleEditBtn: () => void;
   handleSaveBtn: () => void;
   handleCancelBtn: () => void;
@@ -20,7 +20,7 @@ export function SchemaAction({
 }) {
   return (
     <>
-      {!actionStatus.isEditable ? (
+      {!isEditable ? (
         <>
           <Tooltip title="Edit">
             <IconButton

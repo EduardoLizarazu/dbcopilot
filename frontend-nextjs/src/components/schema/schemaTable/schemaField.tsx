@@ -2,12 +2,12 @@ import { TextField } from "@mui/material";
 
 export function SchemaField({
   txtName,
-  actionStatus,
+  isEditable,
   value,
   setSchemaTableTemp,
 }: {
   txtName: string;
-  actionStatus: { isEditable: boolean; isSaved: boolean };
+  isEditable: boolean;
   value: string;
   setSchemaTableTemp: React.Dispatch<React.SetStateAction<any>>;
 }) {
@@ -22,7 +22,7 @@ export function SchemaField({
 
   return (
     <>
-      {actionStatus.isEditable ? (
+      {isEditable ? (
         <TextField
           name={txtName}
           value={value}
