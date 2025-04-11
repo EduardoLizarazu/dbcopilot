@@ -2,6 +2,9 @@
 import React from "react";
 import { ISchemaColumn } from "@/controller/_actions/index.actions";
 import { TableCell, TableRow } from "@mui/material";
+import { SchemaAction } from "./schemaBtnActions";
+import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
+import { SchemaField } from "./schemaField";
 
 export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
   const [schemaColumn, setSchemaColumn] = React.useState<ISchemaColumn>({
@@ -15,20 +18,110 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
     relation_description: "",
   });
 
+  const [schemaColumnTemp, setSchemaColumnTemp] = React.useState<ISchemaColumn>(
+    {
+      column_id: 0,
+      column_name: "",
+      column_alias: "",
+      column_description: "",
+      column_data_type: "",
+      foreign_key: 0,
+      primary_key: 0,
+      relation_description: "",
+    }
+  );
+
+  const [feedback, setFeedback] = React.useState({
+    isActive: false,
+    message: "",
+    severity: null as "success" | "error" | "warning" | "info" | null,
+  });
+
+  const [isEditable, setIsEditable] = React.useState(false);
+
   React.useEffect(() => {
-    (async () => {
-      setSchemaColumn(columns);
-    })();
+    setSchemaColumn(columns);
+    setSchemaColumnTemp(columns);
   }, []);
+
+  const errorFeedback = () => {
+    setFeedback({
+      isActive: true,
+      message: "Error saving the schema column",
+      severity: "error",
+    });
+  };
+
+  const resetFeedback = () => {
+    setTimeout(
+      () => (
+        setFeedback({
+          isActive: false,
+          message: "",
+          severity: null,
+        }),
+        3000
+      )
+    );
+  };
+
+  async function handleSaveBtn() {
+    try {
+    } catch (error) {
+      console.error("Error saving the schema column: ", error);
+      errorFeedback();
+    } finally {
+      resetFeedback();
+      setIsEditable(false);
+    }
+  }
+
+  async function handleDeleteBtn() {
+    try {
+    } catch (error) {
+    } finally {
+      resetFeedback();
+      setIsEditable(false);
+    }
+  }
+
+  function handleCancelBtn() {
+    setIsEditable(false);
+  }
+
+  function handleEditBtn() {
+    setIsEditable(true);
+  }
 
   return (
     <>
       <TableRow key={schemaColumn.column_id + "columns"}>
-        <TableCell>{schemaColumn?.column_name}</TableCell>
+        <TableCell>
+          <SchemaField
+            txtName="table_name"
+            isEditable={isEditable}
+            setSchemaTableTemp={setSchemaTableTemp}
+            value={schemaTableTemp?.table_name}
+          />
+        </TableCell>
         <TableCell>{schemaColumn?.column_alias}</TableCell>
         <TableCell>{schemaColumn?.column_description}</TableCell>
         <TableCell>{schemaColumn?.column_data_type}</TableCell>
-        <TableCell>Actions</TableCell>
+        <TableCell>
+          <SchemaAction
+            isEditable={isEditable}
+            handleEditBtn={handleEditBtn}
+            handleSaveBtn={handleSaveBtn}
+            handleCancelBtn={handleCancelBtn}
+            handleDeleteBtn={handleDeleteBtn}
+          />
+          {feedback.isActive && (
+            <FeedbackSnackBar
+              message={feedback.message}
+              severity={feedback.severity}
+            />
+          )}
+        </TableCell>
       </TableRow>
     </>
   );
