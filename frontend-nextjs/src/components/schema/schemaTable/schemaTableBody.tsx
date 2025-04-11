@@ -135,7 +135,7 @@ export function SchemaTableBody({
             txtName="table_name"
             isEditable={isEditable}
             setValue={setSchemaTableTemp}
-            value={schemaTableTemp?.table_name}
+            value={schemaTableTemp?.table_name || "-"}
           />
         </TableCell>
         <TableCell>
@@ -143,7 +143,7 @@ export function SchemaTableBody({
             txtName="table_alias"
             isEditable={isEditable}
             setValue={setSchemaTableTemp}
-            value={schemaTableTemp?.table_alias}
+            value={schemaTableTemp?.table_alias || "-"}
           />
         </TableCell>
         <TableCell>
@@ -151,7 +151,7 @@ export function SchemaTableBody({
             txtName="table_description"
             isEditable={isEditable}
             setValue={setSchemaTableTemp}
-            value={schemaTableTemp?.table_description}
+            value={schemaTableTemp?.table_description || "-"}
           />
         </TableCell>
         <TableCell>

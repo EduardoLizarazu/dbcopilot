@@ -115,7 +115,7 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
             txtName="column_name"
             isEditable={isEditable}
             setValue={setSchemaColumnTemp}
-            value={schemaColumnTemp?.column_name || ""}
+            value={schemaColumnTemp?.column_name || "-"}
           />
         </TableCell>
         <TableCell>
@@ -124,7 +124,7 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
             txtName="column_alias"
             isEditable={isEditable}
             setValue={setSchemaColumnTemp}
-            value={schemaColumnTemp?.column_alias || ""}
+            value={schemaColumnTemp?.column_alias || "-"}
           />
         </TableCell>
         <TableCell>
@@ -133,7 +133,7 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
             txtName="column_description"
             isEditable={isEditable}
             setValue={setSchemaColumnTemp}
-            value={schemaColumnTemp?.column_description || ""}
+            value={schemaColumnTemp?.column_description || "-"}
           />
         </TableCell>
         <TableCell>
@@ -142,7 +142,7 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
             txtName="column_data_type"
             isEditable={isEditable}
             setValue={setSchemaColumnTemp}
-            value={schemaColumnTemp?.column_data_type || ""}
+            value={schemaColumnTemp?.column_data_type || "-"}
           />
         </TableCell>
         <TableCell>
