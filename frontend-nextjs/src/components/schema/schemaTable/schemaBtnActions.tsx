@@ -7,15 +7,15 @@ import CancelIcon from "@mui/icons-material/Cancel";
 
 export function SchemaAction({
   actionStatus,
-  setActionStatus,
+  handleEditBtn,
   handleSaveBtn,
+  handleCancelBtn,
   handleDeleteBtn,
 }: {
   actionStatus: { isEditable: boolean; isSaved: boolean };
-  setActionStatus: React.Dispatch<
-    React.SetStateAction<{ isEditable: boolean; isSaved: boolean }>
-  >;
+  handleEditBtn: () => void;
   handleSaveBtn: () => void;
+  handleCancelBtn: () => void;
   handleDeleteBtn: () => void;
 }) {
   return (
@@ -26,12 +26,7 @@ export function SchemaAction({
             <IconButton
               aria-label="edit"
               size="small"
-              onClick={() =>
-                setActionStatus((prev) => ({
-                  ...prev,
-                  isEditable: !prev.isEditable,
-                }))
-              }
+              onClick={handleEditBtn}
               loading={false}
             >
               <EditIcon fontSize="inherit" />
@@ -44,13 +39,7 @@ export function SchemaAction({
             <IconButton
               aria-label="save"
               size="small"
-              onClick={() => {
-                setActionStatus((prev) => ({
-                  isSaved: !prev.isSaved,
-                  isEditable: !prev.isEditable,
-                }));
-                handleSaveBtn();
-              }}
+              onClick={handleSaveBtn}
               loading={false}
             >
               <SaveIcon fontSize="inherit" />
@@ -61,12 +50,7 @@ export function SchemaAction({
             <IconButton
               aria-label="cancel"
               size="small"
-              onClick={() =>
-                setActionStatus((prev) => ({
-                  ...prev,
-                  isEditable: !prev.isEditable,
-                }))
-              }
+              onClick={handleCancelBtn}
               loading={false}
             >
               <CancelIcon fontSize="inherit" />
@@ -79,12 +63,7 @@ export function SchemaAction({
         <IconButton
           aria-label="delete"
           size="small"
-          onClick={() =>
-            setActionStatus((prev) => ({
-              ...prev,
-              isEditable: !prev.isEditable,
-            }))
-          }
+          onClick={handleDeleteBtn}
           loading={false}
         >
           <DeleteIcon fontSize="inherit" />

@@ -34,6 +34,13 @@ export function SchemaTableBody({
     table_description: "",
   });
 
+  const [schemaTableTemp, setSchemaTableTemp] = React.useState<ISchemaTable>({
+    table_id: 0,
+    table_name: "",
+    table_alias: "",
+    table_description: "",
+  });
+
   const [actionStatus, setActionStatus] = React.useState({
     isEditable: false,
     isSaved: false,
@@ -49,13 +56,14 @@ export function SchemaTableBody({
     (async () => {
       const data = await schemaTableData;
       setSchemaTable(data);
+      setSchemaTableTemp(data);
     })();
   }, []);
 
   async function handleSaveBtn() {
     try {
-      console.log("Save schema table:", schemaTable);
-
+      // Pass temp to schemaTable
+      setSchemaTable({ ...schemaTableTemp });
       const res = await UpdateSchemaTable(schemaTable);
 
       if (res?.status === 200) {
@@ -88,11 +96,30 @@ export function SchemaTableBody({
     }
   }
 
+  function handleCancelBtn() {
+    setSchemaTableTemp(schemaTable); // Reset to original data
+    setActionStatus({ isEditable: false, isSaved: false });
+  }
+
+  function handleEditBtn() {
+    setActionStatus((prev) => ({
+      ...prev,
+      isEditable: !prev.isEditable,
+    }));
+  }
+
   async function handleDeleteBtn() {
     try {
       console.log("Delete schema table:", schemaTable?.table_id);
     } catch (error) {
       console.log("Error deleting schema table:", error);
+    } finally {
+      // time - feedback
+      setTimeout(() => {
+        setFeedback({ isActive: false, message: "", severity: null });
+      }, 3000);
+      // reset action status
+      setActionStatus({ isEditable: false, isSaved: false });
     }
   }
 
@@ -112,7 +139,7 @@ export function SchemaTableBody({
           <SchemaField
             txtName="table_name"
             actionStatus={actionStatus}
-            setSchemaTable={setSchemaTable}
+            setSchemaTableTemp={setSchemaTableTemp}
             value={schemaTable?.table_name}
           />
         </TableCell>
@@ -120,7 +147,7 @@ export function SchemaTableBody({
           <SchemaField
             txtName="table_alias"
             actionStatus={actionStatus}
-            setSchemaTable={setSchemaTable}
+            setSchemaTableTemp={setSchemaTableTemp}
             value={schemaTable?.table_alias}
           />
         </TableCell>
@@ -128,15 +155,16 @@ export function SchemaTableBody({
           <SchemaField
             txtName="table_description"
             actionStatus={actionStatus}
-            setSchemaTable={setSchemaTable}
+            setSchemaTableTemp={setSchemaTableTemp}
             value={schemaTable?.table_description}
           />
         </TableCell>
         <TableCell>
           <SchemaAction
             actionStatus={actionStatus}
-            setActionStatus={setActionStatus}
+            handleEditBtn={handleEditBtn}
             handleSaveBtn={handleSaveBtn}
+            handleCancelBtn={handleCancelBtn}
             handleDeleteBtn={handleDeleteBtn}
           />
           {feedback.isActive && (
