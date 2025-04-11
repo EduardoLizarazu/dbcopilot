@@ -249,3 +249,38 @@ export async function UpdateSchemaTable(data: ISchemaTable) {
     console.error("Error updating schema table: ", error);
   }
 }
+
+export async function UpdateSchemaColumn(data: ISchemaColumn) {
+  try {
+    
+    const formattedData = {
+      technicalName: data.column_name,
+      alias: data.column_alias,
+      dataType: data.column_data_type,
+      description: data.column_description
+    }
+
+    console.log("UPDATE SCHEMA COLUMN: ", formattedData);
+    
+    const response = await fetch(
+      `${process.env.BASE_URL}/schema-column/${data.column_id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formattedData),
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error("Failed to update schema table");
+    }
+    return {
+      status: response.status,
+      message: response.statusText,
+    };
+  } catch (error) {
+    console.error("Error updating schema column: ", error);
+  }
+}
