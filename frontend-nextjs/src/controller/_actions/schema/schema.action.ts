@@ -221,11 +221,12 @@ export async function ReadColumnByTableId(
 export async function UpdateSchemaTable(data: ISchemaTable) {
   try {
     const dataFormatted = {
-      id: data.table_id,
       technicalName: data.table_name,
       alias: data.table_alias,
       description: data.table_description,
     };
+
+    console.log("UPDATE SCHEMA TABLE: ", dataFormatted);
 
     const response = await fetch(
       `${process.env.BASE_URL}/schema-table/${data.table_id}`,
@@ -234,7 +235,7 @@ export async function UpdateSchemaTable(data: ISchemaTable) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(dataFormatted),
       }
     );
     if (!response.ok) {

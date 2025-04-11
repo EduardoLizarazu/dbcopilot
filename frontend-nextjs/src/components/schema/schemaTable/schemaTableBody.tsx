@@ -64,7 +64,7 @@ export function SchemaTableBody({
     try {
       // Pass temp to schemaTable
       setSchemaTable({ ...schemaTableTemp });
-      const res = await UpdateSchemaTable(schemaTable);
+      const res = await UpdateSchemaTable(schemaTableTemp);
 
       if (res?.status === 200) {
         setFeedback({
@@ -86,6 +86,7 @@ export function SchemaTableBody({
         message: "Error updating schema table",
         severity: "error",
       });
+      handleCancelBtn(); // Reset to original data
     } finally {
       // time - feedback
       setTimeout(() => {
@@ -140,7 +141,7 @@ export function SchemaTableBody({
             txtName="table_name"
             actionStatus={actionStatus}
             setSchemaTableTemp={setSchemaTableTemp}
-            value={schemaTable?.table_name}
+            value={schemaTableTemp?.table_name}
           />
         </TableCell>
         <TableCell>
@@ -148,7 +149,7 @@ export function SchemaTableBody({
             txtName="table_alias"
             actionStatus={actionStatus}
             setSchemaTableTemp={setSchemaTableTemp}
-            value={schemaTable?.table_alias}
+            value={schemaTableTemp?.table_alias}
           />
         </TableCell>
         <TableCell>
@@ -156,7 +157,7 @@ export function SchemaTableBody({
             txtName="table_description"
             actionStatus={actionStatus}
             setSchemaTableTemp={setSchemaTableTemp}
-            value={schemaTable?.table_description}
+            value={schemaTableTemp?.table_description}
           />
         </TableCell>
         <TableCell>

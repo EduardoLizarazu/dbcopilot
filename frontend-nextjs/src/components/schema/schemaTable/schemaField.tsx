@@ -11,9 +11,6 @@ export function SchemaField({
   value: string;
   setSchemaTableTemp: React.Dispatch<React.SetStateAction<any>>;
 }) {
-  console.log("i am schema field");
-  console.log("txt_name", txtName);
-
   function handleTextField(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
@@ -28,7 +25,7 @@ export function SchemaField({
       {actionStatus.isEditable ? (
         <TextField
           name={txtName}
-          defaultValue={value}
+          value={value}
           size="small"
           onChange={(e) => handleTextField(e)}
           variant="outlined"
