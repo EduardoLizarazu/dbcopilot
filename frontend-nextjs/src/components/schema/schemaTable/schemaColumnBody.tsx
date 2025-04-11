@@ -5,6 +5,7 @@ import { TableCell, TableRow } from "@mui/material";
 import { SchemaAction } from "./schemaBtnActions";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
 import { SchemaField } from "./schemaField";
+import { UpdateSchemaColumn } from "@/controller/_actions/schema/schema.action";
 
 export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
   const [schemaColumn, setSchemaColumn] = React.useState<ISchemaColumn>({
@@ -67,6 +68,18 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
 
   async function handleSaveBtn() {
     try {
+      setSchemaColumn({...schemaColumnTemp});
+      const res = await UpdateSchemaColumn(schemaColumnTemp);
+      if (res?.status === 200) {
+        setFeedback({
+          isActive: true,
+          message: "Updated success",
+          severity: "success",
+        });
+      } else {
+        errorFeedback();
+      }
+
     } catch (error) {
       console.error("Error saving the schema column: ", error);
       errorFeedback();
@@ -78,6 +91,7 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
 
   async function handleDeleteBtn() {
     try {
+      console.log("Delete schema id: ", schemaColumn.column_id);
     } catch (error) {
     } finally {
       resetFeedback();
@@ -86,6 +100,7 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
   }
 
   function handleCancelBtn() {
+    setSchemaColumnTemp({...schemaColumn});
     setIsEditable(false);
   }
 
