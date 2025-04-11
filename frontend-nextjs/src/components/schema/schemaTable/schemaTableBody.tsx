@@ -55,28 +55,36 @@ export function SchemaTableBody({
   async function handleSaveBtn() {
     try {
       console.log("Save schema table:", schemaTable);
-      console.log("Action status is saved:", actionStatus.isSaved);
 
       const res = await UpdateSchemaTable(schemaTable);
-      console.log("Response from save schema table:", res);
 
-      setFeedback({
-        isActive: true,
-        message: "Schema table updated successfully",
-        severity: "success",
-      });
+      if (res?.status === 200) {
+        setFeedback({
+          isActive: true,
+          message: "Schema table updated successfully",
+          severity: "success",
+        });
+      } else {
+        setFeedback({
+          isActive: true,
+          message: "Error updating schema table",
+          severity: "error",
+        });
+      }
     } catch (error) {
-      console.log("Error saving schema table:", error);
+      console.error("Error saving schema table:", error);
       setFeedback({
         isActive: true,
         message: "Error updating schema table",
         severity: "error",
       });
     } finally {
-      // time
+      // time - feedback
       setTimeout(() => {
         setFeedback({ isActive: false, message: "", severity: null });
       }, 3000);
+      // reset action status
+      setActionStatus({ isEditable: false, isSaved: false });
     }
   }
 
@@ -102,6 +110,7 @@ export function SchemaTableBody({
         </TableCell>
         <TableCell>
           <SchemaField
+            txtName="table_name"
             actionStatus={actionStatus}
             setSchemaTable={setSchemaTable}
             value={schemaTable?.table_name}
@@ -109,6 +118,7 @@ export function SchemaTableBody({
         </TableCell>
         <TableCell>
           <SchemaField
+            txtName="table_alias"
             actionStatus={actionStatus}
             setSchemaTable={setSchemaTable}
             value={schemaTable?.table_alias}
@@ -116,6 +126,7 @@ export function SchemaTableBody({
         </TableCell>
         <TableCell>
           <SchemaField
+            txtName="table_description"
             actionStatus={actionStatus}
             setSchemaTable={setSchemaTable}
             value={schemaTable?.table_description}
