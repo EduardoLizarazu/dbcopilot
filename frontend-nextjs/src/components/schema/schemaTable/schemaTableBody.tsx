@@ -134,7 +134,7 @@ export function SchemaTableBody({
           <SchemaField
             txtName="table_name"
             isEditable={isEditable}
-            setSchemaTableTemp={setSchemaTableTemp}
+            setValue={setSchemaTableTemp}
             value={schemaTableTemp?.table_name}
           />
         </TableCell>
@@ -142,7 +142,7 @@ export function SchemaTableBody({
           <SchemaField
             txtName="table_alias"
             isEditable={isEditable}
-            setSchemaTableTemp={setSchemaTableTemp}
+            setValue={setSchemaTableTemp}
             value={schemaTableTemp?.table_alias}
           />
         </TableCell>
@@ -150,7 +150,7 @@ export function SchemaTableBody({
           <SchemaField
             txtName="table_description"
             isEditable={isEditable}
-            setSchemaTableTemp={setSchemaTableTemp}
+            setValue={setSchemaTableTemp}
             value={schemaTableTemp?.table_description}
           />
         </TableCell>

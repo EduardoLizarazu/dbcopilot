@@ -4,17 +4,17 @@ export function SchemaField({
   txtName,
   isEditable,
   value,
-  setSchemaTableTemp,
+  setValue,
 }: {
   txtName: string;
   isEditable: boolean;
   value: string;
-  setSchemaTableTemp: React.Dispatch<React.SetStateAction<any>>;
+  setValue: React.Dispatch<React.SetStateAction<any>>;
 }) {
   function handleTextField(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
-    setSchemaTableTemp((prev: any) => ({
+    setValue((prev: any) => ({
       ...prev,
       [txtName]: e.target.value,
     }));

@@ -98,15 +98,39 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
       <TableRow key={schemaColumn.column_id + "columns"}>
         <TableCell>
           <SchemaField
-            txtName="table_name"
+            txtName="column_name"
             isEditable={isEditable}
-            setSchemaTableTemp={setSchemaTableTemp}
-            value={schemaTableTemp?.table_name}
+            setValue={setSchemaColumnTemp}
+            value={schemaColumnTemp?.column_name}
           />
         </TableCell>
-        <TableCell>{schemaColumn?.column_alias}</TableCell>
-        <TableCell>{schemaColumn?.column_description}</TableCell>
-        <TableCell>{schemaColumn?.column_data_type}</TableCell>
+        <TableCell>
+          {/* column_alias */}
+          <SchemaField
+            txtName="column_alias"
+            isEditable={isEditable}
+            setValue={setSchemaColumnTemp}
+            value={schemaColumnTemp?.column_alias}
+          />
+        </TableCell>
+        <TableCell>
+          {/* column_description */}
+          <SchemaField
+            txtName="column_description"
+            isEditable={isEditable}
+            setValue={setSchemaColumnTemp}
+            value={schemaColumnTemp?.column_description || ""}
+          />
+        </TableCell>
+        <TableCell>
+          {/* column_data_type */}
+          <SchemaField
+            txtName="column_data_type"
+            isEditable={isEditable}
+            setValue={setSchemaColumnTemp}
+            value={schemaColumnTemp?.column_data_type}
+          />
+        </TableCell>
         <TableCell>
           <SchemaAction
             isEditable={isEditable}
