@@ -1,12 +1,19 @@
 import { SchemaColumn } from 'src/schema/schema_column/entities/schema_column.entity';
-import { Column, Entity, OneToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
 @Entity('schema_relation')
 export class SchemaRelation {
-  @PrimaryColumn()
+  @Column({ primary: true })
   columnIdFather: number;
 
-  @PrimaryColumn()
+  @Column({ primary: true })
   columnIdChild: number;
 
   @Column({ nullable: true })
@@ -16,22 +23,24 @@ export class SchemaRelation {
   isStatic: string;
 
   // columnIdFather is also the foreign key to the SchemaColumn table
-  @OneToOne(
+  @ManyToOne(
     () => SchemaColumn,
     (schemaColumn) => schemaColumn.schemaRelationFather,
     {
       onDelete: 'CASCADE',
     },
   )
+  @JoinColumn({ name: 'columnIdFather' })
   columnIdFatherRelation: SchemaColumn;
 
   // columnIdChild is also the foreign key to the SchemaColumn table
-  @OneToOne(
+  @ManyToOne(
     () => SchemaColumn,
     (schemaColumn) => schemaColumn.schemaRelationChild,
     {
       onDelete: 'CASCADE',
     },
   )
+  @JoinColumn({ name: 'columnIdChild' })
   columnIdChildRelation: SchemaColumn;
 }

@@ -39,17 +39,17 @@ export class SchemaColumn {
   })
   schemaTable: SchemaTable; // Assuming you have a SchemaTable entity defined elsewhere
 
-  @OneToOne(
+  @OneToMany(
     () => SchemaRelation,
     (schemaRelation) => schemaRelation.columnIdFather,
     { onDelete: 'CASCADE' },
   )
-  schemaRelationFather: SchemaRelation;
+  schemaRelationFather: SchemaRelation[];
 
-  @OneToOne(
+  @OneToMany(
     () => SchemaRelation,
     (schemaRelation) => schemaRelation.columnIdChild,
     { onDelete: 'CASCADE' },
   )
-  schemaRelationChild: SchemaRelation;
+  schemaRelationChild: SchemaRelation[];
 }
