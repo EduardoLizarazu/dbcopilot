@@ -14,14 +14,14 @@ export class SchemaColumnService {
   ) {}
   async create(createSchemaColumnDto: CreateSchemaColumnDto) {
     try {
-      const newSchemaColumn = this.schemaColumnRepository.create({
-        ...createSchemaColumnDto,
-        schemaColumnKeys: createSchemaColumnDto.schemaColumnKeys?.map((id) => ({
-          id,
-        })),
-      });
-      await this.schemaColumnRepository.save(newSchemaColumn);
-      return newSchemaColumn;
+      // const newSchemaColumn = this.schemaColumnRepository.create({
+      //   ...createSchemaColumnDto,
+      //   schemaColumnKey: createSchemaColumnDto.schemaColumnKeys?.map((id) => ({
+      //     id,
+      //   })),
+      // });
+      // await this.schemaColumnRepository.save(newSchemaColumn);
+      // return newSchemaColumn;
     } catch (error) {
       throw new Error(`Error creating schema column: ${error.message}`);
     }
