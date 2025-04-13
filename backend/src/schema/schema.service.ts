@@ -175,7 +175,7 @@ export class SchemaService {
 
       await queryRunner.commitTransaction();
 
-      return this.findSchemaByConnectionId(connectionId);
+      return await this.findSchemaByConnectionId(connectionId);
     } catch (error) {
       console.error('Error creating schema: ', error);
       await queryRunner.rollbackTransaction();
