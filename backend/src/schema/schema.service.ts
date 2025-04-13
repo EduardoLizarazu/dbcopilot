@@ -35,12 +35,22 @@ export class SchemaService {
 
     try {
       const transformedData = createSchemaDto.reduce((acc, item) => {
-        const { table_name, column_name, data_type, primary_key, foreign_key, unique_key, referenced_table, referenced_column } = item;
-        
+        const {
+          table_name,
+          column_name,
+          data_type,
+          primary_key,
+          foreign_key,
+          unique_key,
+          referenced_table,
+          referenced_column,
+        } = item;
 
         // Remove '' or "" from tabla_name and column_name
         const synthesized_table_name = table_name.replace(/['"]+/g, '');
-        const synthesized_column_name = column_name ? column_name.replace(/['"]+/g, '') : null;
+        const synthesized_column_name = column_name
+          ? column_name.replace(/['"]+/g, '')
+          : null;
 
         if (!acc[synthesized_table_name]) {
           acc[synthesized_table_name] = {
@@ -59,27 +69,28 @@ export class SchemaService {
         });
         return acc;
       }, {});
-      
 
       // Convert the object back to an array
-      const transformedDataArray = Object.values(transformedData).map((item: { table_name: string; columns: any[] }) => {
-        return {
-          table_name: item.table_name,
-          table_id: 0,
-          columns: item.columns.map((col) => ({
-            column_id: 0,
-            column_name: col.column_name,
-            data_type: col.data_type,
-            primary_key: col.primary_key,
-            foreign_key: col.foreign_key,
-            unique_key: col.unique_key,
-            referenced_table: col.referenced_table,
-            referenced_column: col.referenced_column,
-          })),
-        };
-      });
+      const transformedDataArray = Object.values(transformedData).map(
+        (item: { table_name: string; columns: any[] }) => {
+          return {
+            table_name: item.table_name,
+            table_id: 0,
+            columns: item.columns.map((col) => ({
+              column_id: 0,
+              column_name: col.column_name,
+              data_type: col.data_type,
+              primary_key: col.primary_key,
+              foreign_key: col.foreign_key,
+              unique_key: col.unique_key,
+              referenced_table: col.referenced_table,
+              referenced_column: col.referenced_column,
+            })),
+          };
+        },
+      );
 
-      console.log("before saving...");
+      console.log('before saving...');
       for (const [tableIndex, table] of transformedDataArray.entries()) {
         const schemaTable = queryRunner.manager.create(SchemaTable, {
           technicalName: table.table_name,
@@ -87,7 +98,7 @@ export class SchemaService {
         });
         const savedTable = await queryRunner.manager.save(schemaTable);
         transformedDataArray[tableIndex].table_id = savedTable.id; // Store the saved table ID back in the transformed data
-        console.log("I am saving the table", savedTable);
+        console.log('I am saving the table', savedTable);
 
         for (const [columnIndex, column] of table.columns.entries()) {
           const schemaColumn = queryRunner.manager.create(SchemaColumn, {
@@ -96,16 +107,15 @@ export class SchemaService {
             schemaTable: { id: savedTable.id }, // Set the relation to the saved schemaTable
           });
           const savedColumn = await queryRunner.manager.save(schemaColumn);
-          transformedDataArray[tableIndex].columns[columnIndex].column_id = savedColumn.id; // Store the saved column ID back in the transformed data
-          console.log("I am saving the column", savedColumn);
+          transformedDataArray[tableIndex].columns[columnIndex].column_id =
+            savedColumn.id; // Store the saved column ID back in the transformed data
+          console.log('I am saving the column', savedColumn);
 
           // Save the key type
-
-
         }
       }
 
-      console.log("transformedDataArray", transformedDataArray);
+      console.log('transformedDataArray', transformedDataArray);
 
       // Save relations
       for (const table of transformedDataArray) {
@@ -113,37 +123,46 @@ export class SchemaService {
           if (column.referenced_table && column.referenced_column) {
             // PRIMARY KEY OR COLUMN FATHER
             // Find table's id for the primary key or column father
-            const referencedTable = transformedDataArray.find((t) => t.table_name === column.referenced_table);
-            
+            const referencedTable = transformedDataArray.find(
+              (t) => t.table_name === column.referenced_table,
+            );
+
             // Find column's id of the referenced table based on the referenced column name
-            const referencedColumn = referencedTable?.columns.find((c) => c.column_name === column.referenced_column);
+            const referencedColumn = referencedTable?.columns.find(
+              (c) => c.column_name === column.referenced_column,
+            );
 
             // If the referenced table and column exist, create the relation
             if (referencedTable && referencedColumn) {
               // FOREIGN KEY
               // Find the table'id for the foreign key
-              const foreignKeyTable = transformedDataArray.find((t) => t.table_name === table.table_name);
+              const foreignKeyTable = transformedDataArray.find(
+                (t) => t.table_name === table.table_name,
+              );
               // Find the column'id of the foreign key table based on the column name
-              const foreignKeyColumn = foreignKeyTable?.columns.find((c) => c.column_name === column.column_name);
+              const foreignKeyColumn = foreignKeyTable?.columns.find(
+                (c) => c.column_name === column.column_name,
+              );
 
-              if(foreignKeyColumn) {
-                const schemaRelation = queryRunner.manager.create(SchemaRelation, {
-                  columnIdChild: foreignKeyColumn.column_id , // Set the relation to the foreign key column
-                  columnIdFather: referencedColumn.column_id , // Set the relation to the referenced column
-                });
+              if (foreignKeyColumn) {
+                const schemaRelation = queryRunner.manager.create(
+                  SchemaRelation,
+                  {
+                    columnIdChild: foreignKeyColumn.column_id, // Set the relation to the foreign key column
+                    columnIdFather: referencedColumn.column_id, // Set the relation to the referenced column
+                  },
+                );
                 await queryRunner.manager.save(schemaRelation);
-                console.log("I am saving the relation", schemaRelation);
+                console.log('I am saving the relation', schemaRelation);
               }
-            } 
+            }
           }
         }
       }
 
+      console.log('after saving...');
 
-      console.log("after saving...");
-    
       await queryRunner.commitTransaction();
-
 
       return this.findSchemaByConnectionId(connectionId);
     } catch (error) {
@@ -177,13 +196,23 @@ export class SchemaService {
           'schema_relation.description',
         ])
         .from('schema_table', 'schema_table')
-        .leftJoin('schema_column', 'schema_column', 'schema_table.id = schema_column.schemaTableId')
-        .leftJoin('schema_relation', 'schema_relation', 'schema_column.id = schema_relation.columnIdChild')
-        .where('schema_table.connectionId = :connectionId', { connectionId: connectionId })
+        .leftJoin(
+          'schema_column',
+          'schema_column',
+          'schema_table.id = schema_column.schemaTableId',
+        )
+        .leftJoin(
+          'schema_relation',
+          'schema_relation',
+          'schema_column.id = schema_relation.columnIdChild',
+        )
+        .where('schema_table.connectionId = :connectionId', {
+          connectionId: connectionId,
+        })
         .getRawMany();
 
       console.log(schemaData);
-      
+
       // Transform the raw data into a more structured format
       const transformedData = schemaData.reduce((acc, row) => {
         const tableId = row.schema_table_id;
@@ -213,45 +242,53 @@ export class SchemaService {
         }
 
         return acc;
-      }
-      , {});
+      }, {});
 
       // Convert the object back to an array
       const schemaDataArray = Object.values(transformedData).map(
-        (
-          item: { 
-            table_id: number; table_name: string; table_alias: string; table_description: string; 
-            columns: {column_id: number; column_name: string; column_alias: string; column_description: string; column_data_type: string;
-              foreign_key: number; primary_key: number; relation_description: string}[] }
-
-        ) => {
-        return {
-          table_id: item.table_id,
-          table_name: item.table_name,
-          table_alias: item.table_alias,
-          table_description: item.table_description,
-          columns: item.columns.map((col) => ({
-            column_id: col.column_id,
-            column_name: col.column_name,
-            column_alias: col.column_alias,
-            column_description: col.column_description,
-            column_data_type: col.column_data_type,
-            foreign_key: col.foreign_key,
-            primary_key: col.primary_key,
-            relation_description: col.relation_description,
-          })),
-        };
-      }
+        (item: {
+          table_id: number;
+          table_name: string;
+          table_alias: string;
+          table_description: string;
+          columns: {
+            column_id: number;
+            column_name: string;
+            column_alias: string;
+            column_description: string;
+            column_data_type: string;
+            foreign_key: number;
+            primary_key: number;
+            relation_description: string;
+          }[];
+        }) => {
+          return {
+            table_id: item.table_id,
+            table_name: item.table_name,
+            table_alias: item.table_alias,
+            table_description: item.table_description,
+            columns: item.columns.map((col) => ({
+              column_id: col.column_id,
+              column_name: col.column_name,
+              column_alias: col.column_alias,
+              column_description: col.column_description,
+              column_data_type: col.column_data_type,
+              foreign_key: col.foreign_key,
+              primary_key: col.primary_key,
+              relation_description: col.relation_description,
+            })),
+          };
+        },
       );
-
 
       return schemaDataArray;
     } catch (error) {
       console.error('Error finding schema by connection ID: ', error);
-      throw new Error('Error finding schema by connection ID: ' + error.message);
+      throw new Error(
+        'Error finding schema by connection ID: ' + error.message,
+      );
     }
   }
-
 
   findOne(id: number) {
     return `This action returns a #${id} schema`;
