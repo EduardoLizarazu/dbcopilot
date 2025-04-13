@@ -161,6 +161,7 @@ export class SchemaService {
                   {
                     columnIdChild: foreignKeyColumn.column_id, // Set the relation to the foreign key column
                     columnIdFather: referencedColumn.column_id, // Set the relation to the referenced column
+                    isStatic: true,
                   },
                 );
                 await queryRunner.manager.save(schemaRelation);
@@ -191,6 +192,7 @@ export class SchemaService {
 
   async findSchemaByConnectionId(connectionId: number) {
     try {
+      // Fetch the key type too
       const schemaData = await this.dataSource
         .createQueryBuilder()
         .select([
@@ -205,6 +207,9 @@ export class SchemaService {
           'schema_relation.columnIdChild',
           'schema_relation.columnIdFather',
           'schema_relation.description',
+          'schema_relation.isStatic',
+          'schema_column_key_column.is_static',
+          'schema_column_key.type',
         ])
         .from('schema_table', 'schema_table')
         .leftJoin(
@@ -216,6 +221,16 @@ export class SchemaService {
           'schema_relation',
           'schema_relation',
           'schema_column.id = schema_relation.columnIdChild',
+        )
+        .leftJoin(
+          'schema_column_key_column',
+          'schema_column_key_column',
+          'schema_column.id = schema_column_key_column.id_schema_column',
+        )
+        .leftJoin(
+          'schema_column_key',
+          'schema_column_key',
+          'schema_column_key_column.id_column_key = schema_column_key.id',
         )
         .where('schema_table.connectionId = :connectionId', {
           connectionId: connectionId,
@@ -246,9 +261,12 @@ export class SchemaService {
             column_alias: row.schema_column_alias,
             column_description: row.schema_column_description,
             column_data_type: row.schema_column_dataType,
+            column_key_type: row.schema_column_key_type,
+            column_key_is_static: row.schema_column_key_column_is_static,
             foreign_key: row.schema_relation_columnIdChild,
             primary_key: row.schema_relation_columnIdFather,
             relation_description: row.schema_relation_description,
+            relation_is_static: row.schema_relation_isStatic,
           });
         }
 
@@ -268,9 +286,12 @@ export class SchemaService {
             column_alias: string;
             column_description: string;
             column_data_type: string;
+            column_key_type: string;
+            column_key_is_static: boolean;
             foreign_key: number;
             primary_key: number;
             relation_description: string;
+            relation_is_static: boolean;
           }[];
         }) => {
           return {
@@ -284,9 +305,12 @@ export class SchemaService {
               column_alias: col.column_alias,
               column_description: col.column_description,
               column_data_type: col.column_data_type,
+              column_key_type: col.column_key_type,
+              column_key_is_static: col.column_key_is_static,
               foreign_key: col.foreign_key,
               primary_key: col.primary_key,
               relation_description: col.relation_description,
+              relation_is_static: col.relation_is_static,
             })),
           };
         },

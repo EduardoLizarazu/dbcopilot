@@ -20,7 +20,7 @@ export class SchemaRelation {
   description: string;
 
   @Column({ nullable: true })
-  isStatic: string;
+  isStatic: boolean;
 
   // columnIdFather is also the foreign key to the SchemaColumn table
   @ManyToOne(
