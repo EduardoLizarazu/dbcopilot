@@ -6,6 +6,12 @@ import { Repository, DataSource } from 'typeorm';
 import { SchemaTable } from './schema_table/entities/schema_table.entity';
 import { SchemaColumn } from './schema_column/entities/schema_column.entity';
 import { SchemaRelation } from './schema_relation/entities/schema_relation.entity';
+import {
+  entityKeyType,
+  SchemaColumnKey,
+} from './schema_column/entities/schema_column_key.entity';
+import { SchemaColumnKeyColumn } from './schema_column/entities/schema_column_key_column.entity';
+import { createSchemaDtoToArray } from './utils/create-schema-dto-to-array';
 
 /**
  * 
@@ -34,61 +40,7 @@ export class SchemaService {
     await queryRunner.startTransaction();
 
     try {
-      const transformedData = createSchemaDto.reduce((acc, item) => {
-        const {
-          table_name,
-          column_name,
-          data_type,
-          primary_key,
-          foreign_key,
-          unique_key,
-          referenced_table,
-          referenced_column,
-        } = item;
-
-        // Remove '' or "" from tabla_name and column_name
-        const synthesized_table_name = table_name.replace(/['"]+/g, '');
-        const synthesized_column_name = column_name
-          ? column_name.replace(/['"]+/g, '')
-          : null;
-
-        if (!acc[synthesized_table_name]) {
-          acc[synthesized_table_name] = {
-            table_name: synthesized_table_name,
-            columns: [],
-          };
-        }
-        acc[synthesized_table_name].columns.push({
-          column_name: synthesized_column_name,
-          data_type,
-          primary_key,
-          foreign_key,
-          unique_key,
-          referenced_table,
-          referenced_column,
-        });
-        return acc;
-      }, {});
-
-      // Convert the object back to an array
-      const transformedDataArray = Object.values(transformedData).map(
-        (item: { table_name: string; columns: any[] }) => {
-          return {
-            table_name: item.table_name,
-            table_id: 0,
-            columns: item.columns.map((col) => ({
-              column_id: 0,
-              column_name: col.column_name,
-              data_type: col.data_type,
-              primary_key: col.primary_key,
-              foreign_key: col.foreign_key,
-              unique_key: col.unique_key,
-              referenced_table: col.referenced_table,
-              referenced_column: col.referenced_column,
-            })),
-          };
-        },
-      );
+      const transformedDataArray = createSchemaDtoToArray(createSchemaDto);
 
       console.log('before saving...');
       for (const [tableIndex, table] of transformedDataArray.entries()) {
@@ -96,7 +48,7 @@ export class SchemaService {
           technicalName: table.table_name,
           connection: { id: connectionId },
         });
-        const savedTable = await queryRunner.manager.save(schemaTable);
+        const savedTable = await queryRunner.manager.save(schemaTable); // save tables
         transformedDataArray[tableIndex].table_id = savedTable.id; // Store the saved table ID back in the transformed data
         console.log('I am saving the table', savedTable);
 
@@ -106,12 +58,71 @@ export class SchemaService {
             dataType: column.data_type,
             schemaTable: { id: savedTable.id }, // Set the relation to the saved schemaTable
           });
-          const savedColumn = await queryRunner.manager.save(schemaColumn);
+          const savedColumn = await queryRunner.manager.save(schemaColumn); // save columns
           transformedDataArray[tableIndex].columns[columnIndex].column_id =
             savedColumn.id; // Store the saved column ID back in the transformed data
           console.log('I am saving the column', savedColumn);
 
           // Save the key type
+          if (column.primary_key) {
+            // Get the primary key type of the entity SchemaColumnKey
+            const schemaColumnKey = await queryRunner.manager.findOne(
+              SchemaColumnKey,
+              {
+                where: { type: entityKeyType.PRIMARY_KEY },
+              },
+            );
+            if (!schemaColumnKey) throw new Error('Primary key type not found');
+            const schemaColumnKeyColumn = queryRunner.manager.create(
+              SchemaColumnKeyColumn,
+              {
+                id_column_key: schemaColumnKey.id,
+                id_schema_column: savedColumn.id,
+                is_static: true,
+              },
+            );
+            await queryRunner.manager.save(schemaColumnKeyColumn); // save primary key
+          }
+
+          if (column.foreign_key) {
+            // Get the foreign key type of the entity SchemaColumnKey
+            const schemaColumnKey = await queryRunner.manager.findOne(
+              SchemaColumnKey,
+              {
+                where: { type: entityKeyType.FOREIGN_KEY },
+              },
+            );
+            if (!schemaColumnKey) throw new Error('Foreign key type not found');
+            const schemaColumnKeyColumn = queryRunner.manager.create(
+              SchemaColumnKeyColumn,
+              {
+                id_column_key: schemaColumnKey.id,
+                id_schema_column: savedColumn.id,
+                is_static: true,
+              },
+            );
+            await queryRunner.manager.save(schemaColumnKeyColumn); // save foreign key
+          }
+
+          if (column.unique_key) {
+            // Get the unique key type of the entity SchemaColumnKey
+            const schemaColumnKey = await queryRunner.manager.findOne(
+              SchemaColumnKey,
+              {
+                where: { type: entityKeyType.UNIQUE_KEY },
+              },
+            );
+            if (!schemaColumnKey) throw new Error('Unique key type not found');
+            const schemaColumnKeyColumn = queryRunner.manager.create(
+              SchemaColumnKeyColumn,
+              {
+                id_column_key: schemaColumnKey.id,
+                id_schema_column: savedColumn.id,
+                is_static: true,
+              },
+            );
+            await queryRunner.manager.save(schemaColumnKeyColumn); // save unique key
+          }
         }
       }
 
