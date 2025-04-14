@@ -1,6 +1,6 @@
 "use server";
 
-import { SchemaColumnQueryFormat } from "./adatpeter/readColumnByTableId.adapter";
+import { SchemaColumnQueryFormat } from "./interface/readColumnByTableId.interface";
 
 interface RowData {
   tableId: number;
@@ -187,7 +187,7 @@ export async function ReadTableByConnectionId(
 
 export async function ReadColumnByTableId(
   tableId: number
-): Promise<ISchemaColumn[]> {
+): Promise<SchemaColumnQueryFormat[]> {
   try {
     console.log("READ COLUMN BY TABLE ID: ", tableId);
     const response = await fetch(
@@ -203,18 +203,7 @@ export async function ReadColumnByTableId(
       throw new Error("Failed to fetch schema data");
     }
     const data: SchemaColumnQueryFormat[] = await response.json();
-
-    const dataFormatted: ISchemaColumn[] = data.map((column: any) => ({
-      column_id: column.id,
-      column_name: column.technicalName,
-      column_alias: column.alias,
-      column_data_type: column.dataType,
-      foreign_key: column.columnIdChild,
-      primary_key: column.columnIdFather,
-      relation_description: column.description,
-    }));
-
-    return dataFormatted;
+    return data;
   } catch (error) {
     console.error("Error finding all columns by table ID: ", error);
     return []; // Return an empty array in case of an error
