@@ -93,6 +93,9 @@ export class SchemaColumnService {
       if (!schemaColumns) {
         throw new Error(`Schema columns for table ID ${tableId} not found`);
       }
+
+      // Format the schema columns to match the expected format
+
       return schemaColumns;
     } catch (error) {
       throw new Error(
