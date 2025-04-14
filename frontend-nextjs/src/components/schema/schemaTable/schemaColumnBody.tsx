@@ -193,7 +193,8 @@ export function SchemaColumnBody({
               onClick={() => console.log("relation")}
               loading={false}
             >
-              <KeyIcon fontSize="inherit" />
+              {/* info - blue;  secondary - purple; */}
+              <KeyIcon fontSize="inherit" color="success" /> 
             </IconButton>
           </Tooltip>
         </TableCell>
