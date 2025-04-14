@@ -1,4 +1,7 @@
 "use server";
+
+import { SchemaColumnQueryFormat } from "./adatpeter/readColumnByTableId.adapter";
+
 interface RowData {
   tableId: number;
   tableName: string;
@@ -199,7 +202,7 @@ export async function ReadColumnByTableId(
     if (!response.ok) {
       throw new Error("Failed to fetch schema data");
     }
-    const data = await response.json();
+    const data: SchemaColumnQueryFormat[] = await response.json();
 
     const dataFormatted: ISchemaColumn[] = data.map((column: any) => ({
       column_id: column.id,
@@ -252,16 +255,15 @@ export async function UpdateSchemaTable(data: ISchemaTable) {
 
 export async function UpdateSchemaColumn(data: ISchemaColumn) {
   try {
-    
     const formattedData = {
       technicalName: data.column_name,
       alias: data.column_alias,
       dataType: data.column_data_type,
-      description: data.column_description
-    }
+      description: data.column_description,
+    };
 
     console.log("UPDATE SCHEMA COLUMN: ", formattedData);
-    
+
     const response = await fetch(
       `${process.env.BASE_URL}/schema-column/${data.column_id}`,
       {
@@ -271,7 +273,7 @@ export async function UpdateSchemaColumn(data: ISchemaColumn) {
         },
         body: JSON.stringify(formattedData),
       }
-    )
+    );
 
     if (!response.ok) {
       throw new Error("Failed to update schema table");
