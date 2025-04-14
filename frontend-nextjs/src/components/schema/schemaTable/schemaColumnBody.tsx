@@ -1,13 +1,13 @@
 "use client";
 import React from "react";
 import { ISchemaColumn } from "@/controller/_actions/index.actions";
-import { TableCell, TableRow } from "@mui/material";
+import { IconButton, TableCell, TableRow, Tooltip } from "@mui/material";
 import { SchemaAction } from "./schemaBtnActions";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
 import { SchemaField } from "./schemaField";
 import { UpdateSchemaColumn } from "@/controller/_actions/schema/schema.action";
 import { SchemaColumnQueryFormat } from "@/controller/_actions/schema/interface/readColumnByTableId.interface";
-
+import KeyIcon from "@mui/icons-material/Key";
 // export interface SchemaColumnQueryFormat {
 //   column_id: number;
 //   column_technical_name: string;
@@ -183,6 +183,19 @@ export function SchemaColumnBody({
             setValue={setSchemaColumnTemp}
             value={schemaColumnTemp?.column_key_type?.join(",") || "-"}
           />
+        </TableCell>
+        <TableCell>
+          {/* column_relation */}
+          <Tooltip title="Relation">
+            <IconButton
+              aria-label="relation"
+              size="small"
+              onClick={() => console.log("relation")}
+              loading={false}
+            >
+              <KeyIcon fontSize="inherit" />
+            </IconButton>
+          </Tooltip>
         </TableCell>
         <TableCell>
           <SchemaAction

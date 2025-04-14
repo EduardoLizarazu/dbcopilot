@@ -80,6 +80,7 @@ export function SchemaColumnHead({ tableId }: { tableId: number }) {
             <TableCell>Column Description</TableCell>
             <TableCell>Column Data Type</TableCell>
             <TableCell>Column Key Type</TableCell>
+            <TableCell>Column Relation</TableCell>
             <TableCell>Column Actions</TableCell>
           </TableRow>
         </TableHead>
