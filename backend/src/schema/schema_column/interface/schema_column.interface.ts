@@ -11,7 +11,7 @@
           "column_key_type": "pk"
         }
  */
-interface SchemaColumnsQuery {
+export interface SchemaColumnsQuery {
   column_id: number;
   column_technical_name: string;
   column_alias: string | null;
@@ -23,7 +23,7 @@ interface SchemaColumnsQuery {
   column_key_type: string | null;
 }
 
-interface SchemaColumnQueryFormat {
+export interface SchemaColumnQueryFormat {
   column_id: number;
   column_technical_name: string;
   column_alias: string | null;
@@ -31,37 +31,64 @@ interface SchemaColumnQueryFormat {
   is_primary_key: boolean | null;
   is_foreign_key: boolean | null;
   is_unique: boolean | null;
-  relation_foreign_key_id: number | null;
+  relation_foreign_key_id: number | null; // my own
   relation_primary_key_id: number | null;
   relation_is_static: boolean | null;
-  column_key_is_static: boolean | null;
-  column_key_type: string | null;
+  column_key_is_static: boolean[] | null;
+  column_key_type: string[] | null;
 }
 
 // If the column id is repeated it sometimes where it has multiple key types.
 // So we need to remove the duplicates and add the key types to the column_key_type array.
-export const schemaColumnQueryFormat = (
+export function formatSchemaColumns(
   schemaColumns: SchemaColumnsQuery[],
-): SchemaColumnQueryFormat[] => {
-  const schemaColumnFormatted: SchemaColumnQueryFormat[] = schemaColumns.map(
-    (column) => {
-      return {
-        column_id: column.column_id,
-        column_technical_name: column.column_technical_name,
-        column_alias: column.column_alias,
-        column_data_type: column.column_data_type,
+): SchemaColumnQueryFormat[] {
+  const formattedColumns: SchemaColumnQueryFormat[] = [];
+  const columnMap: Record<number, SchemaColumnQueryFormat> = {};
+
+  for (const row of schemaColumns) {
+    const columnId = row.column_id;
+
+    if (!columnMap[columnId]) {
+      columnMap[columnId] = {
+        column_id: row.column_id,
+        column_technical_name: row.column_technical_name,
+        column_alias: row.column_alias,
+        column_data_type: row.column_data_type,
         is_primary_key: null,
         is_foreign_key: null,
         is_unique: null,
-        relation_foreign_key_id: column.relation_foreign_key_id,
-        relation_primary_key_id: column.relation_primary_key_id,
-        relation_is_static: column.relation_is_static,
-        column_key_is_static: column.column_key_is_static,
-        column_key_type: column.column_key_type,
+        relation_foreign_key_id: row.relation_foreign_key_id,
+        relation_primary_key_id: row.relation_primary_key_id,
+        relation_is_static: row.relation_is_static,
+        column_key_is_static: [],
+        column_key_type: [],
       };
-    },
-  );
-  // taking care of the ids=
+    }
 
-  return schemaColumnFormatted;
-};
+    const currentColumn = columnMap[columnId];
+
+    if (row.column_key_type === 'PRIMARY') {
+      currentColumn.is_primary_key = row.column_key_is_static;
+    } else if (row.column_key_type === 'FOREIGN') {
+      currentColumn.is_foreign_key = row.column_key_is_static;
+    } else if (row.column_key_type === 'UNIQUE') {
+      currentColumn.is_unique = row.column_key_is_static;
+    }
+
+    if (row.column_key_is_static !== null) {
+      if (currentColumn.column_key_is_static) {
+        currentColumn.column_key_is_static.push(row.column_key_is_static);
+      }
+    }
+    if (row.column_key_type !== null) {
+      if (currentColumn.column_key_type) {
+        currentColumn.column_key_type.push(row.column_key_type);
+      }
+    }
+  }
+
+  // Convert the map values back to an array
+  formattedColumns.push(...Object.values(columnMap));
+  return formattedColumns;
+}

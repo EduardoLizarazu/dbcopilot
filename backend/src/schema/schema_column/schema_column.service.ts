@@ -4,6 +4,11 @@ import { UpdateSchemaColumnDto } from './dto/update-schema_column.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SchemaColumn } from './entities/schema_column.entity';
 import { DataSource, Repository } from 'typeorm';
+import {
+  formatSchemaColumns,
+  SchemaColumnQueryFormat,
+  SchemaColumnsQuery,
+} from './interface/schema_column.interface';
 
 @Injectable()
 export class SchemaColumnService {
@@ -48,7 +53,7 @@ export class SchemaColumnService {
     }
   }
 
-  async findByTableId(tableId: number) {
+  async findByTableId(tableId: number): Promise<SchemaColumnQueryFormat[]> {
     try {
       /**
        * -- Select all schema_columns (id) belonging to a schema_table (id) with the relations the columns that have more than on key would be repeated.
@@ -78,7 +83,7 @@ export class SchemaColumnService {
         }
       */
 
-      const schemaColumns = await this.dataSource.query(
+      const schemaColumns: SchemaColumnsQuery[] = await this.dataSource.query(
         ` select schema_column.id as column_id, schema_column."technicalName" as column_technical_name, schema_column.alias as column_alias, schema_column."dataType" as column_data_type,
         schema_relation."columnIdChild" as relation_foreign_key_id, schema_relation."columnIdFather" as relation_primary_key_id, schema_relation."isStatic" as relation_is_static,
         schema_column_key_column."is_static" as column_key_is_static,
@@ -96,7 +101,10 @@ export class SchemaColumnService {
 
       // Format the schema columns to match the expected format
 
-      return schemaColumns;
+      const schemaColumnFormatted: SchemaColumnQueryFormat[] =
+        formatSchemaColumns(schemaColumns);
+
+      return schemaColumnFormatted;
     } catch (error) {
       throw new Error(
         `Error fetching schema columns by table ID: ${error.message}`,
