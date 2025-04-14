@@ -25,6 +25,7 @@ export interface SchemaColumnQueryFormat {
   column_id: number;
   column_technical_name: string;
   column_alias: string | null;
+  column_description: string;
   column_data_type: string;
   is_primary_key: boolean | null;
   is_foreign_key: boolean | null;

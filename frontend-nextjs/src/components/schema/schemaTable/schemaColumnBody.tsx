@@ -6,31 +6,61 @@ import { SchemaAction } from "./schemaBtnActions";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
 import { SchemaField } from "./schemaField";
 import { UpdateSchemaColumn } from "@/controller/_actions/schema/schema.action";
+import { SchemaColumnQueryFormat } from "@/controller/_actions/schema/interface/readColumnByTableId.interface";
 
-export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
-  const [schemaColumn, setSchemaColumn] = React.useState<ISchemaColumn>({
-    column_id: 0,
-    column_name: "",
-    column_alias: "",
-    column_description: "",
-    column_data_type: "",
-    foreign_key: 0,
-    primary_key: 0,
-    relation_description: "",
-  });
+// export interface SchemaColumnQueryFormat {
+//   column_id: number;
+//   column_technical_name: string;
+//   column_alias: string | null;
+//   column_data_type: string;
+//   is_primary_key: boolean | null;
+//   is_foreign_key: boolean | null;
+//   is_unique: boolean | null;
+//   relation_foreign_key_id: number | null; // my own
+//   relation_primary_key_id: number | null;
+//   relation_is_static: boolean | null;
+//   column_key_is_static: boolean[] | null;
+//   column_key_type: string[] | null;
+// }
 
-  const [schemaColumnTemp, setSchemaColumnTemp] = React.useState<ISchemaColumn>(
-    {
+export function SchemaColumnBody({
+  columns,
+}: {
+  columns: SchemaColumnQueryFormat;
+}) {
+  const [schemaColumn, setSchemaColumn] =
+    React.useState<SchemaColumnQueryFormat>({
       column_id: 0,
-      column_name: "",
-      column_alias: "",
+      column_technical_name: "",
+      column_alias: null,
       column_description: "",
       column_data_type: "",
-      foreign_key: 0,
-      primary_key: 0,
-      relation_description: "",
-    }
-  );
+      is_primary_key: null,
+      is_foreign_key: null,
+      is_unique: null,
+      relation_foreign_key_id: null,
+      relation_primary_key_id: null,
+      relation_is_static: null,
+      column_key_is_static: [],
+      column_key_type: [],
+    });
+
+  const [schemaColumnTemp, setSchemaColumnTemp] =
+    React.useState<SchemaColumnQueryFormat>({
+      column_id: 0,
+      column_technical_name: "",
+      column_alias: null,
+      column_description: "",
+      column_data_type: "",
+      is_primary_key: null,
+      is_foreign_key: null,
+      is_unique: null,
+      relation_foreign_key_id: null,
+      relation_primary_key_id: null,
+      relation_is_static: null,
+      column_key_is_static: [],
+      column_key_type: [],
+    });
 
   const [feedback, setFeedback] = React.useState({
     isActive: false,
@@ -68,17 +98,17 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
 
   async function handleSaveBtn() {
     try {
-      setSchemaColumn({...schemaColumnTemp});
-      const res = await UpdateSchemaColumn(schemaColumnTemp);
-      if (res?.status === 200) {
-        setFeedback({
-          isActive: true,
-          message: "Updated success",
-          severity: "success",
-        });
-      } else {
-        errorFeedback();
-      }
+      setSchemaColumn({ ...schemaColumnTemp });
+      // const res = await UpdateSchemaColumn(schemaColumnTemp);
+      // if (res?.status === 200) {
+      //   setFeedback({
+      //     isActive: true,
+      //     message: "Updated success",
+      //     severity: "success",
+      //   });
+      // } else {
+      //   errorFeedback();
+      // }
     } catch (error) {
       console.error("Error saving the schema column: ", error);
       errorFeedback();
@@ -99,7 +129,7 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
   }
 
   function handleCancelBtn() {
-    setSchemaColumnTemp({...schemaColumn});
+    setSchemaColumnTemp({ ...schemaColumn });
     setIsEditable(false);
   }
 
@@ -112,10 +142,10 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
       <TableRow key={schemaColumn.column_id + "columns"}>
         <TableCell>
           <SchemaField
-            txtName="column_name"
+            txtName="column_technical_name"
             isEditable={isEditable}
             setValue={setSchemaColumnTemp}
-            value={schemaColumnTemp?.column_name || "-"}
+            value={schemaColumnTemp?.column_technical_name || "-"}
           />
         </TableCell>
         <TableCell>
@@ -143,6 +173,15 @@ export function SchemaColumnBody({ columns }: { columns: ISchemaColumn }) {
             isEditable={isEditable}
             setValue={setSchemaColumnTemp}
             value={schemaColumnTemp?.column_data_type || "-"}
+          />
+        </TableCell>
+        <TableCell>
+          {/* column_key_type */}
+          <SchemaField
+            txtName="column_key_type"
+            isEditable={isEditable}
+            setValue={setSchemaColumnTemp}
+            value={schemaColumnTemp?.column_key_type?.join(",") || "-"}
           />
         </TableCell>
         <TableCell>

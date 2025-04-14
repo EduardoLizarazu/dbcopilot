@@ -13,19 +13,44 @@ import {
 import React from "react";
 import { Suspense } from "react";
 import { SchemaColumnBody } from "./schemaColumnBody";
+import { SchemaColumnQueryFormat } from "@/controller/_actions/schema/interface/readColumnByTableId.interface";
+
+/**
+ * export interface SchemaColumnQueryFormat {
+    column_id: number;
+    column_technical_name: string;
+    column_alias: string | null;
+    column_data_type: string;
+    is_primary_key: boolean | null;
+    is_foreign_key: boolean | null;
+    is_unique: boolean | null;
+    relation_foreign_key_id: number | null; // my own
+    relation_primary_key_id: number | null;
+    relation_is_static: boolean | null;
+    column_key_is_static: boolean[] | null;
+    column_key_type: string[] | null;
+  }
+ */
 
 export function SchemaColumnHead({ tableId }: { tableId: number }) {
   const [loading, setLoading] = React.useState(true);
-  const [schemaColumn, setSchemaColumn] = React.useState<ISchemaColumn[]>([
+  const [schemaColumn, setSchemaColumn] = React.useState<
+    SchemaColumnQueryFormat[]
+  >([
     {
       column_id: 0,
-      column_name: "",
-      column_alias: "",
+      column_technical_name: "",
+      column_alias: null,
       column_description: "",
       column_data_type: "",
-      foreign_key: 0,
-      primary_key: 0,
-      relation_description: "",
+      is_primary_key: null,
+      is_foreign_key: null,
+      is_unique: null,
+      relation_foreign_key_id: null,
+      relation_primary_key_id: null,
+      relation_is_static: null,
+      column_key_is_static: [],
+      column_key_type: [],
     },
   ]);
 
@@ -54,6 +79,7 @@ export function SchemaColumnHead({ tableId }: { tableId: number }) {
             <TableCell>Column Alias</TableCell>
             <TableCell>Column Description</TableCell>
             <TableCell>Column Data Type</TableCell>
+            <TableCell>Column Key Type</TableCell>
             <TableCell>Column Actions</TableCell>
           </TableRow>
         </TableHead>
