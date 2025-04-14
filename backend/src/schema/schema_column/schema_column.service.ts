@@ -51,23 +51,38 @@ export class SchemaColumnService {
   async findByTableId(tableId: number) {
     try {
       /**
-       * -- Select all schema_columns (id) belonging to a schema_table (id) with the relations
-        select schema_column.id, schema_column."technicalName", schema_column.alias, schema_column."dataType",
-        schema_relation."columnIdChild", schema_relation."columnIdFather", schema_relation."isStatic",
-        schema_column_key_column."is_static",
-        schema_column_key."type"
+       * -- Select all schema_columns (id) belonging to a schema_table (id) with the relations the columns that have more than on key would be repeated.
+        select schema_column.id as column_id, schema_column."technicalName" as column_technical_name, schema_column.alias as column_alias, schema_column."dataType" as column_data_type,
+        schema_relation."columnIdChild" as relation_foreign_key_id, schema_relation."columnIdFather" as relation_primary_key_id, schema_relation."isStatic" as relation_is_static,
+        schema_column_key_column."is_static" as column_key_is_static,
+        schema_column_key."type" as column_key_type
         from schema_column
         left join schema_relation on schema_column.id = schema_relation."columnIdChild"
         left join schema_column_key_column on schema_column.id = schema_column_key_column.id_schema_column
         left join schema_column_key on schema_column_key_column.id_column_key = schema_column_key.id
-        where schema_column."schemaTableId" = 249;
+        where schema_column."schemaTableId" = 283 and schema_column.id=551;
       */
       // with datasource
+
+      /**
+       * {
+          "column_id": 551,
+          "column_technical_name": "columnIdChild",
+          "column_alias": null,
+          "column_data_type": "integer",
+          "relation_foreign_key_id": 551,
+          "relation_primary_key_id": 543,
+          "relation_is_static": true,
+          "column_key_is_static": true,
+          "column_key_type": "pk"
+        }
+      */
+
       const schemaColumns = await this.dataSource.query(
-        `select schema_column.id, schema_column."technicalName", schema_column.alias, schema_column."dataType",
-        schema_relation."columnIdChild", schema_relation."columnIdFather", schema_relation."isStatic" as schema_relation_is_static,
-        schema_column_key_column."is_static" as key_column_is_static,
-        schema_column_key."type" as key_type 
+        ` select schema_column.id as column_id, schema_column."technicalName" as column_technical_name, schema_column.alias as column_alias, schema_column."dataType" as column_data_type,
+        schema_relation."columnIdChild" as relation_foreign_key_id, schema_relation."columnIdFather" as relation_primary_key_id, schema_relation."isStatic" as relation_is_static,
+        schema_column_key_column."is_static" as column_key_is_static,
+        schema_column_key."type" as column_key_type
         from schema_column
         left join schema_relation on schema_column.id = schema_relation."columnIdChild"
         left join schema_column_key_column on schema_column.id = schema_column_key_column.id_schema_column
