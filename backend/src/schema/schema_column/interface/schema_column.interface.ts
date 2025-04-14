@@ -1,3 +1,5 @@
+import { entityKeyType } from '../entities/schema_column_key.entity';
+
 /**
  * {
           "column_id": 551,
@@ -68,11 +70,12 @@ export function formatSchemaColumns(
 
     const currentColumn = columnMap[columnId];
 
-    if (row.column_key_type === 'PRIMARY') {
+    // primary key
+    if (row.column_key_type === entityKeyType.PRIMARY_KEY) {
       currentColumn.is_primary_key = row.column_key_is_static;
-    } else if (row.column_key_type === 'FOREIGN') {
+    } else if (row.column_key_type === entityKeyType.FOREIGN_KEY) {
       currentColumn.is_foreign_key = row.column_key_is_static;
-    } else if (row.column_key_type === 'UNIQUE') {
+    } else if (row.column_key_type === entityKeyType.UNIQUE_KEY) {
       currentColumn.is_unique = row.column_key_is_static;
     }
 
@@ -92,3 +95,25 @@ export function formatSchemaColumns(
   formattedColumns.push(...Object.values(columnMap));
   return formattedColumns;
 }
+/** output
+ * {
+    "column_id": 551,
+    "column_technical_name": "columnIdChild",
+    "column_alias": null,
+    "column_data_type": "integer",
+    "is_primary_key": true,
+    "is_foreign_key": true,
+    "is_unique": null,
+    "relation_foreign_key_id": 551,
+    "relation_primary_key_id": 543,
+    "relation_is_static": true,
+    "column_key_is_static": [
+      true,
+      true
+    ],
+    "column_key_type": [
+      "pk",
+      "fk"
+    ]
+  },
+ */
