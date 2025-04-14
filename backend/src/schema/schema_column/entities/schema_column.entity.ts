@@ -24,6 +24,9 @@ export class SchemaColumn {
   @Column({ nullable: true })
   alias: string;
 
+  @Column({ nullable: true })
+  description: string;
+
   @Column()
   dataType: string;
 

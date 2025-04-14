@@ -18,6 +18,7 @@ export interface SchemaColumnsQuery {
   column_technical_name: string;
   column_alias: string | null;
   column_data_type: string;
+  column_description: string | null;
   relation_foreign_key_id: number | null;
   relation_primary_key_id: number | null;
   relation_is_static: boolean | null;
@@ -30,6 +31,7 @@ export interface SchemaColumnQueryFormat {
   column_technical_name: string;
   column_alias: string | null;
   column_data_type: string;
+  column_description: string | null;
   is_primary_key: boolean | null;
   is_foreign_key: boolean | null;
   is_unique: boolean | null;
@@ -56,6 +58,7 @@ export function formatSchemaColumns(
         column_id: row.column_id,
         column_technical_name: row.column_technical_name,
         column_alias: row.column_alias,
+        column_description: row.column_description,
         column_data_type: row.column_data_type,
         is_primary_key: null,
         is_foreign_key: null,

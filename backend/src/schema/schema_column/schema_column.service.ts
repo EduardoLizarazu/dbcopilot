@@ -57,7 +57,7 @@ export class SchemaColumnService {
     try {
       /**
        * -- Select all schema_columns (id) belonging to a schema_table (id) with the relations the columns that have more than on key would be repeated.
-        select schema_column.id as column_id, schema_column."technicalName" as column_technical_name, schema_column.alias as column_alias, schema_column."dataType" as column_data_type,
+        select schema_column.id as column_id, schema_column."technicalName" as column_technical_name, schema_column.alias as column_alias, schema_column."dataType" as column_data_type, schema_column.description as column_description,
         schema_relation."columnIdChild" as relation_foreign_key_id, schema_relation."columnIdFather" as relation_primary_key_id, schema_relation."isStatic" as relation_is_static,
         schema_column_key_column."is_static" as column_key_is_static,
         schema_column_key."type" as column_key_type
@@ -75,6 +75,7 @@ export class SchemaColumnService {
           "column_technical_name": "columnIdChild",
           "column_alias": null,
           "column_data_type": "integer",
+          "column_description": null,
           "relation_foreign_key_id": 551,
           "relation_primary_key_id": 543,
           "relation_is_static": true,
@@ -84,7 +85,7 @@ export class SchemaColumnService {
       */
 
       const schemaColumns: SchemaColumnsQuery[] = await this.dataSource.query(
-        ` select schema_column.id as column_id, schema_column."technicalName" as column_technical_name, schema_column.alias as column_alias, schema_column."dataType" as column_data_type,
+        ` select schema_column.id as column_id, schema_column."technicalName" as column_technical_name, schema_column.alias as column_alias, schema_column."dataType" as column_data_type, schema_column.description as column_description,
         schema_relation."columnIdChild" as relation_foreign_key_id, schema_relation."columnIdFather" as relation_primary_key_id, schema_relation."isStatic" as relation_is_static,
         schema_column_key_column."is_static" as column_key_is_static,
         schema_column_key."type" as column_key_type
