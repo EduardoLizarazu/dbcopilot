@@ -13,41 +13,42 @@ import {
   TableRow,
 } from "@mui/material";
 import { ConnActionTable } from "./connActionTable";
+import { useRouter } from "next/navigation";
 
-interface Props {
-  connList: Promise<ReadConnectionOutput[]>;
-}
+export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
+  const router = useRouter();
 
-export function ConnTableBody({ connList }: Props) {
-  const alConnection = use(connList);
+  function handleEditBtn() {
+    router.push(`/connection/${conn.id}`);
+  }
 
-  console.log("alConnection", alConnection);
+  async function handleDeleteBtn() {
+    try {
+    } catch (error) {
+      console.error("Error deleting connection:", error);
+    }
+  }
+
+  function handleSchemaBtn() {
+    router.push(`/connection/${conn.id}/schema`);
+  }
 
   // RENDER
   return (
-    <TableBody>
-      {alConnection.map((item, index) => (
-        <TableRow key={item.id}>
-          <TableCell align="left">{item.name}</TableCell>
-          <TableCell align="left">{item.description}</TableCell>
-          <TableCell align="left">{item.dbType}</TableCell>
-          <TableCell align="left">{item.dbName}</TableCell>
-          <TableCell align="left">{item.dbHost}</TableCell>
-          <TableCell align="left">
-            <ConnActionTable
-              handleEditBtn={function (): void {
-                throw new Error("Function not implemented.");
-              }}
-              handleDeleteBtn={function (): void {
-                throw new Error("Function not implemented.");
-              }}
-              handleSchemaBtn={function (): void {
-                throw new Error("Function not implemented.");
-              }}
-            />
-          </TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
+    <TableRow key={conn.id}>
+      <TableCell align="center">{conn.name}</TableCell>
+      <TableCell align="center">{conn.description}</TableCell>
+      <TableCell align="center">{conn.dbType}</TableCell>
+      <TableCell align="center">{conn.dbName}</TableCell>
+      <TableCell align="center">{conn.dbHost}</TableCell>
+      <TableCell align="center">{conn.dbPort}</TableCell>
+      <TableCell align="center">
+        <ConnActionTable
+          handleEditBtn={handleEditBtn}
+          handleDeleteBtn={handleDeleteBtn}
+          handleSchemaBtn={handleSchemaBtn}
+        />
+      </TableCell>
+    </TableRow>
   );
 }
