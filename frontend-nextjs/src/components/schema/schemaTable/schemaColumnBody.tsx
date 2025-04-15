@@ -178,12 +178,7 @@ export function SchemaColumnBody({
         </TableCell>
         <TableCell>
           {/* column_data_type */}
-          <SchemaField
-            txtName="column_data_type"
-            isEditable={isEditable}
-            setValue={setSchemaColumnTemp}
-            value={schemaColumnTemp?.column_data_type || "-"}
-          />
+          {schemaColumnTemp?.column_data_type || "-"}
         </TableCell>
         <TableCell>
           <SchemaAction

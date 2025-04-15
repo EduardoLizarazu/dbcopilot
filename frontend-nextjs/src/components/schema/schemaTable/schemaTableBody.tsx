@@ -130,14 +130,7 @@ export function SchemaTableBody({
             {openColumn ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>
-          <SchemaField
-            txtName="table_name"
-            isEditable={isEditable}
-            setValue={setSchemaTableTemp}
-            value={schemaTableTemp?.table_name || "-"}
-          />
-        </TableCell>
+        <TableCell>{schemaTableTemp?.table_name || "-"}</TableCell>
         <TableCell>
           <SchemaField
             txtName="table_alias"
