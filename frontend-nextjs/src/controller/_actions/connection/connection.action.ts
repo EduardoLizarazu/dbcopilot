@@ -32,6 +32,7 @@ export interface CreateConnectionInput {
   dbUsername: string;
   dbPassword?: string;
   dbTypeId: number;
+  is_connected: boolean;
 }
 
 export interface ReadConnectionOutput extends CreateConnectionInput {
@@ -70,6 +71,7 @@ export const ReadConnectionAction = async (): Promise<
       dbPassword: item.dbPassword,
       dbTypeId: item.databasetype.id,
       dbType: item.databasetype.type,
+      is_connected: item.is_connected,
     }));
 
     console.log("Parsed data:", output);
@@ -171,6 +173,7 @@ export const ReadConnectionByIdAction = async (
       dbPassword: data.dbPassword,
       dbTypeId: data.databasetype.id,
       dbType: data.databasetype.type,
+      is_connected: data.is_connected,
     };
 
     return output;
@@ -231,5 +234,25 @@ export const TestConnectionAction = async (input: InputTestConn) => {
     };
   } catch (error) {
     console.error("Error testing connection:", error);
+  }
+};
+
+export const TestConnectionActionByConnId = async (connId: number) => {
+  try {
+    const response = await fetch(`${BASE_URL}/connection/test/${connId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return {
+      status: response.status,
+    };
+  } catch (error) {
+    console.error("Error testing connection by ID:", error);
+    return {
+      status: 500,
+    };
   }
 };

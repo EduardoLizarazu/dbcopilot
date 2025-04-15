@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ConnectionService } from './connection.service';
 import { CreateConnectionDto } from './dto/create-connection.dto';
 import { UpdateConnectionDto } from './dto/update-connection.dto';
@@ -11,7 +19,7 @@ export class ConnectionController {
   create(@Body() createConnectionDto: CreateConnectionDto) {
     try {
       return this.connectionService.create(createConnectionDto);
-    } catch (error) { 
+    } catch (error) {
       console.error('Error creating connection:', error);
       throw new Error('Failed to create connection');
     }
@@ -39,7 +47,10 @@ export class ConnectionController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateConnectionDto: UpdateConnectionDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateConnectionDto: UpdateConnectionDto,
+  ) {
     try {
       console.log('Updating connection with ID:', id);
       console.log('Update data:', updateConnectionDto);
@@ -53,7 +64,7 @@ export class ConnectionController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     try {
-      return this.connectionService.remove(+id);     
+      return this.connectionService.remove(+id);
     } catch (error) {
       console.error('Error deleting connection:', error);
       throw new Error('Failed to delete connection');
@@ -67,6 +78,16 @@ export class ConnectionController {
     } catch (error) {
       console.error('Error testing connection:', error);
       throw new Error('Failed to test connection');
-    }	
+    }
+  }
+
+  @Post('test/:id')
+  testConnectionById(@Param('id') id: string) {
+    try {
+      return this.connectionService.testConnectionByIdConnection(+id);
+    } catch (error) {
+      console.error('Error testing connection by ID:', error);
+      throw new Error('Failed to test connection by ID');
+    }
   }
 }

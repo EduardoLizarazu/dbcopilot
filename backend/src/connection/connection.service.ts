@@ -4,6 +4,10 @@ import { UpdateConnectionDto } from './dto/update-connection.dto';
 import { Connection } from './entities/connection.entity';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+  ConnectionCreate,
+  ValidateConnectionCreate,
+} from './interface/connection-create.interface';
 
 @Injectable()
 export class ConnectionService {
@@ -39,7 +43,8 @@ export class ConnectionService {
           dbHost: true,
           dbPort: true,
           dbUsername: true,
-          dbPassword: true,
+          dbPassword: false,
+          is_connected: true,
           databasetype: {
             id: true,
             type: true,
@@ -66,6 +71,7 @@ export class ConnectionService {
           dbPort: true,
           dbUsername: true,
           dbPassword: true,
+          is_connected: true,
           databasetype: {
             id: true,
             type: true,
@@ -80,21 +86,23 @@ export class ConnectionService {
 
   async update(id: number, updateConnectionDto: UpdateConnectionDto) {
     try {
-      const update = {
-        name: updateConnectionDto.name,
-        description: updateConnectionDto.description,
-        dbName: updateConnectionDto.dbName,
-        dbHost: updateConnectionDto.dbHost,
-        dbPort: updateConnectionDto.dbPort,
-        dbUsername: updateConnectionDto.dbUsername,
-        dbPassword: updateConnectionDto.dbPassword,
-        databasetype: { id: updateConnectionDto.dbTypeId },
-      };
-
+      const update: ConnectionCreate =
+        ValidateConnectionCreate(updateConnectionDto);
       return await this.connectionRepository.update(id, update);
     } catch (error) {
       console.error('Error updating connection:', error);
       throw new Error('Failed to update connection');
+    }
+  }
+
+  async updateConnectionStatus(id: number, status: boolean) {
+    try {
+      return await this.connectionRepository.update(id, {
+        is_connected: status,
+      });
+    } catch (error) {
+      console.error('Error updating connection status:', error);
+      throw new Error('Failed to update connection status');
     }
   }
 
@@ -143,6 +151,43 @@ export class ConnectionService {
       return HttpStatus.CREATED;
     } catch (error) {
       console.error('Connection test failed:', error.message);
+      throw new HttpException(
+        {
+          status: 'error',
+          message: error.message,
+        },
+        400,
+      );
+    }
+  }
+
+  async testConnectionByIdConnection(id: number) {
+    try {
+      // get connection by id
+      const conn = await this.findOne(id);
+      if (!conn) return HttpStatus.NOT_FOUND;
+
+      // Create a temporary DataSource configuration
+      const dataSource = new DataSource({
+        type: conn.databasetype.type as any, // Cast to TypeORM's DatabaseType
+        host: conn.dbHost,
+        port: conn.dbPort,
+        username: conn.dbUsername,
+        password: conn.dbPassword,
+        database: conn.dbName,
+        synchronize: false,
+        logging: false,
+      });
+
+      await dataSource.initialize(); // Initialize and check connection
+      await dataSource.destroy(); // Close connection after test
+
+      await this.updateConnectionStatus(id, true); // Update connection status to true
+
+      return HttpStatus.CREATED;
+    } catch (error) {
+      console.error('Connection test failed:', error.message);
+      await this.updateConnectionStatus(id, false); // Update connection status to false
       throw new HttpException(
         {
           status: 'error',

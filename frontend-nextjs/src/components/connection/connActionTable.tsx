@@ -3,18 +3,31 @@ import { IconButton, Tooltip } from "@mui/material";
 import SchemaIcon from "@mui/icons-material/Schema";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import LinkIcon from "@mui/icons-material/Link";
 
 export function ConnActionTable({
   handleEditBtn,
   handleDeleteBtn,
   handleSchemaBtn,
+  handleTestBtn,
 }: {
   handleEditBtn: () => void;
   handleDeleteBtn: () => void;
   handleSchemaBtn: () => void;
+  handleTestBtn: () => void;
 }) {
   return (
     <>
+      <Tooltip title="test connection" placement="bottom">
+        <IconButton
+          aria-label="test-connection"
+          size="small"
+          onClick={handleTestBtn}
+          loading={false}
+        >
+          <LinkIcon fontSize="inherit" />
+        </IconButton>
+      </Tooltip>
       <Tooltip title="schema" placement="bottom">
         <IconButton
           aria-label="schema"

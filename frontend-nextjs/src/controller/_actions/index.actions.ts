@@ -30,6 +30,7 @@ export {
   TestConnectionAction,
   UpdateConnectionAction,
   ReadConnectionByIdAction,
+  TestConnectionActionByConnId,
 } from "./connection/connection.action";
 export type {
   ReadConnectionOutput,

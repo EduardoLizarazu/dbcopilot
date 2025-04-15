@@ -34,6 +34,7 @@ export function ConnTableHead({
 
   React.useEffect(() => {
     setData(connData);
+    console.log("connData", connData);
   }, []);
 
   return (
@@ -60,10 +61,12 @@ export function ConnTableHead({
             <TableRow>
               <TableCell align="center">Connection Name</TableCell>
               <TableCell align="center">Description</TableCell>
+              <TableCell align="center">Username</TableCell>
               <TableCell align="center">Type</TableCell>
               <TableCell align="center">Database Name</TableCell>
               <TableCell align="center">Host</TableCell>
               <TableCell align="center">Port</TableCell>
+              <TableCell align="center">Status</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>

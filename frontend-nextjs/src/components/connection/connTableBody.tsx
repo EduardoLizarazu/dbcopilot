@@ -3,14 +3,18 @@ import React from "react";
 import {
   DeleteConnectionAction,
   ReadConnectionOutput,
+  TestConnectionActionByConnId,
 } from "@/controller/_actions/index.actions";
-import { TableCell, TableRow } from "@mui/material";
+import { Table, TableCell, TableRow } from "@mui/material";
 import { ConnActionTable } from "./connActionTable";
 import { useRouter } from "next/navigation";
 import { FeedbackSnackBar } from "../shared/feedbackSnackBar";
+import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 
 export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
   const router = useRouter();
+
+  const [connData, setConnData] = React.useState<ReadConnectionOutput>(conn);
 
   const [feedback, setFeedback] = React.useState({
     isActive: false,
@@ -22,10 +26,18 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
     router.push(`/connection/${conn.id}`);
   }
 
+  function resetFeedback() {
+    setFeedback({
+      isActive: false,
+      message: "",
+      severity: null,
+    });
+  }
+
   async function handleDeleteBtn() {
     try {
       const response = await DeleteConnectionAction(conn.id);
-      if (response.status === 200) {
+      if (response.status === 201) {
         setFeedback({
           isActive: true,
           message: "Connection deleted successfully.",
@@ -44,13 +56,7 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
     } catch (error) {
       console.error("Error deleting connection:", error);
     } finally {
-      setTimeout(() => {
-        setFeedback({
-          isActive: false,
-          message: "",
-          severity: null,
-        });
-      }, 2000); // Hide the feedback message after 3 seconds
+      resetFeedback();
     }
   }
 
@@ -58,20 +64,57 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
     router.push(`/connection/${conn.id}/schema`);
   }
 
+  async function handleTestBtn() {
+    try {
+      const res = await TestConnectionActionByConnId(conn.id);
+      if (res?.status === 201) {
+        setFeedback({
+          isActive: true,
+          message: "Connection test successful.",
+          severity: "success",
+        });
+        setConnData((prev) => ({ ...prev, is_connected: true }));
+      } else {
+        setFeedback({
+          isActive: true,
+          message: "Connection test failed.",
+          severity: "error",
+        });
+      }
+    } catch (err) {
+      console.error("Error testing connection:", err);
+      setFeedback({
+        isActive: true,
+        message: "Failed to test connection.",
+        severity: "error",
+      });
+    } finally {
+      resetFeedback();
+    }
+  }
+
   // RENDER
   return (
-    <TableRow key={conn.id}>
-      <TableCell align="center">{conn.name}</TableCell>
-      <TableCell align="center">{conn.description}</TableCell>
-      <TableCell align="center">{conn.dbType}</TableCell>
-      <TableCell align="center">{conn.dbName}</TableCell>
-      <TableCell align="center">{conn.dbHost}</TableCell>
-      <TableCell align="center">{conn.dbPort}</TableCell>
+    <TableRow key={connData.id}>
+      <TableCell align="center">{connData.name || "-"}</TableCell>
+      <TableCell align="center">{connData.dbUsername || "-"}</TableCell>
+      <TableCell align="center">{connData.description || "-"}</TableCell>
+      <TableCell align="center">{connData.dbType || "-"}</TableCell>
+      <TableCell align="center">{connData.dbName || "-"}</TableCell>
+      <TableCell align="center">{connData.dbHost || "-"}</TableCell>
+      <TableCell align="center">{connData.dbPort || "-"}</TableCell>
+      <TableCell align="center">
+        <RadioButtonCheckedIcon
+          color={connData.is_connected ? "success" : "error"}
+          fontSize="small"
+        />
+      </TableCell>
       <TableCell align="center">
         <ConnActionTable
           handleEditBtn={handleEditBtn}
           handleDeleteBtn={handleDeleteBtn}
           handleSchemaBtn={handleSchemaBtn}
+          handleTestBtn={handleTestBtn}
         />
         {/* Feedback message */}
         {feedback.isActive && (
@@ -83,4 +126,7 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
       </TableCell>
     </TableRow>
   );
+}
+function testConnectionByIdConnection(id: number) {
+  throw new Error("Function not implemented.");
 }
