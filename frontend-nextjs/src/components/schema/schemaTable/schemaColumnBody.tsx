@@ -100,16 +100,20 @@ export function SchemaColumnBody({
   async function handleSaveBtn() {
     try {
       setSchemaColumn({ ...schemaColumnTemp });
-      // const res = await UpdateSchemaColumn(schemaColumnTemp);
-      // if (res?.status === 200) {
-      //   setFeedback({
-      //     isActive: true,
-      //     message: "Updated success",
-      //     severity: "success",
-      //   });
-      // } else {
-      //   errorFeedback();
-      // }
+      const res = await UpdateSchemaColumn({
+        column_id: schemaColumnTemp.column_id,
+        column_alias: schemaColumnTemp.column_alias || null,
+        column_description: schemaColumnTemp.column_description || null,
+      });
+      if (res?.status === 200) {
+        setFeedback({
+          isActive: true,
+          message: "Updated success",
+          severity: "success",
+        });
+      } else {
+        errorFeedback();
+      }
     } catch (error) {
       console.error("Error saving the schema column: ", error);
       errorFeedback();

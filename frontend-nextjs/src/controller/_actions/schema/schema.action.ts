@@ -122,13 +122,8 @@ export interface ISchemaTable {
 
 export interface ISchemaColumn {
   column_id: number;
-  column_name: string;
-  column_alias: string;
-  column_description?: string;
-  column_data_type: string;
-  foreign_key: number;
-  primary_key: number;
-  relation_description: string;
+  column_alias: string | null;
+  column_description: string | null;
 }
 
 export async function GetSchemaData() {
@@ -255,9 +250,7 @@ export async function UpdateSchemaTable(data: ISchemaTable) {
 export async function UpdateSchemaColumn(data: ISchemaColumn) {
   try {
     const formattedData = {
-      technicalName: data.column_name,
       alias: data.column_alias,
-      dataType: data.column_data_type,
       description: data.column_description,
     };
 
