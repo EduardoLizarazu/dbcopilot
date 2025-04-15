@@ -56,7 +56,7 @@ export function SchemaTableHead({
               <TableCell>Table Name</TableCell>
               <TableCell>Table Alias</TableCell>
               <TableCell>Table Description</TableCell>
-              <TableCell>Table Actions</TableCell>
+              <TableCell />
             </TableRow>
           </TableHead>
           <TableBody>

@@ -160,7 +160,6 @@ export function SchemaTableBody({
             handleEditBtn={handleEditBtn}
             handleSaveBtn={handleSaveBtn}
             handleCancelBtn={handleCancelBtn}
-            handleDeleteBtn={handleDeleteBtn}
           />
           {feedback.isActive && (
             <FeedbackSnackBar

@@ -10,13 +10,11 @@ export function SchemaAction({
   handleEditBtn,
   handleSaveBtn,
   handleCancelBtn,
-  handleDeleteBtn,
 }: {
   isEditable: boolean;
   handleEditBtn: () => void;
   handleSaveBtn: () => void;
   handleCancelBtn: () => void;
-  handleDeleteBtn: () => void;
 }) {
   return (
     <>
@@ -59,7 +57,7 @@ export function SchemaAction({
         </>
       )}
 
-      <Tooltip title="Delete">
+      {/* <Tooltip title="Delete">
         <IconButton
           aria-label="delete"
           size="small"
@@ -68,7 +66,7 @@ export function SchemaAction({
         >
           <DeleteIcon fontSize="inherit" />
         </IconButton>
-      </Tooltip>
+      </Tooltip> */}
     </>
   );
 }
