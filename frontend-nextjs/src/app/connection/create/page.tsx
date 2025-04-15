@@ -19,32 +19,29 @@ import {
 import { FeedbackSnackBar } from "@/components/schema/feedbackStanckBar";
 import Link from "next/link";
 
+interface Connection extends Omit<CreateConnectionInput, "dbPort"> {
+  dbPort: string;
+}
+
 export default function CreateConnectionPage() {
   // USE STATE
   const [loading, setLoading] = React.useState<boolean>(true);
 
-  const [conn, setConn] = React.useState<CreateConnectionInput>({
+  const [conn, setConn] = React.useState<Connection>({
     name: "",
     description: "",
     dbTypeId: 0,
     dbHost: "",
-    dbPort: 0,
+    dbPort: "",
     dbName: "",
     dbUsername: "",
     dbPassword: "",
   });
 
-  const [connName, setConnName] = React.useState<string>("");
-  const [description, setDescription] = React.useState<string>("");
   const [databaseType, setDatabaseType] = React.useState<
     ReadDatabaseTypeOutput[]
   >([]);
   const [databaseTypeId, setDatabaseTypeId] = React.useState<number>(0);
-  const [host, setHost] = React.useState<string>("");
-  const [port, setPort] = React.useState<string>("");
-  const [databaseName, setDatabaseName] = React.useState<string>("");
-  const [username, setUsername] = React.useState<string>("");
-  const [password, setPassword] = React.useState<string>("");
   const [openFeedback, setOpenFeedback] = React.useState<boolean>(false);
   const [feedbackMessage, setFeedbackMessage] = React.useState<string>("");
   const [feedbackSeverity, setFeedbackSeverity] = React.useState<
@@ -77,14 +74,14 @@ export default function CreateConnectionPage() {
     console.log("Create connection");
 
     await CreateConnectionAction({
-      name: connName,
-      description,
+      name: conn.name,
+      description: conn.description,
       dbTypeId: databaseTypeId,
-      dbHost: host,
-      dbPort: parseInt(port),
-      dbName: databaseName,
-      dbUsername: username,
-      dbPassword: password,
+      dbHost: conn.dbHost,
+      dbPort: parseInt(conn.dbPort),
+      dbName: conn.dbName,
+      dbUsername: conn.dbUsername,
+      dbPassword: conn.dbPassword,
     })
       .then((res) => {
         console.log("Create connection response: ", res);
@@ -109,14 +106,14 @@ export default function CreateConnectionPage() {
     // Test connection
     console.log("Test connection");
     await TestConnectionAction({
-      name: connName,
-      description,
+      name: conn.name,
+      description: conn.description,
       dbTypeId: databaseTypeId,
-      dbHost: host,
-      dbPort: parseInt(port),
-      dbName: databaseName,
-      dbUsername: username,
-      dbPassword: password,
+      dbHost: conn.dbHost,
+      dbPort: parseInt(conn.dbPort),
+      dbName: conn.dbName,
+      dbUsername: conn.dbUsername,
+      dbPassword: conn.dbPassword,
     })
       .then((res) => {
         console.log("Test connection response: ", res);
@@ -132,6 +129,11 @@ export default function CreateConnectionPage() {
       });
   }
 
+  function handleTextField(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setConn((prev) => ({ ...prev, [name]: value }));
+  }
+
   // RENDERS
   if (loading) {
     return <CircularProgress />;
@@ -143,19 +145,21 @@ export default function CreateConnectionPage() {
         <Typography variant="h4">Create Connection</Typography>
         {/* Textfield for connection name */}
         <TextField
-          label="Connection Name"
+          label="Name"
+          name="name"
           variant="standard"
           style={{ width: "100%" }}
-          value={connName}
-          onChange={(e) => setConnName(e.target.value)}
+          value={conn.name}
+          onChange={handleTextField}
         />
         {/* Textfield for description */}
         <TextField
           label="Description"
+          name="description"
           variant="standard"
           style={{ width: "100%" }}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={conn.description}
+          onChange={handleTextField}
         />
         {/* Textfield for database type */}
         <Autocomplete
@@ -177,45 +181,49 @@ export default function CreateConnectionPage() {
         {/* Textfield for host */}
         <TextField
           label="Host"
+          name="dbHost"
           variant="standard"
           style={{ width: "100%" }}
-          value={host}
-          onChange={(e) => setHost(e.target.value)}
+          value={conn.dbHost}
+          onChange={handleTextField}
         />
         {/* Textfield for port -- only numbers */}
         <TextField
           label="Port"
+          name="dbPort"
           variant="standard"
           style={{ width: "100%" }}
-          value={port}
-          onChange={(e) => setPort(e.target.value)}
+          value={conn.dbPort}
+          onChange={handleTextField}
         />
         {/* Textfield for database name */}
         <TextField
           label="Database Name"
+          name="dbName"
           variant="standard"
           style={{ width: "100%" }}
-          value={databaseName}
-          onChange={(e) => setDatabaseName(e.target.value)}
+          value={conn.dbName}
+          onChange={handleTextField}
         />
 
         {/* Textfield for username */}
         <TextField
           label="Username"
+          name="dbUsername"
           variant="standard"
           style={{ width: "100%" }}
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={conn.dbUsername}
+          onChange={handleTextField}
         />
         {/* Textfield for password */}
         <TextField
           label="Password"
+          name="dbPassword"
           variant="standard"
           style={{ width: "100%" }}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={conn.dbPassword}
+          onChange={handleTextField}
         />
-
         <Stack
           spacing={2}
           direction="row"
