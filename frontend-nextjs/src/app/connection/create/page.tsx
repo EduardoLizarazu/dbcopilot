@@ -105,6 +105,9 @@ export default function CreateConnectionPage() {
           severity: "success",
         });
         console.log("Connection created successfully", feedback);
+        setTimeout(() => {
+          router.back();
+        }, 3000);
       } else {
         setFeedback({
           isActive: true,
@@ -133,9 +136,6 @@ export default function CreateConnectionPage() {
         dbUsername: "",
         dbPassword: "",
       });
-      setTimeout(() => {
-        router.back();
-      }, 3000);
     }
   }
 
