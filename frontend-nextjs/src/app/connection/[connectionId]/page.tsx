@@ -9,45 +9,68 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { ReadAllDatabaseTypeAction, ReadConnectionByIdAction, ReadDatabaseTypeOutput, TestConnectionAction, UpdateConnectionAction } from "@/controller/_actions/index.actions";
-import { FeedbackSnackBar } from "@/components/schema/feedbackStanckBar";
+import {
+  CreateConnectionInput,
+  ReadAllDatabaseTypeAction,
+  ReadConnectionByIdAction,
+  ReadDatabaseTypeOutput,
+  TestConnectionAction,
+  UpdateConnectionAction,
+} from "@/controller/_actions/index.actions";
 import Link from "next/link";
+import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
+import { useRouter } from "next/navigation";
 
+interface Connection extends Omit<CreateConnectionInput, "dbPort"> {
+  id: number;
+  dbPort: string;
+}
 
-export default function CreateConnectionPage({  params }: { params: { connectionId: string } }) {
+export default function Page({ params }: { params: { connectionId: string } }) {
+  const router = useRouter();
+
   // USE STATE
   const [loading, setLoading] = React.useState<boolean>(true);
-  const [connId, setConnId] = React.useState<number>(0);
-  const [connName, setConnName] = React.useState<string>("");
-  const [description, setDescription] = React.useState<string>("");
-  const [databaseType, setDatabaseType] = React.useState<ReadDatabaseTypeOutput[]>([]);
   const [databaseTypeId, setDatabaseTypeId] = React.useState<number>(0);
-  const [host, setHost] = React.useState<string>("");
-  const [port, setPort] = React.useState<string>("");
-  const [databaseName, setDatabaseName] = React.useState<string>("");
-  const [username, setUsername] = React.useState<string>("");
-  const [password, setPassword] = React.useState<string>("");
-  const [openFeedback, setOpenFeedback] = React.useState<boolean>(false);
-  const [feedbackMessage, setFeedbackMessage] = React.useState<string>("");
-  const [feedbackSeverity, setFeedbackSeverity] = React.useState<"success" | "error" | undefined>(undefined);
 
+  const [databaseType, setDatabaseType] = React.useState<
+    ReadDatabaseTypeOutput[]
+  >([]);
+  const [conn, setConn] = React.useState<Connection>({
+    id: 0,
+    name: "",
+    description: "",
+    dbTypeId: 0,
+    dbHost: "",
+    dbPort: "",
+    dbName: "",
+    dbUsername: "",
+    dbPassword: "",
+  });
+
+  const [feedback, setFeedback] = React.useState({
+    isActive: false,
+    message: "",
+    severity: null as "success" | "error" | "warning" | "info" | null,
+  });
   // USE EFFECT
   React.useEffect(() => {
     (async () => {
       setLoading(true);
-      const {  connectionId } = params;
+      const { connectionId } = params;
 
-      const connRes = await ReadConnectionByIdAction(parseInt(connectionId))
-      setConnId(parseInt(connectionId));
-      setConnName(connRes.name || "");
-      setDescription(connRes.description || "");
-      setDatabaseTypeId(connRes.dbTypeId || 0);
-      setHost(connRes.dbHost || "");
-      setPort(connRes.dbPort.toString() || "");
-      setDatabaseName(connRes.dbName || "");
-      setUsername(connRes.dbUsername || "");
-      setPassword(connRes.dbPassword || "")
-
+      const connRes = await ReadConnectionByIdAction(parseInt(connectionId));
+      setConn({
+        id: connRes.id || 0,
+        name: connRes.name || "",
+        description: connRes.description || "",
+        dbTypeId: connRes.dbTypeId || 0,
+        dbHost: connRes.dbHost || "",
+        dbPort: connRes.dbPort.toString() || "",
+        dbName: connRes.dbName || "",
+        dbUsername: connRes.dbUsername || "",
+        dbPassword: connRes.dbPassword || "",
+      });
 
       // Fetch data here
       const responseDbTypes = await ReadAllDatabaseTypeAction();
@@ -65,36 +88,59 @@ export default function CreateConnectionPage({  params }: { params: { connection
 
   // HANDLERS
 
+  function resetFeedBack() {
+    setTimeout(() => {
+      setFeedback({
+        isActive: false,
+        message: "",
+        severity: null,
+      });
+    }, 3000);
+  }
+
   async function handleUpdate() {
     // Create connection here
-    console.log("Create connection");
+    console.log("Update connection...");
 
-    await UpdateConnectionAction(
-      connId, 
-      {
-        name: connName,
-        description,
+    try {
+      const res = await UpdateConnectionAction(conn.id, {
+        name: conn.name,
+        description: conn.description,
         dbTypeId: databaseTypeId,
-        dbHost: host,
-        dbPort: parseInt(port),
-        dbName: databaseName,
-        dbUsername: username,
-        dbPassword: password,
-      }
-    )
-      .then((res) => {
-        console.log("Create connection response: ", res);
-        setFeedbackMessage("Connection created successfully");
-        setFeedbackSeverity("success");
-        setOpenFeedback(true);
-      })
-      .catch((err) => {
-        console.error("Error creating connection: ", err);
-        setFeedbackMessage("Error creating connection");
-        setFeedbackSeverity("error");
-        setOpenFeedback(true);
+        dbHost: conn.dbHost,
+        dbPort: parseInt(conn.dbPort),
+        dbName: conn.dbName,
+        dbUsername: conn.dbUsername,
+        dbPassword: conn.dbPassword,
       });
+      console.log("res updating...", res);
 
+      if (res?.status === 200) {
+        setFeedback({
+          isActive: true,
+          message: "Connection updated successfully",
+          severity: "success",
+        });
+        console.log("Connection updated successfully", feedback);
+        setTimeout(() => {
+          router.back();
+        }, 3000);
+      } else {
+        setFeedback({
+          isActive: true,
+          message: "Connection update failed",
+          severity: "error",
+        });
+      }
+    } catch {
+      setFeedback({
+        isActive: true,
+        message: "Connection update failed",
+        severity: "error",
+      });
+    } finally {
+      resetFeedBack();
+    }
   }
 
   async function handleCancel() {
@@ -105,28 +151,46 @@ export default function CreateConnectionPage({  params }: { params: { connection
   async function handleTest() {
     // Test connection
     console.log("Test connection");
-    await TestConnectionAction({
-      name: connName,
-      description,
-      dbTypeId: databaseTypeId,
-      dbHost: host,
-      dbPort: parseInt(port),
-      dbName: databaseName,
-      dbUsername: username,
-      dbPassword: password,
-    })
-      .then((res) => {
-        console.log("Test connection response: ", res);
-        setFeedbackMessage("Connection tested successfully");
-        setFeedbackSeverity("success");
-        setOpenFeedback(true);
-      })
-      .catch((err) => {
-        console.error("Error testing connection: ", err);
-        setFeedbackMessage("Error testing connection");
-        setFeedbackSeverity("error");
-        setOpenFeedback(true);
+    try {
+      const res = await TestConnectionAction({
+        dbTypeId: databaseTypeId,
+        dbHost: conn.dbHost,
+        dbPort: parseInt(conn.dbPort),
+        dbName: conn.dbName,
+        dbUsername: conn.dbUsername,
+        dbPassword: conn.dbPassword || "",
+        name: conn.name,
+        description: conn.description,
       });
+
+      if (res?.status === 201) {
+        setFeedback({
+          isActive: true,
+          message: "Connection test successful",
+          severity: "success",
+        });
+      } else {
+        setFeedback({
+          isActive: true,
+          message: "Connection test failed",
+          severity: "error",
+        });
+      }
+    } catch (err) {
+      console.error("Error testing connection: ", err);
+      setFeedback({
+        isActive: true,
+        message: "Connection test failed",
+        severity: "error",
+      });
+    } finally {
+      resetFeedBack();
+    }
+  }
+
+  function handleTextField(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setConn((prev) => ({ ...prev, [name]: value }));
   }
 
   // RENDERS
@@ -137,22 +201,24 @@ export default function CreateConnectionPage({  params }: { params: { connection
   return (
     <Container>
       <Stack spacing={3}>
-        <Typography variant="h4">Edit Connection</Typography>
+        <Typography variant="h4">Update Connection</Typography>
         {/* Textfield for connection name */}
         <TextField
-          label="Connection Name"
+          label="Name"
+          name="name"
           variant="standard"
           style={{ width: "100%" }}
-          value={connName}
-          onChange={(e) => setConnName(e.target.value)}
+          value={conn.name}
+          onChange={handleTextField}
         />
         {/* Textfield for description */}
         <TextField
           label="Description"
+          name="description"
           variant="standard"
           style={{ width: "100%" }}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={conn.description}
+          onChange={handleTextField}
         />
         {/* Textfield for database type */}
         <Autocomplete
@@ -174,45 +240,50 @@ export default function CreateConnectionPage({  params }: { params: { connection
         {/* Textfield for host */}
         <TextField
           label="Host"
+          name="dbHost"
           variant="standard"
           style={{ width: "100%" }}
-          value={host}
-          onChange={(e) => setHost(e.target.value)}
+          value={conn.dbHost}
+          onChange={handleTextField}
         />
         {/* Textfield for port -- only numbers */}
         <TextField
           label="Port"
+          name="dbPort"
           variant="standard"
           style={{ width: "100%" }}
-          value={port}
-          onChange={(e) => setPort(e.target.value)}
+          value={conn.dbPort}
+          onChange={handleTextField}
         />
         {/* Textfield for database name */}
         <TextField
           label="Database Name"
+          name="dbName"
           variant="standard"
           style={{ width: "100%" }}
-          value={databaseName}
-          onChange={(e) => setDatabaseName(e.target.value)}
+          value={conn.dbName}
+          onChange={handleTextField}
         />
 
         {/* Textfield for username */}
         <TextField
           label="Username"
+          name="dbUsername"
           variant="standard"
           style={{ width: "100%" }}
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={conn.dbUsername}
+          onChange={handleTextField}
         />
         {/* Textfield for password */}
         <TextField
           label="Password"
+          name="dbPassword"
+          type="password"
           variant="standard"
           style={{ width: "100%" }}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={conn.dbPassword}
+          onChange={handleTextField}
         />
-
         <Stack
           spacing={2}
           direction="row"
@@ -221,31 +292,9 @@ export default function CreateConnectionPage({  params }: { params: { connection
             alignItems: "flex-start",
           }}
         >
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{
-              alignItems: "center",
-            }}
-          >
-            <Button variant="contained" color="secondary" onClick={handleTest}>
-              Test Connection
-            </Button>
-            { feedbackSeverity === "success" && (
-              <Typography variant="body1" color="green">
-                Connection successful
-              </Typography>
-            )}
-
-            { feedbackSeverity === "error" && (
-              <Typography variant="body1" color="red">
-                Connection failed
-              </Typography>
-            )}
-
-
-
-          </Stack>
+          <Button variant="contained" color="secondary" onClick={handleTest}>
+            Test Connection
+          </Button>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleUpdate}>
               Update
@@ -257,12 +306,12 @@ export default function CreateConnectionPage({  params }: { params: { connection
         </Stack>
       </Stack>
       {/* Feedback message */}
-      <FeedbackSnackBar
-        open={openFeedback}
-        setOpen={setOpenFeedback}
-        message={feedbackMessage}
-        severity={feedbackSeverity}
-      />
+      {feedback.isActive && (
+        <FeedbackSnackBar
+          message={feedback.message}
+          severity={feedback.severity}
+        />
+      )}
     </Container>
   );
 }
