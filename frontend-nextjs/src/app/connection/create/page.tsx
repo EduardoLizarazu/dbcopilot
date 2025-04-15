@@ -9,17 +9,36 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { CreateConnectionAction, ReadAllDatabaseTypeAction, ReadDatabaseTypeOutput, TestConnectionAction } from "@/controller/_actions/index.actions";
+import {
+  CreateConnectionAction,
+  CreateConnectionInput,
+  ReadAllDatabaseTypeAction,
+  ReadDatabaseTypeOutput,
+  TestConnectionAction,
+} from "@/controller/_actions/index.actions";
 import { FeedbackSnackBar } from "@/components/schema/feedbackStanckBar";
 import Link from "next/link";
-
 
 export default function CreateConnectionPage() {
   // USE STATE
   const [loading, setLoading] = React.useState<boolean>(true);
+
+  const [conn, setConn] = React.useState<CreateConnectionInput>({
+    name: "",
+    description: "",
+    dbTypeId: 0,
+    dbHost: "",
+    dbPort: 0,
+    dbName: "",
+    dbUsername: "",
+    dbPassword: "",
+  });
+
   const [connName, setConnName] = React.useState<string>("");
   const [description, setDescription] = React.useState<string>("");
-  const [databaseType, setDatabaseType] = React.useState<ReadDatabaseTypeOutput[]>([]);
+  const [databaseType, setDatabaseType] = React.useState<
+    ReadDatabaseTypeOutput[]
+  >([]);
   const [databaseTypeId, setDatabaseTypeId] = React.useState<number>(0);
   const [host, setHost] = React.useState<string>("");
   const [port, setPort] = React.useState<string>("");
@@ -28,7 +47,9 @@ export default function CreateConnectionPage() {
   const [password, setPassword] = React.useState<string>("");
   const [openFeedback, setOpenFeedback] = React.useState<boolean>(false);
   const [feedbackMessage, setFeedbackMessage] = React.useState<string>("");
-  const [feedbackSeverity, setFeedbackSeverity] = React.useState<"success" | "error" | undefined>(undefined);
+  const [feedbackSeverity, setFeedbackSeverity] = React.useState<
+    "success" | "error" | undefined
+  >(undefined);
 
   // USE EFFECT
   React.useEffect(() => {
@@ -77,7 +98,6 @@ export default function CreateConnectionPage() {
         setFeedbackSeverity("error");
         setOpenFeedback(true);
       });
-
   }
 
   async function handleCancel() {
@@ -214,20 +234,17 @@ export default function CreateConnectionPage() {
             <Button variant="contained" color="secondary" onClick={handleTest}>
               Test Connection
             </Button>
-            { feedbackSeverity === "success" && (
+            {feedbackSeverity === "success" && (
               <Typography variant="body1" color="green">
                 Connection successful
               </Typography>
             )}
 
-            { feedbackSeverity === "error" && (
+            {feedbackSeverity === "error" && (
               <Typography variant="body1" color="red">
                 Connection failed
               </Typography>
             )}
-
-
-
           </Stack>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleCreate}>
