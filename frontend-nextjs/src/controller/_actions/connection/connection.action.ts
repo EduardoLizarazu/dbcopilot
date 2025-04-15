@@ -81,7 +81,7 @@ export const ReadConnectionAction = async (): Promise<
   }
 };
 
-export const DeleteConnectionAction = async (id: number): Promise<void> => {
+export const DeleteConnectionAction = async (id: number) => {
   try {
     const response = await fetch(`${BASE_URL}/connection/${id}`, {
       method: "DELETE",
@@ -89,11 +89,9 @@ export const DeleteConnectionAction = async (id: number): Promise<void> => {
         "Content-Type": "application/json",
       },
     });
-    if (!response.ok) {
-      throw new Error("Failed to delete connection");
-    }
-
-    revalidatePath("/connection"); // Revalidate the path to refresh the data
+    return {
+      status: response.status,
+    };
   } catch (error) {
     console.error("Error deleting connection:", error);
     throw new Error("Failed to delete connection");
