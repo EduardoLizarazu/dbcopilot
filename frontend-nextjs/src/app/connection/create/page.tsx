@@ -219,6 +219,7 @@ export default function CreateConnectionPage() {
         <TextField
           label="Password"
           name="dbPassword"
+          type="password"
           variant="standard"
           style={{ width: "100%" }}
           value={conn.dbPassword}
