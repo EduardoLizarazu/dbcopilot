@@ -18,12 +18,15 @@ import {
 } from "@/controller/_actions/index.actions";
 import Link from "next/link";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
+import { useRouter } from "next/navigation";
 
 interface Connection extends Omit<CreateConnectionInput, "dbPort"> {
   dbPort: string;
 }
 
 export default function CreateConnectionPage() {
+  const router = useRouter();
+
   // USE STATE
   const [loading, setLoading] = React.useState<boolean>(true);
 
@@ -71,14 +74,20 @@ export default function CreateConnectionPage() {
   // HANDLERS
 
   function resetFeedBack() {
-    setFeedback({ isActive: false, message: "", severity: null });
+    setTimeout(() => {
+      setFeedback({
+        isActive: false,
+        message: "",
+        severity: null,
+      });
+    }, 3000);
   }
 
   async function handleCreate() {
     // Create connection here
-    console.log("Create connection");
+    console.log("Creating connection...");
     try {
-      await CreateConnectionAction({
+      const res = await CreateConnectionAction({
         name: conn.name,
         description: conn.description,
         dbTypeId: databaseTypeId,
@@ -88,6 +97,22 @@ export default function CreateConnectionPage() {
         dbUsername: conn.dbUsername,
         dbPassword: conn.dbPassword || "",
       });
+
+      if (res?.status === 201) {
+        setFeedback({
+          isActive: true,
+          message: "Connection created successfully",
+          severity: "success",
+        });
+        console.log("Connection created successfully", feedback);
+      } else {
+        setFeedback({
+          isActive: true,
+          message: "Connection creation failed",
+          severity: "error",
+        });
+        console.log("Connection creation failed", feedback);
+      }
     } catch (err) {
       console.error("Error creating connection: ", err);
       setFeedback({
@@ -108,6 +133,8 @@ export default function CreateConnectionPage() {
         dbUsername: "",
         dbPassword: "",
       });
+
+      router.back();
     }
   }
 

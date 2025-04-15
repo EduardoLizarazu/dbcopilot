@@ -5,6 +5,10 @@ import {
   convertToConnectionInput,
   InputTestConn,
 } from "./interface/connection_test.interface";
+import {
+  ConnectionCreateInput,
+  convertToConnectionCreateInput,
+} from "./interface/connection_create.interface";
 
 const CONTEXT_PATH = "/connection";
 
@@ -96,22 +100,22 @@ export const DeleteConnectionAction = async (id: number): Promise<void> => {
   }
 };
 
-export const CreateConnectionAction = async (
-  input: CreateConnectionInput
-): Promise<void> => {
+export const CreateConnectionAction = async (input: ConnectionCreateInput) => {
   try {
+    // Validate input
+    const inputVerified = convertToConnectionCreateInput(input);
+
     const response = await fetch(`${BASE_URL}/connection`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(input),
+      body: JSON.stringify(inputVerified),
     });
-    if (!response.ok) {
-      throw new Error("Failed to create connection");
-    }
 
-    revalidatePath(CONTEXT_PATH); // Revalidate the path to refresh the data
+    return {
+      status: response.status,
+    };
   } catch (error) {
     console.error("Error creating connection:", error);
     throw new Error("Failed to create connection");
