@@ -33,7 +33,7 @@ export class ConnectionService {
   async findAll() {
     try {
       // find with the name of the database type and only select the type
-      return await this.connectionRepository.find({
+      const conn = await this.connectionRepository.find({
         relations: ['databasetype'],
         select: {
           id: true,
@@ -51,6 +51,12 @@ export class ConnectionService {
           },
         },
       });
+
+      // test the connection and update the is_connected field
+      const connUpdated = conn.map(async (c) =>
+        this.testConnectionByIdConnection(c.id),
+      );
+      return connUpdated;
     } catch (error) {
       console.error('Error fetching connections:', error);
       throw new Error('Failed to fetch connections');
