@@ -133,8 +133,9 @@ export default function CreateConnectionPage() {
         dbUsername: "",
         dbPassword: "",
       });
-
-      router.back();
+      setTimeout(() => {
+        router.back();
+      }, 3000);
     }
   }
 
