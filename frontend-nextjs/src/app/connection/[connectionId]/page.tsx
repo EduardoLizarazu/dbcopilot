@@ -46,6 +46,7 @@ export default function Page({ params }: { params: { connectionId: string } }) {
     dbName: "",
     dbUsername: "",
     dbPassword: "",
+    is_connected: false,
   });
 
   const [feedback, setFeedback] = React.useState({
@@ -70,6 +71,7 @@ export default function Page({ params }: { params: { connectionId: string } }) {
         dbName: connRes.dbName || "",
         dbUsername: connRes.dbUsername || "",
         dbPassword: connRes.dbPassword || "",
+        is_connected: connRes.is_connected || false,
       });
 
       // Fetch data here
@@ -112,6 +114,7 @@ export default function Page({ params }: { params: { connectionId: string } }) {
         dbName: conn.dbName,
         dbUsername: conn.dbUsername,
         dbPassword: conn.dbPassword,
+        is_connected: conn.is_connected,
       });
       console.log("res updating...", res);
 
@@ -169,6 +172,7 @@ export default function Page({ params }: { params: { connectionId: string } }) {
           message: "Connection test successful",
           severity: "success",
         });
+        setConn((prev) => ({ ...prev, is_connected: true }));
       } else {
         setFeedback({
           isActive: true,
@@ -292,9 +296,14 @@ export default function Page({ params }: { params: { connectionId: string } }) {
             alignItems: "flex-start",
           }}
         >
-          <Button variant="contained" color="secondary" onClick={handleTest}>
-            Test Connection
-          </Button>
+          <Stack spacing={2} direction="row">
+            <Button variant="contained" color="secondary" onClick={handleTest}>
+              Test Connection
+            </Button>
+            <Typography variant="caption" color="text.secondary">
+              {conn.is_connected ? "Connected" : "Not Connected"}
+            </Typography>
+          </Stack>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleUpdate}>
               Update

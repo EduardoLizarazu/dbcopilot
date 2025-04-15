@@ -39,6 +39,7 @@ export default function CreateConnectionPage() {
     dbName: "",
     dbUsername: "",
     dbPassword: "",
+    is_connected: false,
   });
 
   const [databaseType, setDatabaseType] = React.useState<
@@ -135,6 +136,7 @@ export default function CreateConnectionPage() {
         dbName: "",
         dbUsername: "",
         dbPassword: "",
+        is_connected: false,
       });
     }
   }
@@ -167,6 +169,7 @@ export default function CreateConnectionPage() {
           message: "Connection successful",
           severity: "success",
         });
+        setConn((prev) => ({ ...prev, is_connected: true }));
         console.log("Connection successful", feedback);
       } else {
         setFeedback({
@@ -292,9 +295,14 @@ export default function CreateConnectionPage() {
             alignItems: "flex-start",
           }}
         >
-          <Button variant="contained" color="secondary" onClick={handleTest}>
-            Test Connection
-          </Button>
+          <Stack spacing={2} direction="row" sx={{ alignItems: "center" }}>
+            <Button variant="contained" color="secondary" onClick={handleTest}>
+              Test Connection
+            </Button>
+            <Typography variant="caption" color="text.secondary">
+              {conn.is_connected ? "Connected" : "Not Connected"}
+            </Typography>
+          </Stack>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleCreate}>
               Create
