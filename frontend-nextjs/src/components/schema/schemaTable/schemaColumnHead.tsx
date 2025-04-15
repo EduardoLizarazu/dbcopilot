@@ -75,13 +75,12 @@ export function SchemaColumnHead({ tableId }: { tableId: number }) {
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell />
             <TableCell>Column Name</TableCell>
             <TableCell>Column Alias</TableCell>
             <TableCell>Column Description</TableCell>
             <TableCell>Column Data Type</TableCell>
-            <TableCell>Column Key Type</TableCell>
-            <TableCell>Column Relation</TableCell>
-            <TableCell>Column Actions</TableCell>
+            <TableCell />
           </TableRow>
         </TableHead>
         <TableBody>

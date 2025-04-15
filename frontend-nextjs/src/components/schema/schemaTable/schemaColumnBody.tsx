@@ -8,6 +8,7 @@ import { SchemaField } from "./schemaField";
 import { UpdateSchemaColumn } from "@/controller/_actions/schema/schema.action";
 import { SchemaColumnQueryFormat } from "@/controller/_actions/schema/interface/readColumnByTableId.interface";
 import KeyIcon from "@mui/icons-material/Key";
+import { SchemaColumnKeyType } from "./schemaColumKeyType";
 // export interface SchemaColumnQueryFormat {
 //   column_id: number;
 //   column_technical_name: string;
@@ -58,8 +59,8 @@ export function SchemaColumnBody({
       relation_foreign_key_id: null,
       relation_primary_key_id: null,
       relation_is_static: null,
-      column_key_is_static: [],
-      column_key_type: [],
+      column_key_is_static: [], // [true, true]
+      column_key_type: [], // [pk, fk]
     });
 
   const [feedback, setFeedback] = React.useState({
@@ -141,12 +142,21 @@ export function SchemaColumnBody({
     <>
       <TableRow key={schemaColumn.column_id + "columns"}>
         <TableCell>
-          <SchemaField
-            txtName="column_technical_name"
-            isEditable={isEditable}
-            setValue={setSchemaColumnTemp}
-            value={schemaColumnTemp?.column_technical_name || "-"}
+          {/* Key Type */}
+          <SchemaColumnKeyType
+            pk={{
+              is_primary_key: schemaColumnTemp?.is_primary_key || false,
+              is_static: false,
+            }}
+            fk={{
+              is_foreign_key: schemaColumnTemp?.is_foreign_key || false,
+              is_static: false,
+            }}
           />
+        </TableCell>
+        <TableCell>
+          {/* Technical Name */}
+          {schemaColumnTemp?.column_technical_name || "-"}
         </TableCell>
         <TableCell>
           {/* column_alias */}
@@ -174,29 +184,6 @@ export function SchemaColumnBody({
             setValue={setSchemaColumnTemp}
             value={schemaColumnTemp?.column_data_type || "-"}
           />
-        </TableCell>
-        <TableCell>
-          {/* column_key_type */}
-          <SchemaField
-            txtName="column_key_type"
-            isEditable={isEditable}
-            setValue={setSchemaColumnTemp}
-            value={schemaColumnTemp?.column_key_type?.join(",") || "-"}
-          />
-        </TableCell>
-        <TableCell>
-          {/* column_relation */}
-          <Tooltip title="Relation">
-            <IconButton
-              aria-label="relation"
-              size="small"
-              onClick={() => console.log("relation")}
-              loading={false}
-            >
-              {/* info - blue;  secondary - purple; */}
-              <KeyIcon fontSize="inherit" color="success" /> 
-            </IconButton>
-          </Tooltip>
         </TableCell>
         <TableCell>
           <SchemaAction
