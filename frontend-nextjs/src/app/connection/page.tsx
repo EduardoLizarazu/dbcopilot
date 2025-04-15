@@ -1,12 +1,27 @@
 import React, { Suspense } from "react";
-import { Button, CircularProgress, Container, Link, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import { ReadConnectionAction, ReadConnectionOutput } from "@/controller/_actions/index.actions";
-import { ConnectionTable } from "@/components/connection/connectionTable";
-
+import {
+  Button,
+  CircularProgress,
+  Container,
+  Link,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import {
+  ReadConnectionAction,
+  ReadConnectionOutput,
+} from "@/controller/_actions/index.actions";
+import { ConnTableBody } from "@/components/connection/connTableBody";
 
 export default function ConnectionPage() {
-
-  const connList = ReadConnectionAction()
+  const connList = ReadConnectionAction();
 
   return (
     <Suspense fallback={<CircularProgress />}>
@@ -21,26 +36,30 @@ export default function ConnectionPage() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell align="left">Connection Name</TableCell>
-                <TableCell align="left">Description</TableCell>
-                <TableCell align="left">Type</TableCell>
-                <TableCell align="left">Database Name</TableCell>
-                <TableCell align="left">Host</TableCell>
-                <TableCell align="center">Action</TableCell>
+                <TableCell align="center">Connection Name</TableCell>
+                <TableCell align="center">Description</TableCell>
+                <TableCell align="center">Type</TableCell>
+                <TableCell align="center">Database Name</TableCell>
+                <TableCell align="center">Host</TableCell>
+                <TableCell />
               </TableRow>
             </TableHead>
-              <Suspense fallback={<TableBody>
-                    <TableRow>
-                      <TableCell colSpan={6} align="center">
-                        <CircularProgress />
-                      </TableCell>
-                    </TableRow>
-                </TableBody>}>
-                <ConnectionTable connList={connList} />
-              </Suspense>
+            <Suspense
+              fallback={
+                <TableBody>
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              }
+            >
+              <ConnTableBody connList={connList} />
+            </Suspense>
           </Table>
         </TableContainer>
       </Container>
-  </Suspense>
+    </Suspense>
   );
 }
