@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateConnectionDto } from './dto/create-connection.dto';
 import { UpdateConnectionDto } from './dto/update-connection.dto';
 import { Connection } from './entities/connection.entity';
@@ -18,7 +18,7 @@ export class ConnectionService {
         ...createConnectionDto,
         databasetype: { id: createConnectionDto.dbTypeId },
       });
-      const connectionSaved =  await this.connectionRepository.save(connection);
+      const connectionSaved = await this.connectionRepository.save(connection);
       return connectionSaved;
     } catch (error) {
       console.error('Error creating connection:', error);
@@ -29,25 +29,23 @@ export class ConnectionService {
   async findAll() {
     try {
       // find with the name of the database type and only select the type
-      return await this.connectionRepository.find(
-        {
-          relations: ['databasetype'],
-          select: {
+      return await this.connectionRepository.find({
+        relations: ['databasetype'],
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          dbName: true,
+          dbHost: true,
+          dbPort: true,
+          dbUsername: true,
+          dbPassword: true,
+          databasetype: {
             id: true,
-            name: true,
-            description: true,
-            dbName: true,
-            dbHost: true,
-            dbPort: true,
-            dbUsername: true,
-            dbPassword: true,
-            databasetype: {
-              id: true,
-              type: true,
-            },
+            type: true,
           },
         },
-      );
+      });
     } catch (error) {
       console.error('Error fetching connections:', error);
       throw new Error('Failed to fetch connections');
@@ -82,7 +80,6 @@ export class ConnectionService {
 
   async update(id: number, updateConnectionDto: UpdateConnectionDto) {
     try {
-
       const update = {
         name: updateConnectionDto.name,
         description: updateConnectionDto.description,
@@ -110,21 +107,21 @@ export class ConnectionService {
     }
   }
 
-  async testConnection(connection: CreateConnectionDto): Promise<{schema: string, result: boolean}> {
-    const { dbTypeId, dbHost, dbPort, dbUsername, dbPassword, dbName } = connection;
+  async testConnection(connection: CreateConnectionDto): Promise<HttpStatus> {
+    const { dbTypeId, dbHost, dbPort, dbUsername, dbPassword, dbName } =
+      connection;
 
     try {
-
       // Search the type base on id on the databasetype table
-      const dbType = await this.connectionRepository.manager.connection.getRepository('Databasetype').findOneBy({ id: dbTypeId });
-
+      const dbType = await this.connectionRepository.manager.connection
+        .getRepository('Databasetype')
+        .findOneBy({ id: dbTypeId });
 
       if (!dbType) {
         throw new Error('Database type not found');
       }
 
       console.log(`Testing connection to ${dbType} database...`);
-      
 
       // Create a temporary DataSource configuration
       const dataSource = new DataSource({
@@ -142,11 +139,17 @@ export class ConnectionService {
       const db = await dataSource.initialize();
       const schema = await db.query(`${dbType.query}`);
       await dataSource.destroy(); // Close connection after test
-      
-      return {schema: schema, result: true};
+
+      return HttpStatus.CREATED;
     } catch (error) {
       console.error('Connection test failed:', error.message);
-      throw new Error('Connection test failed');
+      throw new HttpException(
+        {
+          status: 'error',
+          message: error.message,
+        },
+        400,
+      );
     }
   }
 }

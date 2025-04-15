@@ -1,6 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import {
+  convertToConnectionInput,
+  InputTestConn,
+} from "./interface/connection_test.interface";
 
 const CONTEXT_PATH = "/connection";
 
@@ -197,29 +201,30 @@ export const UpdateConnectionAction = async (
   }
 };
 
-export const TestConnectionAction = async (
-  input: CreateConnectionInput
-): Promise<TestConnOutput> => {
+export const TestConnectionAction = async (input: InputTestConn) => {
   try {
+    // Validate input
+    const inputVerified = convertToConnectionInput(input);
+
     console.log("Testing connection with input:", input);
+
     const response = await fetch(`${BASE_URL}/connection/test`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(input),
+      body: JSON.stringify(inputVerified),
     });
     if (!response.ok) {
-      throw new Error("Failed to test connection");
+      return {
+        status: response.status,
+      };
     }
 
-    const data = await response.json();
-
-    console.log("Test connection response:", data);
-
-    return data;
+    return {
+      status: response.status,
+    };
   } catch (error) {
     console.error("Error testing connection:", error);
-    throw new Error("Failed to test connection");
   }
 };

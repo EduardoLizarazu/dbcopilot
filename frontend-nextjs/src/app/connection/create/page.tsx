@@ -86,7 +86,7 @@ export default function CreateConnectionPage() {
         dbPort: parseInt(conn.dbPort),
         dbName: conn.dbName,
         dbUsername: conn.dbUsername,
-        dbPassword: conn.dbPassword,
+        dbPassword: conn.dbPassword || "",
       });
     } catch (err) {
       console.error("Error creating connection: ", err);
@@ -127,18 +127,19 @@ export default function CreateConnectionPage() {
         dbPort: parseInt(conn.dbPort),
         dbName: conn.dbName,
         dbUsername: conn.dbUsername,
-        dbPassword: conn.dbPassword,
+        dbPassword: conn.dbPassword || "",
         name: conn.name,
         description: conn.description,
       });
       console.log("Response: ", response);
 
-      if (response) {
+      if (response?.status === 201) {
         setFeedback({
           isActive: true,
           message: "Connection successful",
           severity: "success",
         });
+        console.log("Connection successful", feedback);
       } else {
         setFeedback({
           isActive: true,
