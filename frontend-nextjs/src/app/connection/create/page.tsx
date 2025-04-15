@@ -16,8 +16,8 @@ import {
   ReadDatabaseTypeOutput,
   TestConnectionAction,
 } from "@/controller/_actions/index.actions";
-import { FeedbackSnackBar } from "@/components/schema/feedbackStanckBar";
 import Link from "next/link";
+import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
 
 interface Connection extends Omit<CreateConnectionInput, "dbPort"> {
   dbPort: string;
@@ -42,11 +42,12 @@ export default function CreateConnectionPage() {
     ReadDatabaseTypeOutput[]
   >([]);
   const [databaseTypeId, setDatabaseTypeId] = React.useState<number>(0);
-  const [openFeedback, setOpenFeedback] = React.useState<boolean>(false);
-  const [feedbackMessage, setFeedbackMessage] = React.useState<string>("");
-  const [feedbackSeverity, setFeedbackSeverity] = React.useState<
-    "success" | "error" | undefined
-  >(undefined);
+
+  const [feedback, setFeedback] = React.useState({
+    isActive: false,
+    message: "",
+    severity: null as "success" | "error" | "warning" | "info" | null,
+  });
 
   // USE EFFECT
   React.useEffect(() => {
@@ -69,32 +70,45 @@ export default function CreateConnectionPage() {
 
   // HANDLERS
 
+  function resetFeedBack() {
+    setFeedback({ isActive: false, message: "", severity: null });
+  }
+
   async function handleCreate() {
     // Create connection here
     console.log("Create connection");
-
-    await CreateConnectionAction({
-      name: conn.name,
-      description: conn.description,
-      dbTypeId: databaseTypeId,
-      dbHost: conn.dbHost,
-      dbPort: parseInt(conn.dbPort),
-      dbName: conn.dbName,
-      dbUsername: conn.dbUsername,
-      dbPassword: conn.dbPassword,
-    })
-      .then((res) => {
-        console.log("Create connection response: ", res);
-        setFeedbackMessage("Connection created successfully");
-        setFeedbackSeverity("success");
-        setOpenFeedback(true);
-      })
-      .catch((err) => {
-        console.error("Error creating connection: ", err);
-        setFeedbackMessage("Error creating connection");
-        setFeedbackSeverity("error");
-        setOpenFeedback(true);
+    try {
+      await CreateConnectionAction({
+        name: conn.name,
+        description: conn.description,
+        dbTypeId: databaseTypeId,
+        dbHost: conn.dbHost,
+        dbPort: parseInt(conn.dbPort),
+        dbName: conn.dbName,
+        dbUsername: conn.dbUsername,
+        dbPassword: conn.dbPassword,
       });
+    } catch (err) {
+      console.error("Error creating connection: ", err);
+      setFeedback({
+        isActive: true,
+        message: "Error creating connection",
+        severity: "error",
+      });
+    } finally {
+      // time - feedback
+      resetFeedBack();
+      setConn({
+        name: "",
+        description: "",
+        dbTypeId: 0,
+        dbHost: "",
+        dbPort: "",
+        dbName: "",
+        dbUsername: "",
+        dbPassword: "",
+      });
+    }
   }
 
   async function handleCancel() {
@@ -103,30 +117,46 @@ export default function CreateConnectionPage() {
   }
 
   async function handleTest() {
-    // Test connection
-    console.log("Test connection");
-    await TestConnectionAction({
-      name: conn.name,
-      description: conn.description,
-      dbTypeId: databaseTypeId,
-      dbHost: conn.dbHost,
-      dbPort: parseInt(conn.dbPort),
-      dbName: conn.dbName,
-      dbUsername: conn.dbUsername,
-      dbPassword: conn.dbPassword,
-    })
-      .then((res) => {
-        console.log("Test connection response: ", res);
-        setFeedbackMessage("Connection tested successfully");
-        setFeedbackSeverity("success");
-        setOpenFeedback(true);
-      })
-      .catch((err) => {
-        console.error("Error testing connection: ", err);
-        setFeedbackMessage("Error testing connection");
-        setFeedbackSeverity("error");
-        setOpenFeedback(true);
+    try {
+      console.log("Testing connection...");
+
+      // Test connection here
+      const response = await TestConnectionAction({
+        dbTypeId: databaseTypeId,
+        dbHost: conn.dbHost,
+        dbPort: parseInt(conn.dbPort),
+        dbName: conn.dbName,
+        dbUsername: conn.dbUsername,
+        dbPassword: conn.dbPassword,
+        name: conn.name,
+        description: conn.description,
       });
+      console.log("Response: ", response);
+
+      if (response) {
+        setFeedback({
+          isActive: true,
+          message: "Connection successful",
+          severity: "success",
+        });
+      } else {
+        setFeedback({
+          isActive: true,
+          message: "Connection failed",
+          severity: "error",
+        });
+      }
+    } catch (err) {
+      console.error("Error testing connection: ", err);
+      setFeedback({
+        isActive: true,
+        message: "Error testing connection",
+        severity: "error",
+      });
+    } finally {
+      // time - feedback
+      resetFeedBack();
+    }
   }
 
   function handleTextField(e: React.ChangeEvent<HTMLInputElement>) {
@@ -233,28 +263,9 @@ export default function CreateConnectionPage() {
             alignItems: "flex-start",
           }}
         >
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{
-              alignItems: "center",
-            }}
-          >
-            <Button variant="contained" color="secondary" onClick={handleTest}>
-              Test Connection
-            </Button>
-            {feedbackSeverity === "success" && (
-              <Typography variant="body1" color="green">
-                Connection successful
-              </Typography>
-            )}
-
-            {feedbackSeverity === "error" && (
-              <Typography variant="body1" color="red">
-                Connection failed
-              </Typography>
-            )}
-          </Stack>
+          <Button variant="contained" color="secondary" onClick={handleTest}>
+            Test Connection
+          </Button>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleCreate}>
               Create
@@ -266,12 +277,12 @@ export default function CreateConnectionPage() {
         </Stack>
       </Stack>
       {/* Feedback message */}
-      <FeedbackSnackBar
-        open={openFeedback}
-        setOpen={setOpenFeedback}
-        message={feedbackMessage}
-        severity={feedbackSeverity}
-      />
+      {feedback.isActive && (
+        <FeedbackSnackBar
+          message={feedback.message}
+          severity={feedback.severity}
+        />
+      )}
     </Container>
   );
 }
