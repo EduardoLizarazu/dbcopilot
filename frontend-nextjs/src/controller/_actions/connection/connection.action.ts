@@ -1,14 +1,19 @@
 "use server";
 
-import { revalidatePath  } from "next/cache"
+import { revalidatePath } from "next/cache";
 
+const CONTEXT_PATH = "/connection";
 
-const CONTEXT_PATH = '/connection';
+export interface TestConnOutput {
+  schema: string;
+  result: boolean;
+}
 
-
-export interface TestConnOutput {schema: string, result: boolean};
-
-export interface ReadDatabaseTypeOutput { id: number; name: string; type: string }
+export interface ReadDatabaseTypeOutput {
+  id: number;
+  name: string;
+  type: string;
+}
 
 export interface CreateConnectionInput {
   name: string;
@@ -28,19 +33,20 @@ export interface ReadConnectionOutput extends CreateConnectionInput {
 
 export type UpdateConnectionInput = CreateConnectionInput;
 
-
 const BASE_URL = process.env.BASE_URL;
 
-export const ReadConnectionAction = async (): Promise<ReadConnectionOutput[]> => {
+export const ReadConnectionAction = async (): Promise<
+  ReadConnectionOutput[]
+> => {
   try {
     const response = await fetch(`${BASE_URL}/connection`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
     if (!response.ok) {
-      throw new Error('Failed to fetch SQL schema actions');
+      throw new Error("Failed to fetch SQL schema actions");
     }
     const data = await response.json();
 
@@ -55,70 +61,71 @@ export const ReadConnectionAction = async (): Promise<ReadConnectionOutput[]> =>
       dbUsername: item.dbUsername,
       dbPassword: item.dbPassword,
       dbTypeId: item.databasetype.id,
-      dbType: item.databasetype.type, 
+      dbType: item.databasetype.type,
     }));
 
-    console.log('Parsed data:', output);
-    
+    console.log("Parsed data:", output);
+
     return output;
+  } catch (error) {
+    console.error("Error fetching SQL schema actions:", error);
+    throw new Error("Failed to fetch SQL schema actions");
   }
-  catch (error) {
-    console.error('Error fetching SQL schema actions:', error);
-    throw new Error('Failed to fetch SQL schema actions');
-  }
-}
+};
 
 export const DeleteConnectionAction = async (id: number): Promise<void> => {
   try {
     const response = await fetch(`${BASE_URL}/connection/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
     if (!response.ok) {
-      throw new Error('Failed to delete connection');
+      throw new Error("Failed to delete connection");
     }
 
-    revalidatePath('/connection'); // Revalidate the path to refresh the data
-
+    revalidatePath("/connection"); // Revalidate the path to refresh the data
   } catch (error) {
-    console.error('Error deleting connection:', error);
-    throw new Error('Failed to delete connection');
+    console.error("Error deleting connection:", error);
+    throw new Error("Failed to delete connection");
   }
-}
+};
 
-export const CreateConnectionAction = async (input: CreateConnectionInput): Promise<void> => {
+export const CreateConnectionAction = async (
+  input: CreateConnectionInput
+): Promise<void> => {
   try {
     const response = await fetch(`${BASE_URL}/connection`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(input),
     });
     if (!response.ok) {
-      throw new Error('Failed to create connection');
+      throw new Error("Failed to create connection");
     }
 
     revalidatePath(CONTEXT_PATH); // Revalidate the path to refresh the data
-
   } catch (error) {
-    console.error('Error creating connection:', error);
-    throw new Error('Failed to create connection');
+    console.error("Error creating connection:", error);
+    throw new Error("Failed to create connection");
   }
-}
+};
 
-export const ReadAllDatabaseTypeAction = async (): Promise<ReadDatabaseTypeOutput[]> => {
+export const ReadAllDatabaseTypeAction = async (): Promise<
+  ReadDatabaseTypeOutput[]
+> => {
   try {
     const response = await fetch(`${BASE_URL}/databasetype`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
     if (!response.ok) {
-      throw new Error('Failed to fetch database types');
+      throw new Error("Failed to fetch database types");
     }
     const data = await response.json();
     return data.map((item: any) => ({
@@ -127,24 +134,26 @@ export const ReadAllDatabaseTypeAction = async (): Promise<ReadDatabaseTypeOutpu
       type: item.type,
     }));
   } catch (error) {
-    console.error('Error fetching database types:', error);
-    throw new Error('Failed to fetch database types');
+    console.error("Error fetching database types:", error);
+    throw new Error("Failed to fetch database types");
   }
-}
+};
 
-export const ReadConnectionByIdAction = async (id: number): Promise<ReadConnectionOutput> => {
+export const ReadConnectionByIdAction = async (
+  id: number
+): Promise<ReadConnectionOutput> => {
   try {
     const response = await fetch(`${BASE_URL}/connection/${id}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
     if (!response.ok) {
-      throw new Error('Failed to fetch connection by ID');
+      throw new Error("Failed to fetch connection by ID");
     }
     const data = await response.json();
-    
+
     const output: ReadConnectionOutput = {
       id: data.id,
       name: data.name,
@@ -155,57 +164,62 @@ export const ReadConnectionByIdAction = async (id: number): Promise<ReadConnecti
       dbUsername: data.dbUsername,
       dbPassword: data.dbPassword,
       dbTypeId: data.databasetype.id,
-      dbType: data.databasetype.type, 
+      dbType: data.databasetype.type,
     };
 
     return output;
   } catch (error) {
-    console.error('Error fetching connection by ID:', error);
-    throw new Error('Failed to fetch connection by ID');
+    console.error("Error fetching connection by ID:", error);
+    throw new Error("Failed to fetch connection by ID");
   }
-}
+};
 
-export const UpdateConnectionAction = async (id: number, input: UpdateConnectionInput): Promise<void> => {
+export const UpdateConnectionAction = async (
+  id: number,
+  input: UpdateConnectionInput
+): Promise<void> => {
   try {
     const response = await fetch(`${BASE_URL}/connection/${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(input),
     });
     if (!response.ok) {
-      throw new Error('Failed to update connection');
+      throw new Error("Failed to update connection");
     }
 
     revalidatePath(CONTEXT_PATH); // Revalidate the path to refresh the data
-
   } catch (error) {
-    console.error('Error updating connection:', error);
-    throw new Error('Failed to update connection');
+    console.error("Error updating connection:", error);
+    throw new Error("Failed to update connection");
   }
-}
+};
 
-export const TestConnectionAction = async (input: CreateConnectionInput): Promise<TestConnOutput> => {
+export const TestConnectionAction = async (
+  input: CreateConnectionInput
+): Promise<TestConnOutput> => {
   try {
+    console.log("Testing connection with input:", input);
     const response = await fetch(`${BASE_URL}/connection/test`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(input),
     });
     if (!response.ok) {
-      throw new Error('Failed to test connection');
+      throw new Error("Failed to test connection");
     }
 
     const data = await response.json();
 
-    console.log('Test connection response:', data);
-    
+    console.log("Test connection response:", data);
+
     return data;
   } catch (error) {
-    console.error('Error testing connection:', error);
-    throw new Error('Failed to test connection');
+    console.error("Error testing connection:", error);
+    throw new Error("Failed to test connection");
   }
-}
+};
