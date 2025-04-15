@@ -74,11 +74,20 @@ export function formatSchemaColumns(
     const currentColumn = columnMap[columnId];
 
     // key type
-    currentColumn.is_primary_key =
-      row.column_key_type === entityKeyType.PRIMARY_KEY;
-    currentColumn.is_foreign_key =
-      row.column_key_type === entityKeyType.FOREIGN_KEY;
-    currentColumn.is_unique = row.column_key_type === entityKeyType.UNIQUE_KEY;
+    if (row.column_key_type === entityKeyType.PRIMARY_KEY) {
+      currentColumn.is_primary_key =
+        row.column_key_type === entityKeyType.PRIMARY_KEY;
+    }
+
+    if (row.column_key_type === entityKeyType.FOREIGN_KEY) {
+      currentColumn.is_foreign_key =
+        row.column_key_type === entityKeyType.FOREIGN_KEY;
+    }
+
+    if (row.column_key_type === entityKeyType.UNIQUE_KEY) {
+      currentColumn.is_unique =
+        row.column_key_type === entityKeyType.UNIQUE_KEY;
+    }
 
     // if (row.column_key_type === entityKeyType.PRIMARY_KEY) {
     //   currentColumn.is_primary_key = row.column_key_is_static;
