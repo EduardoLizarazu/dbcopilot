@@ -49,8 +49,8 @@ export function SchemaColumnHead({ tableId }: { tableId: number }) {
       relation_foreign_key_id: null,
       relation_primary_key_id: null,
       relation_is_static: null,
-      column_key_is_static: [],
-      column_key_type: [],
+      is_primary_key_static: null,
+      is_foreign_key_static: null,
     },
   ]);
 

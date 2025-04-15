@@ -25,14 +25,14 @@ export interface SchemaColumnQueryFormat {
   column_id: number;
   column_technical_name: string;
   column_alias: string | null;
-  column_description: string;
   column_data_type: string;
+  column_description: string | null;
   is_primary_key: boolean | null;
+  is_primary_key_static: boolean | null;
   is_foreign_key: boolean | null;
+  is_foreign_key_static: boolean | null;
   is_unique: boolean | null;
   relation_foreign_key_id: number | null; // my own
   relation_primary_key_id: number | null;
   relation_is_static: boolean | null;
-  column_key_is_static: boolean[] | null;
-  column_key_type: string[] | null;
 }

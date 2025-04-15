@@ -42,8 +42,8 @@ export function SchemaColumnBody({
       relation_foreign_key_id: null,
       relation_primary_key_id: null,
       relation_is_static: null,
-      column_key_is_static: [],
-      column_key_type: [],
+      is_primary_key_static: null,
+      is_foreign_key_static: null,
     });
 
   const [schemaColumnTemp, setSchemaColumnTemp] =
@@ -59,8 +59,8 @@ export function SchemaColumnBody({
       relation_foreign_key_id: null,
       relation_primary_key_id: null,
       relation_is_static: null,
-      column_key_is_static: [], // [true, true]
-      column_key_type: [], // [pk, fk]
+      is_primary_key_static: null,
+      is_foreign_key_static: null,
     });
 
   const [feedback, setFeedback] = React.useState({
@@ -146,11 +146,11 @@ export function SchemaColumnBody({
           <SchemaColumnKeyType
             pk={{
               is_primary_key: schemaColumnTemp?.is_primary_key || false,
-              is_static: false,
+              is_static: schemaColumnTemp?.is_primary_key_static || false,
             }}
             fk={{
               is_foreign_key: schemaColumnTemp?.is_foreign_key || false,
-              is_static: false,
+              is_static: schemaColumnTemp?.is_foreign_key_static || false,
             }}
           />
         </TableCell>
