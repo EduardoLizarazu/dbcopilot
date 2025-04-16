@@ -63,7 +63,7 @@ export default function Page() {
           severity: "success",
         });
         setTimeout(() => {
-          router.refresh(); // Refresh the page to reflect the changes
+          router.back(); // Refresh the page to reflect the changes
         }, 2000);
       } else {
         setFeedback({
