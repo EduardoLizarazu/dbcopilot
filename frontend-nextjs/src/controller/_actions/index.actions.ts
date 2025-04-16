@@ -56,7 +56,7 @@ export type {
 
 export {
   ReadAllSqlSchemaAction,
-  createSqlSchemaAction,
+  CreateSqlSchemaAction,
   readSqlSchemaActionById,
   updateSqlSchemaAction,
   DeleteSqlSchemaAction,

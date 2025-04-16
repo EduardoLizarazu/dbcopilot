@@ -42,7 +42,7 @@ export const readSqlSchemaActionById = async (
   return response.json();
 };
 
-export const createSqlSchemaAction = async (
+export const CreateSqlSchemaAction = async (
   data: CreateSqlSchemaActionInput
 ): Promise<void> => {
   const response = await fetch(`${BASE_URL}/databasetype`, {
