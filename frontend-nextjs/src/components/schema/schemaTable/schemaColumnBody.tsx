@@ -158,7 +158,7 @@ export function SchemaColumnBody({
             }}
             fk={{
               relation_foreign_key_id:
-                schemaColumnTemp?.relation_foreign_key_id || 0,
+                schemaColumnTemp?.relation_primary_key_id || 0,
               is_foreign_key: schemaColumnTemp?.is_foreign_key || false,
               is_static: schemaColumnTemp?.is_foreign_key_static || false,
             }}
