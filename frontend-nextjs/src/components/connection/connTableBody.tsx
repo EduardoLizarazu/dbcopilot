@@ -127,6 +127,3 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
     </TableRow>
   );
 }
-function testConnectionByIdConnection(id: number) {
-  throw new Error("Function not implemented.");
-}
