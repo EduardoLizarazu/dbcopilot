@@ -2,7 +2,7 @@
 import { Button, IconButton, Stack, Tooltip } from "@mui/material";
 import KeyIcon from "@mui/icons-material/VpnKey";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
-import React from "react";
+import React, { Suspense } from "react";
 import { ReadColumnByIdWithTable } from "@/controller/_actions/schema/schema.action";
 import { SchemaColumnReadById } from "@/controller/_actions/schema/interface/schema_read_column_by_id";
 
@@ -111,7 +111,25 @@ export function SchemaColumnKeyType({
               disableFocusListener
               disableHoverListener
               disableTouchListener
-              title={`Foreign key to ${foreignRelation?.alias} (${foreignRelation?.schemaTable.description})`}
+              title={
+                <Suspense
+                  fallback={<div>Loading...</div>} // Fallback content while loading
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "5px",
+                    }}
+                  >
+                    <div style={{ fontWeight: "bold" }}>
+                      {foreignRelation?.schemaTable?.technicalName}
+                    </div>
+                    <div>{foreignRelation?.technicalName}</div>
+                    <div>{foreignRelation?.alias}</div>
+                  </div>
+                </Suspense>
+              }
               slotProps={{
                 popper: {
                   disablePortal: true,
