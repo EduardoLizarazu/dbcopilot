@@ -88,21 +88,6 @@ export function SchemaColumnKeyType({
         </Tooltip>
       )}
       {fk.is_foreign_key && (
-        // <Tooltip title="foreign key" placement="left">
-        //   <IconButton
-        //     aria-label="foreign key"
-        //     size="small"
-        //     onClick={fk.handleForeignKey}
-        //     loading={false}
-        //   >
-        //     <KeyIcon
-        //       fontSize="inherit"
-        //       style={{
-        //         color: "purple",
-        //       }}
-        //     />
-        //   </IconButton>
-        // </Tooltip>
         <ClickAwayListener onClickAway={handleTooltipClose}>
           <div>
             <Tooltip
