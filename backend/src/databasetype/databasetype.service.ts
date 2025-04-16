@@ -4,6 +4,7 @@ import { UpdateDatabasetypeDto } from './dto/update-databasetype.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Databasetype } from './entities/databasetype.entity';
 import { Repository } from 'typeorm';
+import { ValidateDatabaseTypeQuery } from './interface/databasetype-query.interface';
 
 @Injectable()
 export class DatabasetypeService {
@@ -13,9 +14,13 @@ export class DatabasetypeService {
   ) {}
   async create(createDatabasetypeDto: CreateDatabasetypeDto) {
     try {
-      const databasetype = this.databasetypeRepository.create(
-        createDatabasetypeDto,
-      );
+      // Validate
+      const dataVerified = ValidateDatabaseTypeQuery(createDatabasetypeDto);
+
+      if (!dataVerified) {
+        return HttpStatus.BAD_REQUEST;
+      }
+      const databasetype = this.databasetypeRepository.create(dataVerified);
       await this.databasetypeRepository.save(databasetype);
       return HttpStatus.CREATED;
     } catch (error) {
