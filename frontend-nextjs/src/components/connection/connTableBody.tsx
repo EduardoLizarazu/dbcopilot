@@ -42,7 +42,7 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
       if (response.status === 201) {
         setFeedback({
           isActive: true,
-          message: "Connection deleted successfully.",
+          message: "Deleted successfully.",
           severity: "success",
         });
         setTimeout(() => {
@@ -51,12 +51,12 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
       } else {
         setFeedback({
           isActive: true,
-          message: "Failed to delete connection.",
+          message: "Failed to delete.",
           severity: "error",
         });
       }
     } catch (error) {
-      console.error("Error deleting connection:", error);
+      console.error("Error deleting:", error);
     } finally {
       resetFeedback();
     }
