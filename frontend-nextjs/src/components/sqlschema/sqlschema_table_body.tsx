@@ -29,11 +29,13 @@ export function SqlSchemaTableBody({
   }
 
   function resetFeedback() {
-    setFeedback({
-      isActive: false,
-      message: "",
-      severity: null,
-    });
+    setTimeout(() => {
+      setFeedback({
+        isActive: false,
+        message: "",
+        severity: null,
+      });
+    }, 2000); // Reset feedback after 2 seconds
   }
 
   async function handleDeleteBtn() {
@@ -45,9 +47,6 @@ export function SqlSchemaTableBody({
           message: "success.",
           severity: "success",
         });
-        setTimeout(() => {
-          router.refresh(); // Refresh the page to reflect the changes
-        }, 2000);
       } else {
         setFeedback({
           isActive: true,
@@ -65,7 +64,14 @@ export function SqlSchemaTableBody({
     <TableRow key={sqlSchemaData.id}>
       <TableCell align="center">{sqlSchemaData.name || "-"}</TableCell>
       <TableCell align="center">{sqlSchemaData.type || "-"}</TableCell>
-      <TableCell align="center">{sqlSchemaData.query || "-"}</TableCell>
+      <TableCell align="center">
+        {
+          sqlSchemaData.query.length > 50
+            ? sqlSchemaData.query.substring(0, 50) + "..."
+            : sqlSchemaData.query
+          // sqlSchemaData.query || "-"
+        }
+      </TableCell>
       <TableCell align="center">
         <SqlSchemaTableAction
           handleEditBtn={handleEditBtn}
