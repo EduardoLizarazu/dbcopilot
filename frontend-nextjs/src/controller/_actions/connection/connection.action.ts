@@ -189,14 +189,14 @@ export const UpdateConnectionAction = async (
 ) => {
   try {
     // Validate input
-    const inputVerified = convertToConnectionCreateInput(input);
+    // const inputVerified = convertToConnectionCreateInput(input);
 
     const response = await fetch(`${BASE_URL}/connection/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(inputVerified),
+      body: JSON.stringify(input),
     });
     return {
       status: response.status,

@@ -90,9 +90,18 @@ export class ConnectionService {
 
   async update(id: number, updateConnectionDto: UpdateConnectionDto) {
     try {
-      const update: ConnectionCreate =
-        ValidateConnectionCreate(updateConnectionDto);
-      return await this.connectionRepository.update(id, update);
+      const format = {
+        name: updateConnectionDto.name,
+        description: updateConnectionDto.description,
+        dbName: updateConnectionDto.dbName,
+        dbHost: updateConnectionDto.dbHost,
+        dbPort: updateConnectionDto.dbPort,
+        dbUsername: updateConnectionDto.dbUsername,
+        dbPassword: updateConnectionDto.dbPassword,
+        is_connected: updateConnectionDto.is_connected,
+        databasetype: { id: updateConnectionDto.dbTypeId },
+      };
+      return await this.connectionRepository.update(id, format);
     } catch (error) {
       console.error('Error updating connection:', error);
       throw new Error('Failed to update connection');

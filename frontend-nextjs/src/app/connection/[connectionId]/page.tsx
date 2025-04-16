@@ -179,6 +179,7 @@ export default function Page({ params }: { params: { connectionId: string } }) {
           message: "Connection test failed",
           severity: "error",
         });
+        setConn((prev) => ({ ...prev, is_connected: false }));
       }
     } catch (err) {
       console.error("Error testing connection: ", err);
@@ -187,6 +188,7 @@ export default function Page({ params }: { params: { connectionId: string } }) {
         message: "Connection test failed",
         severity: "error",
       });
+      setConn((prev) => ({ ...prev, is_connected: false }));
     } finally {
       resetFeedBack();
     }

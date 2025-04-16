@@ -12,7 +12,7 @@ export class CreateConnectionDto {
   description?: string;
 
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
   dbTypeId: number;
 
