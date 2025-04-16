@@ -44,16 +44,19 @@ export const readSqlSchemaActionById = async (
 
 export const CreateSqlSchemaAction = async (
   data: CreateSqlSchemaActionInput
-): Promise<void> => {
-  const response = await fetch(`${BASE_URL}/databasetype`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to create SQL schema action");
+) => {
+  try {
+    const response = await fetch(`${BASE_URL}/databasetype`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    return { status: response.status };
+  } catch (error) {
+    console.error("Error creating SQL schema action:", error);
+    return { status: 500 };
   }
 };
 

@@ -10,8 +10,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
 import React from "react";
 export default function Page() {
+  const router = useRouter();
   // USE STATE
   const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState<CreateSqlSchemaActionInput>({
@@ -21,27 +23,22 @@ export default function Page() {
   });
   const [type, setType] = React.useState<string>("");
 
-  // USE EFFECT
-  React.useEffect(() => {}, []);
+  const [feedback, setFeedback] = React.useState({
+    isActive: false,
+    message: "",
+    severity: null as "success" | "error" | "warning" | "info" | null,
+  });
 
   // HANDLER
 
-  async function handleCreate(): Promise<void> {
-    try {
-      await CreateSqlSchemaAction({
-        name: data.name,
-        type: type,
-        query: data.query,
+  function resetFeedback() {
+    setTimeout(() => {
+      setFeedback({
+        isActive: false,
+        message: "",
+        severity: null,
       });
-    } catch (error) {
-      console.error("Error creating SQL schema:", error);
-      alert("Error creating SQL schema. Please try again.");
-    }
-  }
-
-  function handleTextField(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
+    }, 3000); // Reset feedback after 2 seconds
   }
 
   function resetData() {
@@ -50,6 +47,47 @@ export default function Page() {
       type: "",
       query: "",
     });
+  }
+
+  async function handleCreate(): Promise<void> {
+    try {
+      const response = await CreateSqlSchemaAction({
+        name: data.name,
+        type: type,
+        query: data.query,
+      });
+      if (response.status === 201) {
+        setFeedback({
+          isActive: true,
+          message: "Connection deleted successfully.",
+          severity: "success",
+        });
+        setTimeout(() => {
+          router.refresh(); // Refresh the page to reflect the changes
+        }, 2000);
+      } else {
+        setFeedback({
+          isActive: true,
+          message: "Failed to delete connection.",
+          severity: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error creating SQL schema:", error);
+      setFeedback({
+        isActive: true,
+        message: "Failed to create SQL schema.",
+        severity: "error",
+      });
+    } finally {
+      resetFeedback();
+      resetData();
+    }
+  }
+
+  function handleTextField(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setData((prev) => ({ ...prev, [name]: value }));
   }
 
   // RENDER
