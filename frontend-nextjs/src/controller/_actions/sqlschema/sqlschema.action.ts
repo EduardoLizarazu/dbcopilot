@@ -74,14 +74,17 @@ export const updateSqlSchemaAction = async (
   }
 };
 
-export const deleteSqlSchemaAction = async (id: number): Promise<void> => {
-  const response = await fetch(`${BASE_URL}/databasetype/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Failed to delete SQL schema action");
+export const DeleteSqlSchemaAction = async (id: number) => {
+  try {
+    const response = await fetch(`${BASE_URL}/databasetype/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return { status: response.status };
+  } catch (error) {
+    console.error("Error deleting SQL schema action:", error);
+    return { status: 500 };
   }
 };

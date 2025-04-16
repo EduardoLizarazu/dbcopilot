@@ -59,5 +59,5 @@ export {
   createSqlSchemaAction,
   readSqlSchemaActionById,
   updateSqlSchemaAction,
-  deleteSqlSchemaAction,
+  DeleteSqlSchemaAction,
 } from "./sqlschema/sqlschema.action";
