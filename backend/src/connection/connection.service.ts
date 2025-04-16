@@ -53,10 +53,8 @@ export class ConnectionService {
       });
 
       // test the connection and update the is_connected field
-      const connUpdated = conn.map(async (c) =>
-        this.testConnectionByIdConnection(c.id),
-      );
-      return connUpdated;
+      conn.forEach(async (c) => this.testConnectionByIdConnection(c.id));
+      return conn;
     } catch (error) {
       console.error('Error fetching connections:', error);
       throw new Error('Failed to fetch connections');
