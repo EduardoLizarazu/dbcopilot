@@ -58,7 +58,7 @@ export default function Page() {
   }
 
   const dbTypes = [
-    { label: "posgres" },
+    { label: "postgres" },
     { label: "oracle" },
     { label: "mysql" },
     { label: "mssql" },
