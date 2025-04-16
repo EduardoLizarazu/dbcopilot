@@ -7,7 +7,7 @@ import {
 
 const BASE_URL = process.env.BASE_URL;
 
-export const readAllSqlSchemaAction = async (): Promise<
+export const ReadAllSqlSchemaAction = async (): Promise<
   ReadSqlSchemaActionOutput[]
 > => {
   try {

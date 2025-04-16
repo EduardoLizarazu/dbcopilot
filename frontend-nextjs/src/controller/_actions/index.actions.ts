@@ -55,7 +55,7 @@ export type {
 } from "./schema/schema.action";
 
 export {
-  readAllSqlSchemaAction,
+  ReadAllSqlSchemaAction,
   createSqlSchemaAction,
   readSqlSchemaActionById,
   updateSqlSchemaAction,
