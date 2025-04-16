@@ -27,11 +27,13 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
   }
 
   function resetFeedback() {
-    setFeedback({
-      isActive: false,
-      message: "",
-      severity: null,
-    });
+    setTimeout(() => {
+      setFeedback({
+        isActive: false,
+        message: "",
+        severity: null,
+      });
+    }, 3000); // Reset feedback after 2 seconds
   }
 
   async function handleDeleteBtn() {
