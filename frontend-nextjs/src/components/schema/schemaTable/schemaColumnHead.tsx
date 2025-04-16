@@ -49,7 +49,7 @@ export function SchemaColumnHead({ tableId }: { tableId: number }) {
       relation_foreign_key_id: null,
       relation_primary_key_id: null,
       relation_is_static: null,
-      is_primary_key_static: null,
+      is_primary_key_static: null, // this id is to the other column
       is_foreign_key_static: null,
     },
   ]);

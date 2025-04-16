@@ -5,7 +5,10 @@ import { IconButton, TableCell, TableRow, Tooltip } from "@mui/material";
 import { SchemaAction } from "./schemaBtnActions";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
 import { SchemaField } from "./schemaField";
-import { UpdateSchemaColumn } from "@/controller/_actions/schema/schema.action";
+import {
+  ReadColumnByIdWithTable,
+  UpdateSchemaColumn,
+} from "@/controller/_actions/schema/schema.action";
 import { SchemaColumnQueryFormat } from "@/controller/_actions/schema/interface/readColumnByTableId.interface";
 import KeyIcon from "@mui/icons-material/Key";
 import { SchemaColumnKeyType } from "./schemaColumKeyType";
@@ -59,7 +62,7 @@ export function SchemaColumnBody({
       relation_foreign_key_id: null,
       relation_primary_key_id: null,
       relation_is_static: null,
-      is_primary_key_static: null,
+      is_primary_key_static: null, // primary key for the other table
       is_foreign_key_static: null,
     });
 
@@ -74,6 +77,7 @@ export function SchemaColumnBody({
   React.useEffect(() => {
     setSchemaColumn(columns);
     setSchemaColumnTemp(columns);
+    console.log("Schema Column: ", columns);
   }, []);
 
   const errorFeedback = () => {
@@ -153,6 +157,8 @@ export function SchemaColumnBody({
               is_static: schemaColumnTemp?.is_primary_key_static || false,
             }}
             fk={{
+              relation_foreign_key_id:
+                schemaColumnTemp?.relation_foreign_key_id || 0,
               is_foreign_key: schemaColumnTemp?.is_foreign_key || false,
               is_static: schemaColumnTemp?.is_foreign_key_static || false,
             }}

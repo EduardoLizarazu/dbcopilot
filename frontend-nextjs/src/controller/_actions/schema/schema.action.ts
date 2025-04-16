@@ -1,6 +1,7 @@
 "use server";
 
 import { SchemaColumnQueryFormat } from "./interface/readColumnByTableId.interface";
+import { SchemaColumnReadById } from "./interface/schema_read_column_by_id";
 
 interface RowData {
   tableId: number;
@@ -176,6 +177,28 @@ export async function ReadTableByConnectionId(
     return data;
   } catch (error) {
     console.error("Error finding all tables by connection ID: ", error);
+    return []; // Return an empty array in case of an error
+  }
+}
+
+export async function ReadColumnByIdWithTable(id: number) {
+  try {
+    const response = await fetch(
+      `${process.env.BASE_URL}/schema-column/${id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch schema data");
+    }
+    const data: SchemaColumnReadById = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error finding all columns by table ID: ", error);
     return []; // Return an empty array in case of an error
   }
 }

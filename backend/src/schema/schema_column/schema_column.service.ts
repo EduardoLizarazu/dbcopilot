@@ -46,6 +46,7 @@ export class SchemaColumnService {
     try {
       const schemaColumn = await this.schemaColumnRepository.findOne({
         where: { id },
+        relations: ['schemaTable'],
       });
       return schemaColumn;
     } catch (error) {
