@@ -56,6 +56,17 @@ export function SchemaAction({
           </Tooltip>
         </>
       )}
+      {/* Add foreign key */}
+      <Tooltip title="Add Foreign Key">
+        <IconButton
+          aria-label="add-foreign-key"
+          size="small"
+          onClick={() => { console.log("Add foreign key") }}
+          loading={false}
+        >
+          <AddIcon fontSize="inherit" />
+        </IconButton>
+
 
       {/* <Tooltip title="Delete">
         <IconButton
