@@ -41,7 +41,7 @@ export function SqlSchemaTableBody({
   async function handleDeleteBtn() {
     try {
       const response = await DeleteSqlSchemaAction(sqlSchemaData.id);
-      if (response.status === 201) {
+      if (response.status === 200) {
         setFeedback({
           isActive: true,
           message: "success.",

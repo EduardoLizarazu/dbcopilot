@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateDatabasetypeDto } from './dto/create-databasetype.dto';
 import { UpdateDatabasetypeDto } from './dto/update-databasetype.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,12 +13,14 @@ export class DatabasetypeService {
   ) {}
   async create(createDatabasetypeDto: CreateDatabasetypeDto) {
     try {
-      const databasetype = this.databasetypeRepository.create(createDatabasetypeDto);
-      return await this.databasetypeRepository.save(databasetype);
+      const databasetype = this.databasetypeRepository.create(
+        createDatabasetypeDto,
+      );
+      await this.databasetypeRepository.save(databasetype);
+      return HttpStatus.CREATED;
     } catch (error) {
       console.error('Error creating databasetype:', error);
       throw new Error('Failed to create databasetype');
-      
     }
   }
 
@@ -35,7 +37,7 @@ export class DatabasetypeService {
     try {
       console.log('Fetching databasetype with ID:', id); // Debugging line
       console.log('Type of ID:', typeof id); // Debugging line
-      return await  this.databasetypeRepository.findOneBy({ id });      
+      return await this.databasetypeRepository.findOneBy({ id });
     } catch (error) {
       console.error('Error fetching databasetype:', error);
       throw new Error('Failed to fetch databasetype');
@@ -48,9 +50,8 @@ export class DatabasetypeService {
       if (!dbType) {
         throw new Error('Databasetype not found');
       }
-      return dbType;      
-    }
-    catch (error) {
+      return dbType;
+    } catch (error) {
       console.error('Error fetching databasetype:', error);
       throw new Error('Failed to fetch databasetype');
     }
@@ -60,7 +61,10 @@ export class DatabasetypeService {
     try {
       console.log('Updating databasetype with ID:', id); // Debugging line
       console.log('Type of ID:', typeof id); // Debugging line
-      return await this.databasetypeRepository.update(id, updateDatabasetypeDto);      
+      return await this.databasetypeRepository.update(
+        id,
+        updateDatabasetypeDto,
+      );
     } catch (error) {
       console.error('Error updating databasetype:', error);
       throw new Error('Failed to update databasetype');
@@ -69,7 +73,8 @@ export class DatabasetypeService {
 
   async remove(id: number) {
     try {
-      return await this.databasetypeRepository.delete(id);      
+      await this.databasetypeRepository.delete(id);
+      return HttpStatus.OK;
     } catch (error) {
       console.error('Error deleting databasetype:', error);
       throw new Error('Failed to delete databasetype');

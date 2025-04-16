@@ -38,7 +38,7 @@ export default function Page() {
         message: "",
         severity: null,
       });
-    }, 3000); // Reset feedback after 2 seconds
+    }, 2000); // Reset feedback after 2 seconds
   }
 
   function resetData() {
@@ -56,6 +56,8 @@ export default function Page() {
         type: type,
         query: data.query,
       });
+      console.log("Response from API:", response);
+
       if (response.status === 201) {
         setFeedback({
           isActive: true,
@@ -64,7 +66,7 @@ export default function Page() {
         });
         setTimeout(() => {
           router.back(); // Refresh the page to reflect the changes
-        }, 2000);
+        }, 3000);
       } else {
         setFeedback({
           isActive: true,
@@ -110,7 +112,7 @@ export default function Page() {
           label="Name"
           name="name"
           variant="outlined"
-          value={name}
+          value={data.name}
           onChange={handleTextField}
           fullWidth
         />
