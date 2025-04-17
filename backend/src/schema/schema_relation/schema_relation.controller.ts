@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SchemaRelationService } from './schema_relation.service';
 import { CreateSchemaRelationDto } from './dto/create-schema_relation.dto';
 import { UpdateSchemaRelationDto } from './dto/update-schema_relation.dto';
+import { FindByIdSchemaRelationDto } from './dto/find-by-id-schema_relation.dto';
 
 @Controller('schema-relation')
 export class SchemaRelationController {
@@ -17,14 +26,14 @@ export class SchemaRelationController {
     return this.schemaRelationService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.schemaRelationService.findOne(+id);
+  @Post('/find-one')
+  findOne(@Body() data: FindByIdSchemaRelationDto) {
+    return this.schemaRelationService.findOne(data);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSchemaRelationDto: UpdateSchemaRelationDto) {
-    return this.schemaRelationService.update(+id, updateSchemaRelationDto);
+  @Patch()
+  update(@Body() updateSchemaRelationDto: UpdateSchemaRelationDto) {
+    return this.schemaRelationService.update(updateSchemaRelationDto);
   }
 
   @Delete(':id')
