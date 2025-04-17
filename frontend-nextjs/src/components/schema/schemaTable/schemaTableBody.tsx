@@ -15,9 +15,9 @@ import {
   ISchemaTable,
   UpdateSchemaTable,
 } from "@/controller/_actions/index.actions";
-import { SchemaColumnHead } from "./schemaColumnHead";
-import { SchemaAction } from "./schemaBtnActions";
-import { SchemaField } from "./schemaField";
+import { SchemaColumnHead } from "../schemaColumn/schemaColumnHead";
+import { SchemaAction } from "../schemaShared/schemaBtnActions";
+import { SchemaField } from "../schemaShared/schemaField";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
 
 export function SchemaTableBody({

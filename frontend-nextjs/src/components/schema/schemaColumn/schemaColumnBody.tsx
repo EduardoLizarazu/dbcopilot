@@ -2,18 +2,18 @@
 import React from "react";
 import { ISchemaColumn } from "@/controller/_actions/index.actions";
 import { IconButton, TableCell, TableRow, Tooltip } from "@mui/material";
-import { SchemaAction } from "./schemaBtnActions";
+import { SchemaAction } from "../schemaShared/schemaBtnActions";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
-import { SchemaField } from "./schemaField";
+import { SchemaField } from "../schemaShared/schemaField";
 import {
   ReadColumnByIdWithTable,
   UpdateSchemaColumn,
 } from "@/controller/_actions/schema/schema.action";
 import { SchemaColumnQueryFormat } from "@/controller/_actions/schema/interface/readColumnByTableId.interface";
 import KeyIcon from "@mui/icons-material/Key";
-import { SchemaColumnKeyType } from "./schemaColumKeyType";
-import { SchemaBtnForeignAddRelationFk } from "./schemaBtnAddRelationFk";
-import { SchemaBtnAddRelationPk } from "./schemaBtnAddRelationPk";
+import { SchemaColumnKeyType } from "../schemaColumn/schemaColumKeyType";
+import { SchemaBtnForeignAddRelationFk } from "../schemaRelation/schemaBtnAddRelationFk";
+import { SchemaBtnAddRelationPk } from "../schemaRelation/schemaBtnAddRelationPk";
 // export interface SchemaColumnQueryFormat {
 //   column_id: number;
 //   column_technical_name: string;
