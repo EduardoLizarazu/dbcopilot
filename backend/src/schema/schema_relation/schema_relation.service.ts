@@ -49,12 +49,12 @@ export class SchemaRelationService {
   }
 
   update(id: number, updateSchemaRelationDto: UpdateSchemaRelationDto) {
-    // try {
-    //   return this.schemaRelationRepository.update(id, updateSchemaRelationDto);
-    // } catch (error) {
-    //   console.error('Error updating schema relation:', error);
-    //   throw new Error('Failed to update schema relation');
-    // }
+    try {
+      return this.schemaRelationRepository.update(id, updateSchemaRelationDto);
+    } catch (error) {
+      console.error('Error updating schema relation:', error);
+      throw new Error('Failed to update schema relation');
+    }
   }
 
   remove(id: number) {
