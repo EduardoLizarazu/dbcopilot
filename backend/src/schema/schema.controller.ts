@@ -56,6 +56,17 @@ export class SchemaController {
     return this.schemaService.update(+id, updateSchemaDto);
   }
 
+  @Delete('relation-with-keytype')
+  removeRelationWithKeyType(
+    @Body() data: CreateSchemaRelationWithKeyTypeDto,
+    @Req() req: Request,
+  ) {
+    console.log('REQUEST URL:', req.url);
+    console.log('REQUEST METHOD:', req.method);
+    console.log('removeRelationWithKeyType', data);
+    return this.schemaService.removeRelationWithKeyType(data);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.schemaService.remove(+id);

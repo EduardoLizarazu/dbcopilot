@@ -448,6 +448,66 @@ export class SchemaService {
     }
   }
 
+  async removeRelationWithKeyType(data: CreateSchemaRelationWithKeyTypeDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const dataValidated = verifiedSchemaRelationWithKeyType(data);
+      if (!dataValidated) return HttpStatus.BAD_REQUEST;
+      console.log('dataValidated', dataValidated);
+
+      // RELATION
+      // Check if the relation already exists
+      const existingRelation = await queryRunner.manager.findOne(
+        SchemaRelation,
+        {
+          where: {
+            columnIdChild: dataValidated.columnIdChild,
+            columnIdFather: dataValidated.columnIdFather,
+          },
+        },
+      );
+      if (!existingRelation) {
+        console.error('Relation does not exist:', existingRelation);
+        return HttpStatus.NOT_FOUND;
+      }
+      if (!existingRelation.isStatic) {
+        console.error('Relation is static:', existingRelation);
+        return HttpStatus.BAD_REQUEST;
+      }
+      await queryRunner.manager.remove(SchemaRelation, existingRelation); // remove relation
+
+      // KEY TYPE
+      // Check if the key type already exists
+      const existingKeyType = await queryRunner.manager.findOne(
+        SchemaColumnKeyColumn,
+        {
+          where: {
+            id_column_key: dataValidated.columnIdChild,
+            id_schema_column: dataValidated.columnIdFather,
+          },
+        },
+      );
+      if (!existingKeyType) {
+        console.error('Key type does not exist:', existingKeyType);
+        return HttpStatus.NOT_FOUND;
+      }
+      if (!existingKeyType.is_static) {
+        console.error('Key type is static:', existingKeyType);
+        return HttpStatus.BAD_REQUEST;
+      }
+
+      await queryRunner.manager.remove(SchemaColumnKeyColumn, existingKeyType); // remove key type
+
+      await queryRunner.commitTransaction();
+      return HttpStatus.OK;
+    } catch (error) {
+      console.error('Error updating relation with key type: ', error);
+      return HttpStatus.BAD_REQUEST;
+    }
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} schema`;
   }
