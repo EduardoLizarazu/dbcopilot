@@ -12,8 +12,8 @@ import {
 import { SchemaColumnQueryFormat } from "@/controller/_actions/schema/interface/readColumnByTableId.interface";
 import KeyIcon from "@mui/icons-material/Key";
 import { SchemaColumnKeyType } from "./schemaColumKeyType";
-import { SchemaBtnForeignKeyAction } from "./schemaBtnForeignKeyAction";
-import { SchemaBtnForeignKeyAddAction } from "./schemaBtnForeignKeyAddAction";
+import { SchemaBtnForeignAddRelationFk } from "./schemaBtnAddRelationFk";
+import { SchemaBtnAddRelationPk } from "./schemaBtnAddRelationPk";
 // export interface SchemaColumnQueryFormat {
 //   column_id: number;
 //   column_technical_name: string;
@@ -165,7 +165,7 @@ export function SchemaColumnBody({
               is_static: schemaColumnTemp?.is_foreign_key_static || false,
             }}
           />
-          <SchemaBtnForeignKeyAddAction
+          <SchemaBtnAddRelationPk
             column_id={schemaColumnTemp.column_id}
             is_already_foreign_key={schemaColumnTemp?.is_foreign_key || false}
           />
@@ -203,7 +203,7 @@ export function SchemaColumnBody({
             handleSaveBtn={handleSaveBtn}
             handleCancelBtn={handleCancelBtn}
           />
-          <SchemaBtnForeignKeyAction
+          <SchemaBtnForeignAddRelationFk
             is_foreign_key={schemaColumnTemp?.is_foreign_key || false}
             relation_foreign_key_id={schemaColumnTemp?.column_id || 0}
           />

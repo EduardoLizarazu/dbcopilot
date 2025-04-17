@@ -2,7 +2,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import KeyIcon from "@mui/icons-material/Key";
 import { useSchemaContext } from "@/contexts/schema.context";
 
-export function SchemaBtnForeignKeyAction({
+export function SchemaBtnForeignAddRelationFk({
   is_foreign_key,
   relation_foreign_key_id,
 }: {

@@ -4,7 +4,7 @@ import { useSchemaContext } from "@/contexts/schema.context";
 import { SharedDrawer } from "@/components/shared/shared_drawer";
 import { SchemaRelationForm } from "./schemaRelationForm";
 
-export function SchemaBtnForeignKeyAddAction({
+export function SchemaBtnAddRelationPk({
   column_id,
   is_already_foreign_key,
 }: {
