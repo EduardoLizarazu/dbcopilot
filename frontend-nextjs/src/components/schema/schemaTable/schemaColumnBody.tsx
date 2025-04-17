@@ -12,6 +12,7 @@ import {
 import { SchemaColumnQueryFormat } from "@/controller/_actions/schema/interface/readColumnByTableId.interface";
 import KeyIcon from "@mui/icons-material/Key";
 import { SchemaColumnKeyType } from "./schemaColumKeyType";
+import { SchemaBtnForeignKeyAction } from "./schemaBtnForeignKeyAction";
 // export interface SchemaColumnQueryFormat {
 //   column_id: number;
 //   column_technical_name: string;
@@ -196,6 +197,9 @@ export function SchemaColumnBody({
             handleEditBtn={handleEditBtn}
             handleSaveBtn={handleSaveBtn}
             handleCancelBtn={handleCancelBtn}
+          />
+          <SchemaBtnForeignKeyAction
+            is_foreign_key={schemaColumnTemp?.is_foreign_key || false}
           />
           {feedback.isActive && (
             <FeedbackSnackBar
