@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSchemaRelationDto } from './dto/create-schema_relation.dto';
 import { UpdateSchemaRelationDto } from './dto/update-schema_relation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,13 +13,15 @@ export class SchemaRelationService {
   ) {}
   create(createSchemaRelationDto: CreateSchemaRelationDto) {
     try {
-      const schemaRelation = this.schemaRelationRepository.create(
-        createSchemaRelationDto,
-      );
-      return this.schemaRelationRepository.save(schemaRelation);
+      // Verify the DTO using zod
+      const verifiedData = createSchemaRelationDto.verified();
+      if (!verifiedData) return HttpStatus.BAD_REQUEST;
+      const schemaRelation = this.schemaRelationRepository.create(verifiedData);
+      this.schemaRelationRepository.save(schemaRelation);
+      return HttpStatus.CREATED;
     } catch (error) {
       console.error('Error creating schema relation:', error);
-      throw new Error('Failed to create schema relation');
+      return HttpStatus.BAD_REQUEST;
     }
   }
 

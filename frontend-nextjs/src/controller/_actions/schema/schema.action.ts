@@ -2,6 +2,7 @@
 
 import { SchemaColumnQueryFormat } from "./interface/readColumnByTableId.interface";
 import { SchemaColumnReadById } from "./interface/schema_read_column_by_id";
+import { TSchemaRelation } from "./interface/schema_relation.interface";
 
 interface RowData {
   tableId: number;
@@ -299,5 +300,35 @@ export async function UpdateSchemaColumn(data: ISchemaColumn) {
     };
   } catch (error) {
     console.error("Error updating schema column: ", error);
+  }
+}
+
+export async function SchemaRelationCreateAction(data: TSchemaRelation) {
+  try {
+    const formattedData = {
+      columnIdFather: data.columnIdFather,
+      columnIdChild: data.columnIdChild,
+      description: data.description,
+      isStatic: false,
+    };
+
+    console.log("CREATE SCHEMA RELATION: ", formattedData);
+
+    const response = await fetch(`${process.env.BASE_URL}/schema-relation`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formattedData),
+    });
+
+    return {
+      status: response.status,
+    };
+  } catch (error) {
+    console.error("Error creating schema relation: ", error);
+    return {
+      status: 500,
+    };
   }
 }

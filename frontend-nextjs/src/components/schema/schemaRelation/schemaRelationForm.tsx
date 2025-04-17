@@ -1,5 +1,6 @@
 "use client";
 import { useSchemaContext } from "@/contexts/schema.context";
+import { SchemaRelationCreateAction } from "@/controller/_actions/schema/schema.action";
 import { Button, Container, Stack, TextField, Typography } from "@mui/material";
 import React from "react";
 
@@ -20,7 +21,19 @@ export function SchemaRelationForm() {
     setForeignKeyDesc("");
   }
 
-  async function handleSave() {}
+  async function handleSave() {
+    const res = await SchemaRelationCreateAction({
+      columnIdFather: foreignKey.relation_parent_id,
+      columnIdChild: foreignKey.relation_child_id,
+      description: foreignKeyDesc,
+      isStatic: false,
+    });
+    if (res.status === 201) {
+      console.log("Foreign key created successfully:", res);
+    } else {
+      console.error("Error creating foreign key:", res);
+    }
+  }
 
   async function handleCancel() {
     resetForeignKey();
