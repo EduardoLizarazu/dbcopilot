@@ -20,7 +20,7 @@ type TSchemaColumnWithTableState = {
   status: number;
 };
 
-export function SchemaRelationForm() {
+export function SchemaRelationFormCreate() {
   const { foreignKey, setForeignKey } = useSchemaContext();
 
   const [foreignKeyDesc, setForeignKeyDesc] = React.useState<string>("");

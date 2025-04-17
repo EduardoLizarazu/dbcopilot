@@ -2,7 +2,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import KeyIcon from "@mui/icons-material/Key";
 import { useSchemaContext } from "@/contexts/schema.context";
 import { SharedDrawer } from "@/components/shared/shared_drawer";
-import { SchemaRelationForm } from "../schemaRelation/schemaRelationForm";
+import { SchemaRelationFormCreate } from "./schemaRelationFormCreate";
 
 export function SchemaBtnAddRelationPk({
   column_id,
@@ -52,7 +52,7 @@ export function SchemaBtnAddRelationPk({
             open={foreignKey.isAddingDesc}
             toggleDrawer={addPrimaryKeyRelation}
           >
-            <SchemaRelationForm />
+            <SchemaRelationFormCreate />
           </SharedDrawer>
         </>
       )}
