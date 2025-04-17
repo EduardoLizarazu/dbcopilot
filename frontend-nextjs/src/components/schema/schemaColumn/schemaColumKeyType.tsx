@@ -6,6 +6,8 @@ import React, { Suspense } from "react";
 import { ReadColumnByIdWithTable } from "@/controller/_actions/schema/schema.action";
 import { SchemaColumnReadById } from "@/controller/_actions/schema/interface/schema_read_column_by_id";
 import SearchIcon from "@mui/icons-material/Search";
+import EditIcon from "@mui/icons-material/Edit";
+
 // export interface SchemaColumnReadById {
 //   id: number;
 //   technicalName: string;
@@ -110,23 +112,40 @@ export function SchemaColumnKeyType({
                     spacing={1}
                     sx={{ justifyContent: "center", alignItems: "center" }}
                   >
-                    <IconButton
-                      aria-label="search foreign key data"
-                      size="small"
-                      onClick={() => console.log("search foreign key data")}
-                      loading={false}
+                    <button
+                      style={{
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.target as HTMLElement).style.textDecoration =
+                          "underline";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.target as HTMLElement).style.textDecoration = "none";
+                      }}
+                      onClick={() => {
+                        console.log("search foreign key");
+                      }}
                     >
-                      <SearchIcon
-                        fontSize="small"
-                        style={{
-                          color: "white",
-                        }}
-                      />
-                    </IconButton>
-                    <span style={{ fontWeight: "bold" }}>
                       {foreignRelation?.schemaTable?.technicalName}
-                    </span>
+                    </button>
                     <span>{foreignRelation?.technicalName}</span>
+                    {!fk.is_static && (
+                      <IconButton
+                        aria-label="edit foreign key data"
+                        size="small"
+                        onClick={() => console.log("edit foreign key data")}
+                        loading={false}
+                      >
+                        <EditIcon
+                          fontSize="small"
+                          style={{
+                            color: "white",
+                          }}
+                        />
+                      </IconButton>
+                    )}
                   </Stack>
                 </Suspense>
               }
