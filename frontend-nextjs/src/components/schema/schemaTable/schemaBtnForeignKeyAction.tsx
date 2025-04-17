@@ -14,7 +14,7 @@ export function SchemaBtnForeignKeyAction({
   function toggleForeignKey() {
     setForeignKey((prev) => ({
       ...prev,
-      relation_parent_id: relation_foreign_key_id,
+      relation_child_id: relation_foreign_key_id,
       isEditing: !prev.isEditing,
     }));
     console.log("foreignKey", foreignKey);

@@ -12,7 +12,7 @@ export function SchemaBtnForeignKeyAddAction({
   function saveRelation() {
     setForeignKey((prev) => ({
       ...prev,
-      relation_child_id: column_id,
+      relation_parent_id: column_id,
       isEditing: !prev.isEditing,
     }));
     console.log("foreignKey", foreignKey);
@@ -31,7 +31,7 @@ export function SchemaBtnForeignKeyAddAction({
             <KeyIcon
               fontSize="inherit"
               style={{
-                color: "purple",
+                color: "yellow",
                 opacity: 0.5,
               }}
             />
