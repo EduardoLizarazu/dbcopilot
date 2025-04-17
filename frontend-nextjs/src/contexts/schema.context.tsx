@@ -3,13 +3,15 @@ import React from "react";
 
 type TSchemaContext = {
   foreignKey: {
-    isEditing: boolean;
+    isAddingDesc: boolean;
+    isAddingPk: boolean;
     relation_parent_id: number;
     relation_child_id: number;
   };
   setForeignKey: React.Dispatch<
     React.SetStateAction<{
-      isEditing: boolean;
+      isAddingDesc: boolean;
+      isAddingPk: boolean;
       relation_parent_id: number;
       relation_child_id: number;
     }>
@@ -32,7 +34,8 @@ export function SchemaContextProvider({
   children: React.ReactNode;
 }) {
   const [foreignKey, setForeignKey] = React.useState({
-    isEditing: false,
+    isAddingDesc: false,
+    isAddingPk: false,
     relation_parent_id: 0,
     relation_child_id: 0,
   });

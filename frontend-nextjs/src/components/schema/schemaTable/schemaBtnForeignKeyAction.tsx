@@ -14,8 +14,8 @@ export function SchemaBtnForeignKeyAction({
   function toggleForeignKey() {
     setForeignKey((prev) => ({
       ...prev,
+      isAddingPk: !prev.isAddingPk,
       relation_child_id: relation_foreign_key_id,
-      isEditing: !prev.isEditing,
     }));
     console.log("foreignKey", foreignKey);
   }
@@ -34,7 +34,7 @@ export function SchemaBtnForeignKeyAction({
             <KeyIcon
               fontSize="inherit"
               style={{
-                color: foreignKey.isEditing ? "blue" : "red",
+                color: foreignKey.isAddingPk ? "blue" : "red",
               }}
             />
           </IconButton>

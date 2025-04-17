@@ -1,10 +1,8 @@
-"use client";
 import { IconButton, Tooltip } from "@mui/material";
 import KeyIcon from "@mui/icons-material/Key";
 import { useSchemaContext } from "@/contexts/schema.context";
 import { SharedDrawer } from "@/components/shared/shared_drawer";
 import { SchemaRelationForm } from "./schemaRelationForm";
-import React from "react";
 
 export function SchemaBtnForeignKeyAddAction({
   column_id,
@@ -15,23 +13,17 @@ export function SchemaBtnForeignKeyAddAction({
 }) {
   const { foreignKey, setForeignKey } = useSchemaContext();
 
-  const [openDrawer, setOpenDrawer] = React.useState<boolean>(false);
-
   function addPrimaryKeyRelation() {
-    toggleDrawer();
     setForeignKey((prev) => ({
       ...prev,
+      isAddingDesc: !prev.isAddingDesc,
       relation_parent_id: column_id,
     }));
     console.log("foreignKey", foreignKey);
   }
 
-  function toggleDrawer() {
-    setOpenDrawer((prev: boolean) => !prev);
-  }
-
   const validDisplayForeignKey =
-    foreignKey.isEditing &&
+    foreignKey.isAddingPk &&
     !is_already_foreign_key &&
     foreignKey.relation_child_id !== column_id;
 
@@ -57,8 +49,8 @@ export function SchemaBtnForeignKeyAddAction({
           </Tooltip>
           <SharedDrawer
             anchor={"right"}
-            open={openDrawer}
-            toggleDrawer={toggleDrawer}
+            open={foreignKey.isAddingDesc}
+            toggleDrawer={addPrimaryKeyRelation}
           >
             <SchemaRelationForm />
           </SharedDrawer>

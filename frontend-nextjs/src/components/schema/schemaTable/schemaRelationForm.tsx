@@ -16,7 +16,8 @@ export function SchemaRelationForm() {
     setForeignKey({
       relation_child_id: 0,
       relation_parent_id: 0,
-      isEditing: false,
+      isAddingDesc: false,
+      isAddingPk: false,
     });
   }
 
