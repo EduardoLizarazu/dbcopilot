@@ -310,6 +310,31 @@ export async function UpdateSchemaColumn(data: ISchemaColumn) {
   }
 }
 
+export async function DeleteSchemaRelation(data) {
+  try {
+    const response = await fetch(
+      `${process.env.BASE_URL}/relation-with-keytype`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to delete schema relation");
+    }
+    return {
+      status: response.status,
+    };
+  } catch (error) {
+    console.error("Error deleting schema relation: ", error);
+    return {
+      status: 500,
+    };
+  }
+}
+
 export async function SchemaRelationCreateAction(data: TSchemaRelation) {
   try {
     const formattedData = {

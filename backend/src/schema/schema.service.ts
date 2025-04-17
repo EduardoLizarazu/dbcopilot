@@ -17,6 +17,7 @@ import {
   verifiedSchemaRelationWithKeyType,
 } from './interface/schema_relation_with_key_type';
 import { CreateSchemaRelationWithKeyTypeDto } from './dto/create-schema-relation-with-keytype.dto';
+import { DeleteSchemaRelationDto } from './schema_relation/dto/detele-schema_relation.dto';
 
 /**
  * 
@@ -448,23 +449,19 @@ export class SchemaService {
     }
   }
 
-  async removeRelationWithKeyType(data: CreateSchemaRelationWithKeyTypeDto) {
+  async removeRelationWithKeyType(data: DeleteSchemaRelationDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const dataValidated = verifiedSchemaRelationWithKeyType(data);
-      if (!dataValidated) return HttpStatus.BAD_REQUEST;
-      console.log('dataValidated', dataValidated);
-
       // RELATION
       // Check if the relation already exists
       const existingRelation = await queryRunner.manager.findOne(
         SchemaRelation,
         {
           where: {
-            columnIdChild: dataValidated.columnIdChild,
-            columnIdFather: dataValidated.columnIdFather,
+            columnIdChild: data.columnIdChild,
+            columnIdFather: data.columnIdFather,
           },
         },
       );
@@ -484,8 +481,8 @@ export class SchemaService {
         SchemaColumnKeyColumn,
         {
           where: {
-            id_column_key: dataValidated.columnIdChild,
-            id_schema_column: dataValidated.columnIdFather,
+            id_column_key: data.columnIdChild,
+            id_schema_column: data.columnIdFather,
           },
         },
       );

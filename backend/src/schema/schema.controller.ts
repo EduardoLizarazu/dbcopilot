@@ -13,6 +13,7 @@ import { CreateSchemaDto } from './dto/create-schema.dto';
 import { UpdateSchemaDto } from './dto/update-schema.dto';
 import { TSchemaRelationWithKeyType } from './interface/schema_relation_with_key_type';
 import { CreateSchemaRelationWithKeyTypeDto } from './dto/create-schema-relation-with-keytype.dto';
+import { DeleteSchemaRelationDto } from './schema_relation/dto/detele-schema_relation.dto';
 
 @Controller('schema')
 export class SchemaController {
@@ -58,7 +59,7 @@ export class SchemaController {
 
   @Delete('relation-with-keytype')
   removeRelationWithKeyType(
-    @Body() data: CreateSchemaRelationWithKeyTypeDto,
+    @Body() data: DeleteSchemaRelationDto,
     @Req() req: Request,
   ) {
     console.log('REQUEST URL:', req.url);
