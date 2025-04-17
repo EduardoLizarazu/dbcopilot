@@ -1,6 +1,10 @@
+"use client";
 import { IconButton, Tooltip } from "@mui/material";
 import KeyIcon from "@mui/icons-material/Key";
 import { useSchemaContext } from "@/contexts/schema.context";
+import { SharedDrawer } from "@/components/shared/shared_drawer";
+import { SchemaRelationForm } from "./schemaRelationForm";
+import React from "react";
 
 export function SchemaBtnForeignKeyAddAction({
   column_id,
@@ -11,13 +15,19 @@ export function SchemaBtnForeignKeyAddAction({
 }) {
   const { foreignKey, setForeignKey } = useSchemaContext();
 
-  function saveRelation() {
+  const [openDrawer, setOpenDrawer] = React.useState<boolean>(false);
+
+  function addPrimaryKeyRelation() {
+    toggleDrawer();
     setForeignKey((prev) => ({
       ...prev,
       relation_parent_id: column_id,
-      isEditing: !prev.isEditing,
     }));
     console.log("foreignKey", foreignKey);
+  }
+
+  function toggleDrawer() {
+    setOpenDrawer((prev: boolean) => !prev);
   }
 
   const validDisplayForeignKey =
@@ -28,22 +38,31 @@ export function SchemaBtnForeignKeyAddAction({
   return (
     <>
       {validDisplayForeignKey && (
-        <Tooltip title="Add Foreign Key">
-          <IconButton
-            aria-label="add-foreign-key"
-            size="small"
-            onClick={saveRelation}
-            loading={false}
+        <>
+          <Tooltip title="Add Foreign Key">
+            <IconButton
+              aria-label="add-foreign-key"
+              size="small"
+              onClick={addPrimaryKeyRelation}
+              loading={false}
+            >
+              <KeyIcon
+                fontSize="inherit"
+                style={{
+                  color: "gold",
+                  opacity: 0.5,
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+          <SharedDrawer
+            anchor={"right"}
+            open={openDrawer}
+            toggleDrawer={toggleDrawer}
           >
-            <KeyIcon
-              fontSize="inherit"
-              style={{
-                color: "gold",
-                opacity: 0.5,
-              }}
-            />
-          </IconButton>
-        </Tooltip>
+            <SchemaRelationForm />
+          </SharedDrawer>
+        </>
       )}
     </>
   );
