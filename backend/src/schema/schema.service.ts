@@ -380,9 +380,10 @@ export class SchemaService {
 
       // Get the key type of the entity SchemaColumnKey primary key or foreign key
       const schemaColumnKey = await queryRunner.manager.find(SchemaColumnKey, {
-        where: {
-          type: entityKeyType.PRIMARY_KEY || entityKeyType.FOREIGN_KEY,
-        },
+        where: [
+          { type: entityKeyType.PRIMARY_KEY },
+          { type: entityKeyType.FOREIGN_KEY },
+        ],
       });
       if (!schemaColumnKey) {
         console.error('Key type not found');
