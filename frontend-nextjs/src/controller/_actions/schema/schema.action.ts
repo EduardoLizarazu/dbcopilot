@@ -1,6 +1,7 @@
 "use server";
 
 import { SchemaColumnQueryFormat } from "./interface/readColumnByTableId.interface";
+import { TSchemaColumnWithTableSimple } from "./interface/schema_column.interface";
 import { SchemaColumnReadById } from "./interface/schema_read_column_by_id";
 import { TSchemaRelation } from "./interface/schema_relation.interface";
 
@@ -193,14 +194,17 @@ export async function ReadColumnByIdWithTable(id: number) {
         },
       }
     );
-    if (!response.ok) {
-      throw new Error("Failed to fetch schema data");
-    }
-    const data: SchemaColumnReadById = await response.json();
-    return data;
+    const data: TSchemaColumnWithTableSimple = await response.json();
+    return {
+      data: data,
+      status: response.status,
+    };
   } catch (error) {
     console.error("Error finding all columns by table ID: ", error);
-    return []; // Return an empty array in case of an error
+    return {
+      data: null,
+      status: 500,
+    }; // Return an empty array in case of an error
   }
 }
 
