@@ -1,15 +1,34 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SchemaService } from './schema.service';
 import { CreateSchemaDto } from './dto/create-schema.dto';
 import { UpdateSchemaDto } from './dto/update-schema.dto';
+import { TSchemaRelationWithKeyType } from './interface/schema_relation_with_key_type';
 
 @Controller('schema')
 export class SchemaController {
   constructor(private readonly schemaService: SchemaService) {}
 
-  @Post(":connectionId")
-  create(@Param('connectionId') connectionId: string, @Body() createSchemaDto: CreateSchemaDto[]) {
+  @Post(':connectionId')
+  create(
+    @Param('connectionId') connectionId: string,
+    @Body() createSchemaDto: CreateSchemaDto[],
+  ) {
+    console.log('createSchemaDto', createSchemaDto);
     return this.schemaService.create(+connectionId, createSchemaDto);
+  }
+
+  @Post('create-relation-and-key-type')
+  createRelation(@Body() data: TSchemaRelationWithKeyType) {
+    console.log('createRelation', data);
+    return this.schemaService.createRelationWithKeyType(data);
   }
 
   @Get()
@@ -17,7 +36,7 @@ export class SchemaController {
     return this.schemaService.findAll();
   }
 
-  @Get(':connectionId') 
+  @Get(':connectionId')
   findOneByConnectionId(@Param('connectionId') connectionId: string) {
     return this.schemaService.findSchemaByConnectionId(+connectionId);
   }

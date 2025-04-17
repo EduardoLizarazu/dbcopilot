@@ -3,7 +3,10 @@
 import { SchemaColumnQueryFormat } from "./interface/readColumnByTableId.interface";
 import { TSchemaColumnWithTableSimple } from "./interface/schema_column.interface";
 import { SchemaColumnReadById } from "./interface/schema_read_column_by_id";
-import { TSchemaRelation } from "./interface/schema_relation.interface";
+import {
+  TSchemaRelation,
+  TSchemaRelationWithKeyType,
+} from "./interface/schema_relation.interface";
 
 interface RowData {
   tableId: number;
@@ -331,6 +334,41 @@ export async function SchemaRelationCreateAction(data: TSchemaRelation) {
     };
   } catch (error) {
     console.error("Error creating schema relation: ", error);
+    return {
+      status: 500,
+    };
+  }
+}
+
+export async function createRelationWithKeyType(
+  data: TSchemaRelationWithKeyType
+) {
+  try {
+    const formattedData = {
+      columnIdFather: data.columnIdFather,
+      columnIdChild: data.columnIdChild,
+      description: data.description,
+      isStatic: data.isStatic,
+    };
+
+    console.log("CREATE SCHEMA RELATION WITH KEY TYPE: ", formattedData);
+
+    const response = await fetch(
+      `${process.env.BASE_URL}/schema/create-relation-and-key-type`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formattedData),
+      }
+    );
+
+    return {
+      status: response.status,
+    };
+  } catch (error) {
+    console.error("Error creating schema relation with key type: ", error);
     return {
       status: 500,
     };

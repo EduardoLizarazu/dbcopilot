@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSchemaDto } from './dto/create-schema.dto';
 import { UpdateSchemaDto } from './dto/update-schema.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +12,10 @@ import {
 } from './schema_column/entities/schema_column_key.entity';
 import { SchemaColumnKeyColumn } from './schema_column/entities/schema_column_key_column.entity';
 import { createSchemaDtoToArray } from './utils/create-schema-dto-to-array';
+import {
+  TSchemaRelationWithKeyType,
+  verifiedSchemaRelationWithKeyType,
+} from './interface/schema_relation_with_key_type';
 
 /**
  * 
@@ -322,6 +326,117 @@ export class SchemaService {
       throw new Error(
         'Error finding schema by connection ID: ' + error.message,
       );
+    }
+  }
+
+  async createRelationWithKeyType(data: TSchemaRelationWithKeyType) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const dataValidated = verifiedSchemaRelationWithKeyType(data);
+      if (!dataValidated) return HttpStatus.BAD_REQUEST;
+      console.log('dataValidated', dataValidated);
+
+      // RELATION
+      // Check if the relation already exists
+      const existingRelation = await queryRunner.manager.findOne(
+        SchemaRelation,
+        {
+          where: {
+            columnIdChild: dataValidated.columnIdChild,
+            columnIdFather: dataValidated.columnIdFather,
+          },
+        },
+      );
+      if (existingRelation) {
+        console.error('Relation already exists:', existingRelation);
+        return HttpStatus.CONFLICT;
+      }
+
+      const schemaRelation = queryRunner.manager.create(SchemaRelation, {
+        columnIdChild: dataValidated.columnIdChild ?? undefined,
+        columnIdFather: dataValidated.columnIdFather ?? undefined,
+        description: dataValidated.description ?? undefined,
+        isStatic: false,
+      });
+
+      // KEY TYPE
+      // Check if the key type already exists
+      const existingKeyType = await queryRunner.manager.findOne(
+        SchemaColumnKeyColumn,
+        {
+          where: {
+            id_column_key: dataValidated.columnIdChild,
+            id_schema_column: dataValidated.columnIdFather,
+          },
+        },
+      );
+      if (existingKeyType) {
+        console.error('Key type already exists:', existingKeyType);
+        return HttpStatus.CONFLICT;
+      }
+
+      // Get the key type of the entity SchemaColumnKey primary key or foreign key
+      const schemaColumnKey = await queryRunner.manager.find(SchemaColumnKey, {
+        where: {
+          type: entityKeyType.PRIMARY_KEY || entityKeyType.FOREIGN_KEY,
+        },
+      });
+      if (!schemaColumnKey) throw new Error('Key type not found');
+      const schemaColumnKeyPk = schemaColumnKey.find(
+        (key) => key.type === entityKeyType.PRIMARY_KEY,
+      );
+      const schemaColumnKeyFk = schemaColumnKey.find(
+        (key) => key.type === entityKeyType.FOREIGN_KEY,
+      );
+
+      const schemaColumnKeyColumnPk = queryRunner.manager.create(
+        SchemaColumnKeyColumn,
+        {
+          id_column_key:
+            schemaColumnKeyPk?.id ??
+            (() => {
+              throw new Error('Primary key type not found');
+            })(),
+          id_schema_column: dataValidated.columnIdFather,
+          is_static: false,
+        },
+      );
+
+      const schemaColumnKeyColumnFk = queryRunner.manager.create(
+        SchemaColumnKeyColumn,
+        {
+          id_column_key:
+            schemaColumnKeyFk?.id ??
+            (() => {
+              throw new Error('Foreign key type not found');
+            })(),
+          id_schema_column: dataValidated.columnIdChild,
+          is_static: false,
+        },
+      );
+
+      await queryRunner.manager.save(schemaColumnKeyColumnPk); // save foreign key
+      console.log(
+        'I am saving the relation with key type',
+        schemaColumnKeyColumnPk,
+      );
+
+      await queryRunner.manager.save(schemaColumnKeyColumnFk); // save primary key
+      console.log(
+        'I am saving the relation with key type',
+        schemaColumnKeyColumnFk,
+      );
+
+      await queryRunner.manager.save(schemaRelation);
+      console.log('I am saving the relation with key type', schemaRelation);
+
+      await queryRunner.commitTransaction();
+      return HttpStatus.CREATED;
+    } catch (error) {
+      console.error('Error creating relation with key type: ', error);
+      return HttpStatus.BAD_REQUEST;
     }
   }
 

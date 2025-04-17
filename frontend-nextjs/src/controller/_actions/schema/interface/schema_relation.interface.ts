@@ -4,3 +4,10 @@ export type TSchemaRelation = {
   description?: string;
   isStatic: boolean;
 };
+
+export type TSchemaRelationWithKeyType = {
+  columnIdFather: number;
+  columnIdChild: number;
+  description: string | null;
+  isStatic: boolean;
+};

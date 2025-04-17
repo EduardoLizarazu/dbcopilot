@@ -2,8 +2,8 @@
 import { useSchemaContext } from "@/contexts/schema.context";
 import { TSchemaColumnWithTableSimple } from "@/controller/_actions/schema/interface/schema_column.interface";
 import {
+  createRelationWithKeyType,
   ReadColumnByIdWithTable,
-  SchemaRelationCreateAction,
 } from "@/controller/_actions/schema/schema.action";
 import {
   Button,
@@ -61,7 +61,7 @@ export function SchemaRelationForm() {
   }
 
   async function handleSave() {
-    const res = await SchemaRelationCreateAction({
+    const res = await createRelationWithKeyType({
       columnIdFather: foreignKey.relation_parent_id,
       columnIdChild: foreignKey.relation_child_id,
       description: foreignKeyDesc,
