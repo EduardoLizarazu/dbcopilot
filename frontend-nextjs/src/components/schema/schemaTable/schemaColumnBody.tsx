@@ -167,6 +167,7 @@ export function SchemaColumnBody({
           />
           <SchemaBtnForeignKeyAddAction
             column_id={schemaColumnTemp.column_id}
+            is_already_foreign_key={schemaColumnTemp?.is_foreign_key || false}
           />
         </TableCell>
         <TableCell>
