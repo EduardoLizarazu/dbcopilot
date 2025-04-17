@@ -86,6 +86,7 @@ export function SchemaColumnKeyType({
               fontSize="inherit"
               style={{
                 color: "gold",
+                opacity: pk.is_static ? 1 : 0.4,
               }}
             />
           </IconButton>
@@ -146,6 +147,7 @@ export function SchemaColumnKeyType({
                   fontSize="inherit"
                   style={{
                     color: "purple",
+                    opacity: fk.is_static ? 1 : 0.4,
                   }}
                 />
               </IconButton>
