@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import React, { Suspense } from "react";
 import { SchemaTableBody } from "./schemaTableBody";
+import { SchemaContextProvider } from "@/contexts/schema.context";
 export function SchemaTableHead({
   schemaTableData,
 }: {
@@ -39,42 +40,44 @@ export function SchemaTableHead({
   }, []);
 
   return (
-    <Box>
-      <TextField
-        label="Search Tables"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell />
-              <TableCell>Table Name</TableCell>
-              <TableCell>Table Alias</TableCell>
-              <TableCell>Table Description</TableCell>
-              <TableCell />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <Suspense
-              fallback={
-                <TableRow>
-                  <TableCell colSpan={5}>Loading...</TableCell>
-                </TableRow>
-              }
-            >
-              {filteredSchemaTable?.map((row) => (
-                // TABLES -> COLUMNS
-                <SchemaTableBody key={row.table_id} schemaTableData={row} />
-              ))}
-            </Suspense>
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+    <SchemaContextProvider>
+      <Box>
+        <TextField
+          label="Search Tables"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell />
+                <TableCell>Table Name</TableCell>
+                <TableCell>Table Alias</TableCell>
+                <TableCell>Table Description</TableCell>
+                <TableCell />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <Suspense
+                fallback={
+                  <TableRow>
+                    <TableCell colSpan={5}>Loading...</TableCell>
+                  </TableRow>
+                }
+              >
+                {filteredSchemaTable?.map((row) => (
+                  // TABLES -> COLUMNS
+                  <SchemaTableBody key={row.table_id} schemaTableData={row} />
+                ))}
+              </Suspense>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </SchemaContextProvider>
   );
 }

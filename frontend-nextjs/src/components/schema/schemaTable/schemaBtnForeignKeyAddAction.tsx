@@ -2,19 +2,17 @@ import { IconButton, Tooltip } from "@mui/material";
 import KeyIcon from "@mui/icons-material/Key";
 import { useSchemaContext } from "@/contexts/schema.context";
 
-export function SchemaBtnForeignKeyAction({
-  is_foreign_key,
-  relation_foreign_key_id,
+export function SchemaBtnForeignKeyAddAction({
+  column_id,
 }: {
-  is_foreign_key: boolean;
-  relation_foreign_key_id: number;
+  column_id: number;
 }) {
   const { foreignKey, setForeignKey } = useSchemaContext();
 
-  function toggleForeignKey() {
+  function saveRelation() {
     setForeignKey((prev) => ({
       ...prev,
-      relation_parent_id: relation_foreign_key_id,
+      relation_child_id: column_id,
       isEditing: !prev.isEditing,
     }));
     console.log("foreignKey", foreignKey);
@@ -22,19 +20,19 @@ export function SchemaBtnForeignKeyAction({
 
   return (
     <>
-      {/* Add foreign key */}
-      {!is_foreign_key && (
+      {foreignKey.isEditing && (
         <Tooltip title="Add Foreign Key">
           <IconButton
             aria-label="add-foreign-key"
             size="small"
-            onClick={toggleForeignKey}
+            onClick={saveRelation}
             loading={false}
           >
             <KeyIcon
               fontSize="inherit"
               style={{
-                color: foreignKey.isEditing ? "blue" : "red",
+                color: "purple",
+                opacity: 0.5,
               }}
             />
           </IconButton>
