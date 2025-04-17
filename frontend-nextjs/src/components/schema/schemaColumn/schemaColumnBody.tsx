@@ -155,6 +155,8 @@ export function SchemaColumnBody({
           {/* Key Type */}
           <SchemaColumnKeyType
             pk={{
+              relation_primary_key_id:
+                schemaColumnTemp?.relation_foreign_key_id || 0,
               is_primary_key: schemaColumnTemp?.is_primary_key || false,
               is_static: schemaColumnTemp?.is_primary_key_static || false,
             }}

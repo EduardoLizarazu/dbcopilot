@@ -7,6 +7,8 @@ import { ReadColumnByIdWithTable } from "@/controller/_actions/schema/schema.act
 import { SchemaColumnReadById } from "@/controller/_actions/schema/interface/schema_read_column_by_id";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
+import { SharedDrawer } from "@/components/shared/shared_drawer";
+import { SchemaRelationFormUpdate } from "../schemaRelation/schemaRelationFormUpdate";
 
 // export interface SchemaColumnReadById {
 //   id: number;
@@ -31,7 +33,11 @@ export function SchemaColumnKeyType({
   pk,
   fk,
 }: {
-  pk: { is_primary_key: boolean; is_static: boolean };
+  pk: {
+    relation_primary_key_id: number;
+    is_primary_key: boolean;
+    is_static: boolean;
+  };
   fk: {
     relation_foreign_key_id: number;
     is_foreign_key: boolean;
@@ -39,6 +45,7 @@ export function SchemaColumnKeyType({
   };
 }) {
   const [open, setOpen] = React.useState(false);
+  const [openDrawer, setOpenDrawer] = React.useState(false);
 
   const [foreignRelation, setForeignRelation] =
     React.useState<SchemaColumnReadById | null>({
@@ -65,6 +72,15 @@ export function SchemaColumnKeyType({
       console.error("Error fetching foreign key data: ", error);
     }
   }
+
+  const handleEditForeignKey = () => {
+    console.log("edit foreign key data");
+    toggleDrawer();
+  };
+
+  const toggleDrawer = () => {
+    setOpenDrawer((prev) => !prev);
+  };
 
   const handleTooltipClose = () => {
     setOpen(false);
@@ -135,7 +151,7 @@ export function SchemaColumnKeyType({
                       <IconButton
                         aria-label="edit foreign key data"
                         size="small"
-                        onClick={() => console.log("edit foreign key data")}
+                        onClick={handleEditForeignKey}
                         loading={false}
                       >
                         <EditIcon
@@ -174,6 +190,13 @@ export function SchemaColumnKeyType({
           </div>
         </ClickAwayListener>
       )}
+      <SharedDrawer
+        anchor={"right"}
+        open={openDrawer}
+        toggleDrawer={toggleDrawer}
+      >
+        <SchemaRelationFormUpdate />
+      </SharedDrawer>
     </Stack>
   );
 }
