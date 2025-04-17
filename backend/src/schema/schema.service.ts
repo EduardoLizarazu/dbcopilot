@@ -384,7 +384,11 @@ export class SchemaService {
           type: entityKeyType.PRIMARY_KEY || entityKeyType.FOREIGN_KEY,
         },
       });
-      if (!schemaColumnKey) throw new Error('Key type not found');
+      if (!schemaColumnKey) {
+        console.error('Key type not found');
+        return HttpStatus.NOT_FOUND;
+      }
+      console.log('schemaColumnKey', schemaColumnKey);
       const schemaColumnKeyPk = schemaColumnKey.find(
         (key) => key.type === entityKeyType.PRIMARY_KEY,
       );
@@ -398,7 +402,8 @@ export class SchemaService {
           id_column_key:
             schemaColumnKeyPk?.id ??
             (() => {
-              throw new Error('Primary key type not found');
+              console.error('Primary key type not found');
+              return HttpStatus.NOT_FOUND;
             })(),
           id_schema_column: dataValidated.columnIdFather,
           is_static: false,
@@ -411,7 +416,8 @@ export class SchemaService {
           id_column_key:
             schemaColumnKeyFk?.id ??
             (() => {
-              throw new Error('Foreign key type not found');
+              console.error('Foreign key type not found');
+              return HttpStatus.NOT_FOUND;
             })(),
           id_schema_column: dataValidated.columnIdChild,
           is_static: false,
