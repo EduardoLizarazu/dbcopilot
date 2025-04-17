@@ -16,6 +16,7 @@ import {
   TSchemaRelationWithKeyType,
   verifiedSchemaRelationWithKeyType,
 } from './interface/schema_relation_with_key_type';
+import { CreateSchemaRelationWithKeyTypeDto } from './dto/create-schema-relation-with-keytype.dto';
 
 /**
  * 
@@ -329,7 +330,7 @@ export class SchemaService {
     }
   }
 
-  async createRelationWithKeyType(data: TSchemaRelationWithKeyType) {
+  async createRelationWithKeyType(data: CreateSchemaRelationWithKeyTypeDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();

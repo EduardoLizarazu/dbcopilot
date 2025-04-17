@@ -354,7 +354,7 @@ export async function createRelationWithKeyType(
     console.log("CREATE SCHEMA RELATION WITH KEY TYPE: ", formattedData);
 
     const response = await fetch(
-      `${process.env.BASE_URL}/schema/create-relation-and-key-type`,
+      `${process.env.BASE_URL}/schema/relation-with-keytype`,
       {
         method: "POST",
         headers: {

@@ -6,29 +6,39 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { SchemaService } from './schema.service';
 import { CreateSchemaDto } from './dto/create-schema.dto';
 import { UpdateSchemaDto } from './dto/update-schema.dto';
 import { TSchemaRelationWithKeyType } from './interface/schema_relation_with_key_type';
+import { CreateSchemaRelationWithKeyTypeDto } from './dto/create-schema-relation-with-keytype.dto';
 
 @Controller('schema')
 export class SchemaController {
   constructor(private readonly schemaService: SchemaService) {}
 
+  @Post('relation-with-keytype')
+  createRelation(
+    @Body() data: CreateSchemaRelationWithKeyTypeDto,
+    @Req() req: Request,
+  ) {
+    console.log('REQUEST URL:', req.url);
+    console.log('REQUEST METHOD:', req.method);
+    console.log('createRelation', data);
+    return this.schemaService.createRelationWithKeyType(data);
+  }
+
   @Post(':connectionId')
   create(
     @Param('connectionId') connectionId: string,
     @Body() createSchemaDto: CreateSchemaDto[],
+    @Req() req: Request,
   ) {
+    console.log('REQUEST URL:', req.url);
+    console.log('REQUEST METHOD:', req.method);
     console.log('createSchemaDto', createSchemaDto);
     return this.schemaService.create(+connectionId, createSchemaDto);
-  }
-
-  @Post('create-relation-and-key-type')
-  createRelation(@Body() data: TSchemaRelationWithKeyType) {
-    console.log('createRelation', data);
-    return this.schemaService.createRelationWithKeyType(data);
   }
 
   @Get()
