@@ -10,15 +10,20 @@ export function SchemaRelationForm() {
 
   // Function to retrieve table and the column, base on the columns key
 
-  async function handleSave() {}
-
-  async function handleCancel() {
+  function resetForeignKey() {
     setForeignKey({
       relation_child_id: 0,
       relation_parent_id: 0,
       isAddingDesc: false,
       isAddingPk: false,
     });
+    setForeignKeyDesc("");
+  }
+
+  async function handleSave() {}
+
+  async function handleCancel() {
+    resetForeignKey();
   }
 
   return (

@@ -12,13 +12,15 @@ export class SchemaRelationService {
     private schemaRelationRepository: Repository<SchemaRelation>,
   ) {}
   create(createSchemaRelationDto: CreateSchemaRelationDto) {
-    // try {
-    //   const schemaRelation = this.schemaRelationRepository.create(createSchemaRelationDto);
-    //   return this.schemaRelationRepository.save(schemaRelation);
-    // } catch (error) {
-    //   console.error('Error creating schema relation:', error);
-    //   throw new Error('Failed to create schema relation');
-    // }
+    try {
+      const schemaRelation = this.schemaRelationRepository.create(
+        createSchemaRelationDto,
+      );
+      return this.schemaRelationRepository.save(schemaRelation);
+    } catch (error) {
+      console.error('Error creating schema relation:', error);
+      throw new Error('Failed to create schema relation');
+    }
   }
 
   findAll() {
