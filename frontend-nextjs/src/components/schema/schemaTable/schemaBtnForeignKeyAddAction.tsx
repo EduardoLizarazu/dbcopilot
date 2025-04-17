@@ -31,7 +31,7 @@ export function SchemaBtnForeignKeyAddAction({
             <KeyIcon
               fontSize="inherit"
               style={{
-                color: "yellow",
+                color: "gold",
                 opacity: 0.5,
               }}
             />
