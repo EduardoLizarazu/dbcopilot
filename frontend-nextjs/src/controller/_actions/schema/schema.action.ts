@@ -310,7 +310,10 @@ export async function UpdateSchemaColumn(data: ISchemaColumn) {
   }
 }
 
-export async function DeleteSchemaRelation(data) {
+export async function DeleteSchemaRelation(data: {
+  columnIdFather: number;
+  columnIdChild: number;
+}) {
   try {
     const response = await fetch(
       `${process.env.BASE_URL}/relation-with-keytype`,
@@ -319,11 +322,9 @@ export async function DeleteSchemaRelation(data) {
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(data),
       }
     );
-    if (!response.ok) {
-      throw new Error("Failed to delete schema relation");
-    }
     return {
       status: response.status,
     };
