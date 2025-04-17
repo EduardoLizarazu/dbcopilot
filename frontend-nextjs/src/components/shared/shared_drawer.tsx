@@ -16,7 +16,14 @@ export function SharedDrawer({
 }) {
   return (
     <>
-      <Drawer open={open} anchor={anchor} onClose={toggleDrawer}>
+      <Drawer
+        open={open}
+        anchor={anchor}
+        onClose={toggleDrawer}
+        ModalProps={{
+          BackdropProps: { sx: { backgroundColor: "rgba(0, 0, 0, 0.1)" } },
+        }}
+      >
         <Box sx={{ width: 400, marginTop: 10 }} role="presentation">
           {children}
         </Box>

@@ -40,7 +40,7 @@ export function SchemaRelationForm() {
           Child Column: {foreignKey.relation_child_id}
         </Typography>
         <TextField
-          label="Parent Table Name"
+          label="Relation description..."
           variant="outlined"
           fullWidth
           margin="normal"
