@@ -20,6 +20,11 @@ import SearchIcon from "@mui/icons-material/Search";
 //   };
 // }
 
+type SchemaColumnReadByIdState = {
+  data: SchemaColumnReadById | null;
+  status: number;
+};
+
 export function SchemaColumnKeyType({
   pk,
   fk,
@@ -34,7 +39,7 @@ export function SchemaColumnKeyType({
   const [open, setOpen] = React.useState(false);
 
   const [foreignRelation, setForeignRelation] =
-    React.useState<SchemaColumnReadById>({
+    React.useState<SchemaColumnReadById | null>({
       id: 0,
       technicalName: "",
       alias: null,
@@ -50,10 +55,9 @@ export function SchemaColumnKeyType({
 
   async function handleForeignKeyData() {
     try {
-      const foreignKeyData = await ReadColumnByIdWithTable(
-        fk.relation_foreign_key_id
-      );
-      setForeignRelation(foreignKeyData as SchemaColumnReadById);
+      const foreignKeyData: SchemaColumnReadByIdState =
+        await ReadColumnByIdWithTable(fk.relation_foreign_key_id);
+      setForeignRelation(foreignKeyData.data);
       console.log("foreignKeyData", foreignKeyData);
     } catch (error) {
       console.error("Error fetching foreign key data: ", error);
