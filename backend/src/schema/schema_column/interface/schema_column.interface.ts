@@ -77,44 +77,19 @@ export function formatSchemaColumns(
     if (row.column_key_type === entityKeyType.PRIMARY_KEY) {
       currentColumn.is_primary_key =
         row.column_key_type === entityKeyType.PRIMARY_KEY;
+      currentColumn.is_primary_key_static = row.column_key_is_static;
     }
 
     if (row.column_key_type === entityKeyType.FOREIGN_KEY) {
       currentColumn.is_foreign_key =
         row.column_key_type === entityKeyType.FOREIGN_KEY;
+      currentColumn.is_foreign_key_static = row.column_key_is_static;
     }
 
     if (row.column_key_type === entityKeyType.UNIQUE_KEY) {
       currentColumn.is_unique =
         row.column_key_type === entityKeyType.UNIQUE_KEY;
     }
-
-    // if (row.column_key_type === entityKeyType.PRIMARY_KEY) {
-    //   currentColumn.is_primary_key = row.column_key_is_static;
-    // } else if (row.column_key_type === entityKeyType.FOREIGN_KEY) {
-    //   currentColumn.is_foreign_key = row.column_key_is_static;
-    // } else if (row.column_key_type === entityKeyType.UNIQUE_KEY) {
-    //   currentColumn.is_unique = row.column_key_is_static;
-    // }
-
-    // static
-    if (currentColumn.is_primary_key)
-      currentColumn.is_primary_key_static = row.column_key_is_static;
-
-    if (currentColumn.is_foreign_key)
-      currentColumn.is_foreign_key_static = row.column_key_is_static;
-
-    // static
-    // if (row.column_key_is_static !== null) {
-    //   if (currentColumn.column_key_is_static) {
-    //     currentColumn.column_key_is_static.push(row.column_key_is_static);
-    //   }
-    // }
-    // if (row.column_key_type !== null) {
-    //   if (currentColumn.column_key_type) {
-    //     currentColumn.column_key_type.push(row.column_key_type);
-    //   }
-    // }
   }
 
   // Convert the map values back to an array
