@@ -400,3 +400,26 @@ export async function createRelationWithKeyType(
     };
   }
 }
+
+export async function UpdateSchemaRelation(data: {
+  columnIdFather: number;
+  columnIdChild: number;
+}) {
+  try {
+    const response = await fetch(`${process.env.BASE_URL}/schema-relation`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    return {
+      status: response.status,
+    };
+  } catch (error) {
+    console.error("Error updating schema relation: ", error);
+    return {
+      status: 500,
+    };
+  }
+}
