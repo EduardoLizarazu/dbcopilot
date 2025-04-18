@@ -5,7 +5,10 @@ import { TSchemaColumnWithTableSimple } from "./interface/schema_column.interfac
 import { SchemaColumnReadById } from "./interface/schema_read_column_by_id";
 import {
   TSchemaRelation,
+  TSchemaRelationReadByIds,
+  TSchemaRelationUpdate,
   TSchemaRelationWithKeyType,
+  TSchemaRelationWithKeyTypeDelete,
 } from "./interface/schema_relation.interface";
 
 interface RowData {
@@ -310,10 +313,9 @@ export async function UpdateSchemaColumn(data: ISchemaColumn) {
   }
 }
 
-export async function DeleteSchemaRelation(data: {
-  columnIdFather: number;
-  columnIdChild: number;
-}) {
+export async function DeleteSchemaRelation(
+  data: TSchemaRelationWithKeyTypeDelete
+) {
   try {
     const response = await fetch(
       `${process.env.BASE_URL}/relation-with-keytype`,
@@ -331,6 +333,32 @@ export async function DeleteSchemaRelation(data: {
   } catch (error) {
     console.error("Error deleting schema relation: ", error);
     return {
+      status: 500,
+    };
+  }
+}
+
+export async function ReadSchemaRelationByIds(data: TSchemaRelationReadByIds) {
+  try {
+    const response = await fetch(
+      `${process.env.BASE_URL}/schema-relation/find-one`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const res = await response.json();
+    return {
+      data: res,
+      status: response.status,
+    };
+  } catch (error) {
+    console.error("Error finding schema relation by ID: ", error);
+    return {
+      data: null,
       status: 500,
     };
   }
@@ -401,10 +429,7 @@ export async function createRelationWithKeyType(
   }
 }
 
-export async function UpdateSchemaRelation(data: {
-  columnIdFather: number;
-  columnIdChild: number;
-}) {
+export async function UpdateSchemaRelation(data: TSchemaRelationUpdate) {
   try {
     const response = await fetch(`${process.env.BASE_URL}/schema-relation`, {
       method: "PATCH",

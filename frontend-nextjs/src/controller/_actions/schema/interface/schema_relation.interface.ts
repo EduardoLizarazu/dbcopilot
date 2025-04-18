@@ -11,3 +11,16 @@ export type TSchemaRelationWithKeyType = {
   description: string | null;
   isStatic: boolean;
 };
+
+export type TSchemaRelationUpdate = {
+  columnIdFather: number;
+  columnIdChild: number;
+  description: string;
+};
+
+export type TSchemaRelationWithKeyTypeDelete = Omit<
+  TSchemaRelationWithKeyType,
+  "isStatic" | "description"
+>;
+
+export type TSchemaRelationReadByIds = TSchemaRelationWithKeyTypeDelete;

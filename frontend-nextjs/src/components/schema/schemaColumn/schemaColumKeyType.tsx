@@ -195,7 +195,12 @@ export function SchemaColumnKeyType({
         open={openDrawer}
         toggleDrawer={toggleDrawer}
       >
-        <SchemaRelationFormUpdate />
+        <SchemaRelationFormUpdate
+          schema_relation_keys={{
+            relation_foreign_key_id: fk.relation_foreign_key_id,
+            relation_primary_key_id: pk.relation_primary_key_id,
+          }}
+        />
       </SharedDrawer>
     </Stack>
   );
