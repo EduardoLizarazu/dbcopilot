@@ -469,33 +469,49 @@ export class SchemaService {
         console.error('Relation does not exist:', existingRelation);
         return HttpStatus.NOT_FOUND;
       }
-      if (!existingRelation.isStatic) {
+      if (existingRelation.isStatic) {
         console.error('Relation is static:', existingRelation);
-        return HttpStatus.BAD_REQUEST;
+        return HttpStatus.FORBIDDEN;
       }
       await queryRunner.manager.remove(SchemaRelation, existingRelation); // remove relation
 
       // KEY TYPE
+      // GET COLUMN KEY ID
+      const columnKeyIdFk = await queryRunner.manager.findOne(SchemaColumnKey, {
+        where: { type: entityKeyType.FOREIGN_KEY },
+      });
+      if (!columnKeyIdFk) {
+        console.error('Key type not found');
+        return HttpStatus.NOT_FOUND;
+      }
+      console.log('columnKeyIdFk', columnKeyIdFk);
+
       // Check if the key type already exists
-      const existingKeyType = await queryRunner.manager.findOne(
+      const existingKeyTypeFk = await queryRunner.manager.findOne(
         SchemaColumnKeyColumn,
         {
           where: {
-            id_column_key: data.columnIdChild,
-            id_schema_column: data.columnIdFather,
+            id_column_key: columnKeyIdFk.id,
+            id_schema_column: data.columnIdChild,
           },
         },
       );
-      if (!existingKeyType) {
-        console.error('Key type does not exist:', existingKeyType);
+      if (!existingKeyTypeFk) {
+        console.error(
+          'Key type with column does not exist:',
+          existingKeyTypeFk,
+        );
         return HttpStatus.NOT_FOUND;
       }
-      if (!existingKeyType.is_static) {
-        console.error('Key type is static:', existingKeyType);
-        return HttpStatus.BAD_REQUEST;
+      if (existingKeyTypeFk.is_static) {
+        console.error('Key type with column is static:', existingKeyTypeFk);
+        return HttpStatus.FORBIDDEN;
       }
 
-      await queryRunner.manager.remove(SchemaColumnKeyColumn, existingKeyType); // remove key type
+      await queryRunner.manager.remove(
+        SchemaColumnKeyColumn,
+        existingKeyTypeFk,
+      ); // remove key type
 
       await queryRunner.commitTransaction();
       return HttpStatus.OK;
