@@ -398,6 +398,17 @@ export class SchemaService {
         (key) => key.type === entityKeyType.FOREIGN_KEY,
       );
 
+      // Check if the pk already exists and check the static field
+      const existingKeyTypePk = await queryRunner.manager.findOne(
+        SchemaColumnKeyColumn,
+        {
+          where: {
+            id_column_key: schemaColumnKeyPk?.id,
+            id_schema_column: dataValidated.columnIdFather,
+          },
+        },
+      );
+
       const schemaColumnKeyColumnPk = queryRunner.manager.create(
         SchemaColumnKeyColumn,
         {
@@ -408,7 +419,7 @@ export class SchemaService {
               return HttpStatus.NOT_FOUND;
             })(),
           id_schema_column: dataValidated.columnIdFather,
-          is_static: false,
+          is_static: existingKeyTypePk?.is_static || false,
         },
       );
 
