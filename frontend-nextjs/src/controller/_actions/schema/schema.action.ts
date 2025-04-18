@@ -438,8 +438,11 @@ export async function UpdateSchemaRelation(data: TSchemaRelationUpdate) {
       },
       body: JSON.stringify(data),
     });
+    const body = await response.json();
+    console.log("UPDATE SCHEMA RELATION: ", body);
+
     return {
-      status: response.status,
+      status: body,
     };
   } catch (error) {
     console.error("Error updating schema relation: ", error);

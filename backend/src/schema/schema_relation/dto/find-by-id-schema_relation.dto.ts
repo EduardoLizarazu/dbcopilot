@@ -4,9 +4,9 @@ import { IsNumber } from 'class-validator';
 export class FindByIdSchemaRelationDto {
   @ApiProperty()
   @IsNumber()
-  id_parent: number;
+  columnIdFather: number;
 
   @ApiProperty()
   @IsNumber()
-  id_child: number;
+  columnIdChild: number;
 }

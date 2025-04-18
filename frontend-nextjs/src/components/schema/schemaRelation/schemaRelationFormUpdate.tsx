@@ -90,9 +90,12 @@ export function SchemaRelationFormUpdate({
         console.log("resPk", resPk.data);
       }
 
+      // Fetch the schema relation using the provided keys
+      console.log("schema_relation_keys", schema_relation_keys);
+
       const resRelation = await ReadSchemaRelationByIds({
-        columnIdFather: schema_relation_keys.relation_primary_key_id,
-        columnIdChild: schema_relation_keys.relation_foreign_key_id,
+        columnIdFather: schema_relation_keys.relation_foreign_key_id,
+        columnIdChild: schema_relation_keys.relation_primary_key_id,
       });
       console.log("resRelation", resRelation);
 
@@ -110,7 +113,7 @@ export function SchemaRelationFormUpdate({
     const res = await UpdateSchemaRelation(schemaRelation);
     console.log("updating with schemaRelation", schemaRelation);
 
-    if (res.status === 200) {
+    if (res.status === 206) {
       console.log("Schema relation updated successfully:", res.status);
     } else {
       console.error("Failed to update schema relation:", res.status);

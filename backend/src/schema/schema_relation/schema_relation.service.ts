@@ -39,8 +39,8 @@ export class SchemaRelationService {
     try {
       const res = await this.schemaRelationRepository.findOne({
         where: {
-          columnIdFather: data.id_parent,
-          columnIdChild: data.id_child,
+          columnIdFather: data.columnIdFather,
+          columnIdChild: data.columnIdChild,
         },
       });
       if (!res) return HttpStatus.NOT_FOUND;
@@ -53,21 +53,37 @@ export class SchemaRelationService {
 
   async update(updateSchemaRelationDto: UpdateSchemaRelationDto) {
     try {
-      await this.findOne({
-        id_parent: updateSchemaRelationDto.columnIdFather ?? 0, // Provide a default value
-        id_child: updateSchemaRelationDto.columnIdChild ?? 0, // Provide a default value
+      console.log('updateSchemaRelationDto', updateSchemaRelationDto);
+      const resFindOne = await this.findOne({
+        columnIdFather: updateSchemaRelationDto.columnIdFather || 0, // Provide a default value
+        columnIdChild: updateSchemaRelationDto.columnIdChild || 0, // Provide a default value
       });
 
-      await this.schemaRelationRepository.update(
+      if (resFindOne === HttpStatus.NOT_FOUND) return HttpStatus.NOT_FOUND;
+      if (
+        resFindOne &&
+        typeof resFindOne === 'object' &&
+        'isStatic' in resFindOne &&
+        resFindOne.isStatic
+      ) {
+        console.log('resFindOne.isStatic', resFindOne.isStatic);
+        return HttpStatus.FORBIDDEN;
+      }
+      console.log('resFindOne', resFindOne);
+
+      const updateData = await this.schemaRelationRepository.update(
         {
           columnIdFather: updateSchemaRelationDto.columnIdFather,
           columnIdChild: updateSchemaRelationDto.columnIdChild,
         },
         {
           description: updateSchemaRelationDto.description, // Include description here
+          isStatic: false,
         },
       );
-      return HttpStatus.OK;
+      console.log('updateData', updateData);
+      if (updateData.affected === 1) return HttpStatus.PARTIAL_CONTENT;
+      return HttpStatus.NOT_ACCEPTABLE;
     } catch (error) {
       console.error('Error updating schema relation:', error);
       return HttpStatus.BAD_REQUEST;
