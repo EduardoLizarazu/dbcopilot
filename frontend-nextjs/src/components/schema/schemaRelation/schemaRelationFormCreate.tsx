@@ -1,7 +1,7 @@
 "use client";
 import { useSchemaContext } from "@/contexts/schema.context";
+import { createRelationWithKeyType } from "@/controller/_actions/schema/commands/create-relation-with-key-type.command";
 import { TSchemaColumnWithTableSimple } from "@/controller/_actions/schema/interface/schema_column.interface";
-import { createRelationWithKeyType } from "@/controller/_actions/schema/schema.action";
 import { ReadColumnByIdWithTable } from "@/controller/_actions/schema/queries/read-column-by-id-with-table.query";
 import {
   Button,

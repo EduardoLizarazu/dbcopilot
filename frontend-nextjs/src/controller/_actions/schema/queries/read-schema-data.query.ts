@@ -1,5 +1,6 @@
 "use server";
-import { IReadSchemaData } from "../schema.action";
+
+import { IReadSchemaData } from "../interface/read-schema-table-column.interface";
 
 export async function ReadSchemaData(
   connectionId: number

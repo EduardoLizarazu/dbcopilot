@@ -15,10 +15,8 @@ import { SchemaColumnHead } from "../schemaColumn/schemaColumnHead";
 import { SchemaAction } from "../schemaShared/schemaBtnActions";
 import { SchemaField } from "../schemaShared/schemaField";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
-import {
-  ISchemaTable,
-  UpdateSchemaTable,
-} from "@/controller/_actions/schema/schema.action";
+import { ISchemaTable } from "@/controller/_actions/schema/interface/read-schema-table-column.interface";
+import { UpdateSchemaTable } from "@/controller/_actions/schema/commands/update-schema-table.command";
 
 export function SchemaTableBody({
   schemaTableData,

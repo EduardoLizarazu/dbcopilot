@@ -13,7 +13,7 @@ import {
 import React, { Suspense } from "react";
 import { SchemaTableBody } from "./schemaTableBody";
 import { SchemaContextProvider } from "@/contexts/schema.context";
-import { ISchemaTable } from "@/controller/_actions/schema/schema.action";
+import { ISchemaTable } from "@/controller/_actions/schema/interface/read-schema-table-column.interface";
 export function SchemaTableHead({
   schemaTableData,
 }: {

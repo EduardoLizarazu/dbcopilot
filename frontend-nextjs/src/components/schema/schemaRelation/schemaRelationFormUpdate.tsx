@@ -1,12 +1,9 @@
 "use client";
 
+import { DeleteSchemaRelation } from "@/controller/_actions/schema/commands/delete-schema-relation.command";
+import { UpdateSchemaRelation } from "@/controller/_actions/schema/commands/update-schema-relation.command";
 import { TSchemaColumnWithTableSimple } from "@/controller/_actions/schema/interface/schema_column.interface";
 import { TSchemaRelationUpdate } from "@/controller/_actions/schema/interface/schema_relation.interface";
-import {
-  DeleteSchemaRelation,
-  UpdateSchemaRelation,
-} from "@/controller/_actions/schema/schema.action";
-
 import { ReadColumnByIdWithTable } from "@/controller/_actions/schema/queries/read-column-by-id-with-table.query";
 import { ReadSchemaRelationByIds } from "@/controller/_actions/schema/queries/read-schema-relation-by-id.query";
 

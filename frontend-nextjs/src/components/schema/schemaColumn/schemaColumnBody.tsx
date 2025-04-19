@@ -8,7 +8,7 @@ import { SchemaColumnQueryFormat } from "@/controller/_actions/schema/interface/
 import { SchemaColumnKeyType } from "../schemaColumn/schemaColumKeyType";
 import { SchemaBtnForeignAddRelationFk } from "../schemaRelation/schemaBtnAddRelationFk";
 import { SchemaBtnAddRelationPk } from "../schemaRelation/schemaBtnAddRelationPk";
-import { UpdateSchemaColumn } from "@/controller/_actions/schema/schema.action";
+import { UpdateSchemaColumn } from "@/controller/_actions/schema/commands/update-schema-column.command";
 // export interface SchemaColumnQueryFormat {
 //   column_id: number;
 //   column_technical_name: string;

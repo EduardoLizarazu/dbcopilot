@@ -1,5 +1,5 @@
 "use server";
-import { ISchemaTable } from "../schema.action";
+import { ISchemaTable } from "../interface/read-schema-table-column.interface";
 
 export async function ReadTableByConnectionId(
   connectionId: number
