@@ -20,6 +20,7 @@ import Link from "next/link";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
 import { useRouter } from "next/navigation";
 import { SchemaSimpleGeneral } from "@/components/schema/schemaSimpleGeneral";
+import { CreateSchemaCmd } from "@/controller/_actions/schema/commands/create-schema.command";
 
 interface Connection extends Omit<CreateConnectionInput, "dbPort"> {
   dbPort: string;
@@ -91,17 +92,29 @@ export default function CreateConnectionPage() {
     // Create connection here
     console.log("Creating connection...");
     try {
-      const res = await CreateConnectionAction({
-        name: conn.name,
-        description: conn.description,
-        dbTypeId: databaseTypeId,
-        dbHost: conn.dbHost,
-        dbPort: parseInt(conn.dbPort),
-        dbName: conn.dbName,
-        dbUsername: conn.dbUsername,
-        dbPassword: conn.dbPassword || "",
-      });
-
+      const res = conn.is_connected
+        ? await CreateSchemaCmd({
+            name: conn.name,
+            description: conn.description,
+            dbTypeId: databaseTypeId,
+            dbHost: conn.dbHost,
+            dbPort: parseInt(conn.dbPort),
+            dbName: conn.dbName,
+            dbUsername: conn.dbUsername,
+            dbPassword: conn.dbPassword || "",
+            is_connected: conn.is_connected,
+          })
+        : await CreateConnectionAction({
+            name: conn.name,
+            description: conn.description,
+            dbTypeId: databaseTypeId,
+            dbHost: conn.dbHost,
+            dbPort: parseInt(conn.dbPort),
+            dbName: conn.dbName,
+            dbUsername: conn.dbUsername,
+            dbPassword: conn.dbPassword || "",
+            is_connected: false,
+          });
       if (res?.status === 201) {
         setFeedback({
           isActive: true,

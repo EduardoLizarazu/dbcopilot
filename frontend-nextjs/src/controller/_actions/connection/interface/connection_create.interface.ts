@@ -7,6 +7,7 @@ export interface ConnectionCreateInput {
   dbUsername: string;
   dbPassword: string;
   dbTypeId: number;
+  is_connected: false;
 }
 
 export const convertToConnectionCreateInput = (
@@ -25,6 +26,7 @@ export const convertToConnectionCreateInput = (
     dbUsername,
     dbPassword,
     dbTypeId,
+    is_connected,
   } = data as Record<string, unknown>;
 
   if (
@@ -35,7 +37,11 @@ export const convertToConnectionCreateInput = (
     typeof dbPort !== "number" ||
     typeof dbUsername !== "string" ||
     (dbPassword !== undefined && typeof dbPassword !== "string") ||
-    typeof dbTypeId !== "number"
+    typeof dbTypeId !== "number" ||
+    // Check if is_connected is a boolean if it exists
+    typeof is_connected !== "boolean" ||
+    // Check if is_connected is false
+    (is_connected !== undefined && is_connected !== false)
   ) {
     throw new Error("Invalid input data");
   }
@@ -49,5 +55,6 @@ export const convertToConnectionCreateInput = (
     dbUsername,
     dbPassword: dbPassword as string,
     dbTypeId,
+    is_connected: is_connected as false,
   };
 };

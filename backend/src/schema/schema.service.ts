@@ -18,6 +18,9 @@ import {
 } from './interface/schema_relation_with_key_type';
 import { CreateSchemaRelationWithKeyTypeDto } from './dto/create-schema-relation-with-keytype.dto';
 import { DeleteSchemaRelationDto } from './schema_relation/dto/detele-schema_relation.dto';
+import { CreateSchemaIncludingConnectionDto } from './dto/create-schema-including-connection.dto';
+import { Connection } from 'src/connection/entities/connection.entity';
+import { Databasetype } from 'src/databasetype/entities/databasetype.entity';
 
 /**
  * 
@@ -182,13 +185,83 @@ export class SchemaService {
 
       await queryRunner.commitTransaction();
 
-      return await this.findSchemaByConnectionId(connectionId);
+      return HttpStatus.CREATED;
     } catch (error) {
       console.error('Error creating schema: ', error);
       await queryRunner.rollbackTransaction();
       throw new Error('Error creating schema: ' + error.message);
     } finally {
       await queryRunner.release();
+    }
+  }
+
+  async createSchemaIncludingConnection(
+    input: CreateSchemaIncludingConnectionDto,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      if (!input.is_connected) return HttpStatus.BAD_REQUEST;
+      // Create the connection first
+      const connectionEntity = queryRunner.manager.create(Connection, {
+        name: input.name,
+        description: input.description,
+        dbTypeId: input.dbTypeId,
+        dbName: input.dbName,
+        dbHost: input.dbHost,
+        dbPort: input.dbPort,
+        dbUsername: input.dbUsername,
+        dbPassword: input.dbPassword,
+        is_connected: input.is_connected, // Set to true
+      });
+      const savedConnection = await queryRunner.manager.save(
+        Connection,
+        connectionEntity,
+      );
+
+      console.log('I am saving the connection', savedConnection);
+
+      //  Get the query base on the database type id
+      const dbType = await this.dataSource.manager.findOne(Databasetype, {
+        where: { id: input.dbTypeId },
+      });
+      if (!dbType) {
+        console.error('Database type not found');
+        return HttpStatus.NOT_FOUND;
+      }
+
+      // Get the schema data from the saved connection
+      const dataSource = new DataSource({
+        type: dbType.type as any, // Cast to TypeORM's DatabaseType
+        host: savedConnection.dbHost,
+        port: savedConnection.dbPort,
+        username: savedConnection.dbUsername,
+        password: savedConnection.dbPassword,
+        database: savedConnection.dbName,
+        synchronize: false,
+        logging: false,
+      });
+
+      const db = await dataSource.initialize(); // Initialize and check connection
+      const schema = await db.query(`${dbType.query}`); // Get the schema data
+      await dataSource.destroy(); // Close connection after test
+
+      console.log('to save the schema: ', schema);
+
+      const res = await this.create(savedConnection.id, schema); // Create the schema using the connection ID and schema data
+
+      if (res !== HttpStatus.CREATED) {
+        console.error('Error creating schema: ', res);
+        return res;
+      }
+
+      await queryRunner.commitTransaction();
+      return HttpStatus.CREATED;
+    } catch (error) {
+      console.error('Error creating schema including connection: ', error);
+      await queryRunner.rollbackTransaction();
+      return HttpStatus.BAD_REQUEST;
     }
   }
 

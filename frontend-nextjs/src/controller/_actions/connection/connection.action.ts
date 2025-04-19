@@ -102,6 +102,8 @@ export const DeleteConnectionAction = async (id: number) => {
 
 export const CreateConnectionAction = async (input: ConnectionCreateInput) => {
   try {
+    console.log("Creating connection with input:", input);
+
     // Validate input
     const inputVerified = convertToConnectionCreateInput(input);
 

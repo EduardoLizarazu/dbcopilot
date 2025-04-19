@@ -14,10 +14,22 @@ import { UpdateSchemaDto } from './dto/update-schema.dto';
 import { TSchemaRelationWithKeyType } from './interface/schema_relation_with_key_type';
 import { CreateSchemaRelationWithKeyTypeDto } from './dto/create-schema-relation-with-keytype.dto';
 import { DeleteSchemaRelationDto } from './schema_relation/dto/detele-schema_relation.dto';
+import { CreateSchemaIncludingConnectionDto } from './dto/create-schema-including-connection.dto';
 
 @Controller('schema')
 export class SchemaController {
   constructor(private readonly schemaService: SchemaService) {}
+
+  @Post()
+  createSchemaWithConnection(
+    @Body() data: CreateSchemaIncludingConnectionDto,
+    @Req() req: Request,
+  ) {
+    console.log('REQUEST URL:', req.url);
+    console.log('REQUEST METHOD:', req.method);
+    console.log('Create schema with connection', data);
+    return this.schemaService.createSchemaIncludingConnection(data);
+  }
 
   @Post('relation-with-keytype')
   createRelation(
