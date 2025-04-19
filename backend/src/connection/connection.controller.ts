@@ -71,6 +71,11 @@ export class ConnectionController {
     }
   }
 
+  @Post('schema-simple')
+  findSchema(@Body() createConnectionDto: CreateConnectionDto) {
+    return this.connectionService.readSchemaFromConnection(createConnectionDto);
+  }
+
   @Post('test')
   testConnection(@Body() createConnectionDto: CreateConnectionDto) {
     try {

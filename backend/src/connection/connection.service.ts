@@ -210,4 +210,50 @@ export class ConnectionService {
       );
     }
   }
+
+  async readSchemaFromConnection(connection: CreateConnectionDto) {
+    const { dbTypeId, dbHost, dbPort, dbUsername, dbPassword, dbName } =
+      connection;
+
+    try {
+      // Search the type base on id on the databasetype table
+      const dbType = await this.connectionRepository.manager.connection
+        .getRepository('Databasetype')
+        .findOneBy({ id: dbTypeId });
+
+      if (!dbType) {
+        throw new Error('Database type not found');
+      }
+
+      console.log(`Testing connection to ${dbType} database...`);
+
+      // Create a temporary DataSource configuration
+      const dataSource = new DataSource({
+        type: dbType.type as any, // Cast to TypeORM's DatabaseType
+        host: dbHost,
+        port: dbPort,
+        username: dbUsername,
+        password: dbPassword,
+        database: dbName,
+        synchronize: false,
+        logging: false,
+      });
+
+      // Initialize and check connection
+      const db = await dataSource.initialize();
+      const schema = await db.query(`${dbType.query}`);
+      await dataSource.destroy(); // Close connection after test
+
+      return schema;
+    } catch (error) {
+      console.error('Connection test failed:', error.message);
+      throw new HttpException(
+        {
+          status: 'error',
+          message: error.message,
+        },
+        400,
+      );
+    }
+  }
 }

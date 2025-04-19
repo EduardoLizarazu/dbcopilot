@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
 import { useRouter } from "next/navigation";
+import { SchemaSimpleGeneral } from "@/components/schema/schemaSimpleGeneral";
 
 interface Connection extends Omit<CreateConnectionInput, "dbPort"> {
   dbPort: string;
@@ -46,6 +47,8 @@ export default function CreateConnectionPage() {
     ReadDatabaseTypeOutput[]
   >([]);
   const [databaseTypeId, setDatabaseTypeId] = React.useState<number>(0);
+
+  const [isSchemaSimple, setSchemaSimple] = React.useState<boolean>(false);
 
   const [feedback, setFeedback] = React.useState({
     isActive: false,
@@ -177,6 +180,7 @@ export default function CreateConnectionPage() {
           message: "Connection failed",
           severity: "error",
         });
+        setConn((prev) => ({ ...prev, is_connected: false }));
       }
     } catch (err) {
       console.error("Error testing connection: ", err);
@@ -185,6 +189,7 @@ export default function CreateConnectionPage() {
         message: "Error testing connection",
         severity: "error",
       });
+      setConn((prev) => ({ ...prev, is_connected: false }));
     } finally {
       // time - feedback
       resetFeedBack();
@@ -302,6 +307,15 @@ export default function CreateConnectionPage() {
             <Typography variant="caption" color="text.secondary">
               {conn.is_connected ? "Connected" : "Not Connected"}
             </Typography>
+            {conn.is_connected && (
+              <Button
+                variant="contained"
+                color="info"
+                onClick={() => setSchemaSimple((prev) => !prev)}
+              >
+                View Schema
+              </Button>
+            )}
           </Stack>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleCreate}>
@@ -313,6 +327,22 @@ export default function CreateConnectionPage() {
           </Stack>
         </Stack>
       </Stack>
+      {isSchemaSimple && (
+        <SchemaSimpleGeneral
+          connectionData={{
+            name: conn.name || "",
+            description: conn.description || "",
+            dbTypeId: databaseTypeId || 0,
+            dbHost: conn.dbHost || "",
+            dbPort: parseInt(conn.dbPort) || 0,
+            dbName: conn.dbName || "",
+            dbUsername: conn.dbUsername || "",
+            dbPassword: conn.dbPassword || "",
+            is_connected: conn.is_connected || false,
+          }}
+        />
+      )}
+
       {/* Feedback message */}
       {feedback.isActive && (
         <FeedbackSnackBar
