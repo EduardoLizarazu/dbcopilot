@@ -327,7 +327,7 @@ export default function CreateConnectionPage() {
           </Stack>
         </Stack>
       </Stack>
-      {isSchemaSimple && (
+      {isSchemaSimple && conn.is_connected && (
         <SchemaSimpleGeneral
           connectionData={{
             name: conn.name || "",
