@@ -1,3 +1,4 @@
+"use server";
 import { TSchemaColumnWithTableSimple } from "../interface/schema_column.interface";
 
 export async function ReadColumnByIdWithTable(id: number) {

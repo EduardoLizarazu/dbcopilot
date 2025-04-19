@@ -1,3 +1,4 @@
+"use server";
 import { ISchemaTable } from "../schema.action";
 
 export async function ReadTableByConnectionId(

@@ -1,3 +1,4 @@
+"use server";
 import { SchemaColumnQueryFormat } from "../interface/readColumnByTableId.interface";
 
 export async function ReadColumnByTableId(

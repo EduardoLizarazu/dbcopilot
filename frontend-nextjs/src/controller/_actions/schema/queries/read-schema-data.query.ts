@@ -1,3 +1,4 @@
+"use server";
 import { IReadSchemaData } from "../schema.action";
 
 export async function ReadSchemaData(

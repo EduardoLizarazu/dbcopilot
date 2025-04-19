@@ -1,3 +1,4 @@
+"use server";
 import { TSchemaRelationReadByIds } from "../interface/schema_relation.interface";
 
 export async function ReadSchemaRelationByIds(data: TSchemaRelationReadByIds) {
