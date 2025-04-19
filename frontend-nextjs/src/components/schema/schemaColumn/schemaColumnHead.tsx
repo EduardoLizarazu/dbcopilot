@@ -1,8 +1,5 @@
 "use client";
-import {
-  ISchemaColumn,
-  ReadColumnByTableId,
-} from "@/controller/_actions/index.actions";
+import { ReadColumnByTableId } from "@/controller/_actions/schema/queries/read-column-by-table-id.query";
 import {
   Table,
   TableBody,
@@ -87,7 +84,7 @@ export function SchemaColumnHead({ tableId }: { tableId: number }) {
           <Suspense
             fallback={
               <TableRow>
-                <TableCell colSpan={5}>Loading...</TableCell>
+                <TableCell colSpan={6}>Loading...</TableCell>
               </TableRow>
             }
           >

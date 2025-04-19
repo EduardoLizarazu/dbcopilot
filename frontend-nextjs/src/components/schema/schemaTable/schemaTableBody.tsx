@@ -11,14 +11,14 @@ import {
   KeyboardArrowDown as KeyboardArrowDownIcon,
 } from "@mui/icons-material";
 import React from "react";
-import {
-  ISchemaTable,
-  UpdateSchemaTable,
-} from "@/controller/_actions/index.actions";
 import { SchemaColumnHead } from "../schemaColumn/schemaColumnHead";
 import { SchemaAction } from "../schemaShared/schemaBtnActions";
 import { SchemaField } from "../schemaShared/schemaField";
 import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
+import {
+  ISchemaTable,
+  UpdateSchemaTable,
+} from "@/controller/_actions/schema/schema.action";
 
 export function SchemaTableBody({
   schemaTableData,

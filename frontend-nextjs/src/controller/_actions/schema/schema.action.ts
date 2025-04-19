@@ -1,11 +1,6 @@
 "use server";
-
-import { SchemaColumnQueryFormat } from "./interface/readColumnByTableId.interface";
-import { TSchemaColumnWithTableSimple } from "./interface/schema_column.interface";
-import { SchemaColumnReadById } from "./interface/schema_read_column_by_id";
 import {
   TSchemaRelation,
-  TSchemaRelationReadByIds,
   TSchemaRelationUpdate,
   TSchemaRelationWithKeyType,
   TSchemaRelationWithKeyTypeDelete,
@@ -139,116 +134,6 @@ export async function GetSchemaData() {
   return rows;
 }
 
-export async function ReadSchemaData(
-  connectionId: number
-): Promise<IReadSchemaData[]> {
-  try {
-    // fetch schema data from the database using the connectionId
-    const response = await fetch(
-      `${process.env.BASE_URL}/schema/${connectionId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch schema data");
-    }
-    const data: IReadSchemaData[] = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error finding schema by connection ID: ", error);
-    return []; // Return an empty array in case of an error
-  }
-}
-
-// Find all table by connection id
-export async function ReadTableByConnectionId(
-  connectionId: number
-): Promise<ISchemaTable[]> {
-  try {
-    const response = await fetch(
-      `${process.env.BASE_URL}/schema-table/connection/${connectionId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch schema data");
-    }
-    const data: ISchemaTable[] = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error finding all tables by connection ID: ", error);
-    return []; // Return an empty array in case of an error
-  }
-}
-
-export async function ReadColumnByIdWithTable(id: number) {
-  try {
-    const response = await fetch(
-      `${process.env.BASE_URL}/schema-column/${id}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data: TSchemaColumnWithTableSimple = await response.json();
-    return {
-      data: data,
-      status: response.status,
-    };
-  } catch (error) {
-    console.error("Error finding all columns by table ID: ", error);
-    return {
-      data: null,
-      status: 500,
-    }; // Return an empty array in case of an error
-  }
-}
-
-export async function ReadColumnByTableId(
-  tableId: number
-): Promise<SchemaColumnQueryFormat[]> {
-  try {
-    console.log("READ COLUMN BY TABLE ID: ", tableId);
-    const response = await fetch(
-      `${process.env.BASE_URL}/schema-column/table/${tableId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch schema data");
-    }
-    const data: SchemaColumnQueryFormat[] = await response.json();
-
-    // sort: 1) primary key, 2) other fields, 3) foreign key
-    data.sort((a, b) => {
-      if (a.is_primary_key && !b.is_primary_key) return -1; // a is primary key, b is not
-      if (!a.is_primary_key && b.is_primary_key) return 1; // b is primary key, a is not
-      if (a.is_foreign_key && !b.is_foreign_key) return 1; // a is foreign key, b is not
-      if (!a.is_foreign_key && b.is_foreign_key) return -1; // b is foreign key, a is not
-      return 0; // both are the same type
-    });
-
-    return data;
-  } catch (error) {
-    console.error("Error finding all columns by table ID: ", error);
-    return []; // Return an empty array in case of an error
-  }
-}
-
 export async function UpdateSchemaTable(data: ISchemaTable) {
   try {
     const dataFormatted = {
@@ -336,32 +221,6 @@ export async function DeleteSchemaRelation(
   } catch (error) {
     console.error("Error deleting schema relation: ", error);
     return {
-      status: 500,
-    };
-  }
-}
-
-export async function ReadSchemaRelationByIds(data: TSchemaRelationReadByIds) {
-  try {
-    const response = await fetch(
-      `${process.env.BASE_URL}/schema-relation/find-one`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
-    const res = await response.json();
-    return {
-      data: res,
-      status: response.status,
-    };
-  } catch (error) {
-    console.error("Error finding schema relation by ID: ", error);
-    return {
-      data: null,
       status: 500,
     };
   }

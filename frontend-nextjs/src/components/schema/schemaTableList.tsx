@@ -16,14 +16,21 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import { Button, Stack, TableHead } from "@mui/material";
-import { GetSchemaData, IReadSchemaData, ReadSchemaData } from "@/controller/_actions/index.actions"; // Assuming you have a data file with rows
 import CloseIcon from "@mui/icons-material/Close";
+import {
+  GetSchemaData,
+  IReadSchemaData,
+} from "@/controller/_actions/schema/schema.action";
 
 interface RowData {
   tabla_id: number;
   table_name: string;
   table_description: string;
-  columns: { column_id: number; column_name: string; column_description: string }[];
+  columns: {
+    column_id: number;
+    column_name: string;
+    column_description: string;
+  }[];
 }
 
 function Row(props: {
@@ -116,7 +123,10 @@ function Row(props: {
               size="small"
               defaultValue={row.table_description}
               onBlur={(e) => {
-                setTempTable({ ...tempTable, table_description: e.target.value });
+                setTempTable({
+                  ...tempTable,
+                  table_description: e.target.value,
+                });
               }}
             />
           ) : (
@@ -141,7 +151,9 @@ function Row(props: {
             )}
             <IconButton
               onClick={() =>
-                setRow((prev) => prev.filter((r) => r.table_id !== row.table_id))
+                setRow((prev) =>
+                  prev.filter((r) => r.table_id !== row.table_id)
+                )
               }
             >
               <DeleteIcon />
@@ -177,7 +189,10 @@ function Row(props: {
                               setTempTable((prev) => {
                                 const updatedColumns = prev.columns.map((c) => {
                                   if (c.column_id === column.column_id) {
-                                    return { ...c, column_name: e.target.value };
+                                    return {
+                                      ...c,
+                                      column_name: e.target.value,
+                                    };
                                   }
                                   return c;
                                 });
@@ -202,7 +217,10 @@ function Row(props: {
                               setTempTable((prev) => {
                                 const updatedColumns = prev.columns.map((c) => {
                                   if (c.column_id === column.column_id) {
-                                    return { ...c, column_alias: e.target.value };
+                                    return {
+                                      ...c,
+                                      column_alias: e.target.value,
+                                    };
                                   }
                                   return c;
                                 });
@@ -227,7 +245,10 @@ function Row(props: {
                               setTempTable((prev) => {
                                 const updatedColumns = prev.columns.map((c) => {
                                   if (c.column_id === column.column_id) {
-                                    return { ...c, column_description: e.target.value };
+                                    return {
+                                      ...c,
+                                      column_description: e.target.value,
+                                    };
                                   }
                                   return c;
                                 });
@@ -252,7 +273,10 @@ function Row(props: {
                               setTempTable((prev) => {
                                 const updatedColumns = prev.columns.map((c) => {
                                   if (c.column_id === column.column_id) {
-                                    return { ...c, column_data_type: e.target.value };
+                                    return {
+                                      ...c,
+                                      column_data_type: e.target.value,
+                                    };
                                   }
                                   return c;
                                 });
@@ -305,20 +329,24 @@ export function SchemaTableList() {
       table_description: "",
       columns: [
         {
-          column_id: 1, column_name: "Column 1", column_description: "",
+          column_id: 1,
+          column_name: "Column 1",
+          column_description: "",
           column_alias: "",
           column_data_type: "",
           foreign_key: 0,
           primary_key: 0,
-          relation_description: ""
+          relation_description: "",
         },
         {
-          column_id: 2, column_name: "Column 2", column_description: "",
+          column_id: 2,
+          column_name: "Column 2",
+          column_description: "",
           column_alias: "",
           column_data_type: "",
           foreign_key: 0,
           primary_key: 0,
-          relation_description: ""
+          relation_description: "",
         },
       ],
     };

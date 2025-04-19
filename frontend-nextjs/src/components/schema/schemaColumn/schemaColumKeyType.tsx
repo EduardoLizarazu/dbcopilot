@@ -3,7 +3,7 @@ import { Button, IconButton, Stack, Tooltip } from "@mui/material";
 import KeyIcon from "@mui/icons-material/VpnKey";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import React, { Suspense } from "react";
-import { ReadColumnByIdWithTable } from "@/controller/_actions/schema/schema.action";
+import { ReadColumnByIdWithTable } from "@/controller/_actions/schema/queries/read-column-by-id-with-table.query";
 import { SchemaColumnReadById } from "@/controller/_actions/schema/interface/schema_read_column_by_id";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";

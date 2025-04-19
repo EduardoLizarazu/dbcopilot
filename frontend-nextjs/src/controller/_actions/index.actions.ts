@@ -42,19 +42,6 @@ export type {
 export { CreateChatAction } from "./chat/chat.action";
 
 export {
-  GetSchemaData,
-  ReadSchemaData,
-  ReadTableByConnectionId,
-  ReadColumnByTableId,
-  UpdateSchemaTable,
-} from "./schema/schema.action";
-export type {
-  IReadSchemaData,
-  ISchemaTable,
-  ISchemaColumn,
-} from "./schema/schema.action";
-
-export {
   ReadAllSqlSchemaAction,
   CreateSqlSchemaAction,
   readSqlSchemaActionById,

@@ -4,10 +4,12 @@ import { TSchemaColumnWithTableSimple } from "@/controller/_actions/schema/inter
 import { TSchemaRelationUpdate } from "@/controller/_actions/schema/interface/schema_relation.interface";
 import {
   DeleteSchemaRelation,
-  ReadColumnByIdWithTable,
-  ReadSchemaRelationByIds,
   UpdateSchemaRelation,
 } from "@/controller/_actions/schema/schema.action";
+
+import { ReadColumnByIdWithTable } from "@/controller/_actions/schema/queries/read-column-by-id-with-table.query";
+import { ReadSchemaRelationByIds } from "@/controller/_actions/schema/queries/read-schema-relation-by-id.query";
+
 import {
   Button,
   Container,
