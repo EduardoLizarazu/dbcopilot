@@ -39,7 +39,9 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
   async function handleDeleteBtn() {
     try {
       const response = await DeleteConnectionAction(conn.id);
-      if (response.status === 201) {
+      console.log("Delete response:", response);
+
+      if (response.status === 200) {
         setFeedback({
           isActive: true,
           message: "Deleted successfully.",
