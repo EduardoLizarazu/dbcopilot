@@ -25,6 +25,6 @@ export async function CreateSchemaCmd(input: TConnection) {
   const response = await res.json();
 
   return {
-    status: response.status,
+    status: response,
   };
 }

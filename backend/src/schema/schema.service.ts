@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSchemaDto } from './dto/create-schema.dto';
 import { UpdateSchemaDto } from './dto/update-schema.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, QueryRunner } from 'typeorm';
 import { SchemaTable } from './schema_table/entities/schema_table.entity';
 import { SchemaColumn } from './schema_column/entities/schema_column.entity';
 import { SchemaRelation } from './schema_relation/entities/schema_relation.entity';
@@ -189,7 +189,7 @@ export class SchemaService {
     } catch (error) {
       console.error('Error creating schema: ', error);
       await queryRunner.rollbackTransaction();
-      throw new Error('Error creating schema: ' + error.message);
+      return HttpStatus.BAD_REQUEST;
     } finally {
       await queryRunner.release();
     }
@@ -207,13 +207,14 @@ export class SchemaService {
       const connectionEntity = queryRunner.manager.create(Connection, {
         name: input.name,
         description: input.description,
-        dbTypeId: input.dbTypeId,
+        // dbTypeId: input.dbTypeId,
         dbName: input.dbName,
         dbHost: input.dbHost,
         dbPort: input.dbPort,
         dbUsername: input.dbUsername,
         dbPassword: input.dbPassword,
         is_connected: input.is_connected, // Set to true
+        databasetype: { id: input.dbTypeId }, // Set the relation to the database type
       });
       const savedConnection = await queryRunner.manager.save(
         Connection,
@@ -247,14 +248,153 @@ export class SchemaService {
       const schema = await db.query(`${dbType.query}`); // Get the schema data
       await dataSource.destroy(); // Close connection after test
 
-      console.log('to save the schema: ', schema);
+      // console.log('to save the schema: ', schema);
 
-      const res = await this.create(savedConnection.id, schema); // Create the schema using the connection ID and schema data
+      // const res = await this.create(savedConnection.id, schema); // Create the schema using the connection ID and schema data
 
-      if (res !== HttpStatus.CREATED) {
-        console.error('Error creating schema: ', res);
-        return res;
+      // if (res !== HttpStatus.CREATED) {
+      //   console.error('Error creating schema: ', res);
+      //   queryRunner.rollbackTransaction();
+      //   return HttpStatus.BAD_REQUEST;
+      // }
+
+      // -----------------------------------------------------------------------------------------------------------------------------
+      console.log('schema: ', schema);
+
+      console.log('before saving schema...');
+      const transformedDataArray = createSchemaDtoToArray(schema);
+
+      for (const [tableIndex, table] of transformedDataArray.entries()) {
+        const schemaTable = queryRunner.manager.create(SchemaTable, {
+          technicalName: table.table_name,
+          connection: { id: savedConnection.id },
+        });
+        const savedTable = await queryRunner.manager.save(schemaTable); // save tables
+        transformedDataArray[tableIndex].table_id = savedTable.id; // Store the saved table ID back in the transformed data
+        console.log('I am saving the table', savedTable);
+
+        for (const [columnIndex, column] of table.columns.entries()) {
+          const schemaColumn = queryRunner.manager.create(SchemaColumn, {
+            technicalName: column.column_name,
+            dataType: column.data_type,
+            schemaTable: { id: savedTable.id }, // Set the relation to the saved schemaTable
+          });
+          const savedColumn = await queryRunner.manager.save(schemaColumn); // save columns
+          transformedDataArray[tableIndex].columns[columnIndex].column_id =
+            savedColumn.id; // Store the saved column ID back in the transformed data
+          console.log('I am saving the column', savedColumn);
+
+          // Save the key type
+          if (column.primary_key) {
+            // Get the primary key type of the entity SchemaColumnKey
+            const schemaColumnKey = await queryRunner.manager.findOne(
+              SchemaColumnKey,
+              {
+                where: { type: entityKeyType.PRIMARY_KEY },
+              },
+            );
+            if (!schemaColumnKey) throw new Error('Primary key type not found');
+            const schemaColumnKeyColumn = queryRunner.manager.create(
+              SchemaColumnKeyColumn,
+              {
+                id_column_key: schemaColumnKey.id,
+                id_schema_column: savedColumn.id,
+                is_static: true,
+              },
+            );
+            await queryRunner.manager.save(schemaColumnKeyColumn); // save primary key
+          }
+
+          if (column.foreign_key) {
+            // Get the foreign key type of the entity SchemaColumnKey
+            const schemaColumnKey = await queryRunner.manager.findOne(
+              SchemaColumnKey,
+              {
+                where: { type: entityKeyType.FOREIGN_KEY },
+              },
+            );
+            if (!schemaColumnKey) throw new Error('Foreign key type not found');
+            const schemaColumnKeyColumn = queryRunner.manager.create(
+              SchemaColumnKeyColumn,
+              {
+                id_column_key: schemaColumnKey.id,
+                id_schema_column: savedColumn.id,
+                is_static: true,
+              },
+            );
+            await queryRunner.manager.save(schemaColumnKeyColumn); // save foreign key
+          }
+
+          if (column.unique_key) {
+            // Get the unique key type of the entity SchemaColumnKey
+            const schemaColumnKey = await queryRunner.manager.findOne(
+              SchemaColumnKey,
+              {
+                where: { type: entityKeyType.UNIQUE_KEY },
+              },
+            );
+            if (!schemaColumnKey) throw new Error('Unique key type not found');
+            const schemaColumnKeyColumn = queryRunner.manager.create(
+              SchemaColumnKeyColumn,
+              {
+                id_column_key: schemaColumnKey.id,
+                id_schema_column: savedColumn.id,
+                is_static: true,
+              },
+            );
+            await queryRunner.manager.save(schemaColumnKeyColumn); // save unique key
+          }
+        }
       }
+
+      console.log('transformedDataArray', transformedDataArray);
+
+      // Save relations
+      for (const table of transformedDataArray) {
+        for (const column of table.columns) {
+          if (column.referenced_table && column.referenced_column) {
+            // PRIMARY KEY OR COLUMN FATHER
+            // Find table's id for the primary key or column father
+            const referencedTable = transformedDataArray.find(
+              (t) => t.table_name === column.referenced_table,
+            );
+
+            // Find column's id of the referenced table based on the referenced column name
+            const referencedColumn = referencedTable?.columns.find(
+              (c) => c.column_name === column.referenced_column,
+            );
+
+            // If the referenced table and column exist, create the relation
+            if (referencedTable && referencedColumn) {
+              // FOREIGN KEY
+              // Find the table'id for the foreign key
+              const foreignKeyTable = transformedDataArray.find(
+                (t) => t.table_name === table.table_name,
+              );
+              // Find the column'id of the foreign key table based on the column name
+              const foreignKeyColumn = foreignKeyTable?.columns.find(
+                (c) => c.column_name === column.column_name,
+              );
+
+              if (foreignKeyColumn) {
+                const schemaRelation = queryRunner.manager.create(
+                  SchemaRelation,
+                  {
+                    columnIdChild: foreignKeyColumn.column_id, // Set the relation to the foreign key column
+                    columnIdFather: referencedColumn.column_id, // Set the relation to the referenced column
+                    isStatic: true,
+                  },
+                );
+                await queryRunner.manager.save(schemaRelation);
+                console.log('I am saving the relation', schemaRelation);
+              }
+            }
+          }
+        }
+      }
+
+      console.log('after saving...');
+      // -----------------------------------------------------------------------------------------------------------------------------
 
       await queryRunner.commitTransaction();
       return HttpStatus.CREATED;
@@ -262,6 +402,8 @@ export class SchemaService {
       console.error('Error creating schema including connection: ', error);
       await queryRunner.rollbackTransaction();
       return HttpStatus.BAD_REQUEST;
+    } finally {
+      await queryRunner.release(); // Release the query runner
     }
   }
 

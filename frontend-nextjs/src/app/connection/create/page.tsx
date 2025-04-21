@@ -102,7 +102,7 @@ export default function CreateConnectionPage() {
             dbName: conn.dbName,
             dbUsername: conn.dbUsername,
             dbPassword: conn.dbPassword || "",
-            is_connected: conn.is_connected,
+            is_connected: true,
           })
         : await CreateConnectionAction({
             name: conn.name,
@@ -115,6 +115,7 @@ export default function CreateConnectionPage() {
             dbPassword: conn.dbPassword || "",
             is_connected: false,
           });
+      console.log("Response: ", res);
       if (res?.status === 201) {
         setFeedback({
           isActive: true,
