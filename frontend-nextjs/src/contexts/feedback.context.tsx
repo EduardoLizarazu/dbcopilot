@@ -49,10 +49,6 @@ export function FeedbackContextProvider({
     return (
         <FeedbackContext.Provider value={{ feedback, setFeedback }}>
             {children}
-            { feedback.isActive ?? 
-                <FeedbackSnackBar message={feedback.message} 
-                severity={feedback.severity} 
-            />}
         </FeedbackContext.Provider>
     );
 }

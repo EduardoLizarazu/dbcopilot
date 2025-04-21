@@ -21,6 +21,7 @@ import { FeedbackSnackBar } from "@/components/shared/feedbackSnackBar";
 import { useRouter } from "next/navigation";
 import { SchemaSimpleGeneral } from "@/components/schema/schemaSimpleGeneral";
 import { CreateSchemaCmd } from "@/controller/_actions/schema/commands/create-schema.command";
+import { useFeedbackContext } from "@/contexts/feedback.context";
 
 interface Connection extends Omit<CreateConnectionInput, "dbPort"> {
   dbPort: string;
@@ -28,6 +29,9 @@ interface Connection extends Omit<CreateConnectionInput, "dbPort"> {
 
 export default function CreateConnectionPage() {
   const router = useRouter();
+
+  // CONTEXT
+  const { setFeedback, feedback } = useFeedbackContext();
 
   // USE STATE
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -51,11 +55,11 @@ export default function CreateConnectionPage() {
 
   const [isSchemaSimple, setSchemaSimple] = React.useState<boolean>(false);
 
-  const [feedback, setFeedback] = React.useState({
-    isActive: false,
-    message: "",
-    severity: null as "success" | "error" | "warning" | "info" | null,
-  });
+  // const [feedback, setFeedback] = React.useState({
+  //   isActive: false,
+  //   message: "",
+  //   severity: null as "success" | "error" | "warning" | "info" | null,
+  // });
 
   // USE EFFECT
   React.useEffect(() => {
@@ -378,12 +382,12 @@ export default function CreateConnectionPage() {
       )}
 
       {/* Feedback message */}
-      {feedback.isActive && (
+      {/* {feedback.isActive && (
         <FeedbackSnackBar
           message={feedback.message}
           severity={feedback.severity}
         />
-      )}
+      )} */}
     </Container>
   );
 }
