@@ -7,11 +7,13 @@ type TSeverity = "success" | "error" | "warning" | "info" | null;
 
 type TFeedbackContext = {
     feedback : {
+        isActive: boolean;
         message: string;
         severity: TSeverity
     };
     setFeedback: React.Dispatch< 
         React.SetStateAction<{
+            isActive: boolean;
             message: string;
             severity: TSeverity;
         }>
@@ -39,6 +41,7 @@ export function FeedbackContextProvider({
 }) {    
 
     const [feedback, setFeedback] = React.useState({
+        isActive: false,
         message: "",
         severity: null as TSeverity,
     });
@@ -46,7 +49,10 @@ export function FeedbackContextProvider({
     return (
         <FeedbackContext.Provider value={{ feedback, setFeedback }}>
             {children}
-            <FeedbackSnackBar message={""} severity={null} />
+            { feedback.isActive ?? 
+                <FeedbackSnackBar message={feedback.message} 
+                severity={feedback.severity} 
+            />}
         </FeedbackContext.Provider>
     );
 }
