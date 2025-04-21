@@ -30,6 +30,8 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import CableIcon from "@mui/icons-material/Cable";
 import { Link, Tooltip } from "@mui/material";
 import SchemaIcon from '@mui/icons-material/Schema';
+import { FeedbackSnackBar } from "./shared/feedbackSnackBar";
+import { useFeedbackContext } from "@/contexts/feedback.context";
 
 const links = [
   { href: "/", label: "Home", icon: <HomeIcon /> },
@@ -163,6 +165,10 @@ export default function MiniDrawer({
 }: {
   children: React.ReactNode;
 }) {
+
+  // CONTEXT 
+  const { feedback } = useFeedbackContext();
+
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -268,6 +274,7 @@ export default function MiniDrawer({
         {/* Add your content here */}
         {children}
       </Box>
+      { feedback.isActive && <FeedbackSnackBar message={feedback.message} severity={feedback.severity} />}
     </Box>
   );
 }
