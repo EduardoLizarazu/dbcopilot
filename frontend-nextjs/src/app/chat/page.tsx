@@ -66,6 +66,7 @@ export default function ChatPage() {
       // Fetch data
       // const connDbs = await GetConnectionAction();
       // setDatabase(connDbs);
+
       setLoading(false);
     })();
   }, []);
@@ -192,7 +193,7 @@ export default function ChatPage() {
           getOptionLabel={(option) => option.connectionName || ""}
           sx={{ width: 300 }}
           aria-label="Select database connection"
-          renderInput={(params) => <TextField {...params} label="Database" />}
+          renderInput={(params) => <TextField {...params} label="Select database connection..." />}
         />
 
         {/* Prompt */}
