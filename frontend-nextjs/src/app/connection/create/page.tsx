@@ -161,6 +161,26 @@ export default function CreateConnectionPage() {
   async function handleCancel() {
     // Cancel create connection
     console.log("Cancel create connection");
+    setConn({
+      name: "",
+      description: "",
+      dbTypeId: 0,
+      dbHost: "",
+      dbPort: "",
+      dbName: "",
+      dbUsername: "",
+      dbPassword: "",
+      is_connected: false,
+    });
+    setDatabaseTypeId(0);
+    setSchemaSimple(false);
+    setFeedback({
+      isActive: false,
+      message: "",
+      severity: null,
+    });
+    setLoading(true);
+    router.back();
   }
 
   async function handleTest() {
