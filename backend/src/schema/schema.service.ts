@@ -43,13 +43,64 @@ export class SchemaService {
     private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
 
-  async create(connectionId: number, createSchemaDto: CreateSchemaDto[]) {
+  async create(connectionId: number) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      const transformedDataArray = createSchemaDtoToArray(createSchemaDto);
+      // Verify the table does not have connection id related to it
+      const existingSchema = await queryRunner.manager.findOne(SchemaTable, {
+        where: { connection: { id: connectionId } },
+      });
+      if (existingSchema) {
+        console.error(
+          'Schema already exists for this connection ID:',
+          connectionId,
+        );
+        return HttpStatus.CONFLICT;
+      }
+
+      // Get Connection from the connectionId relation with database type with password
+      const connection = await queryRunner.manager.findOne(Connection, {
+        where: { id: connectionId },
+        relations: ['databasetype'],
+        select: {
+          id: true,
+          dbHost: true,
+          dbPort: true,
+          dbUsername: true,
+          dbPassword: true,
+          dbName: true,
+          databasetype: {
+            id: true,
+            type: true,
+            query: true,
+          },
+        },
+      });
+      if (!connection) {
+        console.error('Connection not found');
+        return HttpStatus.NOT_FOUND;
+      }
+      console.log('connection', connection);
+
+      // Get the schema data from the saved connection
+      const dataSource = new DataSource({
+        type: connection.databasetype.type as any, // Cast to TypeORM's DatabaseType
+        host: connection.dbHost,
+        port: connection.dbPort,
+        username: connection.dbUsername,
+        password: connection.dbPassword,
+        database: connection.dbName,
+        synchronize: false,
+        logging: false,
+      });
+      const db = await dataSource.initialize(); // Initialize and check connection
+      const schema = await db.query(`${connection.databasetype.query}`); // Get the schema data
+      await dataSource.destroy(); // Close connection after test
+
+      const transformedDataArray = createSchemaDtoToArray(schema);
 
       console.log('before saving...');
       for (const [tableIndex, table] of transformedDataArray.entries()) {

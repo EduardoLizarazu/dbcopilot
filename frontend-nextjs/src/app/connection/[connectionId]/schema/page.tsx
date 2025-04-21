@@ -23,7 +23,7 @@ export default async function SchemaPage({
       Number(connectionId)
     );
     console.log("SchemaPage response", response);
-    if (response.status === 200) {
+    if (response.status === 201) {
       console.log("Schema table created successfully");
       schemaTableAux = await ReadTableByConnectionId(Number(connectionId));
     } else {

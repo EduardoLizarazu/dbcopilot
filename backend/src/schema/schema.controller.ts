@@ -43,15 +43,11 @@ export class SchemaController {
   }
 
   @Post(':connectionId')
-  create(
-    @Param('connectionId') connectionId: string,
-    @Body() createSchemaDto: CreateSchemaDto[],
-    @Req() req: Request,
-  ) {
+  create(@Param('connectionId') connectionId: string, @Req() req: Request) {
     console.log('REQUEST URL:', req.url);
     console.log('REQUEST METHOD:', req.method);
-    console.log('createSchemaDto', createSchemaDto);
-    return this.schemaService.create(+connectionId, createSchemaDto);
+    console.log('create', connectionId);
+    return this.schemaService.create(+connectionId);
   }
 
   @Get()
