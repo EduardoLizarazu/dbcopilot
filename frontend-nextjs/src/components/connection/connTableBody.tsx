@@ -47,9 +47,7 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
           message: "Deleted successfully.",
           severity: "success",
         });
-        setTimeout(() => {
-          router.refresh(); // Refresh the page to reflect the changes
-        }, 2000);
+        setConnData({} as ReadConnectionOutput); // Clear the connection data
       } else {
         setFeedback({
           isActive: true,
@@ -65,7 +63,16 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
   }
 
   function handleSchemaBtn() {
-    router.push(`/connection/${conn.id}/schema`);
+    if (connData.is_connected) {
+      router.push(`/connection/${conn.id}/schema`);
+    } else {
+      setFeedback({
+        isActive: true,
+        message: "Connection is not established.",
+        severity: "error",
+      });
+    }
+    resetFeedback();
   }
 
   async function handleTestBtn() {

@@ -201,13 +201,7 @@ export class ConnectionService {
     } catch (error) {
       console.error('Connection test failed:', error.message);
       await this.updateConnectionStatus(id, false); // Update connection status to false
-      throw new HttpException(
-        {
-          status: 'error',
-          message: error.message,
-        },
-        400,
-      );
+      return HttpStatus.BAD_REQUEST;
     }
   }
 
@@ -247,13 +241,7 @@ export class ConnectionService {
       return schema;
     } catch (error) {
       console.error('Connection test failed:', error.message);
-      throw new HttpException(
-        {
-          status: 'error',
-          message: error.message,
-        },
-        400,
-      );
+      return HttpStatus.BAD_REQUEST;
     }
   }
 }
