@@ -86,8 +86,6 @@ export default function ChatPage() {
       setResult(response);
     } catch (error) {
       console.error("Error submitting prompt:", error);
-    } finally {
-      console.log("Prompt submitted successfully");
     }
   }
 
