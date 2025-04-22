@@ -25,9 +25,9 @@ import {
   TReadConnectionQry,
 } from "@/controller/_actions/connection/query/read-connection.query";
 import { ConnTestResultTxt } from "@/components/connection/connTestResultTxt";
-import { ChatBtnAction } from "@/components/chat/chatBtnAction";
-import { ChatResultTable } from "@/components/chat/chatResultTable";
-import { ChatSqlEditor } from "@/components/chat/chatSqlEditor";
+import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
+import { ChatResultTable } from "@/components/chat/result/chatResultTable";
+import { ChatSqlEditor } from "@/components/chat/result/chatSqlEditor";
 
 enum TabResultValueEnum {
   Result = "1",
