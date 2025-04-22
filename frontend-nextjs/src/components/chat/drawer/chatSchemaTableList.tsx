@@ -43,7 +43,7 @@ export function ChatSchemaTableList({ connId }: TChatSchemaTableListProps) {
     <>
       <TextField
         type="text"
-        label="Search"
+        label="Search..."
         value={search}
         onChange={handleSearch}
         variant="outlined"
