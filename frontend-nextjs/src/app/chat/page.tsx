@@ -11,7 +11,6 @@ import {
   Typography,
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { CreateChatAction } from "@/controller/_actions/index.actions";
 import { DrawerRightChat } from "@/components/chat/drawer/DrawerRightChat";
 import {
   ReadConnectionOnlyIfIsConnectedQry,
@@ -22,6 +21,10 @@ import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { ChatSqlEditor } from "@/components/chat/result/chatSqlEditor";
 import { ChatFeedbackBtn } from "@/components/chat/prompt/chatFeedbackBtn";
+import {
+  CreatePromptCmdWithConnId,
+  TCreatePromptCmdWithConnIdOutput,
+} from "@/controller/_actions/chat/command/create-prompt-with-connection-id.command";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -55,8 +58,8 @@ export default function ChatPage() {
 
   // prompt, result and insight
   const [prompt, setPrompt] = React.useState<string>("");
-  const [result, setResult] = React.useState<string>("");
-  const [insight, setInsight] = React.useState<string>("");
+  const [result, setResult] =
+    React.useState<TCreatePromptCmdWithConnIdOutput>();
 
   // EFFECTS
   React.useEffect(() => {
@@ -73,18 +76,19 @@ export default function ChatPage() {
   async function handleSubmitPrompt() {
     // Fetch data
     console.log("Submit prompt", prompt);
-
-    const res = await CreateChatAction({
-      userId: { id: 1 },
-      connectionId: { id: 1 },
-      prompt: {
-        text: prompt,
-        userId: 1,
-      },
-    });
-
-    setResult(res.response.result.text);
-    setInsight(res.response.insight.originalInsight);
+    try {
+      const response: TCreatePromptCmdWithConnIdOutput =
+        await CreatePromptCmdWithConnId({
+          connectionId: selectedDatabaseId,
+          prompt: prompt.trim().toLowerCase(),
+        });
+      console.log("response create prompt with connection id: ", response);
+      setResult(response);
+    } catch (error) {
+      console.error("Error submitting prompt:", error);
+    } finally {
+      console.log("Prompt submitted successfully");
+    }
   }
 
   const handleChangeTapResultBar = (
@@ -188,18 +192,20 @@ export default function ChatPage() {
               </Box>
               <TabPanel value="1">
                 {/* Chat result table */}
-                <ChatResultTable data={[]} />
+                <ChatResultTable
+                  data={(result?.data || []).map((item) => ({ data: [item] }))}
+                />
               </TabPanel>
               <TabPanel value="2">
-                <ChatSqlEditor />
+                <ChatSqlEditor sqlQueryData={result?.final_query || ""} />
               </TabPanel>
               <TabPanel value="3">
                 {/* Chat insight */}
                 <TextField
                   label=""
                   placeholder=""
-                  value={insight}
-                  onChange={(e) => setInsight(e.target.value)}
+                  value={""}
+                  onChange={(e) => {}}
                   multiline
                   variant="outlined"
                   minRows={10}

@@ -3,6 +3,7 @@ import { Box, Button, Container, Menu, MenuItem } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React from "react";
 import { ChatResultExportBtn } from "./chatResultExportBtn";
+import { TCreatePromptCmdWithConnIdOutput } from "@/controller/_actions/chat/command/create-prompt-with-connection-id.command";
 
 /**
  * "data": [
@@ -35,7 +36,7 @@ import { ChatResultExportBtn } from "./chatResultExportBtn";
  *
  */
 type TChatResultTableProps = {
-  data: Record<string, unknown>[];
+  data: Omit<TCreatePromptCmdWithConnIdOutput, "final_query">[]; // Adjust the type based on your data structure
 };
 
 export function ChatResultTable({ data }: TChatResultTableProps) {

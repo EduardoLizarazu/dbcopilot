@@ -3,11 +3,15 @@ import { Button, Stack, TextField } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import React from "react";
 
-export function ChatSqlEditor() {
+type TChatSqlEditorProps = {
+  sqlQueryData: string;
+};
+
+export function ChatSqlEditor({ sqlQueryData }: TChatSqlEditorProps) {
   const [isEditableSqlQuery, setIsEditableSqlQuery] =
     React.useState<boolean>(false);
 
-  const [sqlQuery, setSqlQuery] = React.useState<string>("");
+  const [sqlQuery, setSqlQuery] = React.useState<string>(sqlQueryData);
   const handleClickEditSqlQuery = () => {
     setIsEditableSqlQuery(!isEditableSqlQuery);
   };

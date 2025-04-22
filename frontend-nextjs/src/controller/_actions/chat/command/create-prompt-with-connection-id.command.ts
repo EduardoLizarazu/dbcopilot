@@ -1,9 +1,9 @@
 "use server";
-type TCreatePromptCmdWithConnIdInput = {
+export type TCreatePromptCmdWithConnIdInput = {
   connectionId: number;
   prompt: string;
 };
-type TCreatePromptCmdWithConnIdOutput = {
+export type TCreatePromptCmdWithConnIdOutput = {
   data: Record<string, unknown>[];
   final_query: string;
 };
@@ -16,6 +16,16 @@ export async function CreatePromptCmdWithConnId(
       input.connectionId,
       input.prompt
     );
+
+    // Validate input
+    if (!input.connectionId || !input.prompt) {
+      throw new Error("Invalid input: connectionId and prompt are required.");
+    }
+
+    // validate length of prompt trim
+    if (input.prompt.trim().length < 5) {
+      throw new Error("Prompt must be at least 5 characters long.");
+    }
 
     const response = await fetch(`${process.env.BASE_URL}/prompt`, {
       method: "POST",
