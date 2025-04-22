@@ -122,7 +122,9 @@ export default function ChatPage() {
           >
             <Typography variant="h4">Chat with your database </Typography>
             {/* Drawer right chat */}
-            <DrawerRightChat />
+            <DrawerRightChat
+              connId={selectedDatabaseId !== 0 ? selectedDatabaseId : null}
+            />
           </Stack>
 
           {/* Select database */}

@@ -6,8 +6,13 @@ import { ChatStoryList } from "../chat/chatStoryList";
 import { IconButton, Tab } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { ChatSchemaTableHead } from "./drawer/chatSchemaTableHead";
 
-export function DrawerRightChat() {
+type TDrawerRightChatProps = {
+  connId: number | null;
+};
+
+export function DrawerRightChat({ connId }: TDrawerRightChatProps) {
   const [open, setOpen] = React.useState(false);
 
   const [value, setValue] = React.useState("1");
@@ -36,9 +41,18 @@ export function DrawerRightChat() {
         </Box>
 
         <TabPanel value="1">
-          <SchemaList />
+          {/* Schema List */}
+          {/* <SchemaList /> */}
+          {connId ? (
+            <ChatSchemaTableHead connId={connId} />
+          ) : (
+            <div style={{ textAlign: "center", marginTop: 50 }}>
+              <h2>Please select a connection</h2>
+            </div>
+          )}
         </TabPanel>
         <TabPanel value="2">
+          {/* Chat history */}
           <ChatStoryList />
         </TabPanel>
       </TabContext>
