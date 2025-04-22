@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import React from "react";
+import React, { Suspense } from "react";
 
 type TChatSchemaTableListProps = {
   connId: number;
@@ -60,16 +60,18 @@ export function ChatSchemaTableAccordion({
         sx={{ marginBottom: 1 }}
       />
 
-      {filteredSchemaTable.map((schemaTableData: ISchemaTable) => (
-        <Accordion key={schemaTableData.table_id}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography>{schemaTableData.table_name}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography>{schemaTableData.table_description}</Typography>
-          </AccordionDetails>
-        </Accordion>
-      ))}
+      <Suspense fallback={<div>Loading...</div>}>
+        {filteredSchemaTable.map((schemaTableData: ISchemaTable) => (
+          <Accordion key={schemaTableData.table_id}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography>{schemaTableData.table_name}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>{schemaTableData.table_description}</Typography>
+            </AccordionDetails>
+          </Accordion>
+        ))}
+      </Suspense>
     </div>
   );
 }
