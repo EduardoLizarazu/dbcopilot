@@ -17,6 +17,12 @@ export class PromptController {
 
   @Post()
   create(@Body() createPromptDto: CreatePromptDto) {
+    console.log(
+      'create prompt with connection id: ',
+      createPromptDto.connectionId,
+      createPromptDto.prompt,
+    );
+
     return this.promptService.handleUserPrompt(
       createPromptDto.connectionId,
       createPromptDto.prompt,
