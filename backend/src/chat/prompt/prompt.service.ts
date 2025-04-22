@@ -193,7 +193,7 @@ export class PromptService {
 
       // 4. Save to database
       const savedPrompt = await queryRunner.manager.save(Prompt, {
-        connectionId,
+        connection: { id: connectionId } as Connection,
         title: userPrompt.substring(0, 50),
         prompt: userPrompt,
       });
