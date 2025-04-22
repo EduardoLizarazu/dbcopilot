@@ -5,6 +5,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  TextField,
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -48,6 +49,17 @@ export function ChatSchemaTableAccordion({
 
   return (
     <div>
+      <TextField
+        type="text"
+        label="Search..."
+        value={search}
+        onChange={handleSearch}
+        variant="outlined"
+        fullWidth
+        size="small"
+        sx={{ marginBottom: 1 }}
+      />
+
       {filteredSchemaTable.map((schemaTableData: ISchemaTable) => (
         <Accordion key={schemaTableData.table_id}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
