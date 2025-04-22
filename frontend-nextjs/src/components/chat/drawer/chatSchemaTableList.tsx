@@ -19,6 +19,17 @@ export function ChatSchemaTableList({ connId }: TChatSchemaTableListProps) {
     },
   ]);
 
+  // filter by search
+  const [search, setSearch] = React.useState<string>("");
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
+  };
+
+  // filter by search
+  const filteredSchemaTable = schemaTable.filter((schemaTableData) =>
+    schemaTableData.table_name.toLowerCase().includes(search.toLowerCase())
+  );
+
   React.useEffect(() => {
     (async () => {
       const response = await ReadTableByConnectionId(Number(connId));
@@ -33,8 +44,8 @@ export function ChatSchemaTableList({ connId }: TChatSchemaTableListProps) {
       <TextField
         type="text"
         label="Search"
-        value={""}
-        onChange={() => {}}
+        value={search}
+        onChange={handleSearch}
         variant="outlined"
         fullWidth
         size="small"
@@ -46,7 +57,7 @@ export function ChatSchemaTableList({ connId }: TChatSchemaTableListProps) {
         sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
       >
         <Suspense fallback={<div>Loading...</div>}>
-          {schemaTable.map((schemaTableData: ISchemaTable) => (
+          {filteredSchemaTable.map((schemaTableData: ISchemaTable) => (
             <ChatSchemaTableListItem
               key={schemaTableData.table_id}
               schemaTableData={schemaTableData}
