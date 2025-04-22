@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { PromptService } from './prompt.service';
 import { CreatePromptDto } from './dto/create-prompt.dto';
 import { UpdatePromptDto } from './dto/update-prompt.dto';
@@ -9,7 +17,10 @@ export class PromptController {
 
   @Post()
   create(@Body() createPromptDto: CreatePromptDto) {
-    return this.promptService.create(createPromptDto);
+    return this.promptService.handleUserPrompt(
+      createPromptDto.connectionId,
+      createPromptDto.prompt,
+    );
   }
 
   @Get()

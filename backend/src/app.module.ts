@@ -15,6 +15,8 @@ import { ConnectionModule } from './connection/connection.module';
 import { DatabasetypeModule } from './databasetype/databasetype.module';
 import { SchemaModule } from './schema/schema.module';
 import { ChatModule } from './chat/chat.module';
+import { AiService } from './ai/ai.service';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -39,10 +41,12 @@ import { ChatModule } from './chat/chat.module';
     DatabasetypeModule,
     SchemaModule,
     ChatModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    AiService,
     // {
     //   provide: APP_GUARD,
     //   useClass: JwtAuthGuard,
