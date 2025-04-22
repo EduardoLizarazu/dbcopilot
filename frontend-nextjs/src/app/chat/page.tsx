@@ -27,6 +27,7 @@ import {
 import { ConnTestResultTxt } from "@/components/connection/connTestResultTxt";
 import { ChatBtnAction } from "@/components/chat/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/chatResultTable";
+import { ChatSqlEditor } from "@/components/chat/chatSqlEditor";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -57,9 +58,7 @@ export default function ChatPage() {
 
   const [prompt, setPrompt] = React.useState<string>("");
   const [result, setResult] = React.useState<string>("");
-  const [sqlQuery, setSqlQuery] = React.useState<string>("");
-  const [isEditableSqlQuery, setIsEditableSqlQuery] =
-    React.useState<boolean>(false);
+
   const [insight, setInsight] = React.useState<string>("");
   const [schema, setSchema] = React.useState<string>("");
 
@@ -97,7 +96,6 @@ export default function ChatPage() {
     });
 
     setResult(res.response.result.text);
-    setSqlQuery(res.response.query.originalQuery);
     setInsight(res.response.insight.originalInsight);
   }
 
@@ -115,14 +113,6 @@ export default function ChatPage() {
     setSelectedDatabaseId(newValue?.id || 0);
     console.log("Selected database id", newValue);
   };
-
-  const handleClickEditSqlQuery = () => {
-    setIsEditableSqlQuery(!isEditableSqlQuery);
-  };
-
-  function handleExecuteSQLQuery(): void {
-    console.log("Execute SQL Query", sqlQuery);
-  }
 
   function handleReset() {
     throw new Error("Function not implemented.");
@@ -214,47 +204,14 @@ export default function ChatPage() {
               </TabList>
             </Box>
             <TabPanel value="1">
+              {/* Chat result table */}
               <ChatResultTable />
             </TabPanel>
             <TabPanel value="2">
-              <TextField
-                label=""
-                placeholder=""
-                value={sqlQuery}
-                onChange={(e) => setSqlQuery(e.target.value)}
-                multiline
-                variant="outlined"
-                minRows={10}
-                maxRows={50}
-                fullWidth
-                aria-readonly={!isEditableSqlQuery}
-                disabled={!isEditableSqlQuery}
-              />
-              <Stack direction="row" spacing={2} style={{ marginTop: 10 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleClickEditSqlQuery}
-                  endIcon={
-                    isEditableSqlQuery ? (
-                      <EditIcon style={{ opacity: 0.3 }} />
-                    ) : (
-                      <EditIcon style={{ opacity: 1 }} />
-                    )
-                  }
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="contained"
-                  color="success"
-                  onClick={handleExecuteSQLQuery}
-                >
-                  Execute
-                </Button>
-              </Stack>
+              <ChatSqlEditor />
             </TabPanel>
             <TabPanel value="3">
+              {/* Chat insight */}
               <TextField
                 label=""
                 placeholder=""
