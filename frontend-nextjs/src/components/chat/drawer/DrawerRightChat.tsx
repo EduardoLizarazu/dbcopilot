@@ -1,14 +1,14 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
-import { SchemaList } from "../schema/schemaList";
-import { ChatStoryList } from "../chat/chatStoryList";
+import { SchemaList } from "../../schema/schemaList";
+import { ChatStoryList } from "./history/chatStoryList";
 import { IconButton, Tab } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { ChatSchemaTableHead } from "./drawer/chatSchemaTableHead";
-import { ChatSchemaTableList } from "./drawer/chatSchemaTableList";
-import { ChatSchemaTableAccordion } from "./drawer/chatSchemaTableAccordion";
+import { ChatSchemaTableHead } from "./schema/chatSchemaTableHead";
+import { ChatSchemaTableList } from "../drawer/schema/chatSchemaTableList";
+import { ChatSchemaTableAccordion } from "./schema/chatSchemaTableAccordion";
 
 type TDrawerRightChatProps = {
   connId: number | null;

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { CreateChatAction } from "@/controller/_actions/index.actions";
-import { DrawerRightChat } from "@/components/chat/DrawerRightChat";
+import { DrawerRightChat } from "@/components/chat/drawer/DrawerRightChat";
 import {
   ReadConnectionOnlyIfIsConnectedQry,
   TReadConnectionQry,
