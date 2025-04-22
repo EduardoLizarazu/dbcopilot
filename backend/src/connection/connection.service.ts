@@ -87,6 +87,32 @@ export class ConnectionService {
       throw new Error('Failed to fetch connection');
     }
   }
+  async findAllOnlyIfIsConnectedService() {
+    try {
+      return await this.connectionRepository.find({
+        where: { is_connected: true },
+        relations: ['databasetype'],
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          dbName: true,
+          dbHost: true,
+          dbPort: true,
+          dbUsername: true,
+          dbPassword: false,
+          is_connected: true,
+          databasetype: {
+            id: true,
+            type: true,
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching connections:', error);
+      throw new Error('Failed to fetch connections');
+    }
+  }
 
   async update(id: number, updateConnectionDto: UpdateConnectionDto) {
     try {

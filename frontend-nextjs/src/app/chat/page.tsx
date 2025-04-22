@@ -14,14 +14,16 @@ import {
   Typography,
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import {
-  CreateChatAction,
-} from "@/controller/_actions/index.actions";
+import { CreateChatAction } from "@/controller/_actions/index.actions";
 import { ReadConnectionUseCaseOutput } from "@useCases/index.usecase";
 import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { DrawerRightChat } from "@/components/chat/DrawerRightChat";
 import { ChatStoryList } from "@/components/chat/chatStoryList";
+import {
+  ReadConnectionOnlyIfIsConnectedQry,
+  TReadConnectionQry,
+} from "@/controller/_actions/connection/query/read-connection.query";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -32,9 +34,22 @@ enum TabResultValueEnum {
 export default function ChatPage() {
   // USE STATES
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [database, setDatabase] = React.useState<ReadConnectionUseCaseOutput[]>(
-    []
-  );
+  // Fetch data
+  const [database, setDatabase] = React.useState<TReadConnectionQry[]>([
+    {
+      id: 0,
+      name: "",
+      description: "",
+      dbName: "",
+      dbHost: "",
+      dbPort: 0,
+      dbUsername: "",
+      dbPassword: "",
+      dbTypeId: 0,
+      dbType: "",
+      is_connected: false,
+    },
+  ]);
   const [selectedDatabase, setSelectedDatabase] = React.useState<string>("");
   const [prompt, setPrompt] = React.useState<string>("");
   const [result, setResult] = React.useState<string>("");
@@ -64,8 +79,9 @@ export default function ChatPage() {
     (async () => {
       setLoading(true);
       // Fetch data
-      // const connDbs = await GetConnectionAction();
-      // setDatabase(connDbs);
+      const connDbs: TReadConnectionQry[] =
+        await ReadConnectionOnlyIfIsConnectedQry();
+      setDatabase(connDbs);
 
       setLoading(false);
     })();
@@ -190,10 +206,12 @@ export default function ChatPage() {
         <Autocomplete
           disablePortal
           options={database}
-          getOptionLabel={(option) => option.connectionName || ""}
+          getOptionLabel={(option) => option.name || ""}
           sx={{ width: 300 }}
           aria-label="Select database connection"
-          renderInput={(params) => <TextField {...params} label="Select database connection..." />}
+          renderInput={(params) => (
+            <TextField {...params} label="Select database connection..." />
+          )}
         />
 
         {/* Prompt */}

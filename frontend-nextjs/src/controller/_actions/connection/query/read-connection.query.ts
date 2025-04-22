@@ -31,13 +31,16 @@ export type TReadConnectionQry = {
   is_connected: boolean;
 };
 
-export async function ReadConnectionQry() {
-  const response = await fetch(`${process.env.BASE_URL}/connection`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export async function ReadConnectionOnlyIfIsConnectedQry() {
+  const response = await fetch(
+    `${process.env.BASE_URL}/connection/all-only-if-is-connected`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   if (!response.ok) {
     throw new Error("Failed to fetch connections");
   }

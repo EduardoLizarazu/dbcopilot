@@ -25,6 +25,17 @@ export class ConnectionController {
     }
   }
 
+  @Get('all-only-if-is-connected')
+  findAllOnlyIfIsConnected() {
+    try {
+      console.log('Fetching all connections that are connected...');
+      return this.connectionService.findAllOnlyIfIsConnectedService();
+    } catch (error) {
+      console.error('Error fetching connections:', error);
+      throw new Error('Failed to fetch connections');
+    }
+  }
+
   @Get()
   findAll() {
     try {
