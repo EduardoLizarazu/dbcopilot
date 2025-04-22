@@ -29,12 +29,15 @@ import ChatIcon from "@mui/icons-material/Chat";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import CableIcon from "@mui/icons-material/Cable";
 import { Link, Tooltip } from "@mui/material";
-import SchemaIcon from '@mui/icons-material/Schema';
+import SchemaIcon from "@mui/icons-material/Schema";
 import { FeedbackSnackBar } from "./shared/feedbackSnackBar";
 import { useFeedbackContext } from "@/contexts/feedback.context";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import ForumIcon from "@mui/icons-material/Forum";
 
 const links = [
   { href: "/", label: "Home", icon: <HomeIcon /> },
+  { href: "/dashboard", label: "Dashboard", icon: <DashboardIcon /> },
   { href: "/auth/users", label: "User Management", icon: <PeopleIcon /> },
   {
     href: "/auth/roles",
@@ -54,6 +57,11 @@ const links = [
     href: "/chat",
     label: "Chat",
     icon: <ChatIcon />,
+  },
+  {
+    href: "/chat/history",
+    label: "History Chat",
+    icon: <ForumIcon />,
   },
   {
     href: "/connection",
@@ -165,8 +173,7 @@ export default function MiniDrawer({
 }: {
   children: React.ReactNode;
 }) {
-
-  // CONTEXT 
+  // CONTEXT
   const { feedback } = useFeedbackContext();
 
   const theme = useTheme();
@@ -274,7 +281,12 @@ export default function MiniDrawer({
         {/* Add your content here */}
         {children}
       </Box>
-      { feedback.isActive && <FeedbackSnackBar message={feedback.message} severity={feedback.severity} />}
+      {feedback.isActive && (
+        <FeedbackSnackBar
+          message={feedback.message}
+          severity={feedback.severity}
+        />
+      )}
     </Box>
   );
 }
