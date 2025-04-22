@@ -14,6 +14,7 @@ import { CaslModule } from './casl/casl.module';
 import { ConnectionModule } from './connection/connection.module';
 import { DatabasetypeModule } from './databasetype/databasetype.module';
 import { SchemaModule } from './schema/schema.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { SchemaModule } from './schema/schema.module';
     ConnectionModule,
     DatabasetypeModule,
     SchemaModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [

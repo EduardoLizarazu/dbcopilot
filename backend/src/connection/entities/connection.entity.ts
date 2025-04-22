@@ -1,3 +1,4 @@
+import { Prompt } from 'src/chat/prompt/entities/prompt.entity';
 import { Databasetype } from 'src/databasetype/entities/databasetype.entity';
 import { SchemaTable } from 'src/schema/schema_table/entities/schema_table.entity';
 import {
@@ -45,4 +46,7 @@ export class Connection {
     onDelete: 'CASCADE',
   })
   schemaTables: SchemaTable[];
+
+  @OneToMany(() => Prompt, (prompt) => prompt.connection)
+  prompts: Prompt[];
 }
