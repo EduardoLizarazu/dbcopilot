@@ -1,13 +1,10 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import {
   Autocomplete,
   Box,
-  Button,
   CircularProgress,
   Container,
-  Menu,
-  MenuItem,
   Stack,
   Tab,
   TextField,
@@ -15,11 +12,7 @@ import {
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { CreateChatAction } from "@/controller/_actions/index.actions";
-import { ReadConnectionUseCaseOutput } from "@useCases/index.usecase";
-import EditIcon from "@mui/icons-material/Edit";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { DrawerRightChat } from "@/components/chat/DrawerRightChat";
-import { ChatStoryList } from "@/components/chat/chatStoryList";
 import {
   ReadConnectionOnlyIfIsConnectedQry,
   TReadConnectionQry,
@@ -36,9 +29,12 @@ enum TabResultValueEnum {
 }
 
 export default function ChatPage() {
+  // USE STATE TAB
+  const [tabResultValue, setTabResultValue] =
+    React.useState<TabResultValueEnum>(TabResultValueEnum.Result);
+
   // USE STATES
-  const [loading, setLoading] = React.useState<boolean>(false);
-  // Fetch data
+  // select database connection
   const [database, setDatabase] = React.useState<TReadConnectionQry[]>([
     {
       id: 0,
@@ -56,27 +52,18 @@ export default function ChatPage() {
   ]);
   const [selectedDatabaseId, setSelectedDatabaseId] = React.useState<number>(0);
 
+  // prompt, result and insight
   const [prompt, setPrompt] = React.useState<string>("");
   const [result, setResult] = React.useState<string>("");
-
   const [insight, setInsight] = React.useState<string>("");
-  const [schema, setSchema] = React.useState<string>("");
-
-  const [exportType, setExportType] = React.useState<string>("");
-
-  const [tabResultValue, setTabResultValue] =
-    React.useState<TabResultValueEnum>(TabResultValueEnum.Result);
 
   // EFFECTS
   React.useEffect(() => {
     (async () => {
-      setLoading(true);
       // Fetch data
       const connDbs: TReadConnectionQry[] =
         await ReadConnectionOnlyIfIsConnectedQry();
       setDatabase(connDbs);
-
-      setLoading(false);
     })();
   }, []);
 
@@ -122,112 +109,105 @@ export default function ChatPage() {
     throw new Error("Function not implemented.");
   }
 
-  function handleExport() {
-    console.log("Export", exportType);
-  }
-
-  // RENDERS
-  if (loading) {
-    return <CircularProgress />;
-  }
-
   return (
     <Container>
-      <Stack spacing={3} direction="column">
-        {/* DRAWER */}
+      <Suspense fallback={<CircularProgress />}>
+        <Stack spacing={3} direction="column">
+          {/* DRAWER */}
 
-        <Stack
-          direction="row"
-          sx={{ justifyContent: "space-between", alignItems: "center" }}
-        >
-          <Typography variant="h4">Chat with your database </Typography>
-          {/* Drawer right chat */}
-          <DrawerRightChat />
-        </Stack>
+          <Stack
+            direction="row"
+            sx={{ justifyContent: "space-between", alignItems: "center" }}
+          >
+            <Typography variant="h4">Chat with your database </Typography>
+            {/* Drawer right chat */}
+            <DrawerRightChat />
+          </Stack>
 
-        {/* Select database */}
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Autocomplete
-            disablePortal
-            options={database}
-            getOptionLabel={(option) => option.name || ""}
-            sx={{ width: 300 }}
-            aria-label="Select database connection"
-            renderInput={(params) => (
-              <TextField {...params} label="Select database connection..." />
+          {/* Select database */}
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Autocomplete
+              disablePortal
+              options={database}
+              getOptionLabel={(option) => option.name || ""}
+              sx={{ width: 300 }}
+              aria-label="Select database connection"
+              renderInput={(params) => (
+                <TextField {...params} label="Select database connection..." />
+              )}
+              onChange={handleChangeSltDatabase}
+            />
+            {selectedDatabaseId !== 0 && (
+              <ConnTestResultTxt connId={selectedDatabaseId} />
             )}
-            onChange={handleChangeSltDatabase}
+          </Stack>
+
+          {/* Prompt */}
+          <Box
+            component="form"
+            sx={{ "& .MuiTextField-root": { minWidth: 100 } }}
+            autoComplete="off"
+          >
+            <TextField
+              id="prompt-standard-textarea"
+              label="prompt"
+              placeholder="Write your prompt here"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              multiline
+              variant="filled"
+              rows={4}
+              fullWidth
+            />
+          </Box>
+
+          <Typography variant="body1">Suggestions: ...</Typography>
+
+          {/* Submit prompt button */}
+          <ChatBtnAction
+            handleSubmitPrompt={handleSubmitPrompt}
+            handleReset={handleReset}
+            handleError={handleError}
           />
-          {selectedDatabaseId !== 0 && (
-            <ConnTestResultTxt connId={selectedDatabaseId} />
-          )}
+
+          {/* Result bar: Result, SQL Editor, Insight */}
+          <Box sx={{ width: "100%", typography: "body1" }}>
+            <TabContext value={tabResultValue}>
+              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <TabList
+                  onChange={handleChangeTapResultBar}
+                  aria-label="lab API tabs example"
+                >
+                  <Tab label="RESULTS" value="1" />
+                  <Tab label="SQL EDITOR" value="2" />
+                  <Tab label="INSIGHT" value="3" />
+                </TabList>
+              </Box>
+              <TabPanel value="1">
+                {/* Chat result table */}
+                <ChatResultTable />
+              </TabPanel>
+              <TabPanel value="2">
+                <ChatSqlEditor />
+              </TabPanel>
+              <TabPanel value="3">
+                {/* Chat insight */}
+                <TextField
+                  label=""
+                  placeholder=""
+                  value={insight}
+                  onChange={(e) => setInsight(e.target.value)}
+                  multiline
+                  variant="outlined"
+                  minRows={10}
+                  maxRows={50}
+                  fullWidth
+                />
+              </TabPanel>
+            </TabContext>
+          </Box>
         </Stack>
-
-        {/* Prompt */}
-        <Box
-          component="form"
-          sx={{ "& .MuiTextField-root": { minWidth: 100 } }}
-          autoComplete="off"
-        >
-          <TextField
-            id="prompt-standard-textarea"
-            label="prompt"
-            placeholder="Write your prompt here"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            multiline
-            variant="filled"
-            rows={4}
-            fullWidth
-          />
-        </Box>
-
-        <Typography variant="body1">Suggestions: ...</Typography>
-
-        {/* Submit prompt button */}
-        <ChatBtnAction
-          handleSubmitPrompt={handleSubmitPrompt}
-          handleReset={handleReset}
-          handleError={handleError}
-        />
-
-        {/* Result bar: Result, SQL Editor, Insight */}
-        <Box sx={{ width: "100%", typography: "body1" }}>
-          <TabContext value={tabResultValue}>
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <TabList
-                onChange={handleChangeTapResultBar}
-                aria-label="lab API tabs example"
-              >
-                <Tab label="RESULTS" value="1" />
-                <Tab label="SQL EDITOR" value="2" />
-                <Tab label="INSIGHT" value="3" />
-              </TabList>
-            </Box>
-            <TabPanel value="1">
-              {/* Chat result table */}
-              <ChatResultTable />
-            </TabPanel>
-            <TabPanel value="2">
-              <ChatSqlEditor />
-            </TabPanel>
-            <TabPanel value="3">
-              {/* Chat insight */}
-              <TextField
-                label=""
-                placeholder=""
-                value={insight}
-                onChange={(e) => setInsight(e.target.value)}
-                multiline
-                variant="outlined"
-                minRows={10}
-                maxRows={50}
-                fullWidth
-              />
-            </TabPanel>
-          </TabContext>
-        </Box>
-      </Stack>
+      </Suspense>
     </Container>
   );
 }
