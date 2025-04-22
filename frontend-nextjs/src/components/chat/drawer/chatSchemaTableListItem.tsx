@@ -21,7 +21,7 @@ export function ChatSchemaTableListItem({
         alignItems="flex-start"
         disableGutters
         secondaryAction={
-          <IconButton aria-label="comment">
+          <IconButton aria-label="comment" onClick={() => {}}>
             <ArrowRightAltIcon />
           </IconButton>
         }
