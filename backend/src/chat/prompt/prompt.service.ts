@@ -36,6 +36,10 @@ export class PromptService {
           },
         },
       });
+      if (!connection) {
+        throw new Error(`Connection with ID ${connectionId} not found`);
+      }
+      console.log('connection: ', connection);
 
       const schemaData = await this.dataSource
         .createQueryBuilder()
@@ -81,7 +85,7 @@ export class PromptService {
         })
         .getRawMany();
 
-      console.log(schemaData);
+      console.log('selecting schema data: ', schemaData[0]);
 
       // Transform the raw data into a more structured format
       const transformedData = schemaData.reduce((acc, row) => {
@@ -160,6 +164,8 @@ export class PromptService {
         },
       );
       const schema = schemaDataArray;
+
+      console.log('generating queries ai service ...');
 
       // 2. Generate SQL with ChatGPT
       const { queries, finalQuery } = await this.aiService.generateSQL(

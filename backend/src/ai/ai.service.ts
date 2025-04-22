@@ -35,7 +35,7 @@ export class AiService {
   async generateSQL(
     prompt: string,
     schema: schema,
-    maxAttempts = 3,
+    maxAttempts = 5,
   ): Promise<{ queries: string[]; finalQuery: string }> {
     const queries: string[] = [];
     let finalQuery = '';
@@ -73,6 +73,7 @@ export class AiService {
           throw new Error('Invalid SQL format');
         }
 
+        console.log('Generated SQL:', generatedQuery);
         finalQuery = generatedQuery;
         break;
       } catch (error) {
