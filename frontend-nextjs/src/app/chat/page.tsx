@@ -141,6 +141,7 @@ export default function ChatPage() {
           sx={{ justifyContent: "space-between", alignItems: "center" }}
         >
           <Typography variant="h4">Chat with your database </Typography>
+          {/* Drawer right chat */}
           <DrawerRightChat />
         </Stack>
 
