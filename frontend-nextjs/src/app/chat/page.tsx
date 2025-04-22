@@ -21,6 +21,7 @@ import { ConnTestResultTxt } from "@/components/connection/connTestResultTxt";
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { ChatSqlEditor } from "@/components/chat/result/chatSqlEditor";
+import { ChatFeedbackBtn } from "@/components/chat/prompt/chatFeedbackBtn";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -159,6 +160,7 @@ export default function ChatPage() {
               rows={4}
               fullWidth
             />
+            <ChatFeedbackBtn />
           </Box>
 
           <Typography variant="body1">Suggestions: ...</Typography>
@@ -167,7 +169,6 @@ export default function ChatPage() {
           <ChatBtnAction
             handleSubmitPrompt={handleSubmitPrompt}
             handleReset={handleReset}
-            handleError={handleError}
           />
 
           {/* Result bar: Result, SQL Editor, Insight */}

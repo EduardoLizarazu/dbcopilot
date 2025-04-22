@@ -3,13 +3,11 @@ import { Button, Stack } from "@mui/material";
 type ChatBtnActionProps = {
   handleSubmitPrompt: () => void;
   handleReset: () => void;
-  handleError: () => void;
 };
 
 export function ChatBtnAction({
   handleSubmitPrompt,
   handleReset,
-  handleError,
 }: ChatBtnActionProps) {
   return (
     <>
@@ -32,9 +30,6 @@ export function ChatBtnAction({
             Reset
           </Button>
         </Stack>
-        <Button color="error" onClick={handleError}>
-          Error
-        </Button>
       </Stack>
     </>
   );
