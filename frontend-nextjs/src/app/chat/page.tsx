@@ -50,7 +50,7 @@ export default function ChatPage() {
       is_connected: false,
     },
   ]);
-  const [selectedDatabase, setSelectedDatabase] = React.useState<string>("");
+  const [selectedDatabaseId, setSelectedDatabaseId] = React.useState<number>(0);
   const [prompt, setPrompt] = React.useState<string>("");
   const [result, setResult] = React.useState<string>("");
   const [sqlQuery, setSqlQuery] = React.useState<string>("");
@@ -88,6 +88,7 @@ export default function ChatPage() {
   }, []);
 
   // HANDLERS
+
   const handlerSubmitPrompt = async () => {
     // Fetch data
     console.log("Submit prompt", prompt);
@@ -110,8 +111,12 @@ export default function ChatPage() {
     setTabResultValue(newValue);
   };
 
-  const handleChangeSltDatabase = (event) => {
-    setSelectedDatabase(event.target.value);
+  const handleChangeSltDatabase = (
+    event: React.SyntheticEvent,
+    newValue: TReadConnectionQry | null
+  ) => {
+    setSelectedDatabaseId(newValue?.id || 0);
+    console.log("Selected database id", newValue);
   };
 
   const handleClickEditSqlQuery = () => {
@@ -212,6 +217,7 @@ export default function ChatPage() {
           renderInput={(params) => (
             <TextField {...params} label="Select database connection..." />
           )}
+          onChange={handleChangeSltDatabase}
         />
 
         {/* Prompt */}
