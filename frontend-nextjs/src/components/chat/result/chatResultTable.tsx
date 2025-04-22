@@ -6,70 +6,52 @@ import { ChatResultExportBtn } from "./chatResultExportBtn";
 
 /**
  * "data": [
-    {
-      "id": 6,
-      "name": "postgres",
-      "dbName": "naturalquery",
-      "dbHost": "localhost",
-      "dbPort": 5432,
-      "dbUsername": "postgres",
-      "dbPassword": "Passw0rd",
-      "databasetypeId": 1,
-      "description": "dummy description",
-      "is_connected": true
-    }
-  ],
- *  
- * 
-*/
+ * {
+ * "id": 6,
+ * "name": "postgres",
+ * "dbName": "naturalquery",
+ * "dbHost": "localhost",
+ * "dbPort": 5432,
+ * "dbUsername": "postgres",
+ * "dbPassword": "Passw0rd",
+ * "databasetypeId": 1,
+ * "description": "dummy description",
+ * "is_connected": true
+ * },
+ * {
+ * "id": 7,
+ * "name": "mysql_server",
+ * "dbName": "another_db",
+ * "dbHost": "192.168.1.10",
+ * "dbPort": 3306,
+ * "dbUsername": "user",
+ * "dbPassword": "secret",
+ * "databasetypeId": 2,
+ * "description": "another description",
+ * "is_connected": true
+ * }
+ * ],
+ *
+ *
+ */
 type TChatResultTableProps = {
-  data: unknown[] | null;
+  data: Record<string, unknown>[];
 };
 
 export function ChatResultTable({ data }: TChatResultTableProps) {
-  const columns: GridColDef<(typeof rows)[number]>[] = [
-    { field: "id", headerName: "ID", width: 90 },
-    {
-      field: "firstName",
-      headerName: "First name",
-      width: 150,
-      editable: true,
-    },
-    {
-      field: "lastName",
-      headerName: "Last name",
-      width: 150,
-      editable: true,
-    },
-    {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      width: 110,
-      editable: true,
-    },
-    {
-      field: "fullName",
-      headerName: "Full name",
-      description: "This column has a value getter and is not sortable.",
-      sortable: false,
-      width: 160,
-      valueGetter: (value, row) =>
-        `${row.firstName || ""} ${row.lastName || ""}`,
-    },
-  ];
+  // Extract columns dynamically from the keys of the first object in the data array
+  const columns: GridColDef<any>[] =
+    data.length > 0
+      ? Object.keys(data[0] as Record<string, unknown>).map((key) => ({
+          field: key,
+          headerName: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter for header
+          width: 150, // You can adjust the default width
+          editable: false, // Set to true if you want columns to be editable
+        }))
+      : [];
 
-  const rows = [
-    { id: 1, lastName: "Snow", firstName: "Jon", age: 14 },
-    { id: 2, lastName: "Lannister", firstName: "Cersei", age: 31 },
-    { id: 3, lastName: "Lannister", firstName: "Jaime", age: 31 },
-    { id: 4, lastName: "Stark", firstName: "Arya", age: 11 },
-    { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-    { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
-    { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-    { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-    { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-  ];
+  // Use the provided data array directly as the rows
+  const rows = data.map((item, index) => ({ id: index, ...item }));
 
   return (
     <>
