@@ -36,11 +36,12 @@ import { TCreatePromptCmdWithConnIdOutput } from "@/controller/_actions/chat/com
  *
  */
 type TChatResultTableProps = {
-  data: Omit<TCreatePromptCmdWithConnIdOutput, "final_query">[]; // Adjust the type based on your data structure
+  data: Record<string, unknown>[]; // Adjust the type based on your data structure
 };
 
 export function ChatResultTable({ data }: TChatResultTableProps) {
   // Extract columns dynamically from the keys of the first object in the data array
+
   const columns: GridColDef<any>[] =
     data.length > 0
       ? Object.keys(data[0] as Record<string, unknown>).map((key) => ({

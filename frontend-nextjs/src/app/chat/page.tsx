@@ -190,9 +190,7 @@ export default function ChatPage() {
               </Box>
               <TabPanel value="1">
                 {/* Chat result table */}
-                <ChatResultTable
-                  data={(result?.data || []).map((item) => ({ data: [item] }))}
-                />
+                <ChatResultTable data={result?.data || []} />
               </TabPanel>
               <TabPanel value="2">
                 <ChatSqlEditor sqlQueryData={result?.final_query || ""} />
