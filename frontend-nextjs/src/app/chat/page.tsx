@@ -105,7 +105,12 @@ export default function ChatPage() {
   };
 
   function handleReset() {
-    throw new Error("Function not implemented.");
+    selectedDatabaseId !== 0 && setSelectedDatabaseId(0);
+    setPrompt("");
+    setResult({
+      data: [],
+      final_query: "",
+    });
   }
 
   function handleError() {
