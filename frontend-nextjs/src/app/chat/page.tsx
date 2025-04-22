@@ -188,7 +188,7 @@ export default function ChatPage() {
               </Box>
               <TabPanel value="1">
                 {/* Chat result table */}
-                <ChatResultTable />
+                <ChatResultTable data={[]} />
               </TabPanel>
               <TabPanel value="2">
                 <ChatSqlEditor />

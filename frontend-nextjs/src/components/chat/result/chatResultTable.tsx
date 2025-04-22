@@ -4,7 +4,29 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React from "react";
 import { ChatResultExportBtn } from "./chatResultExportBtn";
 
-export function ChatResultTable() {
+/**
+ * "data": [
+    {
+      "id": 6,
+      "name": "postgres",
+      "dbName": "naturalquery",
+      "dbHost": "localhost",
+      "dbPort": 5432,
+      "dbUsername": "postgres",
+      "dbPassword": "Passw0rd",
+      "databasetypeId": 1,
+      "description": "dummy description",
+      "is_connected": true
+    }
+  ],
+ *  
+ * 
+*/
+type TChatResultTableProps = {
+  data: unknown[] | null;
+};
+
+export function ChatResultTable({ data }: TChatResultTableProps) {
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: "id", headerName: "ID", width: 90 },
     {
