@@ -26,6 +26,7 @@ import {
 } from "@/controller/_actions/connection/query/read-connection.query";
 import { ConnTestResultTxt } from "@/components/connection/connTestResultTxt";
 import { ChatBtnAction } from "@/components/chat/chatBtnAction";
+import { ChatResultTable } from "@/components/chat/chatResultTable";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -66,16 +67,6 @@ export default function ChatPage() {
 
   const [tabResultValue, setTabResultValue] =
     React.useState<TabResultValueEnum>(TabResultValueEnum.Result);
-
-  // Menu for export
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   // EFFECTS
   React.useEffect(() => {
@@ -150,50 +141,6 @@ export default function ChatPage() {
     return <CircularProgress />;
   }
 
-  const columns: GridColDef<(typeof rows)[number]>[] = [
-    { field: "id", headerName: "ID", width: 90 },
-    {
-      field: "firstName",
-      headerName: "First name",
-      width: 150,
-      editable: true,
-    },
-    {
-      field: "lastName",
-      headerName: "Last name",
-      width: 150,
-      editable: true,
-    },
-    {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      width: 110,
-      editable: true,
-    },
-    {
-      field: "fullName",
-      headerName: "Full name",
-      description: "This column has a value getter and is not sortable.",
-      sortable: false,
-      width: 160,
-      valueGetter: (value, row) =>
-        `${row.firstName || ""} ${row.lastName || ""}`,
-    },
-  ];
-
-  const rows = [
-    { id: 1, lastName: "Snow", firstName: "Jon", age: 14 },
-    { id: 2, lastName: "Lannister", firstName: "Cersei", age: 31 },
-    { id: 3, lastName: "Lannister", firstName: "Jaime", age: 31 },
-    { id: 4, lastName: "Stark", firstName: "Arya", age: 11 },
-    { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-    { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
-    { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-    { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-    { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-  ];
-
   return (
     <Container>
       <Stack spacing={3} direction="column">
@@ -267,47 +214,7 @@ export default function ChatPage() {
               </TabList>
             </Box>
             <TabPanel value="1">
-              <Container sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Button
-                  id="basic-button"
-                  aria-controls={open ? "basic-menu" : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={open ? "true" : undefined}
-                  onClick={handleClick}
-                  variant="text"
-                >
-                  Export
-                </Button>
-                <Menu
-                  id="basic-menu"
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={handleClose}
-                  MenuListProps={{
-                    "aria-labelledby": "basic-button",
-                  }}
-                >
-                  <MenuItem onClick={handleClose}>Excel</MenuItem>
-                  <MenuItem onClick={handleClose}>CSV</MenuItem>
-                  <MenuItem onClick={handleClose}>PDF</MenuItem>
-                </Menu>
-              </Container>
-              <Box sx={{ height: 400, width: "100%" }}>
-                <DataGrid
-                  rows={rows}
-                  columns={columns}
-                  initialState={{
-                    pagination: {
-                      paginationModel: {
-                        pageSize: 5,
-                      },
-                    },
-                  }}
-                  pageSizeOptions={[5]}
-                  checkboxSelection
-                  disableRowSelectionOnClick
-                />
-              </Box>
+              <ChatResultTable />
             </TabPanel>
             <TabPanel value="2">
               <TextField
