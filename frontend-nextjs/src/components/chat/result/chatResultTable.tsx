@@ -59,7 +59,7 @@ export function ChatResultTable({ data }: TChatResultTableProps) {
     <>
       <Container>
         <Container sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <ChatResultExportBtn />
+          <ChatResultExportBtn data={data} />
         </Container>
         <Box sx={{ height: 400, width: "100%" }}>
           <DataGrid
