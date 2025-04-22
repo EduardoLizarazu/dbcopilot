@@ -25,6 +25,7 @@ import {
   TReadConnectionQry,
 } from "@/controller/_actions/connection/query/read-connection.query";
 import { ConnTestResultTxt } from "@/components/connection/connTestResultTxt";
+import { ChatBtnAction } from "@/components/chat/chatBtnAction";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -91,7 +92,7 @@ export default function ChatPage() {
 
   // HANDLERS
 
-  const handlerSubmitPrompt = async () => {
+  async function handleSubmitPrompt() {
     // Fetch data
     console.log("Submit prompt", prompt);
 
@@ -107,9 +108,12 @@ export default function ChatPage() {
     setResult(res.response.result.text);
     setSqlQuery(res.response.query.originalQuery);
     setInsight(res.response.insight.originalInsight);
-  };
+  }
 
-  const handleChangeTapResultBar = (event, newValue) => {
+  const handleChangeTapResultBar = (
+    event: React.SyntheticEvent,
+    newValue: TabResultValueEnum
+  ) => {
     setTabResultValue(newValue);
   };
 
@@ -127,6 +131,18 @@ export default function ChatPage() {
 
   function handleExecuteSQLQuery(): void {
     console.log("Execute SQL Query", sqlQuery);
+  }
+
+  function handleReset() {
+    throw new Error("Function not implemented.");
+  }
+
+  function handleError() {
+    throw new Error("Function not implemented.");
+  }
+
+  function handleExport() {
+    console.log("Export", exportType);
   }
 
   // RENDERS
@@ -177,24 +193,6 @@ export default function ChatPage() {
     { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
     { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
   ];
-
-  function handleExport(
-    event: MouseEvent<HTMLButtonElement, MouseEvent>
-  ): void {
-    console.log("Export", exportType);
-  }
-
-  function handlerReset(
-    event: MouseEvent<HTMLButtonElement, MouseEvent>
-  ): void {
-    throw new Error("Function not implemented.");
-  }
-
-  function handlerError(
-    event: MouseEvent<HTMLButtonElement, MouseEvent>
-  ): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <Container>
@@ -249,33 +247,11 @@ export default function ChatPage() {
         <Typography variant="body1">Suggestions: ...</Typography>
 
         {/* Submit prompt button */}
-        <Stack
-          direction="row"
-          sx={{
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Stack direction="row" spacing={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handlerSubmitPrompt}
-            >
-              Submit
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handlerReset}
-            >
-              Reset
-            </Button>
-          </Stack>
-          <Button color="error" onClick={handlerError}>
-            Error
-          </Button>
-        </Stack>
+        <ChatBtnAction
+          handleSubmitPrompt={handleSubmitPrompt}
+          handleReset={handleReset}
+          handleError={handleError}
+        />
 
         {/* Result bar: Result, SQL Editor, Insight */}
         <Box sx={{ width: "100%", typography: "body1" }}>
