@@ -24,6 +24,7 @@ import {
   ReadConnectionOnlyIfIsConnectedQry,
   TReadConnectionQry,
 } from "@/controller/_actions/connection/query/read-connection.query";
+import { ConnTestResultTxt } from "@/components/connection/connTestResultTxt";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -51,6 +52,7 @@ export default function ChatPage() {
     },
   ]);
   const [selectedDatabaseId, setSelectedDatabaseId] = React.useState<number>(0);
+
   const [prompt, setPrompt] = React.useState<string>("");
   const [result, setResult] = React.useState<string>("");
   const [sqlQuery, setSqlQuery] = React.useState<string>("");
@@ -208,17 +210,22 @@ export default function ChatPage() {
         </Stack>
 
         {/* Select database */}
-        <Autocomplete
-          disablePortal
-          options={database}
-          getOptionLabel={(option) => option.name || ""}
-          sx={{ width: 300 }}
-          aria-label="Select database connection"
-          renderInput={(params) => (
-            <TextField {...params} label="Select database connection..." />
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Autocomplete
+            disablePortal
+            options={database}
+            getOptionLabel={(option) => option.name || ""}
+            sx={{ width: 300 }}
+            aria-label="Select database connection"
+            renderInput={(params) => (
+              <TextField {...params} label="Select database connection..." />
+            )}
+            onChange={handleChangeSltDatabase}
+          />
+          {selectedDatabaseId !== 0 && (
+            <ConnTestResultTxt connId={selectedDatabaseId} />
           )}
-          onChange={handleChangeSltDatabase}
-        />
+        </Stack>
 
         {/* Prompt */}
         <Box
