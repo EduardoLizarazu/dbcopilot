@@ -5,6 +5,7 @@ import {
   IconButton,
   ListItem,
   ListItemText,
+  Typography,
 } from "@mui/material";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 
@@ -31,9 +32,18 @@ export function ChatSchemaTableListItem({
           primary={schemaTableData.table_name}
           secondary={
             <>
-              <span style={{ fontWeight: "bold" }}>
-                {schemaTableData.table_description}
-              </span>
+              <Typography
+                component="span"
+                variant="body2"
+                sx={{ color: "text.primary", display: "inline" }}
+              >
+                {schemaTableData.table_alias}
+              </Typography>
+              {/* If to more than 50 characters cut and add ... to the final */}
+              {"  -  "}
+              {schemaTableData?.table_description?.length > 40
+                ? schemaTableData.table_description.substring(0, 40) + "..."
+                : schemaTableData.table_description}
             </>
           }
         />
