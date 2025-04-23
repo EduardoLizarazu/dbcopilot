@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateHumanFeedbackDto {
   @ApiProperty()
@@ -8,7 +8,8 @@ export class CreateHumanFeedbackDto {
 
   @ApiProperty()
   @IsString()
-  message: string;
+  @IsOptional()
+  message?: string;
 
   @ApiProperty()
   @IsNumber()
