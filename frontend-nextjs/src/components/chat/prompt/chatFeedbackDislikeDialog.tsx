@@ -1,3 +1,6 @@
+"use client";
+import { useFeedbackContext } from "@/contexts/feedback.context";
+import { CreateFeedbackDisLikeCmd } from "@/controller/_actions/chat/command/create-feedback-dislike.command";
 import {
   Button,
   Dialog,
@@ -11,6 +14,7 @@ import {
 } from "@mui/material";
 
 type TChatFeedbackDislikeDialogProps = {
+  promptId: number;
   open: boolean;
   onClose: () => void;
   feedbackText: string;
@@ -20,20 +24,44 @@ type TChatFeedbackDislikeDialogProps = {
 };
 
 export function ChatFeedbackDislikeDialog({
+  promptId,
   open,
   onClose,
   feedbackText,
   setDisLikeData,
 }: TChatFeedbackDislikeDialogProps) {
+  const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
+
   function handleFeedbackText(e: React.ChangeEvent<HTMLInputElement>) {
     setDisLikeData((prev) => ({
       ...prev,
       feedback: e.target.value,
     }));
   }
-
   async function handleSubmitFeedback() {
     console.log("Feedback submitted:", feedbackText);
+
+    const res = await CreateFeedbackDisLikeCmd(promptId, feedbackText);
+    if (res.status === 201 || res.status === 200) {
+      setFeedback({
+        isActive: true,
+        message: "Feedback submitted successfully",
+        severity: "success",
+      });
+    } else {
+      console.error("Error creating feedback dislike:", res.status);
+      setFeedback({
+        isActive: true,
+        message: "Error submitting feedback",
+        severity: "error",
+      });
+    }
+
+    resetFeedBack();
+    setDisLikeData({
+      open: false,
+      feedback: "",
+    });
   }
 
   return (
@@ -78,7 +106,7 @@ export function ChatFeedbackDislikeDialog({
               Cancel
             </Button>
             <Button
-              onClick={() => {}}
+              onClick={handleSubmitFeedback}
               color="primary"
               autoFocus
               variant="contained"

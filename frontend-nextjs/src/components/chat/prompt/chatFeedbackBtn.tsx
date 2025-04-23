@@ -55,7 +55,7 @@ export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
         <Stack direction="row" spacing={0.5}>
           <Tooltip title="Like" arrow placement="bottom">
             <IconButton onClick={handleLike}>
-              <ThumbUpOffAltIcon />
+              <ThumbUpOffAltIcon color={like ? "primary" : "inherit"} />
             </IconButton>
           </Tooltip>
           <Tooltip title="Dislike" arrow placement="bottom">
@@ -65,6 +65,7 @@ export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
           </Tooltip>
         </Stack>
         <ChatFeedbackDislikeDialog
+          promptId={promptId}
           open={disLikeData.open}
           onClose={handleDisLikeDialog}
           feedbackText={disLikeData.feedback}
