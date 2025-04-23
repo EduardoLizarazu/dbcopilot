@@ -4,15 +4,46 @@ import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
 import { ChatFeedbackDislikeDialog } from "./chatFeedbackDislikeDialog";
 import React from "react";
+import { CreateFeedbackLikeCmd } from "@/controller/_actions/chat/command/create-feedback-like.command";
+import { useFeedbackContext } from "@/contexts/feedback.context";
 
-export function ChatFeedbackBtn() {
+type TChatFeedbackBtnProps = {
+  promptId: number;
+};
+
+export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
+  // USE CONTEXT
+  const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
+
+  // USE STATE
   const [disLikeData, setDisLikeData] = React.useState({
     open: false,
     feedback: "",
   });
+  const [like, setLike] = React.useState(false);
 
-  function handleLike() {
-    console.log("Like button clicked");
+  // USE HANDLER
+  async function handleLike() {
+    const res = await CreateFeedbackLikeCmd(promptId, like);
+
+    if (res.status === 201 || res.status === 200) {
+      setFeedback({
+        isActive: true,
+        message: "Feedback submitted successfully",
+        severity: "success",
+      });
+    } else {
+      setFeedback({
+        isActive: true,
+        message: "Error submitting feedback",
+        severity: "error",
+      });
+      console.error("Error creating feedback like:", res.status);
+    }
+
+    setLike((prev) => !prev);
+
+    resetFeedBack();
   }
   function handleDisLikeDialog() {
     setDisLikeData((prev) => ({ ...prev, open: !prev.open }));

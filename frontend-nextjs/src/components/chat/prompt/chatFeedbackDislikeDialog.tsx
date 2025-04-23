@@ -32,6 +32,10 @@ export function ChatFeedbackDislikeDialog({
     }));
   }
 
+  async function handleSubmitFeedback() {
+    console.log("Feedback submitted:", feedbackText);
+  }
+
   return (
     <>
       <Dialog
