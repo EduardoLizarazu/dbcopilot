@@ -58,10 +58,7 @@ export function ChatFeedbackDislikeDialog({
     }
 
     resetFeedBack();
-    setDisLikeData({
-      open: false,
-      feedback: "",
-    });
+    setDisLikeData((prev) => ({ ...prev, open: false }));
   }
 
   return (

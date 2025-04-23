@@ -60,7 +60,11 @@ export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
           </Tooltip>
           <Tooltip title="Dislike" arrow placement="bottom">
             <IconButton onClick={handleDisLikeDialog}>
-              <ThumbDownOffAltIcon />
+              <ThumbDownOffAltIcon
+                color={
+                  disLikeData.feedback.trim().length > 0 ? "primary" : "inherit"
+                }
+              />
             </IconButton>
           </Tooltip>
         </Stack>
