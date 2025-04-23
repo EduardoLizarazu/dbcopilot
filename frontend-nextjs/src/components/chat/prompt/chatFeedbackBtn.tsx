@@ -16,15 +16,15 @@ export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
   const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
 
   // USE STATE
-  const [disLikeData, setDisLikeData] = React.useState({
-    open: false,
+  const [feedbackLikeData, setFeedbackLikeData] = React.useState({
+    openDislike: false,
     feedback: "",
+    isLike: false,
   });
-  const [like, setLike] = React.useState(false);
 
   // USE HANDLER
   async function handleLike() {
-    const res = await CreateFeedbackLikeCmd(promptId, like);
+    const res = await CreateFeedbackLikeCmd(promptId, feedbackLikeData.isLike);
 
     if (res.status === 201 || res.status === 200) {
       setFeedback({
@@ -41,12 +41,18 @@ export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
       console.error("Error creating feedback like:", res.status);
     }
 
-    setLike((prev) => !prev);
+    setFeedbackLikeData((prev) => ({
+      ...prev,
+      isLike: !prev.isLike,
+    }));
 
     resetFeedBack();
   }
   function handleDisLikeDialog() {
-    setDisLikeData((prev) => ({ ...prev, open: !prev.open }));
+    setFeedbackLikeData((prev) => ({
+      ...prev,
+      openDislike: !prev.openDislike,
+    }));
   }
 
   return (
@@ -55,14 +61,19 @@ export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
         <Stack direction="row" spacing={0.5}>
           <Tooltip title="Like" arrow placement="bottom">
             <IconButton onClick={handleLike}>
-              <ThumbUpOffAltIcon color={like ? "primary" : "inherit"} />
+              <ThumbUpOffAltIcon
+                color={feedbackLikeData.isLike === true ? "primary" : "inherit"}
+              />
             </IconButton>
           </Tooltip>
           <Tooltip title="Dislike" arrow placement="bottom">
             <IconButton onClick={handleDisLikeDialog}>
               <ThumbDownOffAltIcon
                 color={
-                  disLikeData.feedback.trim().length > 0 ? "primary" : "inherit"
+                  feedbackLikeData.isLike === false &&
+                  feedbackLikeData.feedback.trim().length > 0
+                    ? "primary"
+                    : "inherit"
                 }
               />
             </IconButton>
@@ -70,10 +81,10 @@ export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
         </Stack>
         <ChatFeedbackDislikeDialog
           promptId={promptId}
-          open={disLikeData.open}
+          open={feedbackLikeData.openDislike}
           onClose={handleDisLikeDialog}
-          feedbackText={disLikeData.feedback}
-          setDisLikeData={setDisLikeData}
+          feedbackText={feedbackLikeData.feedback}
+          setDisLikeData={setFeedbackLikeData}
         />
       </Container>
     </>

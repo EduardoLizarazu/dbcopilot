@@ -19,7 +19,11 @@ type TChatFeedbackDislikeDialogProps = {
   onClose: () => void;
   feedbackText: string;
   setDisLikeData: React.Dispatch<
-    React.SetStateAction<{ open: boolean; feedback: string }>
+    React.SetStateAction<{
+      openDislike: boolean;
+      feedback: string;
+      isLike: boolean;
+    }>
   >;
 };
 
@@ -58,7 +62,7 @@ export function ChatFeedbackDislikeDialog({
     }
 
     resetFeedBack();
-    setDisLikeData((prev) => ({ ...prev, open: false }));
+    setDisLikeData((prev) => ({ ...prev, openDislike: false, isLike: false }));
   }
 
   return (
