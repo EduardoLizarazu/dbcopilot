@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  Put,
 } from '@nestjs/common';
 import { SchemaService } from './schema.service';
 import { CreateSchemaDto } from './dto/create-schema.dto';
@@ -15,6 +16,7 @@ import { TSchemaRelationWithKeyType } from './interface/schema_relation_with_key
 import { CreateSchemaRelationWithKeyTypeDto } from './dto/create-schema-relation-with-keytype.dto';
 import { DeleteSchemaRelationDto } from './schema_relation/dto/detele-schema_relation.dto';
 import { CreateSchemaIncludingConnectionDto } from './dto/create-schema-including-connection.dto';
+import { TableMetadataDto } from './dto/create-schema-formatted.dto';
 
 @Controller('schema')
 export class SchemaController {
@@ -58,6 +60,18 @@ export class SchemaController {
   @Get(':connectionId')
   findOneByConnectionId(@Param('connectionId') connectionId: string) {
     return this.schemaService.findSchemaByConnectionId(+connectionId);
+  }
+
+  @Put(':id')
+  updateSchemaFromFormattedSchema(
+    @Param('id') connId: string,
+    @Body() data: TableMetadataDto[],
+    @Req() req: Request,
+  ) {
+    console.log('REQUEST URL:', req.url);
+    console.log('REQUEST METHOD:', req.method);
+    console.log('updateSchemaFromFormattedSchema', data);
+    return this.schemaService.updateSchemaFromFormattedSchema(+connId, data);
   }
 
   @Patch(':id')

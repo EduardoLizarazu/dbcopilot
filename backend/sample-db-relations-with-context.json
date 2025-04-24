@@ -1,0 +1,1762 @@
+[
+  {
+    "table_id": 469,
+    "table_name": "actor",
+    "table_alias": "act",
+    "table_description": "Stores information about actors/actresses in the DVD rental system",
+    "columns": [
+      {
+        "column_id": 1297,
+        "column_name": "actor_id",
+        "column_alias": "column_alias",
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1299,
+        "column_name": "last_name",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1298,
+        "column_name": "first_name",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1300,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 470,
+    "table_name": "actor_info",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1304,
+        "column_name": "last_name",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1301,
+        "column_name": "actor_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1303,
+        "column_name": "first_name",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1302,
+        "column_name": "film_info",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 471,
+    "table_name": "address",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1307,
+        "column_name": "address_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1308,
+        "column_name": "city_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1308,
+        "primary_key": 1317,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1306,
+        "column_name": "address2",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1312,
+        "column_name": "postal_code",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1310,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1309,
+        "column_name": "district",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1311,
+        "column_name": "phone",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1305,
+        "column_name": "address",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 472,
+    "table_name": "category",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1313,
+        "column_name": "category_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1314,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1315,
+        "column_name": "name",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 473,
+    "table_name": "city",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1317,
+        "column_name": "city_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1318,
+        "column_name": "country_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1318,
+        "primary_key": 1321,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1319,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1316,
+        "column_name": "city",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 474,
+    "table_name": "country",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1321,
+        "column_name": "country_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1320,
+        "column_name": "country",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1322,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 475,
+    "table_name": "customer",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1325,
+        "column_name": "address_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1325,
+        "primary_key": 1307,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1327,
+        "column_name": "customer_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1328,
+        "column_name": "email",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1330,
+        "column_name": "last_name",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1332,
+        "column_name": "store_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1323,
+        "column_name": "active",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1329,
+        "column_name": "first_name",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1326,
+        "column_name": "create_date",
+        "column_alias": null,
+        "column_data_type": "date",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1324,
+        "column_name": "activebool",
+        "column_alias": null,
+        "column_data_type": "boolean",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1331,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 476,
+    "table_name": "customer_list",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1335,
+        "column_name": "country",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1333,
+        "column_name": "address",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1337,
+        "column_name": "name",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1340,
+        "column_name": "sid",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1341,
+        "column_name": "zip code",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1338,
+        "column_name": "notes",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1339,
+        "column_name": "phone",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1336,
+        "column_name": "id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1334,
+        "column_name": "city",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 477,
+    "table_name": "film",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1343,
+        "column_name": "film_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1345,
+        "column_name": "language_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1345,
+        "primary_key": 1373,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1351,
+        "column_name": "rental_rate",
+        "column_alias": null,
+        "column_data_type": "numeric",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1350,
+        "column_name": "rental_duration",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1348,
+        "column_name": "rating",
+        "column_alias": null,
+        "column_data_type": "USER-DEFINED",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1346,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1344,
+        "column_name": "fulltext",
+        "column_alias": null,
+        "column_data_type": "tsvector",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1342,
+        "column_name": "description",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1353,
+        "column_name": "special_features",
+        "column_alias": null,
+        "column_data_type": "ARRAY",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1347,
+        "column_name": "length",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1354,
+        "column_name": "title",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1349,
+        "column_name": "release_year",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1352,
+        "column_name": "replacement_cost",
+        "column_alias": null,
+        "column_data_type": "numeric",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 478,
+    "table_name": "film_actor",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1355,
+        "column_name": "actor_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": 1355,
+        "primary_key": 1297,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1355,
+        "column_name": "actor_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1355,
+        "primary_key": 1297,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1356,
+        "column_name": "film_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": 1356,
+        "primary_key": 1343,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1356,
+        "column_name": "film_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1356,
+        "primary_key": 1343,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1357,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 479,
+    "table_name": "film_category",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1358,
+        "column_name": "category_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": 1358,
+        "primary_key": 1313,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1358,
+        "column_name": "category_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1358,
+        "primary_key": 1313,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1359,
+        "column_name": "film_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": 1359,
+        "primary_key": 1343,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1359,
+        "column_name": "film_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1359,
+        "primary_key": 1343,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1360,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 480,
+    "table_name": "film_list",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1364,
+        "column_name": "fid",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1366,
+        "column_name": "price",
+        "column_alias": null,
+        "column_data_type": "numeric",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1361,
+        "column_name": "actors",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1368,
+        "column_name": "title",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1367,
+        "column_name": "rating",
+        "column_alias": null,
+        "column_data_type": "USER-DEFINED",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1362,
+        "column_name": "category",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1363,
+        "column_name": "description",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1365,
+        "column_name": "length",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 481,
+    "table_name": "inventory",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1369,
+        "column_name": "film_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1369,
+        "primary_key": 1343,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1370,
+        "column_name": "inventory_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1372,
+        "column_name": "store_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1371,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 482,
+    "table_name": "language",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1373,
+        "column_name": "language_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1375,
+        "column_name": "name",
+        "column_alias": null,
+        "column_data_type": "character",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1374,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 483,
+    "table_name": "nicer_but_slower_film_list",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1383,
+        "column_name": "title",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1377,
+        "column_name": "category",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1378,
+        "column_name": "description",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1382,
+        "column_name": "rating",
+        "column_alias": null,
+        "column_data_type": "USER-DEFINED",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1381,
+        "column_name": "price",
+        "column_alias": null,
+        "column_data_type": "numeric",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1376,
+        "column_name": "actors",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1380,
+        "column_name": "length",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1379,
+        "column_name": "fid",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 484,
+    "table_name": "payment",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1385,
+        "column_name": "customer_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1385,
+        "primary_key": 1327,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1387,
+        "column_name": "payment_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1388,
+        "column_name": "rental_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1388,
+        "primary_key": 1394,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1389,
+        "column_name": "staff_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1389,
+        "primary_key": 1410,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1386,
+        "column_name": "payment_date",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1384,
+        "column_name": "amount",
+        "column_alias": null,
+        "column_data_type": "numeric",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 485,
+    "table_name": "rental",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1390,
+        "column_name": "customer_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1390,
+        "primary_key": 1327,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1391,
+        "column_name": "inventory_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1391,
+        "primary_key": 1370,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1394,
+        "column_name": "rental_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1396,
+        "column_name": "staff_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1396,
+        "primary_key": 1410,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1392,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1393,
+        "column_name": "rental_date",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1395,
+        "column_name": "return_date",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 486,
+    "table_name": "sales_by_film_category",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1398,
+        "column_name": "total_sales",
+        "column_alias": null,
+        "column_data_type": "numeric",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1397,
+        "column_name": "category",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 487,
+    "table_name": "sales_by_store",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1399,
+        "column_name": "manager",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1400,
+        "column_name": "store",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1401,
+        "column_name": "total_sales",
+        "column_alias": null,
+        "column_data_type": "numeric",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 488,
+    "table_name": "staff",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1403,
+        "column_name": "address_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1403,
+        "primary_key": 1307,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1410,
+        "column_name": "staff_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1408,
+        "column_name": "password",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1407,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1412,
+        "column_name": "username",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1405,
+        "column_name": "first_name",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1402,
+        "column_name": "active",
+        "column_alias": null,
+        "column_data_type": "boolean",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1406,
+        "column_name": "last_name",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1409,
+        "column_name": "picture",
+        "column_alias": null,
+        "column_data_type": "bytea",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1404,
+        "column_name": "email",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1411,
+        "column_name": "store_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 489,
+    "table_name": "staff_list",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1420,
+        "column_name": "zip code",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1419,
+        "column_name": "sid",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1416,
+        "column_name": "id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1414,
+        "column_name": "city",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1417,
+        "column_name": "name",
+        "column_alias": null,
+        "column_data_type": "text",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1415,
+        "column_name": "country",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1418,
+        "column_name": "phone",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1413,
+        "column_name": "address",
+        "column_alias": null,
+        "column_data_type": "character varying",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  },
+  {
+    "table_id": 490,
+    "table_name": "store",
+    "table_alias": null,
+    "table_description": null,
+    "columns": [
+      {
+        "column_id": 1421,
+        "column_name": "address_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1421,
+        "primary_key": 1307,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1423,
+        "column_name": "manager_staff_id",
+        "column_alias": null,
+        "column_data_type": "smallint",
+        "column_key_type": "fk",
+        "column_key_is_static": true,
+        "foreign_key": 1423,
+        "primary_key": 1410,
+        "relation_description": null,
+        "relation_is_static": true
+      },
+      {
+        "column_id": 1424,
+        "column_name": "store_id",
+        "column_alias": null,
+        "column_data_type": "integer",
+        "column_key_type": "pk",
+        "column_key_is_static": true,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      },
+      {
+        "column_id": 1422,
+        "column_name": "last_update",
+        "column_alias": null,
+        "column_data_type": "timestamp without time zone",
+        "column_key_type": null,
+        "column_key_is_static": null,
+        "foreign_key": null,
+        "primary_key": null,
+        "relation_description": null,
+        "relation_is_static": null
+      }
+    ]
+  }
+]

@@ -21,6 +21,7 @@ import { DeleteSchemaRelationDto } from './schema_relation/dto/detele-schema_rel
 import { CreateSchemaIncludingConnectionDto } from './dto/create-schema-including-connection.dto';
 import { Connection } from 'src/connection/entities/connection.entity';
 import { Databasetype } from 'src/databasetype/entities/databasetype.entity';
+import { TableMetadataDto } from './dto/create-schema-formatted.dto';
 
 /**
  * 
@@ -455,6 +456,88 @@ export class SchemaService {
       return HttpStatus.BAD_REQUEST;
     } finally {
       await queryRunner.release(); // Release the query runner
+    }
+  }
+
+  async updateSchemaFromFormattedSchema(
+    connectionId: number,
+    schemaFormatted: TableMetadataDto[],
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Verify if the connection ID exists
+      const connection = await queryRunner.manager.findOne(Connection, {
+        where: { id: connectionId },
+      });
+      if (!connection) {
+        console.error('Connection not found');
+        return HttpStatus.NOT_FOUND;
+      }
+      console.log('connection', connection);
+
+      console.log('before updating...');
+
+      for (const [tableIndex, table] of schemaFormatted.entries()) {
+        // update table
+        const schemaTable = queryRunner.manager.update(
+          SchemaTable,
+          { id: table.table_id }, // Update the table with the given ID
+          {
+            technicalName: table.table_name,
+            alias: table.table_alias || undefined,
+            description: table.table_description || undefined,
+          },
+        );
+
+        console.log('I am updating the table...', schemaTable);
+
+        for (const [columnIndex, column] of table.columns.entries()) {
+          // update column
+          const schemaColumn = queryRunner.manager.update(
+            SchemaColumn,
+            { id: column.column_id }, // Update the column with the given ID
+            {
+              technicalName: column.column_name,
+              alias: column.column_alias || undefined,
+              description: column.column_description || undefined,
+              dataType: column.column_data_type,
+            },
+          );
+
+          console.log('I am updating the column...', schemaColumn);
+
+          // update relation
+          const schemaRelation = queryRunner.manager.update(
+            SchemaRelation,
+            {
+              columnIdChild: column.foreign_key,
+              columnIdFather: column.primary_key || undefined,
+            }, // Update the relation with the given ID
+            {
+              columnIdChild: column.column_id,
+              columnIdFather: column.primary_key || undefined,
+              description: column.relation_description || undefined,
+              isStatic: column.relation_is_static || false,
+            },
+          );
+          console.log('I am updating the relation...', schemaRelation);
+        }
+      }
+
+      console.log('after updating...');
+
+      await queryRunner.commitTransaction();
+
+      return HttpStatus.CREATED;
+    } catch (error) {
+      console.error('Error creating schema: ', error);
+      await queryRunner.rollbackTransaction();
+      return HttpStatus.BAD_REQUEST;
+    } finally {
+      await queryRunner.release();
     }
   }
 
