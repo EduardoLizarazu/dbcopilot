@@ -1,4 +1,5 @@
 import { Connection } from 'src/connection/entities/connection.entity';
+import { Schema } from 'src/schema/entities/schema.entity';
 import { SchemaColumn } from 'src/schema/schema_column/entities/schema_column.entity';
 import {
   Column,
@@ -27,8 +28,8 @@ export class SchemaTable {
   })
   schemaColumns: SchemaColumn[];
 
-  @ManyToOne(() => Connection, (connection) => connection.schemaTables, {
+  @ManyToOne(() => Schema, (connection) => connection.schemaTables, {
     onDelete: 'CASCADE',
   })
-  connection: Connection;
+  schema: Schema;
 }

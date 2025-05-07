@@ -6,6 +6,7 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -41,12 +42,4 @@ export class Connection {
   // Connection only has one and only one database type
   @ManyToOne(() => Databasetype, (databasetype) => databasetype.connections)
   databasetype: Databasetype;
-
-  @OneToMany(() => SchemaTable, (schemaTable) => schemaTable.connection, {
-    onDelete: 'CASCADE',
-  })
-  schemaTables: SchemaTable[];
-
-  @OneToMany(() => Prompt, (prompt) => prompt.connection)
-  prompts: Prompt[];
 }
