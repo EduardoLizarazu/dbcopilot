@@ -547,9 +547,21 @@ export class SchemaService {
   async findAll() {
     try {
       const schema = await this.schemaRepository.find({
-        relations: {
+        select: {
+          id: true,
           schemaTables: {
-            schemaColumns: { schemaColumnKey: true },
+            id: true,
+            technicalName: true,
+            alias: true,
+            description: true,
+            schemaColumns: {
+              id: true,
+              technicalName: true,
+              alias: true,
+              dataType: true,
+              description: true,
+              schemaColumnKey: { id: true, type: true },
+            },
           },
         },
       });
@@ -563,10 +575,22 @@ export class SchemaService {
   async findSchemaById(id: number) {
     try {
       const schema = await this.schemaRepository.find({
-        where: { id: id },
-        relations: {
+        where: { id },
+        select: {
+          id: true,
           schemaTables: {
-            schemaColumns: { schemaColumnKey: true },
+            id: true,
+            technicalName: true,
+            alias: true,
+            description: true,
+            schemaColumns: {
+              id: true,
+              technicalName: true,
+              alias: true,
+              dataType: true,
+              description: true,
+              schemaColumnKey: { id: true, type: true },
+            },
           },
         },
       });

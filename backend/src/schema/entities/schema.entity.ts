@@ -19,8 +19,8 @@ export class Schema {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  @JoinColumn()
-  connection: Connection;
+  // @JoinColumn()
+  connection: Connection | null;
 
   @OneToMany(() => SchemaTable, (schemaTable) => schemaTable.schema, {
     onDelete: 'CASCADE',
