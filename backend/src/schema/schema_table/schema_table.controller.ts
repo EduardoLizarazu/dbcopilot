@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SchemaTableService } from './schema_table.service';
 import { CreateSchemaTableDto } from './dto/create-schema_table.dto';
 import { UpdateSchemaTableDto } from './dto/update-schema_table.dto';
@@ -26,13 +34,11 @@ export class SchemaTableController {
     return this.schemaTableService.findOneById(+id);
   }
 
-  @Get('connection/:connectionId')
-  findAllByConnectionId(@Param('connectionId') connectionId: string) {
-    return this.schemaTableService.findAllByConnectionId(+connectionId);
-  }
-
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSchemaTableDto: UpdateSchemaTableDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateSchemaTableDto: UpdateSchemaTableDto,
+  ) {
     return this.schemaTableService.update(+id, updateSchemaTableDto);
   }
 

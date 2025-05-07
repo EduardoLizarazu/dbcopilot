@@ -15,7 +15,9 @@ export class SchemaTableService {
     try {
       const schemaTable = this.schemaTableRepository.create({
         ...createSchemaTableDto,
-        schemaColumns: createSchemaTableDto.schemaColumns?.map(id => ({ id })),
+        schemaColumns: createSchemaTableDto.schemaColumns?.map((id) => ({
+          id,
+        })),
       });
       return await this.schemaTableRepository.save(schemaTable);
     } catch (error) {
@@ -26,9 +28,9 @@ export class SchemaTableService {
   async createBulk(createSchemaTableDtos: CreateSchemaTableDto[]) {
     try {
       const schemaTables = this.schemaTableRepository.create(
-        createSchemaTableDtos.map(dto => ({
+        createSchemaTableDtos.map((dto) => ({
           ...dto,
-          schemaColumns: dto.schemaColumns?.map(id => ({ id })),
+          schemaColumns: dto.schemaColumns?.map((id) => ({ id })),
         })),
       );
       return await this.schemaTableRepository.save(schemaTables);
@@ -47,35 +49,16 @@ export class SchemaTableService {
     }
   }
 
-  async findAllByConnectionId(connectionId: number) {
-    try {
-      const schemaTable = await this.schemaTableRepository.find({
-        where: { connection: { id: connectionId } }, // Ensure connectionId exists in SchemaTable entity
-        relations: ['schemaColumns'],
-      });
-
-      const schemaTableFormat = schemaTable.map(table => ({
-        table_id: table.id,
-        table_name: table.technicalName,
-        table_alias: table.alias,
-        table_description: table.description,
-      }));
-
-      return schemaTableFormat;
-
-    } catch (error) {
-      throw new Error(`Error fetching schema tables for connection id ${connectionId}: ${error.message}`);
-    }
-  }
-
   async findOneById(id: number) {
     try {
       return await this.schemaTableRepository.findOne({
         where: { id },
         relations: ['schemaColumns'],
-      }); 
+      });
     } catch (error) {
-      throw new Error(`Error fetching schema table with id ${id}: ${error.message}`);
+      throw new Error(
+        `Error fetching schema table with id ${id}: ${error.message}`,
+      );
     }
   }
 
@@ -86,32 +69,42 @@ export class SchemaTableService {
         relations: ['schemaColumns'],
       });
     } catch (error) {
-      throw new Error(`Error fetching schema table with technical name ${technicalName}: ${error.message}`);
+      throw new Error(
+        `Error fetching schema table with technical name ${technicalName}: ${error.message}`,
+      );
     }
   }
 
   async update(id: number, updateSchemaTableDto: UpdateSchemaTableDto) {
     try {
-      const schemaTable = await this.schemaTableRepository.findOne({ where: { id } });
+      const schemaTable = await this.schemaTableRepository.findOne({
+        where: { id },
+      });
       if (!schemaTable) {
         throw new Error(`Schema table with id ${id} not found`);
       }
       Object.assign(schemaTable, updateSchemaTableDto);
       return await this.schemaTableRepository.save(schemaTable);
     } catch (error) {
-      throw new Error(`Error updating schema table with id ${id}: ${error.message}`);
+      throw new Error(
+        `Error updating schema table with id ${id}: ${error.message}`,
+      );
     }
   }
 
   async remove(id: number) {
     try {
-      const schemaTable = await this.schemaTableRepository.findOne({ where: { id } });
+      const schemaTable = await this.schemaTableRepository.findOne({
+        where: { id },
+      });
       if (!schemaTable) {
         throw new Error(`Schema table with id ${id} not found`);
       }
       return await this.schemaTableRepository.remove(schemaTable);
     } catch (error) {
-      throw new Error(`Error removing schema table with id ${id}: ${error.message}`);
+      throw new Error(
+        `Error removing schema table with id ${id}: ${error.message}`,
+      );
     }
   }
 }
