@@ -22,6 +22,7 @@ import { CreateSchemaIncludingConnectionDto } from './dto/create-schema-includin
 import { Connection } from 'src/connection/entities/connection.entity';
 import { Databasetype } from 'src/databasetype/entities/databasetype.entity';
 import { TableMetadataDto } from './dto/create-schema-formatted.dto';
+import { Schema } from './entities/schema.entity';
 
 /**
  * 
@@ -41,6 +42,8 @@ import { TableMetadataDto } from './dto/create-schema-formatted.dto';
 @Injectable()
 export class SchemaService {
   constructor(
+    @InjectRepository(Schema)
+    private schemaRepository: Repository<Schema>,
     private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
 
@@ -51,16 +54,16 @@ export class SchemaService {
 
     try {
       // Verify the table does not have connection id related to it
-      const existingSchema = await queryRunner.manager.findOne(SchemaTable, {
-        where: { connection: { id: connectionId } },
-      });
-      if (existingSchema) {
-        console.error(
-          'Schema already exists for this connection ID:',
-          connectionId,
-        );
-        return HttpStatus.CONFLICT;
-      }
+      // const existingSchema = await queryRunner.manager.findOne(SchemaTable, {
+      //   where: { connection: { id: connectionId } },
+      // });
+      // if (existingSchema) {
+      //   console.error(
+      //     'Schema already exists for this connection ID:',
+      //     connectionId,
+      //   );
+      //   return HttpStatus.CONFLICT;
+      // }
 
       // Get Connection from the connectionId relation with database type with password
       const connection = await queryRunner.manager.findOne(Connection, {
@@ -541,8 +544,37 @@ export class SchemaService {
     }
   }
 
-  findAll() {
-    return `This action returns all schema`;
+  async findAll() {
+    try {
+      const schema = await this.schemaRepository.find({
+        relations: {
+          schemaTables: {
+            schemaColumns: { schemaColumnKey: true },
+          },
+        },
+      });
+      return schema;
+    } catch (error) {
+      console.error('Error fetching all schemas: ', error);
+      throw new Error('Error fetching all schemas: ' + error.message);
+    }
+  }
+
+  async findSchemaById(id: number) {
+    try {
+      const schema = await this.schemaRepository.find({
+        where: { id: id },
+        relations: {
+          schemaTables: {
+            schemaColumns: { schemaColumnKey: true },
+          },
+        },
+      });
+      return schema;
+    } catch (error) {
+      console.error('Error finding schema by ID: ', error);
+      throw new Error('Error finding schema by ID: ' + error.message);
+    }
   }
 
   async findSchemaByConnectionId(connectionId: number) {
@@ -923,10 +955,6 @@ export class SchemaService {
       console.error('Error updating relation with key type: ', error);
       return HttpStatus.BAD_REQUEST;
     }
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} schema`;
   }
 
   update(id: number, updateSchemaDto: UpdateSchemaDto) {

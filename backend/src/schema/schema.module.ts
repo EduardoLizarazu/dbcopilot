@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SchemaTable } from './schema_table/entities/schema_table.entity';
 import { SchemaColumn } from './schema_column/entities/schema_column.entity';
 import { SchemaRelation } from './schema_relation/entities/schema_relation.entity';
+import { Schema } from './entities/schema.entity';
 
 @Module({
   controllers: [SchemaController],
@@ -16,11 +17,12 @@ import { SchemaRelation } from './schema_relation/entities/schema_relation.entit
     TypeOrmModule.forFeature([
       SchemaTable,
       SchemaColumn,
-      SchemaRelation
+      SchemaRelation,
+      Schema,
     ]),
-    SchemaTableModule, 
-    SchemaColumnModule, 
-    SchemaRelationModule
+    SchemaTableModule,
+    SchemaColumnModule,
+    SchemaRelationModule,
   ],
 })
 export class SchemaModule {}

@@ -57,10 +57,15 @@ export class SchemaController {
     return this.schemaService.findAll();
   }
 
-  @Get(':connectionId')
-  findOneByConnectionId(@Param('connectionId') connectionId: string) {
-    return this.schemaService.findSchemaByConnectionId(+connectionId);
+  @Get('schemaId')
+  findOneBySchemaId(@Param('schemaId') schemaId: string) {
+    return this.schemaService.findSchemaById(+schemaId);
   }
+
+  // @Get(':connectionId')
+  // findOneByConnectionId(@Param('connectionId') connectionId: string) {
+  //   return this.schemaService.findSchemaByConnectionId(+connectionId);
+  // }
 
   @Put(':id')
   updateSchemaFromFormattedSchema(
