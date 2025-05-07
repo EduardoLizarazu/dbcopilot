@@ -49,7 +49,7 @@ export class SchemaController {
     console.log('REQUEST URL:', req.url);
     console.log('REQUEST METHOD:', req.method);
     console.log('create', connectionId);
-    return this.schemaService.create(+connectionId);
+    return this.schemaService.createWithConnectionId(+connectionId);
   }
 
   @Get()

@@ -47,23 +47,24 @@ export class SchemaService {
     private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
 
-  async create(connectionId: number) {
+  async createWithConnectionId(connectionId: number) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      // Verify the table does not have connection id related to it
-      // const existingSchema = await queryRunner.manager.findOne(SchemaTable, {
-      //   where: { connection: { id: connectionId } },
-      // });
-      // if (existingSchema) {
-      //   console.error(
-      //     'Schema already exists for this connection ID:',
-      //     connectionId,
-      //   );
-      //   return HttpStatus.CONFLICT;
-      // }
+      // Verify that the conection ID doesn't exist on schema
+      const existingSchema = await queryRunner.manager.findOne(Schema, {
+        where: { connection: { id: connectionId } },
+      });
+
+      if (existingSchema) {
+        console.error(
+          'Schema already exists for this connection ID:',
+          connectionId,
+        );
+        return HttpStatus.CONFLICT;
+      }
 
       // Get Connection from the connectionId relation with database type with password
       const connection = await queryRunner.manager.findOne(Connection, {
@@ -104,13 +105,22 @@ export class SchemaService {
       const schema = await db.query(`${connection.databasetype.query}`); // Get the schema data
       await dataSource.destroy(); // Close connection after test
 
+      // Formatting the schema data to save
       const transformedDataArray = createSchemaDtoToArray(schema);
+
+      // Create schema id
+      const schemaEntity = queryRunner.manager.create(Schema, {
+        connection: { id: connectionId }, // Set the relation to the saved connection
+      });
+      // save schema
+      const savedSchema = await queryRunner.manager.save(schemaEntity);
 
       console.log('before saving...');
       for (const [tableIndex, table] of transformedDataArray.entries()) {
         const schemaTable = queryRunner.manager.create(SchemaTable, {
           technicalName: table.table_name,
-          connection: { id: connectionId },
+          // connection: { id: connectionId },
+          schema: { id: savedSchema.id },
         });
         const savedTable = await queryRunner.manager.save(schemaTable); // save tables
         transformedDataArray[tableIndex].table_id = savedTable.id; // Store the saved table ID back in the transformed data
