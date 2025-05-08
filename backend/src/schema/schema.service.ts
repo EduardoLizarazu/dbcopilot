@@ -326,9 +326,11 @@ export class SchemaService {
       // -----------------------------------------------------------------------------------------------------------------------------
       console.log('schema: ', schema);
 
+      // Create schema id
       const schemaEntity = queryRunner.manager.create(Schema, {
         connection: { id: savedConnection.id }, // Set the relation to the saved connection
       });
+      // save schema
       const savedSchema = await queryRunner.manager.save(schemaEntity);
 
       console.log('before saving schema...');
