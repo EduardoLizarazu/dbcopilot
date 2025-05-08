@@ -1105,6 +1105,11 @@ export class SchemaService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} schema`;
+    try {
+      return this.dataSource.manager.delete(Schema, { id });
+    } catch (error) {
+      console.error('Error removing schema: ', error);
+      return HttpStatus.BAD_REQUEST;
+    }
   }
 }
