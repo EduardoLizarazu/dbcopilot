@@ -556,26 +556,7 @@ export class SchemaService {
 
   async findAll() {
     try {
-      const schema = await this.schemaRepository.find({
-        select: {
-          id: true,
-          schemaTables: {
-            id: true,
-            technicalName: true,
-            alias: true,
-            description: true,
-            schemaColumns: {
-              id: true,
-              technicalName: true,
-              alias: true,
-              dataType: true,
-              description: true,
-              schemaColumnKey: { id: true, type: true },
-            },
-          },
-        },
-      });
-      return schema;
+      return 'not yet implemented';
     } catch (error) {
       console.error('Error fetching all schemas: ', error);
       throw new Error('Error fetching all schemas: ' + error.message);
