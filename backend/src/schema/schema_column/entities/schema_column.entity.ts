@@ -32,10 +32,11 @@ export class SchemaColumn {
 
   @OneToMany(
     () => SchemaColumnKeyColumn,
-    (schemaColumnKeyColumn) => schemaColumnKeyColumn.id_schema_column,
+    (schemaColumnKeyColumn) => schemaColumnKeyColumn.schemaColumn,
     { onDelete: 'CASCADE' },
   )
-  schemaColumnKey: SchemaColumnKey;
+  schemaColumnKey: SchemaColumnKeyColumn[];
+  // schemaColumnKey: SchemaColumnKey;
 
   @ManyToOne(() => SchemaTable, (schemaTable) => schemaTable.schemaColumns, {
     onDelete: 'CASCADE',
