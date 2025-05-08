@@ -19,7 +19,7 @@ export class Schema {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  @JoinColumn()
+  // @JoinColumn()
   connection: Connection | null;
 
   @OneToMany(() => SchemaTable, (schemaTable) => schemaTable.schema, {
