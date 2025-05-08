@@ -326,13 +326,18 @@ export class SchemaService {
       // -----------------------------------------------------------------------------------------------------------------------------
       console.log('schema: ', schema);
 
+      const schemaEntity = queryRunner.manager.create(Schema, {
+        connection: { id: savedConnection.id }, // Set the relation to the saved connection
+      });
+      const savedSchema = await queryRunner.manager.save(schemaEntity);
+
       console.log('before saving schema...');
       const transformedDataArray = createSchemaDtoToArray(schema);
 
       for (const [tableIndex, table] of transformedDataArray.entries()) {
         const schemaTable = queryRunner.manager.create(SchemaTable, {
           technicalName: table.table_name,
-          connection: { id: savedConnection.id },
+          schema: { id: savedSchema.id },
         });
         const savedTable = await queryRunner.manager.save(schemaTable); // save tables
         transformedDataArray[tableIndex].table_id = savedTable.id; // Store the saved table ID back in the transformed data
