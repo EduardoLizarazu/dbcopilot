@@ -57,6 +57,11 @@ export class SchemaController {
     return this.schemaService.findAll();
   }
 
+  @Get('only-schema')
+  findAllOnlySchema() {
+    return this.schemaService.findAllOnlySchema();
+  }
+
   @Get(':schemaId')
   findOneBySchemaId(@Param('schemaId') schemaId: string) {
     return this.schemaService.findSchemaById(+schemaId);

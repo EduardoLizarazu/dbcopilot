@@ -561,6 +561,29 @@ export class SchemaService {
     }
   }
 
+  async findAllOnlySchema() {
+    try {
+      const schemaData = await this.dataSource
+        .createQueryBuilder()
+        .select(['schema.id', 'schema.connectionId'])
+        .from('schema', 'schema')
+        .getRawMany();
+
+      console.log(schemaData);
+
+      // Transform the raw data into a more structured format
+      const transformedData = schemaData.map((row) => ({
+        schema_id: row.schema_id,
+        connection_id: row.connectionId,
+      }));
+
+      return transformedData;
+    } catch (error) {
+      console.error('Error fetching all schemas: ', error);
+      throw new Error('Error fetching all schemas: ' + error.message);
+    }
+  }
+
   async findAll() {
     try {
       // Fetch the key type too
