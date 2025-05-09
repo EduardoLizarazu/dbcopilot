@@ -1,12 +1,12 @@
 "use server";
 import { ISchemaTable } from "../interface/read-schema-table-column.interface";
 
-export async function ReadTableByConnectionId(
-  connectionId: number
+export async function ReadTableBySchemaId(
+  schemaId: number
 ): Promise<ISchemaTable[]> {
   try {
     const response = await fetch(
-      `${process.env.BASE_URL}/schema-table/connection/${connectionId}`,
+      `${process.env.BASE_URL}/schema-table/schema/${schemaId}`,
       {
         method: "GET",
         headers: {

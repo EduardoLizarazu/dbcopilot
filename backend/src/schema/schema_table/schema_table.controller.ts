@@ -34,6 +34,11 @@ export class SchemaTableController {
     return this.schemaTableService.findOneById(+id);
   }
 
+  @Get('schema/:schemaId')
+  findAllBySchemaId(@Param('schemaId') schemaId: string) {
+    return this.schemaTableService.findAllBySchemaId(+schemaId);
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,

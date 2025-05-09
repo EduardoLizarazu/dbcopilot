@@ -1,7 +1,7 @@
 import { Container, Typography } from "@mui/material";
 import { Suspense } from "react";
 import { SchemaTableHead } from "@/components/schema/schemaTable/schemaTableHead";
-import { ReadTableByConnectionId } from "@/controller/_actions/schema/queries/read-table-by-connection-id.query";
+import { ReadTableBySchemaId } from "@/controller/_actions/schema/queries/read-table-by-schema-id";
 import { CreateSchemaFromConnectionIdCmd } from "@/controller/_actions/schema/commands/create-schema-from-connection-id.command";
 import { ISchemaTable } from "@/controller/_actions/schema/interface/read-schema-table-column.interface";
 
@@ -14,7 +14,7 @@ export default async function SchemaPage({
 
   let schemaTableAux: ISchemaTable[] | [] = [];
 
-  const schemaTable = await ReadTableByConnectionId(Number(connectionId));
+  const schemaTable = await ReadTableBySchemaId(Number(connectionId));
   console.log("SchemaPage schemaTable", schemaTable);
 
   if (schemaTable.length === 0) {
@@ -25,7 +25,7 @@ export default async function SchemaPage({
     console.log("SchemaPage response", response);
     if (response.status === 201) {
       console.log("Schema table created successfully");
-      schemaTableAux = await ReadTableByConnectionId(Number(connectionId));
+      schemaTableAux = await ReadTableBySchemaId(Number(connectionId));
     } else {
       console.error("Failed to create schema table", response.status);
     }

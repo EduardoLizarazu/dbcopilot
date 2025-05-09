@@ -75,6 +75,25 @@ export class SchemaTableService {
     }
   }
 
+  async findAllBySchemaId(schemaId: number) {
+    try {
+      const tableBySchema = await this.schemaTableRepository.find({
+        where: { schema: { id: schemaId } },
+      });
+      const schemaTable = tableBySchema.map((table) => ({
+        table_id: table.id,
+        table_name: table.technicalName,
+        table_alias: table.alias,
+        table_description: table.description,
+      }));
+      return schemaTable;
+    } catch (error) {
+      throw new Error(
+        `Error fetching schema tables with schema ID ${schemaId}: ${error.message}`,
+      );
+    }
+  }
+
   async update(id: number, updateSchemaTableDto: UpdateSchemaTableDto) {
     try {
       const schemaTable = await this.schemaTableRepository.findOne({
