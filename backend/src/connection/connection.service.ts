@@ -8,12 +8,14 @@ import {
   ConnectionCreate,
   ValidateConnectionCreate,
 } from './interface/connection-create.interface';
+import { Schema } from 'src/schema/entities/schema.entity';
 
 @Injectable()
 export class ConnectionService {
   constructor(
     @InjectRepository(Connection)
     private connectionRepository: Repository<Connection>,
+    private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
   async create(createConnectionDto: CreateConnectionDto) {
     try {
@@ -53,8 +55,14 @@ export class ConnectionService {
       });
 
       // test the connection and update the is_connected field
-      conn.forEach(async (c) => this.testConnectionByIdConnection(c.id));
-      return conn;
+      const connTested = conn.map(async (c) => {
+        const status = await this.testConnectionByIdConnection(c.id);
+        return {
+          ...c,
+          is_connected: status === HttpStatus.CREATED,
+        };
+      });
+      return Promise.all(connTested);
     } catch (error) {
       console.error('Error fetching connections:', error);
       throw new Error('Failed to fetch connections');
