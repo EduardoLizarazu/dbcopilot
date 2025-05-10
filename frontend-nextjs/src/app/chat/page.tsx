@@ -169,7 +169,7 @@ export default function ChatPage() {
               rows={4}
               fullWidth
             />
-            <ChatFeedbackBtn />
+            <ChatFeedbackBtn promptId={0} />
           </Box>
 
           <Typography variant="body1">Suggestions: ...</Typography>

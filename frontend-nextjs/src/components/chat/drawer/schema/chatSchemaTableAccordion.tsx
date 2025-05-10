@@ -1,6 +1,6 @@
 "use client";
 import { ISchemaTable } from "@/controller/_actions/schema/interface/read-schema-table-column.interface";
-import { ReadTableByConnectionId } from "@/controller/_actions/schema/queries/read-schema-table-by-connection-id";
+import { ReadSchemaTableByConnId } from "@/controller/_actions/schema/queries/read-schema-table-by-connection-id";
 import {
   Accordion,
   AccordionDetails,
@@ -40,7 +40,7 @@ export function ChatSchemaTableAccordion({
 
   React.useEffect(() => {
     (async () => {
-      const response = await ReadTableByConnectionId(Number(connId));
+      const response = await ReadSchemaTableByConnId(Number(connId));
       console.log("response chat tables by connection id: ", response);
 
       setSchemaTable(response);
