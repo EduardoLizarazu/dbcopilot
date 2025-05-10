@@ -78,6 +78,8 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
   async function handleTestBtn() {
     try {
       const res = await TestConnectionActionByConnId(conn.id);
+      console.log("Test connection response:", res);
+
       if (res?.status === 201) {
         setFeedback({
           isActive: true,
@@ -91,6 +93,7 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
           message: "Connection test failed.",
           severity: "error",
         });
+        setConnData((prev) => ({ ...prev, is_connected: false }));
       }
     } catch (err) {
       console.error("Error testing connection:", err);
@@ -99,6 +102,7 @@ export function ConnTableBody({ conn }: { conn: ReadConnectionOutput }) {
         message: "Failed to test connection.",
         severity: "error",
       });
+      setConnData((prev) => ({ ...prev, is_connected: false }));
     } finally {
       resetFeedback();
     }

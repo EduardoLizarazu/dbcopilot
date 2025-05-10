@@ -248,8 +248,10 @@ export const TestConnectionActionByConnId = async (connId: number) => {
       },
     });
 
+    const data = await response.json();
+
     return {
-      status: response.status,
+      status: data,
     };
   } catch (error) {
     console.error("Error testing connection by ID:", error);

@@ -58,7 +58,7 @@ export default function Page({ params }: { params: { connectionId: string } }) {
   React.useEffect(() => {
     (async () => {
       setLoading(true);
-      const { connectionId } = params;
+      const { connectionId } = await params;
 
       const connRes = await ReadConnectionByIdAction(parseInt(connectionId));
       setConn({
