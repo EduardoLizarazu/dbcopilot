@@ -346,13 +346,18 @@ export default function CreateConnectionPage() {
               {conn.is_connected ? "Connected" : "Not Connected"}
             </Typography>
             {conn.is_connected && (
-              <Button
-                variant="contained"
-                color="info"
-                onClick={() => setSchemaSimple((prev) => !prev)}
-              >
-                View Schema
-              </Button>
+              <Stack spacing={2} direction="row">
+                <Button
+                  variant="contained"
+                  color="info"
+                  onClick={() => setSchemaSimple((prev) => !prev)}
+                >
+                  View Schema
+                </Button>
+                <Button variant="contained" color="warning" onClick={() => {}}>
+                  Schema Already Exist
+                </Button>
+              </Stack>
             )}
           </Stack>
           <Stack direction="row" spacing={2}>

@@ -479,6 +479,46 @@ export class SchemaService {
     }
   }
 
+  async createSchemaFromAnotherSchema(connId: number) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      // 1. The connection ID must exist
+      // 2. Retrieve the schema base on the connection ID of params
+      // 3. Retrieve all the schema (tables, columns, relations) from the schema
+      // 4. Compare the schemas (tables, columns, relations) and with the new schema
+      // 5. Return the comparison result to let the user choose which one to keep
+      // STRUCTURE
+      type TReadSchemaData = {
+        table_id: number;
+        table_name: string;
+        table_alias: string;
+        table_description: string;
+        columns: {
+          column_id: number;
+          column_name: string;
+          column_alias: string;
+          column_description: string;
+          column_data_type: string;
+          foreign_key: number;
+          primary_key: number;
+          relation_description: string;
+        }[];
+      };
+      type TSchemaComparison = [
+        {
+          old_table;
+        },
+      ];
+    } catch (error) {
+      console.error('Error creating schema from another schema: ', error);
+      throw new Error(
+        'Error creating schema from another schema: ' + error.message,
+      );
+    }
+  }
+
   async updateSchemaFromFormattedSchema(
     connectionId: number,
     schemaFormatted: TableMetadataDto[],
