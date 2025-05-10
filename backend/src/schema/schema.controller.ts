@@ -67,6 +67,11 @@ export class SchemaController {
     return this.schemaService.findSchemaById(+schemaId);
   }
 
+  @Get('table/connection/:connectionId')
+  findSchemaTableByConnectionId(@Param('connectionId') connectionId: string) {
+    return this.schemaService.findSchemaTableByConnectionId(+connectionId);
+  }
+
   // @Get(':connectionId')
   // findOneByConnectionId(@Param('connectionId') connectionId: string) {
   //   return this.schemaService.findSchemaByConnectionId(+connectionId);

@@ -1,7 +1,7 @@
 "use client";
 
 import { ISchemaTable } from "@/controller/_actions/schema/interface/read-schema-table-column.interface";
-import { ReadTableByConnectionId } from "@/controller/_actions/schema/queries/read-table-by-schema-id";
+import { ReadTableByConnectionId } from "@/controller/_actions/schema/queries/read-schema-table-by-connection-id";
 import { Container, List, ListItemText, TextField } from "@mui/material";
 import React, { Suspense } from "react";
 import { ChatSchemaTableListItem } from "./chatSchemaTableListItem";

@@ -723,6 +723,37 @@ export class SchemaService {
     }
   }
 
+  async findSchemaTableByConnectionId(connId: number) {
+    try {
+      const schemaData = await this.dataSource
+        .createQueryBuilder()
+        .select([
+          'schema.id',
+          'schema_table.id',
+          'schema_table.technicalName',
+          'schema_table.alias',
+          'schema_table.description',
+        ])
+        .from('schema', 'schema')
+        .leftJoin(
+          'schema_table',
+          'schema_table',
+          'schema.id = schema_table.schema',
+        )
+        .where('schema.connectionId = :connId', { connId })
+        .getRawMany();
+
+      console.log(schemaData);
+
+      return schemaData;
+    } catch (error) {
+      console.error('Error fetching schema table by connection ID: ', error);
+      throw new Error(
+        'Error fetching schema table by connection ID: ' + error.message,
+      );
+    }
+  }
+
   async findSchemaById(id: number) {
     try {
       // Fetch the key type too
