@@ -8,7 +8,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { ChatSchemaTableHead } from "./schema/chatSchemaTableHead";
 import { ChatSchemaTableList } from "../drawer/schema/chatSchemaTableList";
-import { ChatSchemaTableAccordion } from "./schema/chatSchemaTableAccordion";
+import { ChatSchemaAccordion } from "./schema/accordion/chatSchemaAccordion";
 
 type TDrawerRightChatProps = {
   connId: number | null;
@@ -48,7 +48,7 @@ export function DrawerRightChat({ connId }: TDrawerRightChatProps) {
         <TabPanel value="1">
           {/* Schema List */}
           {connId ? (
-            <ChatSchemaTableAccordion connId={connId} />
+            <ChatSchemaAccordion connId={connId} />
           ) : (
             <div style={{ textAlign: "center", marginTop: 50 }}>
               <h2>Please select a connection</h2>

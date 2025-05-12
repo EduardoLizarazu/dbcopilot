@@ -10,14 +10,13 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import React, { Suspense } from "react";
+import { ChatSchemaTableAccordion } from "./chatSchemaTableAccordion";
 
-type TChatSchemaTableListProps = {
+type TChatSchemaListProps = {
   connId: number;
 };
 
-export function ChatSchemaTableAccordion({
-  connId,
-}: TChatSchemaTableListProps) {
+export function ChatSchemaAccordion({ connId }: TChatSchemaListProps) {
   const [schemaTable, setSchemaTable] = React.useState<ISchemaTable[]>([
     {
       table_id: 0,
@@ -62,14 +61,10 @@ export function ChatSchemaTableAccordion({
 
       <Suspense fallback={<div>Loading...</div>}>
         {filteredSchemaTable.map((schemaTableData: ISchemaTable) => (
-          <Accordion key={schemaTableData.table_id}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography>{schemaTableData.table_name}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>{schemaTableData.table_description}</Typography>
-            </AccordionDetails>
-          </Accordion>
+          <ChatSchemaTableAccordion
+            key={schemaTableData.table_id}
+            schemaTable={schemaTableData}
+          />
         ))}
       </Suspense>
     </div>
