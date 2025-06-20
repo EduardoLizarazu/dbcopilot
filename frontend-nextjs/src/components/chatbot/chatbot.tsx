@@ -22,7 +22,9 @@ import {
   ThumbDown as ThumbDownIcon,
   ContentCopy as CopyIcon,
   Refresh as RefreshIcon,
+  History as HistoryIcon,
 } from "@mui/icons-material";
+import ChatHistoryDrawer from "./chatHistoryDrawer";
 
 interface Message {
   id: string;
@@ -43,6 +45,8 @@ const ChatBot: React.FC = () => {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
+  const [currentConversationId, setCurrentConversationId] = useState("6");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -102,6 +106,31 @@ const ChatBot: React.FC = () => {
     navigator.clipboard.writeText(text);
   };
 
+  const handleNewChat = () => {
+    setMessages([]);
+    setCurrentConversationId("new");
+  };
+
+  const handleSelectConversation = (id: string) => {
+    setCurrentConversationId(id);
+    // In a real app, you would load the conversation history here
+    // For now, we'll just simulate loading different conversations
+    if (id === "6") {
+      // Current conversation - keep existing messages
+      return;
+    } else {
+      // Load different conversation
+      setMessages([
+        {
+          id: "demo-" + id,
+          content: `This is a demo conversation for "${id}". In a real application, you would load the actual conversation history from your database.`,
+          role: "assistant",
+          timestamp: new Date(),
+        },
+      ]);
+    }
+  };
+
   const formatContent = (content: string) => {
     return content.split("\n").map((line, index) => (
       <React.Fragment key={index}>
@@ -133,7 +162,7 @@ const ChatBot: React.FC = () => {
           <Avatar sx={{ bgcolor: "primary.main" }}>
             <BotIcon />
           </Avatar>
-          <Box>
+          <Box sx={{ flex: 1 }}>
             <Typography variant="h6" fontWeight="bold">
               CHAT A.I +
             </Typography>
@@ -141,6 +170,17 @@ const ChatBot: React.FC = () => {
               AI Assistant
             </Typography>
           </Box>
+          <IconButton
+            onClick={() => setHistoryDrawerOpen(true)}
+            sx={{
+              bgcolor: "action.hover",
+              "&:hover": {
+                bgcolor: "action.selected",
+              },
+            }}
+          >
+            <HistoryIcon />
+          </IconButton>
         </Box>
       </Paper>
 
@@ -268,6 +308,15 @@ const ChatBot: React.FC = () => {
           </Box>
         </Box>
       </Paper>
+
+      {/* Chat History Drawer */}
+      <ChatHistoryDrawer
+        open={historyDrawerOpen}
+        onClose={() => setHistoryDrawerOpen(false)}
+        onNewChat={handleNewChat}
+        onSelectConversation={handleSelectConversation}
+        currentConversationId={currentConversationId}
+      />
     </Container>
   );
 };
