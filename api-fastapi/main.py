@@ -9,13 +9,15 @@ import uuid
 from dotenv import load_dotenv
 import os
 
+from openai.building_graphrag import set_up_schema_loader
+from openai.retriever_embedding_index import embed_and_index
+
 # Load environment variables
 load_dotenv()
 
 app = FastAPI()
 
-# Session store
-session_memories = {}
+global generator 
 
 # CORS Configuration
 app.add_middleware(
@@ -25,59 +27,42 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize generator instance on demand
-def get_generator():
-    return GraphRAGSQLGenerator()
-
-class Query(BaseModel):
-    prompt: str
-    session_id: str = None
-
-@app.post("/setup")
+@app.post("/setup_schema")
 async def setup_endpoint():
     try:
-        result = initialize_graphrag()
-        return {"status": "success", "details": result}
+        set_up_schema_loader()
+        return {"message": "Schema setup completed successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
+@app.post("setup_graphrag")
+async def setup_graphrag_endpoint():
+    try:
+        embed_and_index()
+        return {"message": "GraphRAG setup completed successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
-@app.post("/query")
-async def chat_endpoint(query: Query):
-    session_id = query.session_id or str(uuid.uuid4())
-    
-    # Get or create memory for this session
-    if session_id not in session_memories:
-        session_memories[session_id] = ConversationBufferMemory(
-            memory_key="chat_history",
-            return_messages=True
-        )
-    
-    memory = session_memories[session_id]
-    
-    # Initialize LangChain components (move this to startup in production)
-    llm = ChatOpenAI(model=LLM_MODEL, temperature=0.1)
-    qa_chain = ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        retriever=create_graph_retriever(),  # Implement this
-        memory=memory,
-        chain_type="stuff"
-    )
-    
-    # Execute the chain
-    result = qa_chain({"question": query.prompt})
-    
-    return {
-        "session_id": session_id,
-        "response": result["answer"],
-        "chat_history": format_chat_history(memory)
-    }
 
-def format_chat_history(memory):
-    return [
-        {"role": msg.type, "content": msg.content} 
-        for msg in memory.chat_history
-    ]
+# set up generator
+generator = GraphRAGSQLGenerator()
+@app.post("setup_generator")
+async def startup_generator():
+    global generator
+    try:
+        generator = GraphRAGSQLGenerator()
+        return {"message": "GraphRAGSQLGenerator initialized successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/query")
+async def chat_endpoint(query: str):
+    try:
+        generated_sql = generator.execute_pipeline(query)
+        return {"query": query, "generated_sql": generated_sql}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 
 if __name__ == "__main__":
     import uvicorn
