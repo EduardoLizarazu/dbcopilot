@@ -1,0 +1,744 @@
+[
+  {
+    "table_name": "categories",
+    "table_alias": "category",
+    "table_description": "Stores information about the various product categories that Northwind Traders offers, such as beverages, condiments, confectionery, etc. This table helps organize products for inventory management and customer Browse.",
+    "columns": [
+      {
+        "column_name": "category_id",
+        "column_alias": null,
+        "column_type": "INTEGER",
+        "key_type": "Primary Key",
+        "column_description": "A unique identifier for each product category. This serves as the primary key for the Categories table and is referenced by the Products table"
+      },
+      {
+        "column_name": "category_name",
+        "column_alias": null,
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The distinct name of the product category (e.g., 'Beverages', 'Dairy Products'). This is typically a user-friendly name displayed to customers."
+      },
+      {
+        "column_name": "description",
+        "column_alias": "categoryDescription",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "A detailed description of the product category, providing more context about the types of products included in this category."
+      },
+      {
+        "column_name": "picture",
+        "column_alias": null,
+        "column_type": "BLOB",
+        "key_type": "None",
+        "column_description": "The picture of the category."
+      }
+    ]
+  },
+  {
+    "table_name": "products",
+    "table_alias": "product",
+    "table_description": "Stores details about individual products, including supplier, category, pricing, and inventory levels.",
+    "columns": [
+      {
+        "column_name": "product_id",
+        "column_alias": "id",
+        "column_type": "INTEGER",
+        "key_type": "Primary Key",
+        "column_description": "Unique identifier for each product."
+      },
+      {
+        "column_name": "product_name",
+        "column_alias": "name",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Name of the product."
+      },
+      {
+        "column_name": "supplier_id",
+        "column_alias": "supplier",
+        "column_type": "INTEGER",
+        "key_type": "Foreign Key",
+        "column_description": "Links to the supplier providing the product."
+      },
+      {
+        "column_name": "category_id",
+        "column_alias": "category",
+        "column_type": "INTEGER",
+        "key_type": "Foreign Key",
+        "column_description": "Links to the category of the product."
+      },
+      {
+        "column_name": "quantity_per_unit",
+        "column_alias": "qty_unit",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Packaging or unit quantity description (e.g., \"12-pack\")."
+      },
+      {
+        "column_name": "unit_price",
+        "column_alias": "price",
+        "column_type": "NUMERIC",
+        "key_type": "None",
+        "column_description": "Cost per unit of the product."
+      },
+      {
+        "column_name": "units_in_stock",
+        "column_alias": "stock",
+        "column_type": "INTEGER",
+        "key_type": "None",
+        "column_description": "Available units in inventory."
+      },
+      {
+        "column_name": "units_on_order",
+        "column_alias": "pending_stock",
+        "column_type": "INTEGER",
+        "key_type": "None",
+        "column_description": "Units currently on order from suppliers."
+      },
+      {
+        "column_name": "reorder_level",
+        "column_alias": "reorder_threshold",
+        "column_type": "INTEGER",
+        "key_type": "None",
+        "column_description": "Minimum stock level before reordering is triggered."
+      },
+      {
+        "column_name": "discontinued",
+        "column_alias": "status",
+        "column_type": "BOOLEAN",
+        "key_type": "None",
+        "column_description": "Indicates product availability (0 = available, 1 = discontinued)."
+      }
+    ]
+  },
+  {
+    "table_name": "suppliers",
+    "table_alias": "supplier",
+    "table_description": "Stores information about suppliers and vendors, including contact details, company information, and location.",
+    "columns": [
+      {
+        "column_name": "supplier_id",
+        "column_alias": "id",
+        "column_type": "INTEGER",
+        "key_type": "Primary Key",
+        "column_description": "Unique identifier for each supplier."
+      },
+      {
+        "column_name": "company_name",
+        "column_alias": "name",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Name of the supplier\u2019s company."
+      },
+      {
+        "column_name": "contact_name",
+        "column_alias": "contact_person",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Name of the primary contact for the supplier."
+      },
+      {
+        "column_name": "contact_title",
+        "column_alias": "role",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Job title of the contact person."
+      },
+      {
+        "column_name": "address",
+        "column_alias": "location",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Physical address of the supplier."
+      },
+      {
+        "column_name": "city",
+        "column_alias": "city_name",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "City where the supplier operates."
+      },
+      {
+        "column_name": "region",
+        "column_alias": "area",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Region/state where the supplier is located (if applicable)."
+      },
+      {
+        "column_name": "postal_code",
+        "column_alias": "zip",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Supplier\u2019s postal code."
+      },
+      {
+        "column_name": "country",
+        "column_alias": "nation",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Country where the supplier is based."
+      },
+      {
+        "column_name": "phone",
+        "column_alias": "contact_number",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Primary phone number of the supplier."
+      },
+      {
+        "column_name": "fax",
+        "column_alias": "fax_number",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Supplier\u2019s fax number (if applicable)."
+      },
+      {
+        "column_name": "homepage",
+        "column_alias": "website",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Supplier\u2019s homepage or official website."
+      }
+    ]
+  },
+  {
+    "table_name": "employees",
+    "table_alias": "employee",
+    "table_description": "Stores employee details for Northwind Traders, including personal information, work roles, and hierarchical reporting.",
+    "columns": [
+      {
+        "column_name": "employee_id",
+        "column_alias": "id",
+        "column_type": "INTEGER",
+        "key_type": "Primary Key",
+        "column_description": "Unique identifier for each employee."
+      },
+      {
+        "column_name": "last_name",
+        "column_alias": "surname",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Employee\u2019s last name."
+      },
+      {
+        "column_name": "first_name",
+        "column_alias": "given_name",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Employee\u2019s first name."
+      },
+      {
+        "column_name": "title",
+        "column_alias": "job_role",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Job title or position held by the employee."
+      },
+      {
+        "column_name": "title_of_courtesy",
+        "column_alias": "courtesy_title",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Courtesy title such as \"Mr.\", \"Ms.\", or \"Dr.\"."
+      },
+      {
+        "column_name": "birth_date",
+        "column_alias": "dob",
+        "column_type": "DATE",
+        "key_type": "None",
+        "column_description": "Employee\u2019s date of birth."
+      },
+      {
+        "column_name": "hire_date",
+        "column_alias": "start_date",
+        "column_type": "DATE",
+        "key_type": "None",
+        "column_description": "Date the employee was hired."
+      },
+      {
+        "column_name": "address",
+        "column_alias": "location",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Employee\u2019s residential address."
+      },
+      {
+        "column_name": "city",
+        "column_alias": "city_name",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "City where the employee resides."
+      },
+      {
+        "column_name": "region",
+        "column_alias": "state",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Employee\u2019s region or state (if applicable)."
+      },
+      {
+        "column_name": "postal_code",
+        "column_alias": "zip_code",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Employee\u2019s postal code."
+      },
+      {
+        "column_name": "country",
+        "column_alias": "nation",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Employee\u2019s country of residence."
+      },
+      {
+        "column_name": "home_phone",
+        "column_alias": "phone_number",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Employee\u2019s home phone number."
+      },
+      {
+        "column_name": "extension",
+        "column_alias": "ext",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Phone extension number."
+      },
+      {
+        "column_name": "photo",
+        "column_alias": "profile_image",
+        "column_type": "BLOB",
+        "key_type": "None",
+        "column_description": "Binary image data of the employee\u2019s profile photo."
+      },
+      {
+        "column_name": "notes",
+        "column_alias": "remarks",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Additional remarks or notes related to the employee."
+      },
+      {
+        "column_name": "reports_to",
+        "column_alias": "manager_id",
+        "column_type": "INTEGER",
+        "key_type": "Foreign Key",
+        "column_description": "The employee\u2019s direct manager or supervisor."
+      },
+      {
+        "column_name": "photo_path",
+        "column_alias": "image_url",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "File path or URL linking to the employee\u2019s photo."
+      }
+    ]
+  },
+  {
+    "table_name": "employee_territories",
+    "table_alias": "employee_territory",
+    "table_description": "Maps employees to their assigned territories, defining their area of responsibility for business operations.",
+    "columns": [
+      {
+        "column_name": "employee_id",
+        "column_alias": "employee",
+        "column_type": "INTEGER",
+        "key_type": "Primary Key, Foreign Key",
+        "column_description": "Unique identifier linking the employee to their assigned territory."
+      },
+      {
+        "column_name": "territory_id",
+        "column_alias": "territory",
+        "column_type": "TEXT",
+        "key_type": "Primary Key, Foreign Key",
+        "column_description": "Identifier for the territory assigned to the employee."
+      }
+    ]
+  },
+  {
+    "table_name": "territories",
+    "table_alias": "territory",
+    "table_description": "Defines geographical areas, each belonging to a specific region. Used to associate employees with locations.",
+    "columns": [
+      {
+        "column_name": "territory_id",
+        "column_alias": "id",
+        "column_type": "TEXT",
+        "key_type": "Primary Key",
+        "column_description": "Unique identifier for each territory."
+      },
+      {
+        "column_name": "territory_description",
+        "column_alias": "description",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Name or description of the territory."
+      },
+      {
+        "column_name": "region_id",
+        "column_alias": "region",
+        "column_type": "INTEGER",
+        "key_type": "Foreign Key",
+        "column_description": "Identifier for the **region** to which the territory belongs."
+      }
+    ]
+  },
+  {
+    "table_name": "region",
+    "table_alias": "region",
+    "table_description": "Defines larger geographical divisions that group multiple territories. Used for organizational and operational segmentation.",
+    "columns": [
+      {
+        "column_name": "region_id",
+        "column_alias": "id",
+        "column_type": "INTEGER",
+        "key_type": "Primary Key",
+        "column_description": "Unique identifier for each region."
+      },
+      {
+        "column_name": "region_description",
+        "column_alias": "description",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Name or description of the region, used for classification."
+      }
+    ]
+  },
+  {
+    "table_name": "order_details",
+    "table_alias": "order_detail",
+    "table_description": "Stores detailed information on individual sales transactions between customers and the company, tracking purchased products, prices, quantities, and discounts.",
+    "columns": [
+      {
+        "column_name": "order_id",
+        "column_alias": "order",
+        "column_type": "INTEGER",
+        "key_type": "Primary Key, Foreign Key",
+        "column_description": "Unique identifier for the order associated with the transaction."
+      },
+      {
+        "column_name": "product_id",
+        "column_alias": "product",
+        "column_type": "INTEGER",
+        "key_type": "Primary Key, Foreign Key",
+        "column_description": "Unique identifier for the product in the order."
+      },
+      {
+        "column_name": "unit_price",
+        "column_alias": "price_per_unit",
+        "column_type": "NUMERIC",
+        "key_type": "None",
+        "column_description": "Price per unit of the product at the time of purchase."
+      },
+      {
+        "column_name": "quantity",
+        "column_alias": "amount",
+        "column_type": "INTEGER",
+        "key_type": "None",
+        "column_description": "Quantity of the product ordered."
+      },
+      {
+        "column_name": "discount",
+        "column_alias": "price_reduction",
+        "column_type": "REAL",
+        "key_type": "None",
+        "column_description": "Discount applied to the product in the transaction."
+      }
+    ]
+  },
+  {
+    "table_name": "customers",
+    "table_alias": "customer",
+    "table_description": "Stores information about customers who purchase products from Northwind, including contact details and company information.",
+    "columns": [
+      {
+        "column_name": "customer_id",
+        "column_alias": "id",
+        "column_type": "TEXT",
+        "key_type": "Primary Key",
+        "column_description": "Unique identifier for each customer."
+      },
+      {
+        "column_name": "company_name",
+        "column_alias": "business_name",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Name of the company or business associated with the customer."
+      },
+      {
+        "column_name": "contact_name",
+        "column_alias": "representative",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Name of the primary contact person for the customer."
+      },
+      {
+        "column_name": "contact_title",
+        "column_alias": "role",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Job title of the contact person."
+      },
+      {
+        "column_name": "address",
+        "column_alias": "location",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Physical address of the customer\u2019s business or location."
+      },
+      {
+        "column_name": "city",
+        "column_alias": "city_name",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "City where the customer is based."
+      },
+      {
+        "column_name": "region",
+        "column_alias": "state_province",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Region or state where the customer operates (if applicable)."
+      },
+      {
+        "column_name": "postal_code",
+        "column_alias": "zip_code",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Postal code of the customer\u2019s location."
+      },
+      {
+        "column_name": "country",
+        "column_alias": "nation",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Country where the customer is located."
+      },
+      {
+        "column_name": "phone",
+        "column_alias": "contact_number",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Primary phone number for the customer."
+      },
+      {
+        "column_name": "fax",
+        "column_alias": "fax_number",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Customer\u2019s fax number (if applicable)."
+      }
+    ]
+  },
+  {
+    "table_name": "customer_customer_demo",
+    "table_alias": "customer_customer_demo",
+    "table_description": "Maps customers to their demographic classifications, associating each customer with a specific type or group.",
+    "columns": [
+      {
+        "column_name": "customer_id",
+        "column_alias": "customer",
+        "column_type": "TEXT",
+        "key_type": "Primary Key, Foreign Key",
+        "column_description": "Unique identifier for the customer, linking them to demographic data."
+      },
+      {
+        "column_name": "customer_type_id",
+        "column_alias": "type",
+        "column_type": "TEXT",
+        "key_type": "Primary Key, Foreign Key",
+        "column_description": "Identifier for the customer\u2019s demographic classification."
+      }
+    ]
+  },
+  {
+    "table_name": "customer_demographics",
+    "table_alias": "customer_demographic",
+    "table_description": "Categorizes customers based on various demographic attributes, helping classify them into meaningful customer types.",
+    "columns": [
+      {
+        "column_name": "customer_type_id",
+        "column_alias": "type_id",
+        "column_type": "TEXT",
+        "key_type": "Primary Key",
+        "column_description": "Unique identifier for each customer type classification."
+      },
+      {
+        "column_name": "customer_desc",
+        "column_alias": "description",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "Detailed description of the customer type, explaining its characteristics."
+      }
+    ]
+  },
+  {
+    "table_name": "orders",
+    "table_alias": "sales_order",
+    "table_description": "Contains comprehensive details for every sales transaction made by Northwind Traders. Each record represents a unique customer order, tracking its status from creation to shipment.",
+    "columns": [
+      {
+        "column_name": "order_id",
+        "column_alias": "orderId",
+        "column_type": "INTEGER",
+        "key_type": "Primary Key",
+        "column_description": "A unique identifier for each sales order. This is the primary key for the Orders table and is referenced by the Order Details table."
+      },
+      {
+        "column_name": "customer_id",
+        "column_alias": "customerId",
+        "column_type": "TEXT",
+        "key_type": "Foreign Key",
+        "column_description": "The unique identifier of the customer who placed this order. Links to the `customers` table."
+      },
+      {
+        "column_name": "employee_id",
+        "column_alias": "employeeId",
+        "column_type": "INTEGER",
+        "key_type": "Foreign Key",
+        "column_description": "The unique identifier of the employee who took or processed this order. Links to the `employees` table."
+      },
+      {
+        "column_name": "order_date",
+        "column_alias": "orderDate",
+        "column_type": "DATE",
+        "key_type": "None",
+        "column_description": "The date and time when the order was placed by the customer."
+      },
+      {
+        "column_name": "required_date",
+        "column_alias": "requiredDeliveryDate",
+        "column_type": "DATE",
+        "key_type": "None",
+        "column_description": "The date by which the order is expected or required to be delivered to the customer."
+      },
+      {
+        "column_name": "shipped_date",
+        "column_alias": "shippedDate",
+        "column_type": "DATE",
+        "key_type": "None",
+        "column_description": "The actual date and time when the order was shipped from the warehouse. Null if the order has not yet been shipped."
+      },
+      {
+        "column_name": "ship_via",
+        "column_alias": "shipperId",
+        "column_type": "INTEGER",
+        "key_type": "Foreign Key",
+        "column_description": "The unique identifier of the shipping company used for this order. Links to the `shippers` table."
+      },
+      {
+        "column_name": "freight",
+        "column_alias": "freightCost",
+        "column_type": "NUMERIC",
+        "key_type": "None",
+        "column_description": "The cost of shipping for this specific order."
+      },
+      {
+        "column_name": "ship_name",
+        "column_alias": "recipientName",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The name of the person or company to whom the order is being shipped."
+      },
+      {
+        "column_name": "ship_address",
+        "column_alias": "shippingAddress",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The street address for delivery of the order."
+      },
+      {
+        "column_name": "ship_city",
+        "column_alias": "shippingCity",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The city for the delivery address of the order."
+      },
+      {
+        "column_name": "ship_region",
+        "column_alias": "shippingRegion",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The region (e.g., state, province) for the delivery address of the order. Can be null if not applicable."
+      },
+      {
+        "column_name": "ship_postal_code",
+        "column_alias": "shippingPostalCode",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The postal code (e.g., ZIP code) for the delivery address of the order."
+      },
+      {
+        "column_name": "ship_country",
+        "column_alias": "shippingCountry",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The country for the delivery address of the order."
+      }
+    ]
+  },
+  {
+    "table_name": "shippers",
+    "table_alias": "shipping_company",
+    "table_description": "Stores contact and company information for the various shipping companies that Northwind Traders uses to deliver products to customers.",
+    "columns": [
+      {
+        "column_name": "shipper_id",
+        "column_alias": "shipperId",
+        "column_type": "INTEGER",
+        "key_type": "Primary Key",
+        "column_description": "A unique identifier for each shipping company. This is the primary key for the Shippers table and is referenced by the Orders table."
+      },
+      {
+        "column_name": "company_name",
+        "column_alias": "companyName",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The official registered name of the shipping company (e.g., 'Speedy Express', 'United Package')."
+      },
+      {
+        "column_name": "phone",
+        "column_alias": "contactPhone",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The primary contact phone number for the shipping company."
+      }
+    ]
+  },
+  {
+    "table_name": "us_states",
+    "table_alias": "united_states_province",
+    "table_description": "Contains a comprehensive list of all states and territories within the United States, including their full names, abbreviations, and regional classifications. This table can be used for standardization of addresses, reporting, or geographical analysis related to US operations.",
+    "columns": [
+      {
+        "column_name": "state_id",
+        "column_alias": "stateId",
+        "column_type": "INTEGER",
+        "key_type": "Primary Key",
+        "column_description": "A unique numerical identifier assigned to each U.S. state or territory. This serves as the primary key for this table."
+      },
+      {
+        "column_name": "state_name",
+        "column_alias": "fullStateName",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The complete, official name of the U.S. state or territory (e.g., 'California', 'New York')."
+      },
+      {
+        "column_name": "state_abbr",
+        "column_alias": "stateAbbreviation",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The standard two-letter postal abbreviation for the U.S. state or territory (e.g., 'CA', 'NY')."
+      },
+      {
+        "column_name": "state_region",
+        "column_alias": "geographicRegion",
+        "column_type": "TEXT",
+        "key_type": "None",
+        "column_description": "The broader geographical region or division to which the state belongs (e.g., 'West', 'Northeast')."
+      }
+    ]
+  }
+]

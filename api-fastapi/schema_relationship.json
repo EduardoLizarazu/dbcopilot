@@ -1,0 +1,128 @@
+[
+  {
+    "from_table": "products",
+    "from_column": "category_id",
+    "to_table": "categories",
+    "to_column": "category_id",
+    "relationship_name": null,
+    "description": "from products join categories on products.category_id = categories.category_id",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "products",
+    "from_column": "supplier_id",
+    "to_table": "suppliers",
+    "to_column": "supplier_id",
+    "relationship_name": null,
+    "description": "from products join suppliers on products.supplier_id = suppliers.supplier_id",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "order_details",
+    "from_column": "product_id",
+    "to_table": "products",
+    "to_column": "product_id",
+    "relationship_name": null,
+    "description": "from order_details join products on order_details.product_id = products.product_id",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "employee_territories",
+    "from_column": "employee_id",
+    "to_table": "employees",
+    "to_column": "employee_id",
+    "relationship_name": null,
+    "description": "from employee_territories join employees on employee_territories.employee_id = employees.employee_id",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "employee_territories",
+    "from_column": "territory_id",
+    "to_table": "territories",
+    "to_column": "territory_id",
+    "relationship_name": null,
+    "description": "from employee_territories join territories on employee_territories.territory_id = territories.territory_id",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "territories",
+    "from_column": "region_id",
+    "to_table": "region",
+    "to_column": "region_id",
+    "relationship_name": null,
+    "description": "from territories join region on territories.region_id = region.region_id",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "order_details",
+    "from_column": "order_id",
+    "to_table": "orders",
+    "to_column": "order_id",
+    "relationship_name": null,
+    "description": "from order_details join orders on order_details.order_id = orders.order_id",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "customer_customer_demo",
+    "from_column": "customer_id",
+    "to_table": "customers",
+    "to_column": "customer_id",
+    "relationship_name": null,
+    "description": "from customer_customer_demo join customers on customer_customer_demo.customer_id = customers.customer_id",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "customer_customer_demo",
+    "from_column": "customer_type_id",
+    "to_table": "customer_demographics",
+    "to_column": "customer_type_id",
+    "relationship_name": null,
+    "description": "from customer_customer_demo join customer_demographics on customer_customer_demo.customer_type_id = customer_demographics.customer_type_id",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "orders",
+    "from_column": "customer_id",
+    "to_table": "customers",
+    "to_column": "customer_id",
+    "relationship_name": null,
+    "description": "Establishes that each order is placed by a specific customer.",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "orders",
+    "from_column": "employee_id",
+    "to_table": "employees",
+    "to_column": "employee_id",
+    "relationship_name": null,
+    "description": "Indicates which employee was responsible for handling each order.",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "orders",
+    "from_column": "ship_via",
+    "to_table": "shippers",
+    "to_column": "shipper_id",
+    "relationship_name": null,
+    "description": "Defines the shipping company selected for the delivery of the order.",
+    "cardinality": "Many-to-One"
+  },
+  {
+    "from_table": "orders",
+    "from_column": "order_id",
+    "to_table": "order_details",
+    "to_column": "order_id",
+    "relationship_name": null,
+    "description": "Shows that each order can consist of multiple order detail line items, defining the products and quantities for that order.",
+    "cardinality": "One-to-Many"
+  },
+  {
+    "from_table": "employees",
+    "from_column": "reports_to",
+    "to_table": "employees",
+    "to_column": "employee_id",
+    "relationship_name": null,
+    "description": "from employees join employees as manager on employees.reports_to = manager.employee_id",
+    "cardinality": "Many-to-One"
+  }
+]
