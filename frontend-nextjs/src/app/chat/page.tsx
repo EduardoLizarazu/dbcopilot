@@ -25,6 +25,7 @@ import {
   CreatePromptCmdWithConnId,
   TCreatePromptCmdWithConnIdOutput,
 } from "@/controller/_actions/chat/command/create-prompt-with-connection-id.command";
+import { CreatePrompt } from "@/controller/_actions/chat/command/create-prompt";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -58,8 +59,10 @@ export default function ChatPage() {
 
   // prompt, result and insight
   const [prompt, setPrompt] = React.useState<string>("");
-  const [result, setResult] =
-    React.useState<TCreatePromptCmdWithConnIdOutput>();
+  const [result, setResult] = React.useState<{
+    error?: string | null;
+    data: Record<string, unknown>[];
+  }>();
 
   // EFFECTS
   React.useEffect(() => {
@@ -77,13 +80,14 @@ export default function ChatPage() {
     // Fetch data
     console.log("Submit prompt", prompt);
     try {
-      const response: TCreatePromptCmdWithConnIdOutput =
-        await CreatePromptCmdWithConnId({
-          connectionId: selectedDatabaseId,
-          prompt: prompt.trim().toLowerCase(),
-        });
+      const response = await CreatePrompt({
+        prompt: prompt,
+      });
       console.log("response create prompt with connection id: ", response);
-      setResult(response);
+      setResult({
+        data: response.result || [],
+        error: response.error || null,
+      });
     } catch (error) {
       console.error("Error submitting prompt:", error);
     }
@@ -109,7 +113,7 @@ export default function ChatPage() {
     setPrompt("");
     setResult({
       data: [],
-      final_query: "",
+      error: null,
     });
   }
 
@@ -172,7 +176,7 @@ export default function ChatPage() {
             <ChatFeedbackBtn promptId={0} />
           </Box>
 
-          <Typography variant="body1">Suggestions: ...</Typography>
+          <Typography variant="body1">{result?.error}</Typography>
 
           {/* Submit prompt button */}
           <ChatBtnAction
@@ -198,7 +202,7 @@ export default function ChatPage() {
                 <ChatResultTable data={result?.data || []} />
               </TabPanel>
               <TabPanel value="2">
-                <ChatSqlEditor sqlQueryData={result?.final_query || ""} />
+                <ChatSqlEditor sqlQueryData={""} />
               </TabPanel>
               <TabPanel value="3">
                 {/* Chat insight */}
