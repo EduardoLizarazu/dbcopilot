@@ -70,8 +70,7 @@ async def generate_sql_endpoint(query: QueryRequest):
         
 
         # Save the query to the database
-        executor.save_query(query.prompt, sql_query, results)
-
+        executor.save_query(query.prompt, sql_query)
 
         return {
             "prompt": query.prompt,
@@ -81,10 +80,30 @@ async def generate_sql_endpoint(query: QueryRequest):
         }
         
     except ValueError as ve:
+        # Validation error (non-SELECT query)
+        executor.save_query_error(
+            prompt=query.prompt,
+            sql_query=sql_query,
+            error=f"Validation Error: {str(ve)}"
+        )
         raise HTTPException(status_code=400, detail=str(ve))
+        
     except RuntimeError as re:
+        # Query execution error
+        executor.save_query_error(
+            prompt=query.prompt,
+            sql_query=sql_query,
+            error=f"Execution Error: {str(re)}"
+        )
         raise HTTPException(status_code=500, detail=str(re))
+        
     except Exception as e:
+        # Unexpected error
+        executor.save_query_error(
+            prompt=query.prompt,
+            sql_query="N/A" if 'sql_query' not in locals() else sql_query,
+            error=f"Unexpected Error: {str(e)}"
+        )
         logger.exception("Unexpected error in endpoint")
         raise HTTPException(status_code=500, detail="Internal server error")
     

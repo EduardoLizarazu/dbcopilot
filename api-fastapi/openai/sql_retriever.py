@@ -88,31 +88,23 @@ class QueryExecutor:
                 
         except psycopg2.Error as e:
             logger.error(f"Query execution failed: {str(e)}")
+            
             raise RuntimeError(f"Database error: {str(e)}")
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}")
             raise RuntimeError(f"Execution error: {str(e)}")
         
-    def save_query(self, prompt: str, sql_query: str, results: list):
+    def save_query(self, prompt: str, sql_query: str):
         """Save query and results to the database"""
         try:
             with self.conn.cursor() as cursor:
                 insert_query = sql.SQL("""
-                    INSERT INTO prompt (title, prompt)
+                    INSERT INTO prompt (prompt, sql_query)
                     VALUES (%s, %s)
                 """)
-                cursor.execute(insert_query, ("", prompt))
+                cursor.execute(insert_query, (prompt, sql_query))
                 self.conn.commit()
                 logger.info("Query saved successfully")
-
-                insert_query = sql.SQL("""
-                    INSERT INTO query (prompt_id, query, results)
-                    VALUES (
-                        (SELECT id FROM prompt WHERE prompt = %s),
-                        %s,
-                        %s
-                    )
-                """)
 
         except psycopg2.Error as e:
             logger.error(f"Failed to save query: {str(e)}")
@@ -121,3 +113,21 @@ class QueryExecutor:
             logger.error(f"Unexpected error while saving query: {str(e)}")
             raise RuntimeError(f"Execution error: {str(e)}")
 
+    def save_query_error(self, prompt: str, sql_query: str, error: str):
+        """Save query and results to the database"""
+        try:
+            with self.conn.cursor() as cursor:
+                insert_query = sql.SQL("""
+                    INSERT INTO prompt (prompt, sql_query, message_error)
+                    VALUES (%s, %s, %s)
+                """)
+                cursor.execute(insert_query, ("", prompt, sql_query, error))
+                self.conn.commit()
+                logger.info("Query saved successfully")
+
+        except psycopg2.Error as e:
+            logger.error(f"Failed to save query: {str(e)}")
+            raise RuntimeError(f"Database error: {str(e)}")
+        except Exception as e:
+            logger.error(f"Unexpected error while saving query: {str(e)}")
+            raise RuntimeError(f"Execution error: {str(e)}")

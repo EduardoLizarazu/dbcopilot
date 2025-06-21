@@ -14,7 +14,7 @@ export class Prompt {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   title: string;
 
   @Column()
@@ -26,6 +26,15 @@ export class Prompt {
     onDelete: 'SET NULL',
   })
   schema: Schema;
+
+  @Column({ nullable: true })
+  is_user_deletion: boolean;
+
+  @Column({ nullable: true })
+  sql_query: string;
+
+  @Column({ nullable: true })
+  message_error: string;
 
   @OneToMany(() => Sqlquery, (sqlQuery) => sqlQuery.prompt)
   sqlQueries: Sqlquery[];
