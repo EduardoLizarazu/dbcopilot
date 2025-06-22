@@ -26,6 +26,7 @@ import {
   TCreatePromptCmdWithConnIdOutput,
 } from "@/controller/_actions/chat/command/create-prompt-with-connection-id.command";
 import { CreatePrompt } from "@/controller/_actions/chat/command/create-prompt";
+import { useFeedbackContext } from "@/contexts/feedback.context";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -34,6 +35,9 @@ enum TabResultValueEnum {
 }
 
 export default function ChatPage() {
+  // USE CONTEXT
+  const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
+
   // USE STATE TAB
   const [tabResultValue, setTabResultValue] =
     React.useState<TabResultValueEnum>(TabResultValueEnum.Result);
@@ -83,10 +87,30 @@ export default function ChatPage() {
       const response = await CreatePrompt({
         prompt: prompt,
       });
-      console.log("response create prompt with connection id: ", response);
+      console.log("response create prompt: ", response);
+
+      if (response.error) {
+        setResult({
+          data: [],
+          error: response.error,
+        });
+        setFeedback({
+          isActive: true,
+          message: response.error,
+          severity: "error",
+        });
+        return;
+      }
+
       setResult({
         data: response.result || [],
         error: response.error || null,
+      });
+
+      setFeedback({
+        isActive: true,
+        message: "Prompt submitted successfully",
+        severity: "success",
       });
     } catch (error) {
       console.error("Error submitting prompt:", error);

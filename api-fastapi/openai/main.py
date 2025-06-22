@@ -7,6 +7,7 @@ from sql_retriever import QueryExecutor
 from building_graphrag import set_up_schema_loader
 from retriever_embedding_index import embed_and_index
 import logging
+from my_db_manager import MyDbManager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +20,8 @@ app = FastAPI()
 generator = GraphRAGSQLGenerator()
 # Add to your endpoint
 executor = QueryExecutor()
+
+my_executor = MyDbManager()
 
 # CORS Configuration
 app.add_middleware(
@@ -70,7 +73,7 @@ async def generate_sql_endpoint(query: QueryRequest):
         
 
         # Save the query to the database
-        executor.save_query(query.prompt, sql_query)
+        my_executor.save_query(query.prompt, sql_query)
 
         return {
             "prompt": query.prompt,
@@ -81,7 +84,7 @@ async def generate_sql_endpoint(query: QueryRequest):
         
     except ValueError as ve:
         # Validation error (non-SELECT query)
-        executor.save_query_error(
+        my_executor.save_query_error(
             prompt=query.prompt,
             sql_query=sql_query,
             error=f"Validation Error: {str(ve)}"
@@ -90,7 +93,7 @@ async def generate_sql_endpoint(query: QueryRequest):
         
     except RuntimeError as re:
         # Query execution error
-        executor.save_query_error(
+        my_executor.save_query_error(
             prompt=query.prompt,
             sql_query=sql_query,
             error=f"Execution Error: {str(re)}"
@@ -99,7 +102,7 @@ async def generate_sql_endpoint(query: QueryRequest):
         
     except Exception as e:
         # Unexpected error
-        executor.save_query_error(
+        my_executor.save_query_error(
             prompt=query.prompt,
             sql_query="N/A" if 'sql_query' not in locals() else sql_query,
             error=f"Unexpected Error: {str(e)}"

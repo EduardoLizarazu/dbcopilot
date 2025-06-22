@@ -27,7 +27,10 @@ export async function CreatePrompt(
     });
 
     if (!response.ok) {
-      throw new Error("Failed to create prompt");
+      return {
+        result: [],
+        error: `Error creating prompt: ${response.statusText}`,
+      };
     }
     const data = await response.json();
     console.log("response create prompt : ", data);
