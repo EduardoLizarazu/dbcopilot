@@ -48,7 +48,7 @@ export function ChatStoryList({
       const chats = await ReadChatHistory();
       setConversations(
         chats.map((chat) => ({
-          id: String(chat.id) || "",
+          id: String(chat.id || "") || "",
           prompt: chat.prompt || "",
         }))
       );
@@ -132,50 +132,66 @@ export function ChatStoryList({
           </Box>
 
           <List sx={{ p: 0 }}>
-            {filteredConversations.map((conversation) => (
-              <ListItem key={conversation.id} disablePadding sx={{ mb: 0.5 }}>
-                <ListItemButton
-                  onClick={() => handleConversationSelect(conversation.id)}
-                  sx={{
-                    borderRadius: 2,
-                    backgroundColor: "transparent",
-                    border: "1px solid transparent",
-                    "&:hover": {
-                      backgroundColor: "#f5f5f5",
-                    },
-                    px: 2,
-                    py: 1,
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: 32 }}>
-                    <ChatIcon fontSize="small" color="action" />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontWeight: 400,
-                          color: "text.primary",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {conversation.prompt}
-                      </Typography>
-                    }
-                  />
-                  <IconButton
-                    size="small"
-                    onClick={(e) => handleMenuClick(e, conversation.id)}
-                    sx={{ opacity: 0.6, "&:hover": { opacity: 1 } }}
+            {filteredConversations.length > 0 ? (
+              filteredConversations.map((conversation) => (
+                <ListItem key={conversation.id} disablePadding sx={{ mb: 0.5 }}>
+                  <ListItemButton
+                    onClick={() => handleConversationSelect(conversation.id)}
+                    sx={{
+                      borderRadius: 2,
+                      backgroundColor: "transparent",
+                      border: "1px solid transparent",
+                      "&:hover": {
+                        backgroundColor: "#f5f5f5",
+                      },
+                      px: 2,
+                      py: 1,
+                    }}
                   >
-                    <MoreVertIcon fontSize="small" />
-                  </IconButton>
-                </ListItemButton>
-              </ListItem>
-            ))}
+                    <ListItemIcon sx={{ minWidth: 32 }}>
+                      <ChatIcon fontSize="small" color="action" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 400,
+                            color: "text.primary",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {conversation.prompt}
+                        </Typography>
+                      }
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={(e) => handleMenuClick(e, conversation.id)}
+                      sx={{ opacity: 0.6, "&:hover": { opacity: 1 } }}
+                    >
+                      <MoreVertIcon fontSize="small" />
+                    </IconButton>
+                  </ListItemButton>
+                </ListItem>
+              ))
+            ) : (
+              <TextField
+                fullWidth
+                disabled
+                value="No conversations found"
+                sx={{
+                  mt: 2,
+                  textAlign: "center",
+                  "& .MuiInputBase-input": {
+                    textAlign: "center",
+                    color: "text.secondary",
+                  },
+                }}
+              />
+            )}
           </List>
         </Box>
       </Box>
