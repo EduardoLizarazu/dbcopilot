@@ -60,7 +60,6 @@ export function DrawerRightChat({ connId }: TDrawerRightChatProps) {
         <TabPanel value="2">
           {/* Chat history */}
           <ChatStoryList
-            onNewChat={handleNewChat}
             onSelectConversation={handleSelectConversation}
             currentConversationId={currentConversationId}
           />
@@ -84,9 +83,6 @@ export function DrawerRightChat({ connId }: TDrawerRightChatProps) {
       </Drawer>
     </div>
   );
-}
-function handleNewChat(): void {
-  throw new Error("Function not implemented.");
 }
 
 function handleSelectConversation(id: string): void {

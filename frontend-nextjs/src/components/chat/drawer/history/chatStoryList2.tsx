@@ -12,8 +12,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import ChatIcon from "@mui/icons-material/Chat";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -22,20 +20,15 @@ import { useState } from "react";
 
 interface Conversation {
   id: string;
-  title: string;
-  lastMessage: string;
-  timestamp: string;
-  isActive?: boolean;
+  prompt: string;
 }
 
 interface ChatHistoryDrawerProps {
-  onNewChat: () => void;
   onSelectConversation: (id: string) => void;
   currentConversationId?: string;
 }
 
 export function ChatStoryList({
-  onNewChat,
   onSelectConversation,
   currentConversationId,
 }: ChatHistoryDrawerProps) {
@@ -46,71 +39,20 @@ export function ChatStoryList({
   const [conversations] = useState<Conversation[]>([
     {
       id: "1",
-      title: "Create Html Game Environment...",
-      lastMessage: "How to create a game environment in HTML",
-      timestamp: "Today",
+      prompt: "Create Html Game Environment...",
     },
     {
       id: "2",
-      title: "Apply To Leave For Emergency",
-      lastMessage: "Draft an emergency leave application",
-      timestamp: "Today",
+      prompt: "Apply To Leave For Emergency",
     },
     {
       id: "3",
-      title: "What Is UI UX Design?",
-      lastMessage: "Explain UI/UX design principles",
-      timestamp: "Today",
-    },
-    {
-      id: "4",
-      title: "Create POS System",
-      lastMessage: "Help with point of sale system development",
-      timestamp: "Today",
-    },
-    {
-      id: "5",
-      title: "What Is UX Audit?",
-      lastMessage: "Explain UX audit process",
-      timestamp: "Today",
-    },
-    {
-      id: "6",
-      title: "Create Chatbot GPT...",
-      lastMessage: "Building a chatbot with GPT",
-      timestamp: "Today",
-      isActive: true,
-    },
-    {
-      id: "7",
-      title: "How Chat GPT Work?",
-      lastMessage: "Understanding ChatGPT functionality",
-      timestamp: "Last 7 Days",
-    },
-    {
-      id: "8",
-      title: "Crypto Lending App Name",
-      lastMessage: "Suggestions for crypto lending app names",
-      timestamp: "Last 7 Days",
-    },
-    {
-      id: "9",
-      title: "Operator Grammar Types",
-      lastMessage: "Different types of grammar operators",
-      timestamp: "Last 7 Days",
-    },
-    {
-      id: "10",
-      title: "Ava Starter For Binary DFA",
-      lastMessage: "Binary DFA implementation help",
-      timestamp: "Last 7 Days",
+      prompt: "What Is UI UX Design?",
     },
   ]);
 
-  const filteredConversations = conversations.filter(
-    (conv: Conversation) =>
-      conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredConversations = conversations.filter((conv: Conversation) =>
+    conv.prompt.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleMenuClick = (
@@ -119,14 +61,6 @@ export function ChatStoryList({
   ) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleNewChat = () => {
-    onNewChat();
   };
 
   const handleConversationSelect = (id: string) => {
@@ -144,40 +78,6 @@ export function ChatStoryList({
           backgroundColor: "white",
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            mb: 2,
-          }}
-        >
-          <Typography variant="h6" fontWeight="bold">
-            CHAT A.I +
-          </Typography>
-          <IconButton onClick={() => console.log("Close drawer")} size="small">
-            <CloseIcon />
-          </IconButton>
-        </Box>
-
-        <Button
-          fullWidth
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleNewChat}
-          sx={{
-            borderRadius: 3,
-            textTransform: "none",
-            mb: 2,
-            backgroundColor: "#4285f4",
-            "&:hover": {
-              backgroundColor: "#3367d6",
-            },
-          }}
-        >
-          New chat
-        </Button>
-
         <TextField
           fullWidth
           size="small"
@@ -233,16 +133,10 @@ export function ChatStoryList({
                   onClick={() => handleConversationSelect(conversation.id)}
                   sx={{
                     borderRadius: 2,
-                    backgroundColor: conversation.isActive
-                      ? "#e3f2fd"
-                      : "transparent",
-                    border: conversation.isActive
-                      ? "1px solid #bbdefb"
-                      : "1px solid transparent",
+                    backgroundColor: "transparent",
+                    border: "1px solid transparent",
                     "&:hover": {
-                      backgroundColor: conversation.isActive
-                        ? "#e3f2fd"
-                        : "#f5f5f5",
+                      backgroundColor: "#f5f5f5",
                     },
                     px: 2,
                     py: 1,
@@ -256,16 +150,14 @@ export function ChatStoryList({
                       <Typography
                         variant="body2"
                         sx={{
-                          fontWeight: conversation.isActive ? 600 : 400,
-                          color: conversation.isActive
-                            ? "primary.main"
-                            : "text.primary",
+                          fontWeight: 400,
+                          color: "text.primary",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {conversation.title}
+                        {conversation.prompt}
                       </Typography>
                     }
                   />
