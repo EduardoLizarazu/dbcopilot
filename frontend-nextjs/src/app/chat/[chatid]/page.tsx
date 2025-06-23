@@ -1,5 +1,6 @@
 "use client";
 
+import { SingleChat } from "@/components/chat/single_chat";
 import React from "react";
 
 interface Props {
@@ -15,4 +16,10 @@ export default function ChatIdPage({ params }: Props) {
       console.log("chatid", chatid);
     })();
   }, [params]);
+
+  return (
+    <>
+      <SingleChat />
+    </>
+  );
 }
