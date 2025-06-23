@@ -16,7 +16,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import ChatIcon from "@mui/icons-material/Chat";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ReadChatHistory } from "@/controller/_actions/chat/query/read-chat-history.chat.query";
 
 interface Conversation {
   id: string;
@@ -34,22 +35,26 @@ export function ChatStoryList({
 }: ChatHistoryDrawerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   // Mock conversation data
-  const [conversations] = useState<Conversation[]>([
+  const [conversations, setConversations] = useState<Conversation[]>([
     {
-      id: "1",
-      prompt: "Create Html Game Environment...",
-    },
-    {
-      id: "2",
-      prompt: "Apply To Leave For Emergency",
-    },
-    {
-      id: "3",
-      prompt: "What Is UI UX Design?",
+      id: "",
+      prompt: "",
     },
   ]);
+
+  useEffect(() => {
+    (async () => {
+      const chats = await ReadChatHistory();
+      setConversations(
+        chats.map((chat) => ({
+          id: String(chat.id) || "",
+          prompt: chat.prompt || "",
+        }))
+      );
+    })();
+    return () => {};
+  }, []);
 
   const filteredConversations = conversations.filter((conv: Conversation) =>
     conv.prompt.toLowerCase().includes(searchQuery.toLowerCase())
