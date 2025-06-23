@@ -33,6 +33,7 @@ interface ChatHistoryDrawerProps {
   onSelectConversation: (id: string) => void;
   currentConversationId?: string;
 }
+
 export function ChatStoryList({
   onNewChat,
   onSelectConversation,
@@ -40,9 +41,6 @@ export function ChatStoryList({
 }: ChatHistoryDrawerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedConversation, setSelectedConversation] = useState<
-    string | null
-  >(null);
 
   // Mock conversation data
   const [conversations] = useState<Conversation[]>([
@@ -115,54 +113,96 @@ export function ChatStoryList({
       conv.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const groupedConversations = filteredConversations.reduce(
-    (groups, conv: Conversation) => {
-      const group = conv.timestamp;
-      if (!groups[group]) {
-        groups[group] = [];
-      }
-      groups[group].push(conv);
-      return groups;
-    },
-    {} as Record<string, Conversation[]>
-  );
-
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
     conversationId: string
   ) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
-    setSelectedConversation(conversationId);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedConversation(null);
   };
 
   const handleNewChat = () => {
     onNewChat();
-    // onClose();
   };
 
   const handleConversationSelect = (id: string) => {
     onSelectConversation(id);
-    // onClose();
   };
 
   const drawerWidth = 320;
   return (
-    <>
-      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        {/* Header */}
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      {/* Header */}
+      <Box
+        sx={{
+          p: 2,
+          borderBottom: "1px solid #e0e0e0",
+          backgroundColor: "white",
+        }}
+      >
         <Box
           sx={{
-            p: 2,
-            borderBottom: "1px solid #e0e0e0",
-            backgroundColor: "white",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 2,
           }}
         >
+          <Typography variant="h6" fontWeight="bold">
+            CHAT A.I +
+          </Typography>
+          <IconButton onClick={() => console.log("Close drawer")} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        <Button
+          fullWidth
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleNewChat}
+          sx={{
+            borderRadius: 3,
+            textTransform: "none",
+            mb: 2,
+            backgroundColor: "#4285f4",
+            "&:hover": {
+              backgroundColor: "#3367d6",
+            },
+          }}
+        >
+          New chat
+        </Button>
+
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search conversations"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              backgroundColor: "#f5f5f5",
+            },
+          }}
+        />
+      </Box>
+
+      {/* Conversations List - Flat List */}
+      <Box sx={{ flex: 1, overflow: "auto" }}>
+        <Box sx={{ p: 2 }}>
           <Box
             sx={{
               display: "flex",
@@ -171,221 +211,135 @@ export function ChatStoryList({
               mb: 2,
             }}
           >
-            <Typography variant="h6" fontWeight="bold">
-              CHAT A.I +
+            <Typography variant="subtitle2" color="text.secondary">
+              Your conversations
             </Typography>
-            <IconButton
-              onClick={
-                // onClose
-                () => console.log("Close drawer") // Placeholder for close function
-              }
+            <Button
               size="small"
-            >
-              <CloseIcon />
-            </IconButton>
-          </Box>
-
-          <Button
-            fullWidth
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleNewChat}
-            sx={{
-              borderRadius: 3,
-              textTransform: "none",
-              mb: 2,
-              backgroundColor: "#4285f4",
-              "&:hover": {
-                backgroundColor: "#3367d6",
-              },
-            }}
-          >
-            New chat
-          </Button>
-
-          <TextField
-            fullWidth
-            size="small"
-            placeholder="Search conversations"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-                backgroundColor: "#f5f5f5",
-              },
-            }}
-          />
-        </Box>
-
-        {/* Conversations List */}
-        <Box sx={{ flex: 1, overflow: "auto" }}>
-          <Box sx={{ p: 2 }}>
-            <Box
               sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 2,
+                textTransform: "none",
+                color: "primary.main",
+                fontSize: "0.75rem",
               }}
             >
-              <Typography variant="subtitle2" color="text.secondary">
-                Your conversations
-              </Typography>
-              <Button
-                size="small"
-                sx={{
-                  textTransform: "none",
-                  color: "primary.main",
-                  fontSize: "0.75rem",
-                }}
-              >
-                Clear All
-              </Button>
-            </Box>
+              Clear All
+            </Button>
+          </Box>
 
-            {Object.entries(groupedConversations).map(([timeGroup, convs]) => (
-              <Box key={timeGroup} sx={{ mb: 3 }}>
-                {timeGroup !== "Today" && (
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ ml: 1, mb: 1, display: "block", fontWeight: 500 }}
-                  >
-                    {timeGroup}
-                  </Typography>
-                )}
-
-                <List sx={{ p: 0 }}>
-                  {convs.map((conversation) => (
-                    <ListItem
-                      key={conversation.id}
-                      disablePadding
-                      sx={{ mb: 0.5 }}
-                    >
-                      <ListItemButton
-                        onClick={() =>
-                          handleConversationSelect(conversation.id)
-                        }
+          <List sx={{ p: 0 }}>
+            {filteredConversations.map((conversation) => (
+              <ListItem key={conversation.id} disablePadding sx={{ mb: 0.5 }}>
+                <ListItemButton
+                  onClick={() => handleConversationSelect(conversation.id)}
+                  sx={{
+                    borderRadius: 2,
+                    backgroundColor: conversation.isActive
+                      ? "#e3f2fd"
+                      : "transparent",
+                    border: conversation.isActive
+                      ? "1px solid #bbdefb"
+                      : "1px solid transparent",
+                    "&:hover": {
+                      backgroundColor: conversation.isActive
+                        ? "#e3f2fd"
+                        : "#f5f5f5",
+                    },
+                    px: 2,
+                    py: 1,
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 32 }}>
+                    <ChatIcon fontSize="small" color="action" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      <Typography
+                        variant="body2"
                         sx={{
-                          borderRadius: 2,
-                          backgroundColor: conversation.isActive
-                            ? "#e3f2fd"
-                            : "transparent",
-                          border: conversation.isActive
-                            ? "1px solid #bbdefb"
-                            : "1px solid transparent",
-                          "&:hover": {
-                            backgroundColor: conversation.isActive
-                              ? "#e3f2fd"
-                              : "#f5f5f5",
-                          },
-                          px: 2,
-                          py: 1,
+                          fontWeight: conversation.isActive ? 600 : 400,
+                          color: conversation.isActive
+                            ? "primary.main"
+                            : "text.primary",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
                         }}
                       >
-                        <ListItemIcon sx={{ minWidth: 32 }}>
-                          <ChatIcon fontSize="small" color="action" />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                fontWeight: conversation.isActive ? 600 : 400,
-                                color: conversation.isActive
-                                  ? "primary.main"
-                                  : "text.primary",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {conversation.title}
-                            </Typography>
-                          }
-                        />
-                        <IconButton
-                          size="small"
-                          onClick={(e) => handleMenuClick(e, conversation.id)}
-                          sx={{ opacity: 0.6, "&:hover": { opacity: 1 } }}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </IconButton>
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
+                        {conversation.title}
+                      </Typography>
+                    }
+                  />
+                  <IconButton
+                    size="small"
+                    onClick={(e) => handleMenuClick(e, conversation.id)}
+                    sx={{ opacity: 0.6, "&:hover": { opacity: 1 } }}
+                  >
+                    <MoreVertIcon fontSize="small" />
+                  </IconButton>
+                </ListItemButton>
+              </ListItem>
             ))}
-          </Box>
-        </Box>
-
-        {/* Footer */}
-        <Box
-          sx={{
-            p: 2,
-            borderTop: "1px solid #e0e0e0",
-            backgroundColor: "white",
-          }}
-        >
-          <ListItemButton
-            sx={{
-              borderRadius: 2,
-              px: 2,
-              py: 1,
-              "&:hover": { backgroundColor: "#f5f5f5" },
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 32 }}>
-              <SettingsIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Typography variant="body2" fontWeight={500}>
-                  Settings
-                </Typography>
-              }
-            />
-          </ListItemButton>
-
-          <ListItemButton
-            sx={{
-              borderRadius: 2,
-              px: 2,
-              py: 1,
-              mt: 1,
-              "&:hover": { backgroundColor: "#f5f5f5" },
-            }}
-          >
-            <Avatar
-              sx={{
-                width: 24,
-                height: 24,
-                mr: 1,
-                fontSize: "0.75rem",
-                bgcolor: "primary.main",
-              }}
-            >
-              AN
-            </Avatar>
-            <ListItemText
-              primary={
-                <Typography variant="body2" fontWeight={500}>
-                  Andrew Neilson
-                </Typography>
-              }
-            />
-          </ListItemButton>
+          </List>
         </Box>
       </Box>
-    </>
+
+      {/* Footer */}
+      <Box
+        sx={{
+          p: 2,
+          borderTop: "1px solid #e0e0e0",
+          backgroundColor: "white",
+        }}
+      >
+        <ListItemButton
+          sx={{
+            borderRadius: 2,
+            px: 2,
+            py: 1,
+            "&:hover": { backgroundColor: "#f5f5f5" },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 32 }}>
+            <SettingsIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText
+            primary={
+              <Typography variant="body2" fontWeight={500}>
+                Settings
+              </Typography>
+            }
+          />
+        </ListItemButton>
+
+        <ListItemButton
+          sx={{
+            borderRadius: 2,
+            px: 2,
+            py: 1,
+            mt: 1,
+            "&:hover": { backgroundColor: "#f5f5f5" },
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 24,
+              height: 24,
+              mr: 1,
+              fontSize: "0.75rem",
+              bgcolor: "primary.main",
+            }}
+          >
+            AN
+          </Avatar>
+          <ListItemText
+            primary={
+              <Typography variant="body2" fontWeight={500}>
+                Andrew Neilson
+              </Typography>
+            }
+          />
+        </ListItemButton>
+      </Box>
+    </Box>
   );
 }
