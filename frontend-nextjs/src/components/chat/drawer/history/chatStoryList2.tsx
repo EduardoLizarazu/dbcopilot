@@ -18,6 +18,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useEffect, useState } from "react";
 import { ReadChatHistory } from "@/controller/_actions/chat/query/read-chat-history.chat.query";
+import { log } from "console";
 
 interface Conversation {
   id: string;
@@ -52,6 +53,7 @@ export function ChatStoryList({
           prompt: chat.prompt || "",
         }))
       );
+      console.log("Conversations loaded:", chats);
     })();
     return () => {};
   }, []);
