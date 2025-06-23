@@ -4,7 +4,10 @@ export type TCreatePromptInput = {
 };
 
 export type TCreatePromptOutput = {
-  result: Record<string, unknown>[];
+  prompt: string;
+  sql: string;
+  results: Record<string, unknown>[];
+  row_count: number;
   error?: string | null;
 };
 
@@ -28,14 +31,21 @@ export async function CreatePrompt(
 
     if (!response.ok) {
       return {
-        result: [],
+        results: [],
+        prompt: input.prompt,
+        sql: "",
+        row_count: 0,
         error: `Error creating prompt: ${response.statusText}`,
       };
     }
     const data = await response.json();
     console.log("response create prompt : ", data);
     return {
-      result: data.results || [],
+      prompt: data.prompt || "",
+      sql: data.sql || "",
+      results: data.results || [],
+      row_count: data.row_count || 0,
+      error: data.error || null,
     };
   } catch (error) {
     console.error("Error creating prompt with connection ID:", error);

@@ -87,24 +87,41 @@ export default function ChatPage() {
       const response = await CreatePrompt({
         prompt: prompt,
       });
+
+      // const response = {
+      //   prompt: "Exist no column related to this prompt",
+      //   sql: "",
+      //   results: [],
+      //   row_count: 0,
+      //   error: "No valid SQL query can be generated.",
+      // };
+
       console.log("response create prompt: ", response);
 
-      if (response.error) {
+      // Handle all possible error cases
+      const hasError = Boolean(
+        response?.error &&
+          typeof response.error === "string" &&
+          response.error.trim().length > 0
+      );
+
+      if (hasError) {
+        console.log("Error in response:", response.error);
         setResult({
           data: [],
           error: response.error,
         });
         setFeedback({
           isActive: true,
-          message: response.error,
+          message: response.error ?? "Unknown error",
           severity: "error",
         });
         return;
       }
 
       setResult({
-        data: response.result || [],
-        error: response.error || null,
+        data: response.results || [],
+        error: null,
       });
 
       setFeedback({
@@ -114,6 +131,16 @@ export default function ChatPage() {
       });
     } catch (error) {
       console.error("Error submitting prompt:", error);
+      // Network errors or other exceptions
+      setResult({
+        data: [],
+        error: "Failed to connect to the API",
+      });
+      setFeedback({
+        isActive: true,
+        message: "Network error occurred",
+        severity: "error",
+      });
     }
   }
 
