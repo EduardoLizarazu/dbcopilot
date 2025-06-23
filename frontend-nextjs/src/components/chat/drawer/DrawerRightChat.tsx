@@ -2,7 +2,7 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import { SchemaList } from "../../schema/schemaList";
-import { ChatStoryList } from "./history/chatStoryList";
+import { ChatStoryList } from "./history/chatStoryList2";
 import { IconButton, Tab } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
@@ -26,6 +26,8 @@ export function DrawerRightChat({ connId }: TDrawerRightChatProps) {
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
+
+  const [currentConversationId, setCurrentConversationId] = React.useState("6");
 
   const DrawerList = (
     <Box sx={{ width: 400, marginTop: 10 }} role="presentation">
@@ -57,7 +59,11 @@ export function DrawerRightChat({ connId }: TDrawerRightChatProps) {
         </TabPanel>
         <TabPanel value="2">
           {/* Chat history */}
-          <ChatStoryList />
+          <ChatStoryList
+            onNewChat={handleNewChat}
+            onSelectConversation={handleSelectConversation}
+            currentConversationId={currentConversationId}
+          />
         </TabPanel>
       </TabContext>
     </Box>
@@ -78,4 +84,11 @@ export function DrawerRightChat({ connId }: TDrawerRightChatProps) {
       </Drawer>
     </div>
   );
+}
+function handleNewChat(): void {
+  throw new Error("Function not implemented.");
+}
+
+function handleSelectConversation(id: string): void {
+  throw new Error("Function not implemented.");
 }
