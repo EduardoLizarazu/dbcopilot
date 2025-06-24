@@ -77,18 +77,43 @@ export class RolesService {
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
-    await this.findOne(id);
-    if (updateRoleDto.name) {
-      if ((await this.findByName(updateRoleDto.name)).length > 0)
-        throw new BadRequestException('Role already exists');
+    try {
+      const previousRole = await this.findOne(id);
+      if (updateRoleDto.name) {
+        if (
+          (await this.findByName(updateRoleDto.name)).length > 0 &&
+          previousRole.name !== updateRoleDto.name
+        )
+          throw new BadRequestException('Role already exists');
+      }
+      await this.rolesRepository.update(id, {
+        name: updateRoleDto.name,
+        description: updateRoleDto.description,
+      });
+
+      if (updateRoleDto.permissions) {
+        // Remove all existing permissions and add the new ones
+        // const role = await this.findOne(id);
+        const currentPermissions = await this.rolesRepository
+          .createQueryBuilder()
+          .relation(Role, 'permissions')
+          .of(previousRole)
+          .loadMany();
+
+        await this.rolesRepository
+          .createQueryBuilder()
+          .relation(Role, 'permissions')
+          .of(previousRole)
+          .addAndRemove(
+            updateRoleDto.permissions,
+            currentPermissions.map((p: { id: number }) => p.id),
+          );
+      }
+
+      return await this.findOne(id);
+    } catch (error) {
+      throw new BadRequestException('Error creating role');
     }
-    return await this.rolesRepository.update(id, {
-      name: updateRoleDto.name,
-      description: updateRoleDto.description,
-      permissions: updateRoleDto.permissions
-        ? updateRoleDto.permissions.map((id) => ({ id }))
-        : [],
-    });
   }
 
   // Update the permissions of the role
