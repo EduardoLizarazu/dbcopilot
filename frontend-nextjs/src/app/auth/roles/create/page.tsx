@@ -12,6 +12,7 @@ import {
   CircularProgress,
   Container,
   Divider,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -21,11 +22,20 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useFeedbackContext } from "@/contexts/feedback.context";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+
+type Permission = {
+  id: string;
+  name: string;
+  description?: string;
+};
 
 export default function CreateRolePage() {
   const router = useRouter();
@@ -86,7 +96,6 @@ export default function CreateRolePage() {
           Fill in the details below to create a new permission.
         </Typography>
         {/* Textfield for name */}
-
         <TextField
           id="name-textfield"
           label="Name"
@@ -94,6 +103,16 @@ export default function CreateRolePage() {
           style={{ width: "100%" }}
           value={roleName}
           onChange={(e) => setRoleName(e.target.value)}
+        />
+        <TextField
+          id="description-textfield"
+          label="Description"
+          variant="outlined"
+          style={{ width: "100%" }}
+          value={""}
+          multiline
+          rows={4}
+          onChange={(e) => {}}
         />
         <Divider className="my-8" />
         <Typography variant="h6">Permissions Selected: </Typography>
@@ -112,13 +131,16 @@ export default function CreateRolePage() {
                   <TableCell align="left">{perm.name}</TableCell>
                   <TableCell align="left">{perm.description}</TableCell>
                   <TableCell align="left">
-                    <Button
-                      variant="contained"
-                      onClick={() => handleRemovePermission(perm)}
-                      color="error"
-                    >
-                      Remove
-                    </Button>
+                    <Tooltip title="Remove" placement="right">
+                      <IconButton
+                        aria-label="cancel"
+                        size="small"
+                        onClick={() => handleRemovePermission(perm)}
+                        loading={false}
+                      >
+                        <RemoveCircleOutlineIcon fontSize="inherit" />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               ))}
@@ -143,12 +165,15 @@ export default function CreateRolePage() {
                   <TableCell align="left">{perm.name}</TableCell>
                   <TableCell align="left">{perm.description}</TableCell>
                   <TableCell align="left">
-                    <Button
-                      variant="contained"
-                      onClick={() => handleAddPermission(perm)}
-                    >
-                      Add
-                    </Button>
+                    <Tooltip title="add" placement="right">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleAddPermission(perm)}
+                        loading={false}
+                      >
+                        <AddIcon fontSize="inherit" />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               ))}
