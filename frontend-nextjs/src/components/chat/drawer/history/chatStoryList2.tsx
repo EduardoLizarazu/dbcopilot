@@ -18,7 +18,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useEffect, useState } from "react";
 import { ReadChatHistory } from "@/controller/_actions/chat/query/read-chat-history.chat.query";
-import { log } from "console";
+import { useRouter } from "next/navigation";
 
 interface Conversation {
   id: string;
@@ -34,6 +34,8 @@ export function ChatStoryList({
   onSelectConversation,
   currentConversationId,
 }: ChatHistoryDrawerProps) {
+  const router = useRouter();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   // Mock conversation data
@@ -71,7 +73,10 @@ export function ChatStoryList({
   };
 
   const handleConversationSelect = (id: string) => {
-    onSelectConversation(id);
+    // onSelectConversation(id);
+    // change the url to the selected conversation
+    router.push(`/chat/${id}`);
+    setAnchorEl(null); // Close the menu after selection
   };
 
   const drawerWidth = 320;

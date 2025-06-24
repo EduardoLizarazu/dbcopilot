@@ -34,7 +34,18 @@ enum TabResultValueEnum {
   Insight = "3",
 }
 
-export function SingleChat() {
+interface Props {
+  previousConversation?: {
+    chatId: string;
+    prompt: string;
+    results: any;
+    row_count: number;
+  } | null;
+}
+
+export function SingleChat(
+  { previousConversation = null }: Props = { previousConversation: null }
+) {
   // USE CONTEXT
   const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
 
@@ -75,6 +86,16 @@ export function SingleChat() {
       const connDbs: TReadConnectionQry[] =
         await ReadConnectionOnlyIfIsConnectedQry();
       setDatabase(connDbs);
+      // Insert the prompt and and result if previousConversation is provided
+      if (previousConversation) {
+        console.log("Previous conversation:", previousConversation);
+        setPrompt(previousConversation.prompt || "");
+        setResult({
+          data: previousConversation.results || [],
+          error: null,
+        });
+        setTabResultValue(TabResultValueEnum.Result);
+      }
     })();
   }, []);
 
