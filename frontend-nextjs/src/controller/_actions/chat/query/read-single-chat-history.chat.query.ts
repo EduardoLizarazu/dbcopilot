@@ -18,7 +18,7 @@ export async function ReadSingleChatHistory(
       },
     });
     if (!response.ok) {
-      throw new Error("Failed to fetch single chat history");
+      throw new Error(`Error fetching chat history: ${response.statusText}`);
     }
     const data = await response.json();
     console.log("Single chat history fetched successfully:", data);

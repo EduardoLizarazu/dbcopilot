@@ -68,6 +68,16 @@ export class ChatService {
 
   async executeSQLQuery(sql: string) {
     try {
+      // Validate the SQL query before execution
+      if (
+        !sql ||
+        typeof sql !== 'string' ||
+        sql.trim().length === 0 ||
+        !sql.toLowerCase().startsWith('select')
+      ) {
+        throw new Error('Invalid SQL query. Only SELECT queries are allowed.');
+      }
+
       const dataSource = new DataSource({
         type: 'postgres', // Cast to TypeORM's DatabaseType
         host: 'localhost',
