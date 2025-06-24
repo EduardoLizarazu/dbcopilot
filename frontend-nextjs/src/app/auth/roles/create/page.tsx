@@ -1,5 +1,4 @@
 "use client";
-import { GetPermissions } from "@/controller/_actions/index.actions";
 import { GetPermissionDataModel } from "@/data/model/index.data.model";
 import {
   Button,
