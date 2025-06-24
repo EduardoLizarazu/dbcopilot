@@ -94,7 +94,7 @@ export default function EditRolePage({ params }: EditRolePageProps) {
         description: roleDesc,
         permissions: selectedPermissions,
       };
-      await UpdateRole(editRoleDto);
+      await UpdateRoleWithPermAction(editRoleDto);
       setFeedback({
         isActive: true,
         severity: "success",
@@ -121,6 +121,7 @@ export default function EditRolePage({ params }: EditRolePageProps) {
 
       if (role) {
         setRoleName(role.name || "");
+        setRoleDesc(role.description || "");
         setSelectedPermissions(role.permissions || []);
         const permissions = await ReadAllPermissions();
         // Filter out permissions that are already selected from the array of objects
@@ -137,7 +138,7 @@ export default function EditRolePage({ params }: EditRolePageProps) {
   }, [params]);
 
   function handleCancel() {
-    router.push("/auth/permissions");
+    router.push("/auth/roles");
     resetFeedBack();
   }
 

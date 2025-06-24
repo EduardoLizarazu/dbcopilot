@@ -15,16 +15,13 @@ type Role = {
 
 export async function UpdateRoleWithPermAction(input: Role) {
   try {
-    const response = await fetch(
-      `${process.env.BASE_URL}/roles/${input.id}/permissions`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(input),
-      }
-    );
+    const response = await fetch(`${process.env.BASE_URL}/roles/${input.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    });
 
     if (!response.ok) {
       throw new Error("Failed to create role with permissions.");
