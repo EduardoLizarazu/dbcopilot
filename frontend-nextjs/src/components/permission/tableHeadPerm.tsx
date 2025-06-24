@@ -49,7 +49,7 @@ export function TableHeadPerm({
           onChange={(e) => setSearchTerm(e.target.value)}
           sx={{ margin: 2, width: "300px" }}
         />
-        <Link href="/connection/create">
+        <Link href="auth/permission/create">
           <Button variant="contained" color="primary">
             Create
           </Button>
