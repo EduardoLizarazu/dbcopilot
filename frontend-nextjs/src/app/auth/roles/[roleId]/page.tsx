@@ -33,6 +33,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { ReadAllPermissions } from "@/controller/_actions/permission/query/read-all-permission.action";
 import { ReadRoleByIdWithPerm } from "@/controller/_actions/role/query/read-roles-by-id-with-perm.action";
+import { UpdateRoleWithPermAction } from "@/controller/_actions/role/command/update-role-with-permi.action";
 
 interface EditRolePageProps {
   params: Promise<{
@@ -61,6 +62,7 @@ export default function EditRolePage({ params }: EditRolePageProps) {
   const [loading, setLoading] = React.useState<boolean>(true);
   const [roleId, setRoleId] = React.useState<number>(0);
   const [roleName, setRoleName] = React.useState<string>("");
+  const [roleDesc, setRoleDesc] = React.useState<string>("");
   const [permissions, setPermissions] = React.useState<
     GetPermissionDataModel[]
   >([]);
@@ -85,12 +87,29 @@ export default function EditRolePage({ params }: EditRolePageProps) {
   }
 
   async function handleEditRole() {
-    const editRoleDto: EditRoleDataModel = {
-      id: roleId,
-      name: roleName,
-      permissions: selectedPermissions,
-    };
-    await UpdateRole(editRoleDto);
+    try {
+      const editRoleDto = {
+        id: roleId,
+        name: roleName,
+        description: roleDesc,
+        permissions: selectedPermissions,
+      };
+      await UpdateRole(editRoleDto);
+      setFeedback({
+        isActive: true,
+        severity: "success",
+        message: "Role created successfully!",
+      });
+      handleCancel();
+    } catch (error) {
+      console.error(`Error updating role: ${error}`);
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: "Failed to create role.",
+      });
+      resetFeedBack();
+    }
   }
 
   React.useEffect(() => {
@@ -144,10 +163,12 @@ export default function EditRolePage({ params }: EditRolePageProps) {
           label="Description"
           variant="outlined"
           style={{ width: "100%" }}
-          value={""}
+          value={roleDesc}
           multiline
           rows={4}
-          onChange={(e) => {}}
+          onChange={(e) => {
+            setRoleDesc(e.target.value);
+          }}
         />
         <Divider className="my-8" />
         <Typography variant="h6">Permissions Selected: </Typography>
