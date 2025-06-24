@@ -61,12 +61,16 @@ export class PermissionsService {
   }
 
   async update(id: number, updatePermissionDto: UpdatePermissionDto) {
-    await this.findOne(id);
-    if (updatePermissionDto.name) {
-      if ((await this.findByName(updatePermissionDto.name)).length > 0)
-        throw new Error('Permission already exists');
+    try {
+      const previousPerm = await this.findOne(id);
+      if (updatePermissionDto.name) {
+        if ((await this.findByName(updatePermissionDto.name)).length > 0)
+          throw new Error('Permission already exists');
+      }
+      return await this.permissionRepository.update(id, updatePermissionDto);
+    } catch (error) {
+      throw new NotFoundException(`Permission with ID ${id} not found.`);
     }
-    return await this.permissionRepository.update(id, updatePermissionDto);
   }
 
   // Update the roles of the permission
