@@ -6,9 +6,9 @@ import { Table, TableCell, TableRow } from "@mui/material";
 import { SharedTableAction } from "../shared/sharedTableAction";
 
 export function UserTableBody({
-  users,
+  fetchedData,
 }: {
-  users: { id: number; fullName: string; email: string };
+  fetchedData: { id: number; fullName: string; email: string };
 }) {
   const router = useRouter();
 
@@ -17,7 +17,7 @@ export function UserTableBody({
 
   // HANDLERS
   function handleEditBtn() {
-    router.push(`/connection/${users.id}`);
+    router.push(`/connection/${fetchedData.id}`);
   }
 
   function handleDeleteBtn() {
@@ -31,9 +31,9 @@ export function UserTableBody({
   }
 
   return (
-    <TableRow key={users.id} hover onClick={handleEditBtn}>
-      <TableCell align="center">{users.fullName || "-"}</TableCell>
-      <TableCell align="center">{users.email || "-"}</TableCell>
+    <TableRow key={fetchedData.id} hover onClick={handleEditBtn}>
+      <TableCell align="center">{fetchedData.fullName || "-"}</TableCell>
+      <TableCell align="center">{fetchedData.email || "-"}</TableCell>
       <TableCell align="center">
         <SharedTableAction
           handleEditBtn={handleEditBtn}

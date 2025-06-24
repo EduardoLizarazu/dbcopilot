@@ -15,6 +15,7 @@ import {
   TextField,
 } from "@mui/material";
 import React, { Suspense } from "react";
+import { UserTableBody } from "./userTableBody";
 
 export function UserTableHead({
   fetchedData,
@@ -24,7 +25,7 @@ export function UserTableHead({
   // USE CONTEXT
   const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
   const [searchTerm, setSearchTerm] = React.useState<string>("");
-  const [data, setData] = React.useState<[]>([]);
+  const [data, setData] = React.useState<{ name: string; id: number }[]>([]);
   const filteredData = data.filter((row) =>
     row.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -86,7 +87,7 @@ export function UserTableHead({
                 </TableRow>
               ) : (
                 filteredData.map((item, index) => (
-                  <ConnTableBody key={item.id} conn={item} />
+                  <UserTableBody key={item.id} fetchedData={item} />
                 ))
               )}
             </Suspense>
