@@ -25,6 +25,7 @@ import { useFeedbackContext } from "@/contexts/feedback.context";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { CreateRoleWithPermAction } from "@/controller/_actions/role/command/create-role-with-perm.action";
+import { ReadAllPermissions } from "@/controller/_actions/permission/query/read-all-permission.action";
 
 type Permission = {
   id: string;
@@ -60,7 +61,7 @@ export default function CreateRolePage() {
 
   React.useEffect(() => {
     (async () => {
-      setPermissions(await GetPermissions()); // Set list of all permissions
+      setPermissions(await ReadAllPermissions()); // Set list of all permissions
       setLoading(false);
     })();
   }, []);

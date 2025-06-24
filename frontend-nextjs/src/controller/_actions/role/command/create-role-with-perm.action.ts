@@ -14,7 +14,7 @@ type Role = {
 
 export async function CreateRoleWithPermAction(input: Role) {
   try {
-    const response = await fetch("/api/roles", {
+    const response = await fetch(`${process.env.BASE_URL}/roles`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
