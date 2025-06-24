@@ -64,7 +64,10 @@ export class PermissionsService {
     try {
       const previousPerm = await this.findOne(id);
       if (updatePermissionDto.name) {
-        if ((await this.findByName(updatePermissionDto.name)).length > 0)
+        if (
+          (await this.findByName(updatePermissionDto.name)).length > 0 &&
+          previousPerm.name !== updatePermissionDto.name
+        )
           throw new Error('Permission already exists');
       }
       return await this.permissionRepository.update(id, updatePermissionDto);
