@@ -2,13 +2,13 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useFeedbackContext } from "@/contexts/feedback.context";
-import { Table, TableCell, TableRow } from "@mui/material";
+import { TableCell, TableRow } from "@mui/material";
 import { SharedTableAction } from "../shared/sharedTableAction";
 
-export function UserTableBody({
+export function TableBodyPerm({
   fetchedData,
 }: {
-  fetchedData: { id: number; fullName: string; email: string };
+  fetchedData: { id: number; name: string; description?: string };
 }) {
   const router = useRouter();
 
@@ -17,7 +17,7 @@ export function UserTableBody({
 
   // HANDLERS
   function handleEditBtn() {
-    router.push(`/auth/users/${fetchedData.id}`);
+    router.push(`/auth/permissions/${fetchedData.id}`);
   }
 
   function handleDeleteBtn() {
@@ -29,11 +29,10 @@ export function UserTableBody({
     });
     resetFeedBack();
   }
-
   return (
     <TableRow key={fetchedData.id} hover onClick={handleEditBtn}>
-      <TableCell align="center">{fetchedData.fullName || "-"}</TableCell>
-      <TableCell align="center">{fetchedData.email || "-"}</TableCell>
+      <TableCell align="center">{fetchedData.name || "-"}</TableCell>
+      <TableCell align="center">{fetchedData.description || "-"}</TableCell>
       <TableCell align="center">
         <SharedTableAction
           handleEditBtn={handleEditBtn}
