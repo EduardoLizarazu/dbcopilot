@@ -18,7 +18,7 @@ import React from "react";
 import { Suspense } from "react";
 import { TableBodyPerm } from "./tableBodyPerm";
 
-export function UserTableHead({
+export function TableHeadPerm({
   fetchedData,
 }: {
   fetchedData: { name: string; id: number; description?: string }[];
