@@ -1,12 +1,6 @@
 "use client";
-import {
-  CreateRole,
-  GetPermissions,
-} from "@/controller/_actions/index.actions";
-import {
-  CreateRoleDataModel,
-  GetPermissionDataModel,
-} from "@/data/model/index.data.model";
+import { GetPermissions } from "@/controller/_actions/index.actions";
+import { GetPermissionDataModel } from "@/data/model/index.data.model";
 import {
   Button,
   CircularProgress,
@@ -30,11 +24,18 @@ import { useRouter } from "next/navigation";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import { CreateRoleWithPermAction } from "@/controller/_actions/role/command/create-role-with-perm.action";
 
 type Permission = {
   id: string;
   name: string;
   description?: string;
+};
+
+type Role = {
+  name: string;
+  description?: string;
+  permissions: Permission[];
 };
 
 export default function CreateRolePage() {
@@ -44,7 +45,11 @@ export default function CreateRolePage() {
   const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
 
   const [loading, setLoading] = React.useState<boolean>(true);
-  const [roleName, setRoleName] = React.useState<string>("");
+
+  const [role, setRole] = React.useState({
+    name: "",
+    description: "",
+  });
 
   const [permissions, setPermissions] = React.useState<
     GetPermissionDataModel[]
@@ -61,11 +66,31 @@ export default function CreateRolePage() {
   }, []);
 
   async function handleCreateRole() {
-    const createRoleDto: CreateRoleDataModel = {
-      name: roleName,
-      permissions: selectedPermissions,
-    };
-    await CreateRole(createRoleDto);
+    try {
+      const createRoleDto: Role = {
+        name: role.name,
+        description: role.description,
+        permissions: selectedPermissions.map((perm) => ({
+          id: perm.id.toString(),
+          name: perm.name,
+          description: perm.description,
+        })),
+      };
+      await CreateRoleWithPermAction(createRoleDto);
+      setFeedback({
+        isActive: true,
+        severity: "success",
+        message: "Role created successfully!",
+      });
+      handleCancelRole();
+    } catch (error) {
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: "Failed to create role.",
+      });
+      resetFeedBack();
+    }
   }
 
   async function handleAddPermission(permission: GetPermissionDataModel) {
@@ -82,6 +107,11 @@ export default function CreateRolePage() {
     );
     // add permission to permissions
     setPermissions([...permissions, permission]);
+  }
+
+  function handleCancelRole() {
+    router.push("/auth/roles");
+    resetFeedBack();
   }
 
   if (loading) {
@@ -101,18 +131,20 @@ export default function CreateRolePage() {
           label="Name"
           variant="outlined"
           style={{ width: "100%" }}
-          value={roleName}
-          onChange={(e) => setRoleName(e.target.value)}
+          value={role.name}
+          onChange={(e) => setRole({ ...role, name: e.target.value })}
         />
         <TextField
           id="description-textfield"
           label="Description"
           variant="outlined"
           style={{ width: "100%" }}
-          value={""}
+          value={role.description}
           multiline
           rows={4}
-          onChange={(e) => {}}
+          onChange={(e) => {
+            setRole({ ...role, description: e.target.value });
+          }}
         />
         <Divider className="my-8" />
         <Typography variant="h6">Permissions Selected: </Typography>
@@ -184,11 +216,7 @@ export default function CreateRolePage() {
         <Divider className="my-8" />
         <Stack direction="row" spacing={2} sx={{ my: 2 }}>
           {/* Error color */}
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => history.back()}
-          >
+          <Button variant="contained" color="error" onClick={handleCancelRole}>
             Cancel
           </Button>
           <Button

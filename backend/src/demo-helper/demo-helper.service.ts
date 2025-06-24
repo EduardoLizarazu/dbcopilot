@@ -71,7 +71,7 @@ export class DemoHelperService {
       name: 'John Doe',
     });
     await this.usersService.updateDemo(admin.id, {
-      roles: [adminRole, editorRole, userRole],
+      // roles: [adminRole, editorRole, userRole],
       permissions: permissions,
       accountStatus: AccountStatus.Active,
     });
@@ -82,7 +82,7 @@ export class DemoHelperService {
       name: 'Lucy Woo',
     });
     await this.usersService.updateDemo(editor.id, {
-      roles: [editorRole, userRole],
+      // roles: [editorRole, userRole],
       accountStatus: AccountStatus.Active,
     });
 
@@ -92,7 +92,7 @@ export class DemoHelperService {
       name: 'Zest Made',
     });
     await this.usersService.updateDemo(user.id, {
-      roles: [userRole],
+      // roles: [userRole],
       accountStatus: AccountStatus.Active,
     });
 
@@ -125,7 +125,7 @@ export class DemoHelperService {
     permissions: Permission[];
   }) {
     const { name, rank, permissions } = data;
-    const role = this.roleRepository.create({ name, rank });
+    const role = this.roleRepository.create({ name });
     role.permissions = permissions;
 
     return await this.roleRepository.save(role);

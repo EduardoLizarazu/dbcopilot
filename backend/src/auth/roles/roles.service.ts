@@ -6,20 +6,40 @@ import {
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Role } from './entities/role.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Permission } from '../permissions/entities/permission.entity';
 
 @Injectable()
 export class RolesService {
   constructor(
     @InjectRepository(Role)
     private rolesRepository: Repository<Role>,
+    private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
   async create(createRoleDto: CreateRoleDto) {
-    if ((await this.findByName(createRoleDto.name)).length > 0)
-      throw new BadRequestException('Role already exists');
-    const role = this.rolesRepository.create(createRoleDto);
-    return await this.rolesRepository.save(role);
+    try {
+      if ((await this.findByName(createRoleDto.name)).length > 0)
+        throw new BadRequestException('Role already exists');
+
+      const role = await this.rolesRepository.save({
+        name: createRoleDto.name,
+        description: createRoleDto.description,
+      });
+
+      await this.rolesRepository
+        .createQueryBuilder()
+        .relation(Role, 'permissions')
+        .of(role)
+        .add(createRoleDto.permissions || []);
+
+      return this.rolesRepository.findOne({
+        where: { id: role.id },
+        relations: ['permissions'],
+      });
+    } catch (error) {
+      throw new BadRequestException('Error creating role');
+    }
   }
 
   async findAll(): Promise<Role[]> {
@@ -62,7 +82,13 @@ export class RolesService {
       if ((await this.findByName(updateRoleDto.name)).length > 0)
         throw new BadRequestException('Role already exists');
     }
-    return await this.rolesRepository.update(id, updateRoleDto);
+    return await this.rolesRepository.update(id, {
+      name: updateRoleDto.name,
+      description: updateRoleDto.description,
+      permissions: updateRoleDto.permissions
+        ? updateRoleDto.permissions.map((id) => ({ id }))
+        : [],
+    });
   }
 
   // Update the permissions of the role

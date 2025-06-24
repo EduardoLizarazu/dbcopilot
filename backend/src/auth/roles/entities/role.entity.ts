@@ -16,8 +16,8 @@ export class Role {
   @Column({ unique: true })
   name: string;
 
-  @Column({ type: 'integer', default: 999 })
-  rank: number;
+  @Column({ nullable: true })
+  description?: string;
 
   @ManyToMany(() => User, (user) => user.roles)
   users?: User[];
