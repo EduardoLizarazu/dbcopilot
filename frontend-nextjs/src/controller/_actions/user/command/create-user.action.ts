@@ -1,3 +1,4 @@
+"use server";
 type User = {
   name: string;
   username: string;

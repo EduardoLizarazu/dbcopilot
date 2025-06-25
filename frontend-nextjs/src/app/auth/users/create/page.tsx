@@ -25,6 +25,7 @@ import { GetRolesDataModel } from "@/data/model/index.data.model";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
 import { ReadAllRolesWithPermAction } from "@/controller/_actions/role/query/read-all-roles-with-perm.action";
+import { CreateUserAction } from "@/controller/_actions/user/command/create-user.action";
 
 type User = {
   name: string;
@@ -161,13 +162,13 @@ export default function CreateUserPage() {
       };
       console.log(userDto);
 
-      // await CreateUserAction(userDto);
+      await CreateUserAction(userDto);
       setFeedback({
         isActive: true,
         severity: "success",
         message: "Role created successfully!",
       });
-      // handleCancel();
+      handleCancel();
     } catch (error) {
       setFeedback({
         isActive: true,
