@@ -41,7 +41,6 @@ import { ReadAllRolesWithPermAction } from "@/controller/_actions/role/query/rea
 import { CreateUserAction } from "@/controller/_actions/user/command/create-user.action";
 
 type User = {
-  id: number;
   name: string;
   username: string;
   password: string;
@@ -72,7 +71,6 @@ export default function CreateUserPage() {
   const [value, setValue] = React.useState("1");
 
   const [userData, setUserData] = React.useState<User>({
-    id: 0,
     name: "",
     username: "",
     password: "",
@@ -169,14 +167,21 @@ export default function CreateUserPage() {
 
   async function handleCreate() {
     try {
-      const userDto: User = userData;
-      await CreateUserAction(userDto);
+      const userDto: User = {
+        name: userData.name,
+        username: userData.username,
+        password: userData.password,
+        roles: selectedRoles,
+      };
+      console.log(userDto);
+
+      // await CreateUserAction(userDto);
       setFeedback({
         isActive: true,
         severity: "success",
         message: "Role created successfully!",
       });
-      handleCancel();
+      // handleCancel();
     } catch (error) {
       setFeedback({
         isActive: true,
