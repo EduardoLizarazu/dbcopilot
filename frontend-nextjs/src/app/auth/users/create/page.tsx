@@ -96,13 +96,6 @@ export default function CreateUserPage() {
   const [roles, setRoles] = React.useState<GetRolesDataModel[]>([]);
   const [selectedRoles, setSelectedRoles] = React.useState<Role[]>([]);
 
-  const [permissions, setPermissions] = React.useState<ReadPermissionOutput[]>(
-    []
-  );
-  const [selectedPermissions, setSelectedPermissions] = React.useState<
-    ReadPermissionOutput[]
-  >([]);
-
   React.useEffect(() => {
     (async () => {
       if (value === "1") {
@@ -112,30 +105,6 @@ export default function CreateUserPage() {
             (role) => !selectedRoles.some((r) => r.id === role.id)
           )
         );
-      }
-      if (value === "2") {
-        const allPermissions = await GetPermissions();
-
-        // Filter the permissions that are already on the role's permissions
-        const permissionsFiltered = allPermissions.filter((perm) => {
-          return !selectedRoles.some((role) =>
-            role.permissions.some((p) => p.id === perm.id)
-          );
-        });
-
-        // Filter the selectedPermissions that are already on the role's permissions
-        setSelectedPermissions(
-          selectedPermissions.filter((perm) => {
-            return permissionsFiltered.some((p) => p.id === perm.id);
-          })
-        );
-
-        // Filter the permissions that are already on the selected permissions
-        const permissionsFiltered2 = permissionsFiltered.filter((perm) => {
-          return !selectedPermissions.some((p) => p.id === perm.id);
-        });
-
-        setPermissions(permissionsFiltered2);
       }
       setLoading(false);
     })();
@@ -171,21 +140,6 @@ export default function CreateUserPage() {
         })
       );
     }
-  }
-
-  function handleAddPermission(permission: ReadPermissionOutput) {
-    // add permission to selected permission
-    setSelectedPermissions([...selectedPermissions, permission]);
-    // remove permission from permissions
-    setPermissions(permissions.filter((perm) => perm.id !== permission.id));
-  }
-  function handleRemovePermission(permission: ReadPermissionOutput) {
-    // remove permission from selected permission
-    setSelectedPermissions(
-      selectedPermissions.filter((perm) => perm.id !== permission.id)
-    );
-    // add permission to permissions
-    setPermissions([...permissions, permission]);
   }
 
   async function handleCreate() {
@@ -380,77 +334,7 @@ export default function CreateUserPage() {
                 ))}
               </Stack>
             </TabPanel>
-            <TabPanel value="2">
-              <Stack spacing={2} sx={{ marginTop: 1 }}>
-                <Typography variant="h6">Permissions Selected: </Typography>
-                <TableContainer component={Paper} className="my-4">
-                  <Table
-                    sx={{ minWidth: 650 }}
-                    size="small"
-                    aria-label="simple table"
-                  >
-                    <TableHead>
-                      <TableRow>
-                        <TableCell align="left">Name</TableCell>
-                        <TableCell align="left">Description</TableCell>
-                        <TableCell align="left">Action</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {selectedPermissions.map((perm) => (
-                        <TableRow key={perm.id}>
-                          <TableCell align="left">{perm.name}</TableCell>
-                          <TableCell align="left">{perm.description}</TableCell>
-                          <TableCell align="left">
-                            <Button
-                              variant="contained"
-                              onClick={() => handleRemovePermission(perm)}
-                              color="error"
-                            >
-                              Remove
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-
-                <Divider className="my-8" />
-                <Typography variant="h6">Permissions: </Typography>
-                <TableContainer component={Paper} className="my-4">
-                  <Table
-                    sx={{ minWidth: 650 }}
-                    size="small"
-                    aria-label="simple table"
-                  >
-                    <TableHead>
-                      <TableRow>
-                        <TableCell align="left">Name</TableCell>
-                        <TableCell align="left">Description</TableCell>
-                        <TableCell align="left">Action</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {permissions.map((perm) => (
-                        <TableRow key={perm.id}>
-                          <TableCell align="left">{perm.name}</TableCell>
-                          <TableCell align="left">{perm.description}</TableCell>
-                          <TableCell align="left">
-                            <Button
-                              variant="contained"
-                              onClick={() => handleAddPermission(perm)}
-                            >
-                              Add
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Stack>
-            </TabPanel>
+            <TabPanel value="2"></TabPanel>
           </TabContext>
         </Box>
       </Stack>
