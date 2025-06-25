@@ -94,9 +94,7 @@ export default function CreateUserPage() {
   });
 
   const [roles, setRoles] = React.useState<GetRolesDataModel[]>([]);
-  const [selectedRoles, setSelectedRoles] = React.useState<
-    GetRolesForUserDataModel[]
-  >([]);
+  const [selectedRoles, setSelectedRoles] = React.useState<Role[]>([]);
 
   const [permissions, setPermissions] = React.useState<ReadPermissionOutput[]>(
     []
