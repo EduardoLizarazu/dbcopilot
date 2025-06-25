@@ -38,6 +38,7 @@ import {
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
 import { ReadAllRolesWithPermAction } from "@/controller/_actions/role/query/read-all-roles-with-perm.action";
+import { CreateUserAction } from "@/controller/_actions/user/command/create-user.action";
 
 type User = {
   id: number;
@@ -58,7 +59,7 @@ type Permission = {
   id: number;
   name: string;
   description?: string;
-  is_active: boolean;
+  isActive: boolean;
 };
 
 export default function CreateUserPage() {
@@ -85,7 +86,7 @@ export default function CreateUserPage() {
             id: 0,
             name: "",
             description: "",
-            is_active: false,
+            isActive: false,
           },
         ],
       },
@@ -190,39 +191,10 @@ export default function CreateUserPage() {
   }
 
   async function handleCreate() {
-    // Only permissions of the role with the ID of its specific role
-    const rolePermission: (UpdatePermissionActivationInput & {
-      roleId: number;
-    })[] = selectedRoles
-      .map((role) => {
-        return role.permissions.map((perm) => {
-          return {
-            roleId: role.id,
-            id: perm.id,
-            name: perm.name,
-            description: perm.description,
-            isActive: perm.isActive,
-          };
-        });
-      })
-      .flat();
-
-    const createUserDto = {
-      user: {
-        email,
-        password,
-        firstName,
-        lastName,
-        phone,
-      },
-      role: selectedRoles,
-      permission: selectedPermissions,
-      rolePermission: rolePermission,
-    };
-    console.log(createUserDto);
-    await CreateUser(createUserDto);
-    // go back to users page
-    // window.location.href = "/auth/users";
+    try {
+      const userDto = userData;
+      await CreateUserAction(userDto);
+    } catch (error) {}
   }
 
   function handleAddRole(roleId: number) {
