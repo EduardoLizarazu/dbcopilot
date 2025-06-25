@@ -299,168 +299,172 @@ export default function CreateUserPage() {
               </TabList>
             </Box>
             <TabPanel value="1">
-              <Typography variant="h5">Add and remove roles:</Typography>
-              <Typography variant="h6">Selected roles:</Typography>
-              {selectedRoles.map((role) => (
-                <div key={role.id} className="my-4">
-                  <Stack direction="row" spacing={2}>
-                    <Typography variant="h6">
-                      {role.name} Role with Permissions:
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={() => handleRemoveRole(role.id)}
-                    >
-                      Remover
-                    </Button>
-                  </Stack>
-                  <TableContainer component={Paper}>
-                    <Table
-                      sx={{ minWidth: 650 }}
-                      size="small"
-                      aria-label="simple table"
-                    >
-                      <TableHead>
-                        <TableRow>
-                          <TableCell align="left">Name</TableCell>
-                          <TableCell align="left">Description</TableCell>
-                          <TableCell align="left">Active/Inactive</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {role.permissions.map((perm) => (
-                          <TableRow key={perm.id}>
-                            <TableCell align="left">{perm.name}</TableCell>
-                            <TableCell align="left">
-                              {perm.description}
-                            </TableCell>
-                            <TableCell align="left">
-                              <Switch
-                                checked={perm.isActive}
-                                onChange={() =>
-                                  handleOnChangeRolePerm(perm.id, role.id)
-                                }
-                              />
-                            </TableCell>
+              <Stack spacing={2} sx={{ marginTop: 1 }}>
+                <Typography variant="h5">Add and remove roles:</Typography>
+                <Typography variant="h6">Selected roles:</Typography>
+                {selectedRoles.map((role) => (
+                  <div key={role.id} className="my-4">
+                    <Stack direction="row" spacing={2}>
+                      <Typography variant="h6">
+                        {role.name} Role with Permissions:
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleRemoveRole(role.id)}
+                      >
+                        Remover
+                      </Button>
+                    </Stack>
+                    <TableContainer component={Paper}>
+                      <Table
+                        sx={{ minWidth: 650 }}
+                        size="small"
+                        aria-label="simple table"
+                      >
+                        <TableHead>
+                          <TableRow>
+                            <TableCell align="left">Name</TableCell>
+                            <TableCell align="left">Description</TableCell>
+                            <TableCell align="left">Active/Inactive</TableCell>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </div>
-              ))}
-              <Divider className="my-8" />
-              <Typography variant="h6">Roles to be selected:</Typography>
-              {roles.map((role) => (
-                <div key={role.id} className="my-4">
-                  <Stack direction="row" spacing={2}>
-                    <Typography variant="h6">
-                      {role.name} Role with Permissions:
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleAddRole(role.id)}
-                    >
-                      Add
-                    </Button>
-                  </Stack>
-                  <TableContainer component={Paper}>
-                    <Table
-                      sx={{ minWidth: 650 }}
-                      size="small"
-                      aria-label="simple table"
-                    >
-                      <TableHead>
-                        <TableRow>
-                          <TableCell align="left">Name</TableCell>
-                          <TableCell align="left">Description</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {role.permissions.map((perm) => (
-                          <TableRow key={perm.id}>
-                            <TableCell align="left">{perm.name}</TableCell>
-                            <TableCell align="left">
-                              {perm.description}
-                            </TableCell>
+                        </TableHead>
+                        <TableBody>
+                          {role.permissions.map((perm) => (
+                            <TableRow key={perm.id}>
+                              <TableCell align="left">{perm.name}</TableCell>
+                              <TableCell align="left">
+                                {perm.description}
+                              </TableCell>
+                              <TableCell align="left">
+                                <Switch
+                                  checked={perm.isActive}
+                                  onChange={() =>
+                                    handleOnChangeRolePerm(perm.id, role.id)
+                                  }
+                                />
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </div>
+                ))}
+                <Divider className="my-8" />
+                <Typography variant="h6">Roles to be selected:</Typography>
+                {roles.map((role) => (
+                  <div key={role.id} className="my-4">
+                    <Stack direction="row" spacing={2}>
+                      <Typography variant="h6">
+                        {role.name} Role with Permissions:
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleAddRole(role.id)}
+                      >
+                        Add
+                      </Button>
+                    </Stack>
+                    <TableContainer component={Paper}>
+                      <Table
+                        sx={{ minWidth: 650 }}
+                        size="small"
+                        aria-label="simple table"
+                      >
+                        <TableHead>
+                          <TableRow>
+                            <TableCell align="left">Name</TableCell>
+                            <TableCell align="left">Description</TableCell>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </div>
-              ))}
+                        </TableHead>
+                        <TableBody>
+                          {role.permissions.map((perm) => (
+                            <TableRow key={perm.id}>
+                              <TableCell align="left">{perm.name}</TableCell>
+                              <TableCell align="left">
+                                {perm.description}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </div>
+                ))}
+              </Stack>
             </TabPanel>
             <TabPanel value="2">
-              <Typography variant="h6">Permissions Selected: </Typography>
-              <TableContainer component={Paper} className="my-4">
-                <Table
-                  sx={{ minWidth: 650 }}
-                  size="small"
-                  aria-label="simple table"
-                >
-                  <TableHead>
-                    <TableRow>
-                      <TableCell align="left">Name</TableCell>
-                      <TableCell align="left">Description</TableCell>
-                      <TableCell align="left">Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {selectedPermissions.map((perm) => (
-                      <TableRow key={perm.id}>
-                        <TableCell align="left">{perm.name}</TableCell>
-                        <TableCell align="left">{perm.description}</TableCell>
-                        <TableCell align="left">
-                          <Button
-                            variant="contained"
-                            onClick={() => handleRemovePermission(perm)}
-                            color="error"
-                          >
-                            Remove
-                          </Button>
-                        </TableCell>
+              <Stack spacing={2} sx={{ marginTop: 1 }}>
+                <Typography variant="h6">Permissions Selected: </Typography>
+                <TableContainer component={Paper} className="my-4">
+                  <Table
+                    sx={{ minWidth: 650 }}
+                    size="small"
+                    aria-label="simple table"
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="left">Name</TableCell>
+                        <TableCell align="left">Description</TableCell>
+                        <TableCell align="left">Action</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                      {selectedPermissions.map((perm) => (
+                        <TableRow key={perm.id}>
+                          <TableCell align="left">{perm.name}</TableCell>
+                          <TableCell align="left">{perm.description}</TableCell>
+                          <TableCell align="left">
+                            <Button
+                              variant="contained"
+                              onClick={() => handleRemovePermission(perm)}
+                              color="error"
+                            >
+                              Remove
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
 
-              <Divider className="my-8" />
-              <Typography variant="h6">Permissions: </Typography>
-              <TableContainer component={Paper} className="my-4">
-                <Table
-                  sx={{ minWidth: 650 }}
-                  size="small"
-                  aria-label="simple table"
-                >
-                  <TableHead>
-                    <TableRow>
-                      <TableCell align="left">Name</TableCell>
-                      <TableCell align="left">Description</TableCell>
-                      <TableCell align="left">Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {permissions.map((perm) => (
-                      <TableRow key={perm.id}>
-                        <TableCell align="left">{perm.name}</TableCell>
-                        <TableCell align="left">{perm.description}</TableCell>
-                        <TableCell align="left">
-                          <Button
-                            variant="contained"
-                            onClick={() => handleAddPermission(perm)}
-                          >
-                            Add
-                          </Button>
-                        </TableCell>
+                <Divider className="my-8" />
+                <Typography variant="h6">Permissions: </Typography>
+                <TableContainer component={Paper} className="my-4">
+                  <Table
+                    sx={{ minWidth: 650 }}
+                    size="small"
+                    aria-label="simple table"
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="left">Name</TableCell>
+                        <TableCell align="left">Description</TableCell>
+                        <TableCell align="left">Action</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                      {permissions.map((perm) => (
+                        <TableRow key={perm.id}>
+                          <TableCell align="left">{perm.name}</TableCell>
+                          <TableCell align="left">{perm.description}</TableCell>
+                          <TableCell align="left">
+                            <Button
+                              variant="contained"
+                              onClick={() => handleAddPermission(perm)}
+                            >
+                              Add
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Stack>
             </TabPanel>
           </TabContext>
         </Box>
