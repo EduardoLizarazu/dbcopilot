@@ -37,6 +37,7 @@ import {
 } from "@/data/model/index.data.model";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
+import { ReadAllRolesWithPermAction } from "@/controller/_actions/role/query/read-all-roles-with-perm.action";
 
 type User = {
   id: number;
@@ -44,19 +45,20 @@ type User = {
   username: string;
   password: string;
   roles: Role[];
-  permissions: Permission[];
 };
 
 type Role = {
   id: number;
   name: string;
   description?: string;
+  permissions: Permission[];
 };
 
 type Permission = {
   id: number;
   name: string;
   description?: string;
+  is_active: boolean;
 };
 
 export default function CreateUserPage() {
@@ -73,8 +75,21 @@ export default function CreateUserPage() {
     name: "",
     username: "",
     password: "",
-    roles: [],
-    permissions: [],
+    roles: [
+      {
+        id: 0,
+        name: "",
+        description: "",
+        permissions: [
+          {
+            id: 0,
+            name: "",
+            description: "",
+            is_active: false,
+          },
+        ],
+      },
+    ],
   });
 
   const [roles, setRoles] = React.useState<GetRolesDataModel[]>([]);
@@ -92,7 +107,7 @@ export default function CreateUserPage() {
   React.useEffect(() => {
     (async () => {
       if (value === "1") {
-        const allRoles = await GetRoles();
+        const allRoles = await ReadAllRolesWithPermAction();
         setRoles(
           allRoles.filter(
             (role) => !selectedRoles.some((r) => r.id === role.id)
