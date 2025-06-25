@@ -5,12 +5,14 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Put,
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AccountStatus } from './enums/user.enums';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -41,6 +43,11 @@ export class UsersController {
     return this.usersService.findOneWithRolesPermissionAndDirectPermissions(
       +id,
     );
+  }
+
+  @Post()
+  create(@Body() user: CreateUserDto) {
+    return this.usersService.create(user);
   }
 
   @Put(':id')
