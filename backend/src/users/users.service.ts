@@ -11,22 +11,25 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserDemoDto } from './dto/update-demo-user.dto';
 import { User } from './entities/user.entity';
 import { AccountStatus } from './enums/user.enums';
+import { Role } from 'src/auth/roles/entities/role.entity';
+import { Permission } from 'src/auth/permissions/entities/permission.entity';
+import { UserPermission } from 'src/auth/permissions/entities/user_permission.entity';
 
-type UserData = {
+type TUser = {
   name: string;
   username: string;
   password: string;
-  roles: Role[];
+  roles: TRole[];
 };
 
-type Role = {
+type TRole = {
   id: number;
   name: string;
   description?: string;
-  permissions: Permission[];
+  permissions: TPermission[];
 };
 
-type Permission = {
+type TPermission = {
   id: number;
   name: string;
   description?: string;
@@ -48,24 +51,68 @@ export class UsersService {
     try {
       const { username, password, name, roles } = dto;
 
+      // 1. Hash password
       const salt = await bcrypt.genSalt();
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = dto.password
+        ? await bcrypt.hash(dto.password, salt)
+        : null;
 
       // Format role [ 1 ]
       const rolesId = roles.map((role) => role.id);
 
       // Format special permission [ [ { id: 1, isActive: true }, { id: 2, isActive: true } ] ]
-      const specialPerm = roles.map((role) => {
-        return role.permissions.map((perm) => {
-          return { id: perm.id, isActive: perm.isActive };
+      const specialPerm = roles
+        .map((role) => {
+          return role.permissions.map((perm) => {
+            return { id: perm.id, isActive: perm.isActive };
+          });
+        })
+        .flat();
+
+      // 2. Create user entity
+      console.log('user before queried');
+
+      const userId = await queryRunner.manager.query(
+        `INSERT INTO "user" (username, password, name)
+        VALUES ($1, $2, $3) RETURNING id`,
+        [username, hashedPassword, name],
+      );
+
+      console.log('user after queried: ', userId);
+
+      rolesId.forEach(async (roleId) => {
+        await queryRunner.manager.query(
+          `INSERT INTO user_roles_role ("userId", "roleId") VALUES ($1, $2)`,
+          [userId[0]?.id, roleId],
+        );
+      });
+
+      // 5. Handle direct permissions
+      const permissions = specialPerm.map((perm) =>
+        queryRunner.manager.create(UserPermission, {
+          userId: userId[0]?.id,
+          permissionId: perm.id,
+          isActive: perm.isActive,
+        }),
+      );
+      console.log('permissions entities: ', permissions);
+
+      permissions.forEach(async (perm) => {
+        await queryRunner.manager.save(UserPermission, {
+          userId: perm.userId,
+          permissionId: perm.permissionId,
+          isActive: perm.isActive,
         });
       });
 
-      // const newUser = await this.usersRepository.save(user);
+      console.log('permissions saved');
 
-      // delete (newUser as Partial<User>).password;
+      await queryRunner.commitTransaction();
     } catch (error) {
-      throw new BadRequestException('Error creating role');
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException('Error creating user');
+    } finally {
+      await queryRunner.release();
     }
   }
 

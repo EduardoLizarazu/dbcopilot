@@ -32,6 +32,7 @@ import { AiModule } from './ai/ai.module';
       // entities: [User],
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, // for demo/development
+      logging: true,
     }),
     UsersModule,
     AuthModule,
