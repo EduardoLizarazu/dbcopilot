@@ -34,11 +34,10 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    const users = await this.usersRepository.find();
-    return users.map((user) => {
-      delete (user as Partial<User>).password;
-      return user;
+    const users = await this.usersRepository.find({
+      relations: ['roles', 'permissions'],
     });
+    return users;
   }
 
   async findOne(userId: number, withPassword: boolean = false): Promise<User> {

@@ -17,15 +17,31 @@ import {
 import React, { Suspense } from "react";
 import { UserTableBody } from "./userTableBody";
 
-export function UserTableHead({
-  fetchedData,
-}: {
-  fetchedData: { name: string; id: number }[];
-}) {
+type User = {
+  id: number;
+  name: string;
+  username: string;
+  roles: Role[];
+  permissions: Permission[];
+};
+
+type Role = {
+  id: number;
+  name: string;
+  description?: string;
+};
+
+type Permission = {
+  id: number;
+  name: string;
+  description?: string;
+};
+
+export function UserTableHead({ fetchedData }: { fetchedData: User[] }) {
   // USE CONTEXT
   const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
   const [searchTerm, setSearchTerm] = React.useState<string>("");
-  const [data, setData] = React.useState<{ name: string; id: number }[]>([]);
+  const [data, setData] = React.useState<User[]>([]);
   const filteredData = data.filter((row) =>
     row.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -58,14 +74,10 @@ export function UserTableHead({
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell align="center">Connection Name</TableCell>
-              <TableCell align="center">Description</TableCell>
+              <TableCell align="center">Name</TableCell>
               <TableCell align="center">Username</TableCell>
-              <TableCell align="center">Type</TableCell>
-              <TableCell align="center">Database Name</TableCell>
-              <TableCell align="center">Host</TableCell>
-              <TableCell align="center">Port</TableCell>
-              <TableCell align="center">Status</TableCell>
+              <TableCell align="center">Roles</TableCell>
+              <TableCell align="center">Special</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>
