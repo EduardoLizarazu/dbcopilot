@@ -248,7 +248,7 @@ export default function CreateUserPage() {
           <TextField
             id="name-textfield"
             label="name"
-            variant="standard"
+            variant="outlined"
             style={{ width: "100%" }}
             value={userData.name}
             onChange={(e) => setUserData({ ...userData, name: e.target.value })}
@@ -257,7 +257,7 @@ export default function CreateUserPage() {
           <TextField
             id="username-textfield"
             label="username"
-            variant="standard"
+            variant="outlined"
             style={{ width: "100%" }}
             value={userData.username}
             onChange={(e) =>
@@ -268,7 +268,7 @@ export default function CreateUserPage() {
           <TextField
             id="password-textfield"
             label="password"
-            variant="standard"
+            variant="outlined"
             style={{ width: "100%" }}
             value={userData.password}
             onChange={(e) =>
