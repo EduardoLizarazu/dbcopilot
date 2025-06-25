@@ -3,11 +3,13 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Permission } from 'src/auth/permissions/entities/permission.entity';
 import { Role } from 'src/auth/roles/entities/role.entity';
 import { AccountStatus } from '../enums/user.enums';
+import { UserPermission } from 'src/auth/permissions/entities/user_permission.entity';
 
 @Entity()
 export class User {
@@ -32,7 +34,6 @@ export class User {
 
   // Ability to also directly assign permissions to user
   // means more flexibility with potentially more complexity
-  @ManyToMany(() => Permission, (permission) => permission.users)
-  @JoinTable()
-  permissions?: Permission[];
+  @OneToMany(() => UserPermission, (userPerm) => userPerm.user)
+  userPermissions: UserPermission[]; // The list of user-permission associations
 }

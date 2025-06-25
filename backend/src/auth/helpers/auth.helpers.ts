@@ -10,9 +10,8 @@ export function getClientPermissions(user: Partial<User>): Set<string> {
   );
 
   // Extract all directly assigned permissions
-  const directPermissions = new Set<string>(
-    (user.permissions ?? []).map((permission) => permission.name),
-  );
+  const directPermissions = new Set<string>();
+  // (user.permissions ?? []).map((permission) => permission.name),
 
   // Combine both sets of permissions
   return new Set<string>([...rolePermissions, ...directPermissions]);

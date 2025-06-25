@@ -1,36 +1,72 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { Repository, UpdateResult } from 'typeorm';
+import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserDemoDto } from './dto/update-demo-user.dto';
 import { User } from './entities/user.entity';
 import { AccountStatus } from './enums/user.enums';
 
+type UserData = {
+  name: string;
+  username: string;
+  password: string;
+  roles: Role[];
+};
+
+type Role = {
+  id: number;
+  name: string;
+  description?: string;
+  permissions: Permission[];
+};
+
+type Permission = {
+  id: number;
+  name: string;
+  description?: string;
+  isActive: boolean;
+};
+
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
 
-  async create(dto: CreateUserDto): Promise<User> {
-    const { username, password, name } = dto;
+  async create(dto: CreateUserDto): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const { username, password, name, roles } = dto;
 
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const user = this.usersRepository.create({
-      username,
-      password: hashedPassword,
-      name,
-    });
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = await this.usersRepository.save(user);
+      // Format role [ 1 ]
+      const rolesId = roles.map((role) => role.id);
 
-    delete (newUser as Partial<User>).password;
+      // Format special permission [ [ { id: 1, isActive: true }, { id: 2, isActive: true } ] ]
+      const specialPerm = roles.map((role) => {
+        return role.permissions.map((perm) => {
+          return { id: perm.id, isActive: perm.isActive };
+        });
+      });
 
-    return newUser;
+      // const newUser = await this.usersRepository.save(user);
+
+      // delete (newUser as Partial<User>).password;
+    } catch (error) {
+      throw new BadRequestException('Error creating role');
+    }
   }
 
   async findAll(): Promise<User[]> {
@@ -109,7 +145,7 @@ export class UsersService {
     const { roles, permissions, accountStatus } = dto;
 
     user.roles = roles ?? user.roles;
-    user.permissions = permissions ?? user.permissions;
+    // user.permissions = permissions ?? user.permissions;
     user.accountStatus = accountStatus ?? user.accountStatus;
 
     return await this.usersRepository.save(user);

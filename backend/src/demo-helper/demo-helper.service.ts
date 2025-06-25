@@ -69,32 +69,35 @@ export class DemoHelperService {
       username: 'johndoe',
       password: 'secret',
       name: 'John Doe',
+      roles: [],
     });
-    await this.usersService.updateDemo(admin.id, {
-      // roles: [adminRole, editorRole, userRole],
-      permissions: permissions,
-      accountStatus: AccountStatus.Active,
-    });
+    // await this.usersService.updateDemo(admin.id, {
+    //   // roles: [adminRole, editorRole, userRole],
+    //   permissions: permissions,
+    //   accountStatus: AccountStatus.Active,
+    // });
 
     const editor = await this.usersService.create({
       username: 'lucywoo',
       password: 'secret',
       name: 'Lucy Woo',
+      roles: [],
     });
-    await this.usersService.updateDemo(editor.id, {
-      // roles: [editorRole, userRole],
-      accountStatus: AccountStatus.Active,
-    });
+    // await this.usersService.updateDemo(editor., {
+    //   // roles: [editorRole, userRole],
+    //   accountStatus: AccountStatus.Active,
+    // });
 
     const user = await this.usersService.create({
       username: 'zest',
       password: 'secret',
       name: 'Zest Made',
+      roles: [],
     });
-    await this.usersService.updateDemo(user.id, {
-      // roles: [userRole],
-      accountStatus: AccountStatus.Active,
-    });
+    // await this.usersService.updateDemo(user.id, {
+    //   // roles: [userRole],
+    //   accountStatus: AccountStatus.Active,
+    // });
 
     return {
       permissions,

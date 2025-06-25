@@ -163,39 +163,35 @@ export class PermissionsService {
 
   async remove(id: number, forceDelete: boolean = false) {
     // Check if the permission has roles
-    const permissionWithRoles = await this.findOneWithRoles(id);
-    if (permissionWithRoles.roles && permissionWithRoles.roles.length > 0) {
-      if (!forceDelete) {
-        throw new Error(
-          'Permission has roles. Use forceDelete option to remove it along with its roles.',
-        );
-      }
-
-      // Remove the roles associated with the permission
-      await this.permissionRepository
-        .createQueryBuilder()
-        .relation(Permission, 'roles')
-        .of(permissionWithRoles)
-        .remove(permissionWithRoles.roles);
-    }
-
-    // Check if the permission has users
-    const permissionWithUsers = await this.findOneWithUsers(id);
-    if (permissionWithUsers.users && permissionWithUsers.users.length > 0) {
-      if (!forceDelete) {
-        throw new Error(
-          'Permission has users. Use forceDelete option to remove it along with its users.',
-        );
-      }
-
-      // Remove the users associated with the permission
-      await this.permissionRepository
-        .createQueryBuilder()
-        .relation(Permission, 'users')
-        .of(permissionWithUsers)
-        .remove(permissionWithUsers.users);
-    }
-
-    return await this.permissionRepository.delete(id);
+    // const permissionWithRoles = await this.findOneWithRoles(id);
+    // if (permissionWithRoles.roles && permissionWithRoles.roles.length > 0) {
+    //   if (!forceDelete) {
+    //     throw new Error(
+    //       'Permission has roles. Use forceDelete option to remove it along with its roles.',
+    //     );
+    //   }
+    //   // Remove the roles associated with the permission
+    //   await this.permissionRepository
+    //     .createQueryBuilder()
+    //     .relation(Permission, 'roles')
+    //     .of(permissionWithRoles)
+    //     .remove(permissionWithRoles.roles);
+    // }
+    // // Check if the permission has users
+    // const permissionWithUsers = await this.findOneWithUsers(id);
+    // if (permissionWithUsers.users && permissionWithUsers.users.length > 0) {
+    //   if (!forceDelete) {
+    //     throw new Error(
+    //       'Permission has users. Use forceDelete option to remove it along with its users.',
+    //     );
+    //   }
+    //   // Remove the users associated with the permission
+    //   await this.permissionRepository
+    //     .createQueryBuilder()
+    //     .relation(Permission, 'users')
+    //     .of(permissionWithUsers)
+    //     .remove(permissionWithUsers.users);
+    // }
+    // return await this.permissionRepository.delete(id);
   }
 }
