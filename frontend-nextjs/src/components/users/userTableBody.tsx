@@ -9,24 +9,26 @@ type User = {
   id: number;
   name: string;
   username: string;
-  roles: Role[];
-  permissions: Permission[];
+  roles: TRole[];
+  userPermissions: TUserPermission[];
 };
 
-type Role = {
+type TRole = {
   id: number;
   name: string;
   description?: string;
 };
 
-type Permission = {
-  id: number;
-  name: string;
-  description?: string;
+type TUserPermission = {
+  userId: number;
+  permissionId: number;
+  isActive: boolean;
 };
 
 export function UserTableBody({ fetchedData }: { fetchedData: User }) {
   const router = useRouter();
+
+  console.log("user table body: ", fetchedData);
 
   // USE CONTEXT
   const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
@@ -50,9 +52,11 @@ export function UserTableBody({ fetchedData }: { fetchedData: User }) {
     <TableRow key={fetchedData.id} hover onClick={handleEditBtn}>
       <TableCell align="center">{fetchedData.name || "-"}</TableCell>
       <TableCell align="center">{fetchedData.username || "-"}</TableCell>
-      <TableCell align="center">{fetchedData.roles.join(",") || "-"}</TableCell>
       <TableCell align="center">
-        {fetchedData.permissions.join(",") || "-"}
+        {fetchedData.roles.flatMap((role) => role.name).join(", ") || "-"}
+      </TableCell>
+      <TableCell align="center">
+        {String(fetchedData.userPermissions.some((i) => i.isActive)) || "-"}
       </TableCell>
       <TableCell align="center">
         <SharedTableAction

@@ -21,20 +21,20 @@ type User = {
   id: number;
   name: string;
   username: string;
-  roles: Role[];
-  permissions: Permission[];
+  roles: TRole[];
+  userPermissions: TUserPermission[];
 };
 
-type Role = {
+type TRole = {
   id: number;
   name: string;
   description?: string;
 };
 
-type Permission = {
-  id: number;
-  name: string;
-  description?: string;
+type TUserPermission = {
+  userId: number;
+  permissionId: number;
+  isActive: boolean;
 };
 
 export function UserTableHead({ fetchedData }: { fetchedData: User[] }) {

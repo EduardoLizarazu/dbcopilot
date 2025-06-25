@@ -118,7 +118,7 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     const users = await this.usersRepository.find({
-      relations: ['roles', 'permissions'],
+      relations: ['roles', 'userPermissions'],
     });
     return users;
   }
