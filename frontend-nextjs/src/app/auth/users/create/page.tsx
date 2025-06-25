@@ -142,13 +142,6 @@ export default function CreateUserPage() {
     }
   }
 
-  async function handleCreate() {
-    try {
-      const userDto = userData;
-      await CreateUserAction(userDto);
-    } catch (error) {}
-  }
-
   function handleAddRole(roleId: number) {
     const role = roles.find((role) => role.id === roleId);
     if (role) {
@@ -172,6 +165,31 @@ export default function CreateUserPage() {
       setRoles([...roles, role]);
     }
     setSelectedRoles(selectedRoles.filter((r) => r.id !== roleId));
+  }
+
+  async function handleCreate() {
+    try {
+      const userDto: User = userData;
+      await CreateUserAction(userDto);
+      setFeedback({
+        isActive: true,
+        severity: "success",
+        message: "Role created successfully!",
+      });
+      handleCancel();
+    } catch (error) {
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: "Failed to create role.",
+      });
+      resetFeedBack();
+    }
+  }
+
+  function handleCancel() {
+    router.push("/auth/users");
+    resetFeedBack();
   }
 
   // RENDERS
