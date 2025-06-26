@@ -7,6 +7,7 @@ import {
   UpdateUser,
 } from "@/controller/_actions/index.actions";
 import { ReadAllRolesWithPermAction } from "@/controller/_actions/role/query/read-all-roles-with-perm.action";
+import { UpdateUserByIdAction } from "@/controller/_actions/user/command/update.user.action";
 import { ReadUserByIdAction } from "@/controller/_actions/user/query/read-user-by-id.action";
 import {
   GetRolesDataModel,
@@ -185,22 +186,16 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
         });
       })
       .flat();
-    const createUserDto: UpdateUserUseCaseInput = {
-      user: {
-        id,
-        username,
-        email,
-        password: "password",
-        firstName,
-        lastName,
-        phone,
-      },
-      role: selectedRoles,
-      permission: selectedPermissions,
-      rolePermission: rolePermission,
+    const createUserDto: TUser = {
+      roles: selectedRoles,
+      // Remove or handle 'permission' and 'rolePermission' if not part of TUser
+      name: userData.name,
+      username: userData.username,
+      password: userData.password,
+      id: userData.id,
     };
     console.log("create user dto: ", createUserDto);
-    await UpdateUser(createUserDto);
+    await UpdateUserByIdAction(createUserDto);
     // go back to users page
     // window.location.href = "/auth/users";
   }

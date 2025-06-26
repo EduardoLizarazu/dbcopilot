@@ -4,26 +4,27 @@ type User = {
   id: number;
   name: string;
   username: string;
-  roles: TRole[];
-  userPermissions: TUserPermission[];
+  password: string;
+  roles: Role[];
 };
 
-type TRole = {
+type Role = {
   id: number;
   name: string;
   description?: string;
+  permissions: Permission[];
 };
 
-type TUserPermission = {
-  userId: number;
-  permissionId: number;
+type Permission = {
+  id: number;
+  name: string;
+  description?: string;
   isActive: boolean;
 };
-
-export async function ReadUserByIdAction(input: User): Promise<void> {
+export async function UpdateUserByIdAction(input: User): Promise<void> {
   try {
     const response = await fetch(`${process.env.BASE_URL}/users/${input.id}`, {
-      method: "GET",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
