@@ -297,6 +297,18 @@ export class UsersService {
         })),
       );
 
+      // Group permissions by id and determine isActive status
+      const permMap = new Map<number, boolean>();
+      specialPerm?.forEach((perm) => {
+        if (permMap.has(perm.id)) {
+          permMap.set(perm.id, permMap.get(perm.id) || perm.isActive);
+        } else {
+          permMap.set(perm.id, perm.isActive);
+        }
+      });
+
+      console.log('permMap: ', permMap);
+
       // Delete existing permissions
       await queryRunner.manager.query(
         `DELETE FROM user_permission WHERE user_id = $1`,
@@ -304,11 +316,11 @@ export class UsersService {
       );
 
       // Insert new permissions
-      for (const perm of specialPerm ?? []) {
+      for (const [id, isActive] of permMap) {
         await queryRunner.manager.query(
           `INSERT INTO user_permission (user_id, permission_id, "isActive")
-           VALUES ($1, $2, $3)`,
-          [userId, perm.id, perm.isActive],
+     VALUES ($1, $2, $3)`,
+          [userId, id, isActive],
         );
       }
 
