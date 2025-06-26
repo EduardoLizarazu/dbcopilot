@@ -192,13 +192,13 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
         id: userData.id,
       };
       console.log("create user dto: ", createUserDto);
-      await UpdateUserByIdAction(createUserDto);
+      // await UpdateUserByIdAction(createUserDto);
       setFeedback({
         isActive: true,
         severity: "success",
         message: "created successfully!",
       });
-      handleCancel();
+      // handleCancel();
     } catch (error) {
       setFeedback({
         isActive: true,

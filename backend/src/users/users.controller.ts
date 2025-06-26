@@ -52,7 +52,7 @@ export class UsersController {
 
   @Put(':id')
   update(@Param('id') id: string, @Body() user: UpdateUserDto) {
-    return this.usersService.updateProfile(+id, user);
+    return this.usersService.update(+id, user);
   }
 
   @Patch(':id/account-status')

@@ -243,10 +243,82 @@ export class UsersService {
     return await this.usersRepository.save(user);
   }
 
-  async updateProfile(userId: number, dto: UpdateUserDto): Promise<User> {
-    await this.findOne(userId);
-    await this.usersRepository.update(userId, dto);
-    return await this.findOne(userId);
+  async update(userId: number, dto: UpdateUserDto): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const { username, password, name, roles } = dto;
+
+      // 1. Hash new password if provided
+      let hashedPassword: string | null = null;
+      if (password) {
+        const salt = await bcrypt.genSalt();
+        hashedPassword = await bcrypt.hash(password, salt);
+      }
+
+      // 2. Update user entity
+      if (username || name || hashedPassword) {
+        await queryRunner.manager.query(
+          `UPDATE "user" SET
+            ${username ? 'username = $1,' : ''}
+            ${name ? 'name = $2,' : ''}
+            ${hashedPassword ? 'password = $3' : ''}
+          WHERE id = $4`,
+          [username, name, hashedPassword, userId].filter(Boolean),
+        );
+      }
+
+      // 3. Update roles
+      const rolesId = roles?.map((role) => role.id);
+
+      // Delete existing roles
+      await queryRunner.manager.query(
+        `DELETE FROM user_roles_role WHERE "userId" = $1`,
+        [userId],
+      );
+
+      // Insert new roles
+      if (rolesId) {
+        for (const roleId of rolesId) {
+          await queryRunner.manager.query(
+            `INSERT INTO user_roles_role ("userId", "roleId") VALUES ($1, $2)`,
+            [userId, roleId],
+          );
+        }
+      }
+
+      // 4. Update direct permissions
+      const specialPerm = roles?.flatMap((role) =>
+        role.permissions.map((perm) => ({
+          id: perm.id,
+          isActive: perm.isActive,
+        })),
+      );
+
+      // Delete existing permissions
+      await queryRunner.manager.query(
+        `DELETE FROM user_permission WHERE user_id = $1`,
+        [userId],
+      );
+
+      // Insert new permissions
+      for (const perm of specialPerm ?? []) {
+        await queryRunner.manager.query(
+          `INSERT INTO user_permission (user_id, permission_id, "isActive")
+           VALUES ($1, $2, $3)`,
+          [userId, perm.id, perm.isActive],
+        );
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException('Error updating user');
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async updateAccountStatus(
