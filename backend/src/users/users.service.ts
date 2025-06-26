@@ -168,7 +168,7 @@ export class UsersService {
       username: user1.username,
       // Assuming password isn't derivable from user1 object for security reasons,
       // you'd typically get this from another source. For demonstration, let's say it's a fixed string.
-      password: 'securePassword123',
+      password: '',
       name: user1.name,
       roles,
     };
