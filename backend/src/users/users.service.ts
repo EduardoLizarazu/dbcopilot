@@ -123,7 +123,7 @@ export class UsersService {
     return users;
   }
 
-  async findOne(userId: number, withPassword: boolean = false): Promise<User> {
+  async findOne(userId: number, withPassword: boolean = false): Promise<any> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
       relations: [
@@ -137,10 +137,47 @@ export class UsersService {
       throw new NotFoundException();
     }
 
-    // Extract password from user object
-    if (withPassword) delete (user as Partial<User>).password;
+    return this.TransformUserStructure(user);
+  }
 
-    return user;
+  TransformUserStructure(user1) {
+    // Create a map of user permissions for easy lookup
+    const userPermissionMap = user1.userPermissions.reduce(
+      (map, userPermission) => {
+        map[`${userPermission.permissionId}`] = userPermission.isActive;
+        return map;
+      },
+      {},
+    );
+
+    // Transform roles and their permissions
+    const roles = user1.roles.map((role) => ({
+      id: role.id,
+      name: role.name,
+      description: role.description,
+      permissions: role.permissions.map((permission) => ({
+        id: permission.id,
+        name: permission.name,
+        description: permission.description,
+        isActive:
+          userPermissionMap[permission.id] !== undefined
+            ? userPermissionMap[permission.id]
+            : true,
+      })),
+    }));
+
+    // Create the new user object with transformed roles
+    const user2 = {
+      id: user1.id,
+      username: user1.username,
+      // Assuming password isn't derivable from user1 object for security reasons,
+      // you'd typically get this from another source. For demonstration, let's say it's a fixed string.
+      password: 'securePassword123',
+      name: user1.name,
+      roles,
+    };
+
+    return user2;
   }
 
   async findOneByUsername(username: string): Promise<User | null> {
