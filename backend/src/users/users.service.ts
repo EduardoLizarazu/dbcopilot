@@ -70,42 +70,38 @@ export class UsersService {
         .flat();
 
       // 2. Create user entity
-      console.log('user before queried');
-
       const userId = await queryRunner.manager.query(
         `INSERT INTO "user" (username, password, name)
         VALUES ($1, $2, $3) RETURNING id`,
         [username, hashedPassword, name],
       );
 
-      console.log('user after queried: ', userId);
-
-      rolesId.forEach(async (roleId) => {
+      // Insert roles
+      for (const roleId of rolesId) {
         await queryRunner.manager.query(
           `INSERT INTO user_roles_role ("userId", "roleId") VALUES ($1, $2)`,
           [userId[0]?.id, roleId],
         );
+      }
+
+      // Group permissions by id and determine isActive status
+      const permMap = new Map<number, boolean>();
+      specialPerm.forEach((perm) => {
+        if (permMap.has(perm.id)) {
+          permMap.set(perm.id, permMap.get(perm.id) || perm.isActive);
+        } else {
+          permMap.set(perm.id, perm.isActive);
+        }
       });
 
-      // 5. Handle direct permissions
-      const permissions = specialPerm.map((perm) =>
-        queryRunner.manager.create(UserPermission, {
-          userId: userId[0]?.id,
-          permissionId: perm.id,
-          isActive: perm.isActive,
-        }),
-      );
-      console.log('permissions entities: ', permissions);
-
-      permissions.forEach(async (perm) => {
-        await queryRunner.manager.save(UserPermission, {
-          userId: perm.userId,
-          permissionId: perm.permissionId,
-          isActive: perm.isActive,
-        });
-      });
-
-      console.log('permissions saved');
+      // Insert permissions
+      for (const [id, isActive] of permMap) {
+        await queryRunner.manager.query(
+          `INSERT INTO user_permission (user_id, permission_id, "isActive")
+           VALUES ($1, $2, $3)`,
+          [userId[0]?.id, id, isActive],
+        );
+      }
 
       await queryRunner.commitTransaction();
     } catch (error) {
