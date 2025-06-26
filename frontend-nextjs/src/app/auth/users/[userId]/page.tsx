@@ -1,10 +1,12 @@
 "use client";
+import { useFeedbackContext } from "@/contexts/feedback.context";
 import {
   GetPermissions,
   GetRoles,
   GetUserById,
   UpdateUser,
 } from "@/controller/_actions/index.actions";
+import { ReadAllRolesWithPermAction } from "@/controller/_actions/role/query/read-all-roles-with-perm.action";
 import { ReadUserByIdAction } from "@/controller/_actions/user/query/read-user-by-id.action";
 import {
   GetRolesDataModel,
@@ -33,6 +35,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
+
 import React from "react";
 interface UpdateUserPageProps {
   params: Promise<{
@@ -40,22 +44,22 @@ interface UpdateUserPageProps {
   }>;
 }
 
-type User = {
+type TUser = {
   id: number;
   name: string;
   username: string;
   password: string;
-  roles: Role[];
+  roles: TRole[];
 };
 
-type Role = {
+type TRole = {
   id: number;
   name: string;
   description?: string;
-  permissions: Permission[];
+  permissions: TPermission[];
 };
 
-type Permission = {
+type TPermission = {
   id: number;
   name: string;
   description?: string;
@@ -63,11 +67,15 @@ type Permission = {
 };
 
 export default function UpdateUserPage({ params }: UpdateUserPageProps) {
+  const router = useRouter();
+
+  // USE CONTEXT
+  const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
   // HOOK
   const [loading, setLoading] = React.useState<boolean>(true);
   const [value, setValue] = React.useState("1");
 
-  const [userData, setUserData] = React.useState<User>({
+  const [userData, setUserData] = React.useState<TUser>({
     id: 0,
     name: "",
     username: "",
@@ -90,9 +98,7 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
   });
 
   const [roles, setRoles] = React.useState<GetRolesDataModel[]>([]);
-  const [selectedRoles, setSelectedRoles] = React.useState<
-    GetRolesForUserDataModel[]
-  >([]);
+  const [selectedRoles, setSelectedRoles] = React.useState<TRole[]>([]);
 
   const [selectedPermissions, setSelectedPermissions] = React.useState<
     ReadPermissionOutput[]
@@ -105,14 +111,14 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
       const { userId } = await params;
       const userRetrieved = await ReadUserByIdAction(parseInt(userId));
       setUserData({
-        id: userData.id,
-        username: userData.username,
-        password: userData.password,
-        name: userData.name,
-        roles: userData.roles,
+        id: userRetrieved.id,
+        username: userRetrieved.username,
+        password: userRetrieved.password,
+        name: userRetrieved.name,
+        roles: userRetrieved.roles,
       });
 
-      setSelectedRoles(roles || []);
+      setSelectedRoles(userRetrieved.roles || []);
       setLoading(false);
     })();
   }, [params]);
@@ -121,7 +127,7 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
   React.useEffect(() => {
     (async () => {
       if (value === "1") {
-        const allRoles = await GetRoles();
+        const allRoles = await ReadAllRolesWithPermAction();
         setRoles(
           allRoles.filter(
             (role) => !selectedRoles.some((r) => r.id === role.id)
