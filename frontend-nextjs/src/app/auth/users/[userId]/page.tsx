@@ -116,6 +116,15 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
       });
 
       setSelectedRoles(userRetrieved.roles || []);
+
+      // value === 1
+      const allRoles = await ReadAllRolesWithPermAction();
+      setRoles(
+        allRoles.filter(
+          (role) => !userRetrieved.roles.some((r) => r.id === role.id)
+        )
+      );
+
       setLoading(false);
     })();
   }, [params]);
@@ -124,12 +133,12 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
   React.useEffect(() => {
     (async () => {
       if (value === "1") {
-        const allRoles = await ReadAllRolesWithPermAction();
-        setRoles(
-          allRoles.filter(
-            (role) => !selectedRoles.some((r) => r.id === role.id)
-          )
-        );
+        // const allRoles = await ReadAllRolesWithPermAction();
+        // setRoles(
+        //   allRoles.filter(
+        //     (role) => !selectedRoles.some((r) => r.id === role.id)
+        //   )
+        // );
       }
     })();
   }, [value]);
@@ -192,13 +201,13 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
         id: userData.id,
       };
       console.log("create user dto: ", createUserDto);
-      // await UpdateUserByIdAction(createUserDto);
+      await UpdateUserByIdAction(createUserDto);
       setFeedback({
         isActive: true,
         severity: "success",
         message: "created successfully!",
       });
-      // handleCancel();
+      handleCancel();
     } catch (error) {
       setFeedback({
         isActive: true,
