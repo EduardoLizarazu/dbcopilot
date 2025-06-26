@@ -166,14 +166,14 @@ export default function CreateUserPage() {
       setFeedback({
         isActive: true,
         severity: "success",
-        message: "Role created successfully!",
+        message: "Created successfully!",
       });
       handleCancel();
     } catch (error) {
       setFeedback({
         isActive: true,
         severity: "error",
-        message: "Failed to create role.",
+        message: "Failed to create.",
       });
       resetFeedBack();
     }

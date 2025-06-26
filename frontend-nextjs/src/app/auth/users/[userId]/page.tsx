@@ -101,10 +101,6 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
   const [roles, setRoles] = React.useState<GetRolesDataModel[]>([]);
   const [selectedRoles, setSelectedRoles] = React.useState<TRole[]>([]);
 
-  const [selectedPermissions, setSelectedPermissions] = React.useState<
-    ReadPermissionOutput[]
-  >([]);
-
   // Fetch user data once when params change
   React.useEffect(() => {
     (async () => {
@@ -172,32 +168,45 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
   }
 
   async function handleUpdate() {
-    // Only permissions of the role with the ID of its specific role
-    const rolePermission = selectedRoles
-      .map((role) => {
-        return role.permissions.map((perm) => {
-          return {
-            roleId: role.id,
-            id: perm.id,
-            name: perm.name,
-            description: perm.description,
-            isActive: perm.isActive,
-          };
-        });
-      })
-      .flat();
-    const createUserDto: TUser = {
-      roles: selectedRoles,
-      // Remove or handle 'permission' and 'rolePermission' if not part of TUser
-      name: userData.name,
-      username: userData.username,
-      password: userData.password,
-      id: userData.id,
-    };
-    console.log("create user dto: ", createUserDto);
-    await UpdateUserByIdAction(createUserDto);
-    // go back to users page
-    // window.location.href = "/auth/users";
+    try {
+      // Only permissions of the role with the ID of its specific role
+      const rolePermission = selectedRoles
+        .map((role) => {
+          return role.permissions.map((perm) => {
+            return {
+              roleId: role.id,
+              id: perm.id,
+              name: perm.name,
+              description: perm.description,
+              isActive: perm.isActive,
+            };
+          });
+        })
+        .flat();
+      const createUserDto: TUser = {
+        roles: selectedRoles,
+        // Remove or handle 'permission' and 'rolePermission' if not part of TUser
+        name: userData.name,
+        username: userData.username,
+        password: userData.password,
+        id: userData.id,
+      };
+      console.log("create user dto: ", createUserDto);
+      await UpdateUserByIdAction(createUserDto);
+      setFeedback({
+        isActive: true,
+        severity: "success",
+        message: "created successfully!",
+      });
+      handleCancel();
+    } catch (error) {
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: "Failed to create.",
+      });
+      resetFeedBack();
+    }
   }
 
   function handleAddRole(roleId: number) {
@@ -223,6 +232,11 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
       setRoles([...roles, role]);
     }
     setSelectedRoles(selectedRoles.filter((r) => r.id !== roleId));
+  }
+
+  function handleCancel() {
+    router.push("/auth/users");
+    resetFeedBack();
   }
 
   // RENDERS
