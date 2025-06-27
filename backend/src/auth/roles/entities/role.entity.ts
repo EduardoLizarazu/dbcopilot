@@ -19,11 +19,13 @@ export class Role {
   @Column({ nullable: true })
   description?: string;
 
-  @ManyToMany(() => User, (user) => user.roles)
+  @ManyToMany(() => User, (user) => user.roles, {
+    onDelete: 'CASCADE', // Ensure bidirectional cascade
+  })
   users?: User[];
 
   @ManyToMany(() => Permission, (permission) => permission.roles, {
-    // eager: true,
+    onDelete: 'CASCADE', // Ensure bidirectional cascade
   })
   @JoinTable() // Owning side
   permissions?: Permission[];

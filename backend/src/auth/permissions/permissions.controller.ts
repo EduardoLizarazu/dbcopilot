@@ -65,11 +65,7 @@ export class PermissionsController {
   }
 
   @Delete(':id')
-  async remove(
-    @Param('id') id: string,
-    @Body('forceDelete') forceDelete?: string,
-  ) {
-    if (forceDelete === '0') return await this.permissionsService.remove(+id);
-    return await this.permissionsService.remove(+id, forceDelete === '1');
+  async remove(@Param('id') id: string) {
+    return await this.permissionsService.remove(+id);
   }
 }

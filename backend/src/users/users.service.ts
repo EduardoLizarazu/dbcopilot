@@ -458,12 +458,13 @@ export class UsersService {
         throw new NotFoundException(`User with ID ${userId} not found.`); // Or throw a custom error
       }
       // Remove the user
-      await queryRunner.manager.remove(user, {});
+      await queryRunner.manager.remove(User, user);
 
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new BadRequestException('Error updating user');
+      console.error(`Error deleting user: ${error}`);
+      throw new BadRequestException('Error deleting user');
     } finally {
       await queryRunner.release();
     }

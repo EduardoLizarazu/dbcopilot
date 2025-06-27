@@ -13,9 +13,15 @@ export class Permission {
   @Column({ nullable: true })
   description?: string;
 
-  @ManyToMany(() => Role, (role) => role.permissions)
+  @ManyToMany(() => Role, (role) => role.permissions, {
+    cascade: true,
+    onDelete: 'CASCADE', // Delete permission will remove from roles
+  })
   roles?: Role[];
 
-  @ManyToMany(() => User, (user) => user.userPermissions)
+  @ManyToMany(() => User, (user) => user.userPermissions, {
+    cascade: true,
+    onDelete: 'CASCADE', // Delete permission will remove from roles
+  })
   userPermissions?: User[];
 }

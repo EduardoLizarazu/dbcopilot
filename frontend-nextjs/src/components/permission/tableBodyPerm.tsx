@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { TableCell, TableRow } from "@mui/material";
 import { SharedTableAction } from "../shared/sharedTableAction";
+import { DeletePermissionByIdAction } from "@/controller/_actions/permission/command/delete-permission-id.action";
 
 export function TableBodyPerm({
   fetchedData,
@@ -20,23 +21,33 @@ export function TableBodyPerm({
     router.push(`/auth/permissions/${fetchedData.id}`);
   }
 
-  function handleDeleteBtn() {
-    // Implement delete functionality here
-    setFeedback({
-      isActive: true,
-      message: "Delete functionality not implemented yet.",
-      severity: "warning",
-    });
-    resetFeedBack();
+  async function handleDeleteBtn(id: number) {
+    try {
+      await DeletePermissionByIdAction(id);
+      setFeedback({
+        isActive: true,
+        message: "Deleted successfully",
+        severity: "success",
+      });
+    } catch {
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: "Failed on delete.",
+      });
+    } finally {
+      resetFeedBack();
+      router.push(`/auth/permissions`);
+    }
   }
   return (
-    <TableRow key={fetchedData.id} hover onClick={handleEditBtn}>
+    <TableRow key={fetchedData.id} hover>
       <TableCell align="center">{fetchedData.name || "-"}</TableCell>
       <TableCell align="center">{fetchedData.description || "-"}</TableCell>
       <TableCell align="center">
         <SharedTableAction
           handleEditBtn={handleEditBtn}
-          handleDeleteBtn={handleDeleteBtn}
+          handleDeleteBtn={() => handleDeleteBtn(fetchedData.id)}
         />
       </TableCell>
     </TableRow>

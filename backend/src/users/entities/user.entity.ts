@@ -28,12 +28,16 @@ export class User {
   @Column({ default: AccountStatus.Inactive })
   accountStatus: AccountStatus;
 
-  @ManyToMany(() => Role, (role) => role.users)
+  @ManyToMany(() => Role, (role) => role.users, {
+    onDelete: 'CASCADE', // Ensure bidirectional cascade
+  })
   @JoinTable()
   roles?: Role[];
 
   // Ability to also directly assign permissions to user
   // means more flexibility with potentially more complexity
-  @OneToMany(() => UserPermission, (userPerm) => userPerm.user)
+  @OneToMany(() => UserPermission, (userPerm) => userPerm.user, {
+    onDelete: 'CASCADE', // Ensure bidirectional cascade
+  })
   userPermissions: UserPermission[]; // The list of user-permission associations
 }
