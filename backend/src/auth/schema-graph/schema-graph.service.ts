@@ -14,18 +14,22 @@ export class SchemaGraphService {
 
   async findAll() {
     try {
-      const cypher = `MATCH (table:Table)-[:HAS_COLUMN]->(column:Column)
-        RETURN
-          id(table) AS table_neo4j_id,     
-          table.name AS table_name,
-          table.alias AS table_alias,
-          table.description AS table_description,
-          id(column) AS column_neo4j_id,
-          column.name AS column_name,
-          column.alias AS column_alias,
-          column.description AS column_description,
-          column.key_type AS column_key_type,
-          column.type AS column_type
+      const cypher = `
+      MATCH (table:Table)-[:HAS_COLUMN]->(column:Column)
+      WITH table, COLLECT({
+          neo4j_id: id(column),
+          name: column.name,
+          alias: column.alias,
+          description: column.description,
+          key_type: column.key_type,
+          type: column.type
+      }) AS columns // Collects specific column properties into a list for each table
+      RETURN
+        id(table) AS table_neo4j_id,
+        table.name AS table_name,
+        table.alias AS table_alias,
+        table.description AS table_description,
+        columns AS columns // Returns the collected list of column objects
       `;
       const result = await this.neo4jService.read(cypher);
       return result;
