@@ -210,24 +210,6 @@ export function SingleChat(
             />
           </Stack>
 
-          {/* Select database */}
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Autocomplete
-              disablePortal
-              options={database}
-              getOptionLabel={(option) => option.name || ""}
-              sx={{ width: 300 }}
-              aria-label="Select database connection"
-              renderInput={(params) => (
-                <TextField {...params} label="Select database connection..." />
-              )}
-              onChange={handleChangeSltDatabase}
-            />
-            {selectedDatabaseId !== 0 && (
-              <ConnTestResultTxt connId={selectedDatabaseId} />
-            )}
-          </Stack>
-
           {/* Prompt */}
           <Box
             component="form"
@@ -272,9 +254,6 @@ export function SingleChat(
               <TabPanel value="1">
                 {/* Chat result table */}
                 <ChatResultTable data={result?.data || []} />
-              </TabPanel>
-              <TabPanel value="2">
-                <ChatSqlEditor sqlQueryData={""} />
               </TabPanel>
               <TabPanel value="3">
                 {/* Chat insight */}
