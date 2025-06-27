@@ -3,10 +3,15 @@ import { CreateSchemaGraphDto } from './dto/create-schema-graph.dto';
 import { UpdateSchemaGraphDto } from './dto/update-schema-graph.dto';
 import { Neo4jService } from 'src/neo4j/neo4j/neo4j.service';
 import { BadRequestError } from 'openai';
+import { DataSource } from 'typeorm';
+import { SchemaGraph } from './entities/schema-graph.entity';
 
 @Injectable()
 export class SchemaGraphService {
-  constructor(private readonly neo4jService: Neo4jService) {}
+  constructor(
+    private readonly neo4jService: Neo4jService,
+    private dataSource: DataSource, // Inject the DataSource for transaction management
+  ) {}
 
   create(createSchemaGraphDto: CreateSchemaGraphDto) {
     return 'This action adds a new schemaGraph';
@@ -36,6 +41,21 @@ export class SchemaGraphService {
     } catch (error) {
       console.error(`Error on finding all graph: ${error}`);
       throw new BadRequestException('Error on finding all graph');
+    }
+  }
+
+  async findAllByRoleId(id: number) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const roleSchemaGraph = queryRunner.manager.find(SchemaGraph, {
+        where: { roleId: id },
+      });
+      return roleSchemaGraph;
+    } catch (error) {
+      console.error(`Error on finding graph by role id: ${error}`);
+      throw new BadRequestException('Error on finding graph by role id');
     }
   }
 

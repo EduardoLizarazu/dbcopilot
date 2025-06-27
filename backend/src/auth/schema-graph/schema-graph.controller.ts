@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SchemaGraphService } from './schema-graph.service';
 import { CreateSchemaGraphDto } from './dto/create-schema-graph.dto';
 import { UpdateSchemaGraphDto } from './dto/update-schema-graph.dto';
@@ -17,13 +25,21 @@ export class SchemaGraphController {
     return this.schemaGraphService.findAll();
   }
 
+  @Get('roles/:id')
+  findAllByRoleId(@Param('id') id: string) {
+    return this.schemaGraphService.findAllByRoleId(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.schemaGraphService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSchemaGraphDto: UpdateSchemaGraphDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateSchemaGraphDto: UpdateSchemaGraphDto,
+  ) {
     return this.schemaGraphService.update(+id, updateSchemaGraphDto);
   }
 

@@ -33,12 +33,18 @@ type TSchemaGraph = {
 
 type SchemaTableProps = {
   data: TSchemaGraph[];
-  roleId: string;
+  dataRole: TSchemaGraphDb[];
+};
+
+type TSchemaGraphDb = {
+  role_id: number;
+  column_id: number;
+  table_id: number;
 };
 
 export const SchemaGraphTable: React.FC<SchemaTableProps> = ({
   data,
-  roleId,
+  dataRole,
 }) => {
   const [selectedTables, setSelectedTables] = useState<Set<number>>(new Set());
   const [selectedColumns, setSelectedColumns] = useState<Set<number>>(
