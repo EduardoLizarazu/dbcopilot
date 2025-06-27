@@ -1,6 +1,7 @@
 import { Sqlquery } from 'src/chat/sqlquery/entities/sqlquery.entity';
 import { Connection } from 'src/connection/entities/connection.entity';
 import { Schema } from 'src/schema/entities/schema.entity';
+import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
@@ -19,6 +20,12 @@ export class Prompt {
 
   @Column()
   prompt: string;
+
+  @ManyToOne(() => User, (user) => user.prompts, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  user: User;
 
   // A prompt can be used for one and only one connection relation many to one
   @ManyToOne(() => Schema, (schema) => schema.prompts, {
