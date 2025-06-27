@@ -52,10 +52,14 @@ export class SchemaGraphService {
       const roleSchemaGraph = queryRunner.manager.find(SchemaGraph, {
         where: { roleId: id },
       });
+      // queryRunner.commitTransaction();
       return roleSchemaGraph;
     } catch (error) {
+      // queryRunner.rollbackTransaction();
       console.error(`Error on finding graph by role id: ${error}`);
       throw new BadRequestException('Error on finding graph by role id');
+    } finally {
+      queryRunner.release();
     }
   }
 
@@ -63,8 +67,33 @@ export class SchemaGraphService {
     return `This action returns a #${id} schemaGraph`;
   }
 
-  update(id: number, updateSchemaGraphDto: UpdateSchemaGraphDto) {
-    return `This action updates a #${id} schemaGraph`;
+  async update(id: number, updateSchemaGraphDto: UpdateSchemaGraphDto[]) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      // 1. Remove everything with role_id on schema_graph
+      await queryRunner.query(`DELETE FROM schema_graph WHERE role_id = $1`, [
+        id,
+      ]);
+
+      // 2. Insert the new data on schema_graph(role_id, column_id, table_id)
+      for (const data of updateSchemaGraphDto) {
+        await queryRunner.manager.query(
+          `INSERT INTO schema_graph (role_id, column_id, table_id) VALUES ($1, $2, $3)`,
+          [id, data.columnId, data.tableId],
+        );
+      }
+
+      queryRunner.commitTransaction();
+    } catch (error) {
+      queryRunner.rollbackTransaction();
+
+      console.error(`Error on updating graph by role id: ${error}`);
+      throw new BadRequestException('Error on updating graph by role id');
+    } finally {
+      queryRunner.release();
+    }
   }
 
   remove(id: number) {

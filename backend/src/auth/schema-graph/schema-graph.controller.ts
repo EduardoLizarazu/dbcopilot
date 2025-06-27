@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { SchemaGraphService } from './schema-graph.service';
 import { CreateSchemaGraphDto } from './dto/create-schema-graph.dto';
@@ -35,10 +36,10 @@ export class SchemaGraphController {
     return this.schemaGraphService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id') id: string,
-    @Body() updateSchemaGraphDto: UpdateSchemaGraphDto,
+    @Body() updateSchemaGraphDto: UpdateSchemaGraphDto[],
   ) {
     return this.schemaGraphService.update(+id, updateSchemaGraphDto);
   }

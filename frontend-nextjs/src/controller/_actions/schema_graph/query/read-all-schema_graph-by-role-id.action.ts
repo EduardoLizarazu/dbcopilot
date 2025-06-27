@@ -9,6 +9,8 @@ type TSchemaGraphDb = {
 export async function ReadAllSchemaGraphByRoleIdAction(
   roleId: number
 ): Promise<TSchemaGraphDb[]> {
+  console.log("ReadAllSchemaGraphByRoleIdAction", roleId);
+
   try {
     const response = await fetch(
       `${process.env.BASE_URL}/schema-graph/roles/${roleId}`,

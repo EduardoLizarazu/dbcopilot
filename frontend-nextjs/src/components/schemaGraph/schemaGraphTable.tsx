@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
+import { AcceptSchemaGraphRole } from "@/controller/_actions/schema_graph/command/accept-schema_graph.action";
 
 // Define types
 type TSchemaGraphColumn = {
@@ -45,11 +46,13 @@ type TSchemaGraphDb = {
 type SchemaTableProps = {
   data: TSchemaGraph[];
   dataRole: TSchemaGraphDb[];
+  roleId: number;
 };
 
 export const SchemaGraphTable: React.FC<SchemaTableProps> = ({
   data,
   dataRole,
+  roleId,
 }) => {
   const router = useRouter();
 
@@ -161,14 +164,32 @@ export const SchemaGraphTable: React.FC<SchemaTableProps> = ({
 
   async function handleAccept() {
     try {
-      // Here goes the function to send the data of TSchemaGraphDb[]
-      // await AcceptSchemaGraphRole(data);
-      router.push("/auth/roles");
+      // Build the array of TSchemaGraphDb objects
+      const selectedData: TSchemaGraphDb[] = [];
+      selectedColumns.forEach((columnId) => {
+        // Find the table for this column
+        const table = data.find((t) =>
+          t.columns.some((col) => col.column_neo4j_id === columnId)
+        );
+        if (table) {
+          selectedData.push({
+            role_id: roleId, // Set the correct role_id if available
+            column_id: columnId,
+            table_id: table.table_neo4j_id,
+          });
+        }
+      });
+
+      // Call your API or function with the selected data
+      console.log("selected data: ", selectedData);
+
+      await AcceptSchemaGraphRole(selectedData);
       setFeedback({
         isActive: true,
         severity: "success",
         message: "Role created successfully!",
       });
+      // router.push("/auth/roles");
     } catch (error) {
       setFeedback({
         isActive: true,
