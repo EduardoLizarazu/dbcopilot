@@ -25,6 +25,8 @@ export async function ReadAllSchemaGraphByRoleIdAction(
     }
 
     const data: TSchemaGraphDb[] = await response.json();
+    console.log("ReadAllSchemaGraphByRoleIdAction", data);
+
     return data;
   } catch (error) {
     console.error("Error reading all roles:", error);
