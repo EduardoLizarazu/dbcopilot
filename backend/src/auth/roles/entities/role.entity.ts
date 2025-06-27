@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Permission } from 'src/auth/permissions/entities/permission.entity';
+import { SchemaGraph } from 'src/auth/schema-graph/entities/schema-graph.entity';
 
 @Entity()
 export class Role {
@@ -29,4 +30,10 @@ export class Role {
   })
   @JoinTable() // Owning side
   permissions?: Permission[];
+
+  @ManyToMany(() => SchemaGraph, (schemaGraph) => schemaGraph.role, {
+    cascade: true,
+    onDelete: 'CASCADE', // Delete permission will remove from roles
+  })
+  schemaGraphs?: SchemaGraph[];
 }

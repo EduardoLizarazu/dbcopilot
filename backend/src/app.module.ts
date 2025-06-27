@@ -17,6 +17,8 @@ import { SchemaModule } from './schema/schema.module';
 import { ChatModule } from './chat/chat.module';
 import { AiService } from './ai/ai.service';
 import { AiModule } from './ai/ai.module';
+import { Neo4jService } from './neo4j/neo4j/neo4j.service';
+import { Neo4jModule } from './neo4j/neo4j/neo4j.module';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { AiModule } from './ai/ai.module';
       synchronize: true, // for demo/development
       logging: true,
     }),
+    Neo4jModule,
     UsersModule,
     AuthModule,
     DemoHelperModule,
@@ -43,11 +46,13 @@ import { AiModule } from './ai/ai.module';
     SchemaModule,
     ChatModule,
     AiModule,
+    Neo4jModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     AiService,
+    Neo4jService,
     // {
     //   provide: APP_GUARD,
     //   useClass: JwtAuthGuard,
