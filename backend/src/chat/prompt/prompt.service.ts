@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePromptDto } from './dto/create-prompt.dto';
 import { UpdatePromptDto } from './dto/update-prompt.dto';
 import { AiService } from 'src/ai/ai.service';
@@ -220,12 +224,36 @@ export class PromptService {
     return 'This action adds a new prompt';
   }
 
-  findAll() {
-    return `This action returns all prompt`;
+  async findAll() {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const entities = await queryRunner.manager.find(Prompt);
+      return entities;
+    } catch (error) {
+      console.error(`Error on finding all prompts: ${error}`);
+      throw new BadRequestException(`Error finding all prompts.`);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} prompt`;
+  async findOne(id: number) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const entity = await queryRunner.manager.findOne(Prompt, {
+        where: { id: id },
+      });
+
+      if (!entity)
+        throw new NotFoundException(`Prompt with ID ${id} not found.`); // Or throw a custom error
+
+      return entity;
+    } catch (error) {
+      console.error(`Error on finding prompt: ${error}`);
+      throw new BadRequestException(`Error finding prompt.`);
+    }
   }
 
   update(id: number, updatePromptDto: UpdatePromptDto) {
