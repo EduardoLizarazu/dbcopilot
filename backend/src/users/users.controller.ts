@@ -82,7 +82,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Body('forceDelete') forceDelete: boolean) {
-    return this.usersService.remove(+id, forceDelete);
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(+id);
   }
 }

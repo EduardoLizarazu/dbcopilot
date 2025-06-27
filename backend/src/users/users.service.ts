@@ -445,16 +445,27 @@ export class UsersService {
     return await this.findOneWithRolesPermissionAndDirectPermissions(userId);
   }
 
-  async remove(userId: number, forceDelete: boolean = false) {
-    const user = await this.findOne(userId);
+  async remove(userId: number) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const user = await queryRunner.manager.findOne(User, {
+        where: { id: userId },
+      });
 
-    if (user.accountStatus === AccountStatus.Inactive) {
-      throw new Error(
-        'The user still active, please deactivate the user first',
-      );
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found.`); // Or throw a custom error
+      }
+      // Remove the user
+      await queryRunner.manager.remove(user, {});
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException('Error updating user');
+    } finally {
+      await queryRunner.release();
     }
-    if (!forceDelete) throw new Error('You must force the deletion');
-
-    return await this.usersRepository.remove(user);
   }
 }
