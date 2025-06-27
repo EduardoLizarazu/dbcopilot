@@ -20,13 +20,20 @@ type TSchemaGraphColumn = {
   column_neo4j_id: number;
 };
 
-export default async function SchemaGraphPage() {
+interface Props {
+  params: Promise<{
+    roleId: string;
+  }>;
+}
+
+export default async function SchemaGraphPage({ params }: Props) {
   const data: TSchemaGraph[] = await ReadAllSchemaGraphAction();
+  const { roleId } = await params;
   return (
     <Suspense fallback={<CircularProgress />}>
       <Container>
         <Typography variant="h4">Graph schema of table with columns</Typography>
-        <SchemaGraphTable data={data} />
+        <SchemaGraphTable data={data} roleId={roleId} />
       </Container>
     </Suspense>
   );
