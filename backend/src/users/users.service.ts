@@ -239,30 +239,55 @@ export class UsersService {
     return await this.usersRepository.save(user);
   }
 
+  isEmpty(data: string | null | undefined) {}
+
   async update(userId: number, dto: UpdateUserDto): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-
     try {
       const { username, password, name, roles } = dto;
 
-      // 1. Hash new password if provided
+      // 1. Hash new password ONLY if provided and non-empty
       let hashedPassword: string | null = null;
-      if (password) {
+      if (password && password.trim() !== '') {
         const salt = await bcrypt.genSalt();
         hashedPassword = await bcrypt.hash(password, salt);
       }
 
-      // 2. Update user entity
-      if (username || name || hashedPassword) {
+      // 2. Build dynamic update query
+      const updateParts: string[] = [];
+      const params: any[] = [];
+      let paramIndex = 1;
+
+      if (username) {
+        updateParts.push(`username = $${paramIndex}`);
+        params.push(username);
+        paramIndex++;
+      }
+
+      if (name) {
+        updateParts.push(`name = $${paramIndex}`);
+        params.push(name);
+        paramIndex++;
+      }
+
+      if (hashedPassword !== null) {
+        // Only update if password was provided
+        updateParts.push(`password = $${paramIndex}`);
+        params.push(hashedPassword);
+        paramIndex++;
+      }
+
+      // 3. Execute update only if there are fields to update
+      if (updateParts.length > 0) {
+        params.push(userId); // Always add userId as last parameter
+
         await queryRunner.manager.query(
           `UPDATE "user" SET
-            ${username ? 'username = $1,' : ''}
-            ${name ? 'name = $2,' : ''}
-            ${hashedPassword ? 'password = $3' : ''}
-          WHERE id = $4`,
-          [username, name, hashedPassword, userId].filter(Boolean),
+          ${updateParts.join(', ')}
+          WHERE id = $${paramIndex}`,
+          params,
         );
       }
 

@@ -245,7 +245,7 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
   return (
     <Container>
       <Stack spacing={2} sx={{ marginTop: 4 }}>
-        <Typography variant="h4">Create User:</Typography>
+        <Typography variant="h4">Update User:</Typography>
         <Stack spacing={2}>
           <TextField
             id="name-textfield"
@@ -269,7 +269,7 @@ export default function UpdateUserPage({ params }: UpdateUserPageProps) {
 
           <TextField
             id="password-textfield"
-            label="password"
+            label="new password"
             variant="outlined"
             style={{ width: "100%" }}
             value={userData.password}
