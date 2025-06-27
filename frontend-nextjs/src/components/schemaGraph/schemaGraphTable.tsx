@@ -15,6 +15,8 @@ import {
   Button,
   Link,
 } from "@mui/material";
+import { useFeedbackContext } from "@/contexts/feedback.context";
+import { useRouter } from "next/navigation";
 
 // Define types
 type TSchemaGraphColumn = {
@@ -49,6 +51,10 @@ export const SchemaGraphTable: React.FC<SchemaTableProps> = ({
   data,
   dataRole,
 }) => {
+  const router = useRouter();
+
+  const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
+
   const [selectedTables, setSelectedTables] = useState<Set<number>>(new Set());
   const [selectedColumns, setSelectedColumns] = useState<Set<number>>(
     new Set()
@@ -155,7 +161,23 @@ export const SchemaGraphTable: React.FC<SchemaTableProps> = ({
 
   async function handleAccept() {
     try {
-    } catch (error) {}
+      // Here goes the function to send the data of TSchemaGraphDb[]
+      // await AcceptSchemaGraphRole(data);
+      router.push("/auth/roles");
+      setFeedback({
+        isActive: true,
+        severity: "success",
+        message: "Role created successfully!",
+      });
+    } catch (error) {
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: "Failed to create role.",
+      });
+    } finally {
+      resetFeedBack();
+    }
   }
 
   return (
