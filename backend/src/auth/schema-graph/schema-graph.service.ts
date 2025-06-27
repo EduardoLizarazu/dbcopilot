@@ -17,12 +17,12 @@ export class SchemaGraphService {
       const cypher = `
       MATCH (table:Table)-[:HAS_COLUMN]->(column:Column)
       WITH table, COLLECT({
-          neo4j_id: id(column),
-          name: column.name,
-          alias: column.alias,
-          description: column.description,
-          key_type: column.key_type,
-          type: column.type
+          column_neo4j_id: id(column),
+          column_name: column.name,
+          column_alias: column.alias,
+          column_description: column.description,
+          column_key_type: column.key_type,
+          column_type: column.type
       }) AS columns // Collects specific column properties into a list for each table
       RETURN
         id(table) AS table_neo4j_id,
