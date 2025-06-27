@@ -1,4 +1,4 @@
-import { TableHeadRole } from "@/components/role/tableHeadRole";
+import { SchemaGraphTable } from "@/components/schemaGraph/schemaGraphTable";
 import { ReadAllSchemaGraphAction } from "@/controller/_actions/schema_graph/query/read-all-schema_graph.action";
 import { CircularProgress, Container, Typography } from "@mui/material";
 import { Suspense } from "react";
@@ -8,7 +8,7 @@ type TSchemaGraph = {
   table_name: string;
   table_alias: string;
   table_description: string;
-  columns: TSchemaGraphColumn;
+  columns: TSchemaGraphColumn[];
 };
 
 type TSchemaGraphColumn = {
@@ -26,7 +26,7 @@ export default async function SchemaGraphPage() {
     <Suspense fallback={<CircularProgress />}>
       <Container>
         <Typography variant="h4">Graph schema of table with columns</Typography>
-        {/* <TableHeadRole fetchedData={data} /> */}
+        <SchemaGraphTable data={data} />
       </Container>
     </Suspense>
   );

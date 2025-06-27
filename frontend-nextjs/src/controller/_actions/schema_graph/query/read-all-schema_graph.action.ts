@@ -5,7 +5,7 @@ type TSchemaGraph = {
   table_name: string;
   table_alias: string;
   table_description: string;
-  columns: TSchemaGraphColumn;
+  columns: TSchemaGraphColumn[];
 };
 
 type TSchemaGraphColumn = {
