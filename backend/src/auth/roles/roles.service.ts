@@ -170,20 +170,28 @@ export class RolesService {
     return await this.findOneWithUsers(id);
   }
 
-  async remove(id: number, forceDelete: boolean = false) {
-    const roleWithUsers = await this.findOneWithUsers(id);
-    if (roleWithUsers.users && roleWithUsers.users.length > 0 && !forceDelete)
-      throw new BadRequestException(
-        'Cannot delete role with users, set forceDelete to true',
-      );
+  async remove(id: number) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const role = await queryRunner.manager.findOne(Role, {
+        where: { id: id },
+      });
 
-    // remove the relation with users
-    await this.rolesRepository
-      .createQueryBuilder()
-      .relation(Role, 'users')
-      .of(roleWithUsers)
-      .remove(roleWithUsers.users);
+      if (!role) {
+        throw new NotFoundException(`Role with ID ${id} not found.`); // Or throw a custom error
+      }
+      // Remove the role
+      await queryRunner.manager.remove(Role, role);
 
-    return await this.rolesRepository.delete(id);
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error(`Error deleting role: ${error}`);
+      throw new BadRequestException('Error deleting role');
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import React from "react";
 import { SharedTableAction } from "../shared/sharedTableAction";
+import { DeleteRoleByIdAction } from "@/controller/_actions/role/command/delete-role-by-id.action";
 
 export function TableBodyRole({
   fetchedData,
@@ -21,23 +22,33 @@ export function TableBodyRole({
     router.push(`/auth/roles/${fetchedData.id}`);
   }
 
-  function handleDeleteBtn() {
-    // Implement delete functionality here
-    setFeedback({
-      isActive: true,
-      message: "Delete functionality not implemented yet.",
-      severity: "warning",
-    });
-    resetFeedBack();
+  async function handleDeleteBtn(id: number) {
+    try {
+      await DeleteRoleByIdAction(id);
+      setFeedback({
+        isActive: true,
+        message: "Deleted successfully",
+        severity: "success",
+      });
+    } catch {
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: "Failed on delete.",
+      });
+    } finally {
+      resetFeedBack();
+      router.push(`/auth/roles`);
+    }
   }
   return (
-    <TableRow key={fetchedData.id} hover onClick={handleEditBtn}>
+    <TableRow key={fetchedData.id} hover>
       <TableCell align="center">{fetchedData.name || "-"}</TableCell>
       <TableCell align="center">{fetchedData.description || "-"}</TableCell>
       <TableCell align="center">
         <SharedTableAction
           handleEditBtn={handleEditBtn}
-          handleDeleteBtn={handleDeleteBtn}
+          handleDeleteBtn={() => handleDeleteBtn(fetchedData.id)}
         />
       </TableCell>
     </TableRow>
