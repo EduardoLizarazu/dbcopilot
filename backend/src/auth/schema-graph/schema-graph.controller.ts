@@ -41,6 +41,8 @@ export class SchemaGraphController {
     @Param('id') id: string,
     @Body() updateSchemaGraphDto: UpdateSchemaGraphDto[],
   ) {
+    console.log('schema-graph.controller update: ', id, updateSchemaGraphDto);
+
     return this.schemaGraphService.update(+id, updateSchemaGraphDto);
   }
 

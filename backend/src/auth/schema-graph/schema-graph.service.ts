@@ -72,27 +72,32 @@ export class SchemaGraphService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      console.log('schema-graph.service update: ', id, updateSchemaGraphDto);
+
       // 1. Remove everything with role_id on schema_graph
-      await queryRunner.query(`DELETE FROM schema_graph WHERE role_id = $1`, [
-        id,
-      ]);
+      await queryRunner.manager.query(
+        `DELETE FROM schema_graph WHERE role_id = $1`,
+        [id],
+      );
 
       // 2. Insert the new data on schema_graph(role_id, column_id, table_id)
       for (const data of updateSchemaGraphDto) {
+        if (!(data.column_id || data.table_id || data.role_id)) {
+          throw new BadRequestException('No empty values are allow');
+        }
         await queryRunner.manager.query(
           `INSERT INTO schema_graph (role_id, column_id, table_id) VALUES ($1, $2, $3)`,
-          [id, data.columnId, data.tableId],
+          [id, data.column_id, data.table_id],
         );
       }
 
-      queryRunner.commitTransaction();
+      await queryRunner.commitTransaction();
     } catch (error) {
-      queryRunner.rollbackTransaction();
-
+      await queryRunner.rollbackTransaction();
       console.error(`Error on updating graph by role id: ${error}`);
       throw new BadRequestException('Error on updating graph by role id');
     } finally {
-      queryRunner.release();
+      await queryRunner.release();
     }
   }
 

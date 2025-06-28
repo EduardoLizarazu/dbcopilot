@@ -10,6 +10,8 @@ export async function AcceptSchemaGraphRole(
   input: TSchemaGraphDb[]
 ): Promise<void> {
   try {
+    console.log("AcceptSchemaGraphRole", input);
+
     const response = await fetch(
       `${process.env.BASE_URL}/schema-graph/${input[0].role_id}`,
       {

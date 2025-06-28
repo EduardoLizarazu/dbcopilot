@@ -1,12 +1,15 @@
-import { IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateSchemaGraphDto {
   @IsNumber()
-  roleId: number;
+  @IsNotEmpty()
+  role_id: number;
 
+  @IsNotEmpty()
   @IsNumber()
-  columnId: number;
+  column_id: number;
 
+  @IsNotEmpty()
   @IsNumber()
-  tableId: number;
+  table_id: number;
 }
