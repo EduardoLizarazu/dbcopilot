@@ -6,6 +6,12 @@ type TSchemaGraphDb = {
   table_id: number;
 };
 
+type TSchemaGraphDb2 = {
+  roleId: number;
+  columnId: number;
+  tableId: number;
+};
+
 export async function ReadAllSchemaGraphByRoleIdAction(
   roleId: number
 ): Promise<TSchemaGraphDb[]> {
@@ -26,10 +32,14 @@ export async function ReadAllSchemaGraphByRoleIdAction(
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data: TSchemaGraphDb[] = await response.json();
+    const data: TSchemaGraphDb2[] = await response.json();
     console.log("ReadAllSchemaGraphByRoleIdAction", data);
 
-    return data;
+    return data.map((item) => ({
+      role_id: item.roleId,
+      column_id: item.columnId,
+      table_id: item.tableId,
+    }));
   } catch (error) {
     console.error("Error reading all roles:", error);
     throw new Error("Failed to read roles");
