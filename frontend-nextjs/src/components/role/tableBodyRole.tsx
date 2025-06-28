@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { SharedTableAction } from "../shared/sharedTableAction";
 import { DeleteRoleByIdAction } from "@/controller/_actions/role/command/delete-role-by-id.action";
+import { TableActionRole } from "./tableActionRole";
 
 export function TableBodyRole({
   fetchedData,
@@ -20,6 +21,9 @@ export function TableBodyRole({
   // HANDLERS
   function handleEditBtn() {
     router.push(`/auth/roles/${fetchedData.id}`);
+  }
+  function handleSchemaBtn() {
+    router.push(`/auth/roles/${fetchedData.id}/schema_graph`);
   }
 
   async function handleDeleteBtn(id: number) {
@@ -46,9 +50,10 @@ export function TableBodyRole({
       <TableCell align="center">{fetchedData.name || "-"}</TableCell>
       <TableCell align="center">{fetchedData.description || "-"}</TableCell>
       <TableCell align="center">
-        <SharedTableAction
+        <TableActionRole
           handleEditBtn={handleEditBtn}
           handleDeleteBtn={() => handleDeleteBtn(fetchedData.id)}
+          handleSchemaBtn={handleSchemaBtn}
         />
       </TableCell>
     </TableRow>
