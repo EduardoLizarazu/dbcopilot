@@ -189,7 +189,7 @@ export const SchemaGraphTable: React.FC<SchemaTableProps> = ({
         severity: "success",
         message: "Role created successfully!",
       });
-      // router.push("/auth/roles");
+      router.push("/auth/roles");
     } catch (error) {
       setFeedback({
         isActive: true,
