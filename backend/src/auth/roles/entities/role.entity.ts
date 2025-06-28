@@ -3,6 +3,7 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
@@ -31,7 +32,7 @@ export class Role {
   @JoinTable() // Owning side
   permissions?: Permission[];
 
-  @ManyToMany(() => SchemaGraph, (schemaGraph) => schemaGraph.role, {
+  @OneToMany(() => SchemaGraph, (schemaGraph) => schemaGraph.role, {
     cascade: true,
     onDelete: 'CASCADE', // Delete permission will remove from roles
   })
