@@ -4,12 +4,8 @@ import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
 import { ChatFeedbackDislikeDialog } from "./chatFeedbackDislikeDialog";
 import React from "react";
-import { CreateFeedbackLikeCmd } from "@/controller/_actions/chat/command/create-feedback-like.command";
 import { useFeedbackContext } from "@/contexts/feedback.context";
-import {
-  CreateHumanFeedback,
-  CreateHumanFeedbackAction,
-} from "@/controller/_actions/chat/command/create-feedback.action";
+import { CreateHumanFeedbackAction } from "@/controller/_actions/chat/command/create-feedback.action";
 
 type TChatFeedbackBtnProps = {
   promptId: number;
