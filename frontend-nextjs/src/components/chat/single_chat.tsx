@@ -242,7 +242,7 @@ export function SingleChat(
               </TabPanel>
               <TabPanel value="3">
                 {/* Chat insight */}
-                <TextField
+                {/* <TextField
                   label=""
                   placeholder=""
                   value={""}
@@ -252,7 +252,7 @@ export function SingleChat(
                   minRows={10}
                   maxRows={50}
                   fullWidth
-                />
+                /> */}
               </TabPanel>
             </TabContext>
           </Box>

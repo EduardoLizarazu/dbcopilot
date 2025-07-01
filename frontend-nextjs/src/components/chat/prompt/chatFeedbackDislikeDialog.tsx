@@ -1,6 +1,6 @@
 "use client";
 import { useFeedbackContext } from "@/contexts/feedback.context";
-import { CreateFeedbackDisLikeCmd } from "@/controller/_actions/chat/command/create-feedback-dislike.command";
+import { CreateHumanFeedbackAction } from "@/controller/_actions/chat/command/create-feedback.action";
 import {
   Button,
   Dialog,
@@ -43,26 +43,34 @@ export function ChatFeedbackDislikeDialog({
     }));
   }
   async function handleSubmitFeedback() {
-    console.log("Feedback submitted:", feedbackText);
+    try {
+      console.log("Feedback submitted:", feedbackText);
 
-    const res = await CreateFeedbackDisLikeCmd(promptId, feedbackText);
-    if (res.status === 201 || res.status === 200) {
+      await CreateHumanFeedbackAction({
+        promptId: promptId,
+        isLike: false,
+        feedbackTxt: feedbackText,
+      });
       setFeedback({
         isActive: true,
         message: "Feedback submitted successfully",
         severity: "success",
       });
-    } else {
-      console.error("Error creating feedback dislike:", res.status);
+      setDisLikeData((prev) => ({
+        ...prev,
+        openDislike: false,
+        isLike: false,
+      }));
+    } catch (error) {
+      console.error(`Error on handling dislike human-feedback: ${error}`);
       setFeedback({
         isActive: true,
         message: "Error submitting feedback",
         severity: "error",
       });
+    } finally {
+      resetFeedBack();
     }
-
-    resetFeedBack();
-    setDisLikeData((prev) => ({ ...prev, openDislike: false, isLike: false }));
   }
 
   return (

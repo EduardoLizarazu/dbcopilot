@@ -6,6 +6,10 @@ import { ChatFeedbackDislikeDialog } from "./chatFeedbackDislikeDialog";
 import React from "react";
 import { CreateFeedbackLikeCmd } from "@/controller/_actions/chat/command/create-feedback-like.command";
 import { useFeedbackContext } from "@/contexts/feedback.context";
+import {
+  CreateHumanFeedback,
+  CreateHumanFeedbackAction,
+} from "@/controller/_actions/chat/command/create-feedback.action";
 
 type TChatFeedbackBtnProps = {
   promptId: number;
@@ -24,33 +28,33 @@ export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
 
   // USE HANDLER
   async function handleLike() {
-    const res = await CreateFeedbackLikeCmd(
-      promptId,
-      feedbackLikeData.isLike,
-      feedbackLikeData.feedback
-    );
+    try {
+      const res = await CreateHumanFeedbackAction({
+        promptId: promptId,
+        isLike: true,
+        feedbackTxt: "",
+      });
 
-    if (res.status === 201 || res.status === 200) {
       setFeedback({
         isActive: true,
         message: "Feedback submitted successfully",
         severity: "success",
       });
-    } else {
+
+      setFeedbackLikeData((prev) => ({
+        ...prev,
+        isLike: !prev.isLike,
+      }));
+    } catch (error) {
+      console.error("Error creating feedback like: ", error);
       setFeedback({
         isActive: true,
         message: "Error submitting feedback",
         severity: "error",
       });
-      console.error("Error creating feedback like:", res.status);
+    } finally {
+      resetFeedBack();
     }
-
-    setFeedbackLikeData((prev) => ({
-      ...prev,
-      isLike: !prev.isLike,
-    }));
-
-    resetFeedBack();
   }
   function handleDisLikeDialog() {
     setFeedbackLikeData((prev) => ({
