@@ -77,11 +77,6 @@ export function SingleChat(
   // EFFECTS
   React.useEffect(() => {
     (async () => {
-      // Fetch data
-      // const connDbs: TReadConnectionQry[] =
-      //   await ReadConnectionOnlyIfIsConnectedQry();
-      // setDatabase(connDbs);
-      // Insert the prompt and and result if previousConversation is provided
       if (previousConversation) {
         console.log("Previous conversation:", previousConversation);
         setPrompt(previousConversation.prompt || "");
