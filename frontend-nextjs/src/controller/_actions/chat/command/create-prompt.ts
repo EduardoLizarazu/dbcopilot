@@ -4,6 +4,7 @@ export type TCreatePromptInput = {
 };
 
 export type TCreatePromptOutput = {
+  id_prompt?: number;
   prompt: string;
   sql: string;
   results: Record<string, unknown>[];
@@ -41,6 +42,7 @@ export async function CreatePrompt(
     const data = await response.json();
     console.log("response create prompt : ", data);
     return {
+      id_prompt: data.id_prompt,
       prompt: data.prompt || "",
       sql: data.sql || "",
       results: data.results || [],

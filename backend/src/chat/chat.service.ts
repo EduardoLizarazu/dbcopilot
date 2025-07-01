@@ -21,6 +21,8 @@ export class ChatService {
     try {
       const chats = await queryRunner.manager.find(Prompt);
       await queryRunner.commitTransaction();
+      console.log(chats);
+
       // Return the list of chats
       // Ensure this format [{ id: chat.id, prompt: chat.prompt}, ...]
       return chats.map((chat) => ({ id: chat.id, prompt: chat.prompt }));

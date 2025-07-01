@@ -31,15 +31,19 @@ class MyDbManager:
             logger.error(f"PostgreSQL connection failed: {str(e)}")
             raise RuntimeError(f"Database connection error: {str(e)}")
 
-    def save_query(self, prompt: str, sql_query: str):
+    def save_query(self, prompt: str, sql_query: str) -> int:
         """Save query and results to the database"""
         try:
             with self.conn.cursor() as cursor:
-                insert_query = sql.SQL('INSERT INTO "prompt" (prompt, sql_query) VALUES (%s, %s)')
+                insert_query = sql.SQL('INSERT INTO "prompt" (prompt, sql_query) VALUES (%s, %s) RETURNING id')
                 print(f"Values to insert: {prompt}, {sql_query}")
                 cursor.execute(insert_query, (str(prompt), str(sql_query)))
                 self.conn.commit()
                 logger.info("Query saved successfully")
+                generated_id = cursor.fetchone()[0]
+                logger.info(f"Created prompt successfully with id #{generated_id}")
+                return generated_id
+
 
         except psycopg2.Error as e:
             logger.error(f"Failed to save query: {str(e)}")
@@ -48,17 +52,19 @@ class MyDbManager:
             logger.error(f"Unexpected error while saving query: {str(e)}")
             raise RuntimeError(f"Execution error: {str(e)}")
 
-    def save_query_error(self, prompt: str, sql_query: str, error: str):
+    def save_query_error(self, prompt: str, sql_query: str, error: str) -> int:
         """Save query and results to the database"""
         try:
             with self.conn.cursor() as cursor:
                 insert_query = sql.SQL("""
                     INSERT INTO prompt (prompt, sql_query, message_error)
-                    VALUES (%s, %s, %s)
+                    VALUES (%s, %s, %s) RETURNING id
                 """)
                 cursor.execute(insert_query, (prompt, sql_query, error))
                 self.conn.commit()
                 logger.info("Query saved successfully")
+                generated_id = cursor.fetchone()[0]
+                return generated_id
 
         except psycopg2.Error as e:
             logger.error(f"Failed to save query: {str(e)}")

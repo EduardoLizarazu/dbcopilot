@@ -12,21 +12,13 @@ import {
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { DrawerRightChat } from "@/components/chat/drawer/DrawerRightChat";
-import {
-  ReadConnectionOnlyIfIsConnectedQry,
-  TReadConnectionQry,
-} from "@/controller/_actions/connection/query/read-connection.query";
-import { ConnTestResultTxt } from "@/components/connection/connTestResultTxt";
+import { TReadConnectionQry } from "@/controller/_actions/connection/query/read-connection.query";
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
-import { ChatSqlEditor } from "@/components/chat/result/chatSqlEditor";
 import { ChatFeedbackBtn } from "@/components/chat/prompt/chatFeedbackBtn";
-import {
-  CreatePromptCmdWithConnId,
-  TCreatePromptCmdWithConnIdOutput,
-} from "@/controller/_actions/chat/command/create-prompt-with-connection-id.command";
 import { CreatePrompt } from "@/controller/_actions/chat/command/create-prompt";
 import { useFeedbackContext } from "@/contexts/feedback.context";
+import { useRouter } from "next/navigation";
 
 enum TabResultValueEnum {
   Result = "1",
@@ -46,6 +38,8 @@ interface Props {
 export function SingleChat(
   { previousConversation = null }: Props = { previousConversation: null }
 ) {
+  const router = useRouter();
+
   // USE CONTEXT
   const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
 
@@ -73,6 +67,7 @@ export function SingleChat(
   const [selectedDatabaseId, setSelectedDatabaseId] = React.useState<number>(0);
 
   // prompt, result and insight
+  const [promptId, setPromptId] = React.useState<number | null>(null);
   const [prompt, setPrompt] = React.useState<string>("");
   const [result, setResult] = React.useState<{
     error?: string | null;
@@ -83,9 +78,9 @@ export function SingleChat(
   React.useEffect(() => {
     (async () => {
       // Fetch data
-      const connDbs: TReadConnectionQry[] =
-        await ReadConnectionOnlyIfIsConnectedQry();
-      setDatabase(connDbs);
+      // const connDbs: TReadConnectionQry[] =
+      //   await ReadConnectionOnlyIfIsConnectedQry();
+      // setDatabase(connDbs);
       // Insert the prompt and and result if previousConversation is provided
       if (previousConversation) {
         console.log("Previous conversation:", previousConversation);
@@ -108,14 +103,6 @@ export function SingleChat(
       const response = await CreatePrompt({
         prompt: prompt,
       });
-
-      // const response = {
-      //   prompt: "Exist no column related to this prompt",
-      //   sql: "",
-      //   results: [],
-      //   row_count: 0,
-      //   error: "No valid SQL query can be generated.",
-      // };
 
       console.log("response create prompt: ", response);
 
@@ -144,6 +131,8 @@ export function SingleChat(
         data: response.results || [],
         error: null,
       });
+
+      setPromptId(response.id_prompt ?? null);
 
       setFeedback({
         isActive: true,
@@ -183,6 +172,7 @@ export function SingleChat(
   function handleReset() {
     selectedDatabaseId !== 0 && setSelectedDatabaseId(0);
     setPrompt("");
+    setPromptId(null);
     setResult({
       data: [],
       error: null,
@@ -227,7 +217,7 @@ export function SingleChat(
               rows={4}
               fullWidth
             />
-            <ChatFeedbackBtn promptId={0} />
+            {promptId !== null && <ChatFeedbackBtn promptId={promptId} />}
           </Box>
 
           <Typography variant="body1">{result?.error}</Typography>

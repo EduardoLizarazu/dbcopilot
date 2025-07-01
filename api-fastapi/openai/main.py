@@ -73,9 +73,9 @@ async def generate_sql_endpoint(query: QueryRequest):
         
 
         # Save the query to the database
-        my_executor.save_query(query.prompt, sql_query)
-
+        prompt_generated_id = my_executor.save_query(query.prompt, sql_query)
         return {
+            "id_prompt": prompt_generated_id,
             "prompt": query.prompt,
             "sql": sql_query,
             "results": results,
