@@ -11,9 +11,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserDemoDto } from './dto/update-demo-user.dto';
 import { User } from './entities/user.entity';
 import { AccountStatus } from './enums/user.enums';
-import { Role } from 'src/auth/roles/entities/role.entity';
-import { Permission } from 'src/auth/permissions/entities/permission.entity';
-import { UserPermission } from 'src/auth/permissions/entities/user_permission.entity';
 
 type TUser = {
   name: string;

@@ -24,7 +24,11 @@ export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
 
   // USE HANDLER
   async function handleLike() {
-    const res = await CreateFeedbackLikeCmd(promptId, feedbackLikeData.isLike);
+    const res = await CreateFeedbackLikeCmd(
+      promptId,
+      feedbackLikeData.isLike,
+      feedbackLikeData.feedback
+    );
 
     if (res.status === 201 || res.status === 200) {
       setFeedback({

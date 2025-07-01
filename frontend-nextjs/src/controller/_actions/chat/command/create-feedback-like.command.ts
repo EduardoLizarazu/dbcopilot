@@ -1,10 +1,14 @@
 "use server";
 
-export async function CreateFeedbackLikeCmd(promptId: number, like: boolean) {
+export async function CreateFeedbackLikeCmd(
+  promptId: number,
+  like: boolean,
+  message: string
+) {
   try {
     const input = {
       promptId: promptId,
-      message: null,
+      message: message || "",
       isLike: like,
     };
 

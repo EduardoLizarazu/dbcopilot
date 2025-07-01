@@ -1,54 +1,76 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadGatewayException,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { CreateHumanFeedbackDto } from './dto/create-human-feedback.dto';
 import { UpdateHumanFeedbackDto } from './dto/update-human-feedback.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HumanFeedback } from './entities/human-feedback.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class HumanFeedbackService {
   constructor(
     @InjectRepository(HumanFeedback)
     private humanFeedbackRepository: Repository<HumanFeedback>,
+    private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
 
   async create(createHumanFeedbackDto: CreateHumanFeedbackDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
       // Check if the HumanFeedback already exists for the given prompt ID
       const exitingHumanFb = await this.findByPromptId(
         createHumanFeedbackDto.promptId,
       );
-      if (exitingHumanFb === HttpStatus.INTERNAL_SERVER_ERROR)
-        return exitingHumanFb;
 
       console.log('exitingHumanFb', exitingHumanFb);
 
       // If it exists, update it
       if (exitingHumanFb) {
-        return await this.updateByPromptId(
+        await this.updateByPromptId(
           createHumanFeedbackDto.promptId,
           createHumanFeedbackDto,
         );
+        return;
       }
 
       // If it doesn't exist, create a new one
       console.log('createHumanFeedbackDto', createHumanFeedbackDto);
 
       // Save the human feedback to the database
-      const createdHumanFb = await this.humanFeedbackRepository.save({
+      const createdHumanFb = await queryRunner.manager.save(HumanFeedback, {
         ...createHumanFeedbackDto,
         prompt: { id: createHumanFeedbackDto.promptId },
       });
       console.log('createdHumanFb', createdHumanFb);
-      return HttpStatus.CREATED;
+      await queryRunner.commitTransaction();
     } catch (error) {
       console.error('Error creating human feedback:', error);
-      return HttpStatus.INTERNAL_SERVER_ERROR;
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException();
+    } finally {
+      await queryRunner.release();
     }
   }
 
-  findAll() {
-    return `This action returns all humanFeedback`;
+  async findAll() {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      return await queryRunner.manager.find(HumanFeedback);
+    } catch (error) {
+      console.error('Error creating human feedback:', error);
+      throw new BadRequestException();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   findOne(id: number) {
@@ -64,7 +86,7 @@ export class HumanFeedbackService {
       return humanFeedback;
     } catch (error) {
       console.error('Error fetching human feedback:', error);
-      return HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new BadRequestException();
     }
   }
 
@@ -72,21 +94,43 @@ export class HumanFeedbackService {
     promptId: number,
     updateHumanFeedbackDto: UpdateHumanFeedbackDto,
   ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      // Update the human feedback in the database
-      const humanFeedbackUpdated = await this.humanFeedbackRepository.update(
-        { prompt: { id: promptId } },
-        {
-          isLike: updateHumanFeedbackDto.isLike,
-          message: updateHumanFeedbackDto.message,
-        },
+      const hf = {
+        promptId: promptId,
+        isLike: updateHumanFeedbackDto.isLike,
+        message: updateHumanFeedbackDto.message || '',
+      };
+      console.log(
+        `Updating human-feedback by prompt #${hf.promptId} id with data: ${hf}`,
       );
-      console.log('humanFeedbackUpdated', humanFeedbackUpdated);
 
-      return HttpStatus.OK;
+      if (!hf.promptId) {
+        console.error(`human-feedback prompt id can not be ${hf.promptId}`);
+        throw new BadRequestException();
+      }
+
+      if (!hf.isLike) {
+        console.error(`human-feedback "isLike" can not be ${hf.isLike}`);
+        throw new BadGatewayException();
+      }
+
+      // Update the human feedback in the database
+      await queryRunner.manager.query(
+        `UPDATE human_feedback SET "isLike"=$1, message=$2
+        WHERE "promptId"=$3`,
+        [hf.isLike, hf.message, hf.promptId],
+      );
+
+      await queryRunner.commitTransaction();
     } catch (error) {
       console.error('Error updating human feedback:', error);
-      return HttpStatus.INTERNAL_SERVER_ERROR;
+      await queryRunner.rollbackTransaction();
+      throw new BadGatewayException();
+    } finally {
+      await queryRunner.release();
     }
   }
 
