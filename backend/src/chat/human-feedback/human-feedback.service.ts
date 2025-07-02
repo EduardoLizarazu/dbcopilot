@@ -112,7 +112,7 @@ export class HumanFeedbackService {
         throw new BadRequestException();
       }
 
-      if (!hf.isLike) {
+      if (typeof hf.isLike !== 'boolean') {
         console.error(`human-feedback "isLike" can not be ${hf.isLike}`);
         throw new BadGatewayException();
       }

@@ -12,9 +12,13 @@ import { ChatSchemaAccordion } from "./schema/accordion/chatSchemaAccordion";
 
 type TDrawerRightChatProps = {
   connId: number | null;
+  setSelectConversation: React.Dispatch<React.SetStateAction<string>>;
 };
 
-export function DrawerRightChat({ connId }: TDrawerRightChatProps) {
+export function DrawerRightChat({
+  connId,
+  setSelectConversation,
+}: TDrawerRightChatProps) {
   const [open, setOpen] = React.useState(false);
 
   const [value, setValue] = React.useState("1");
@@ -60,7 +64,7 @@ export function DrawerRightChat({ connId }: TDrawerRightChatProps) {
         <TabPanel value="2">
           {/* Chat history */}
           <ChatStoryList
-            onSelectConversation={handleSelectConversation}
+            setSelectConversation={setSelectConversation}
             currentConversationId={currentConversationId}
           />
         </TabPanel>
@@ -83,8 +87,4 @@ export function DrawerRightChat({ connId }: TDrawerRightChatProps) {
       </Drawer>
     </div>
   );
-}
-
-function handleSelectConversation(id: string): void {
-  throw new Error("Function not implemented.");
 }

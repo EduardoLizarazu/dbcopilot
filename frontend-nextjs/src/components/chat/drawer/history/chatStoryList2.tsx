@@ -26,12 +26,12 @@ interface Conversation {
 }
 
 interface ChatHistoryDrawerProps {
-  onSelectConversation: (id: string) => void;
+  setSelectConversation: React.Dispatch<React.SetStateAction<string>>;
   currentConversationId?: string;
 }
 
 export function ChatStoryList({
-  onSelectConversation,
+  setSelectConversation,
   currentConversationId,
 }: ChatHistoryDrawerProps) {
   const router = useRouter();
@@ -73,9 +73,11 @@ export function ChatStoryList({
   };
 
   const handleConversationSelect = (id: string) => {
-    // onSelectConversation(id);
+    // setSelectConversation(id);
     // change the url to the selected conversation
-    router.push(`/chat/${id}`);
+    setSelectConversation(
+      conversations.filter((item) => item.id === id)[0].prompt
+    );
     setAnchorEl(null); // Close the menu after selection
   };
 
