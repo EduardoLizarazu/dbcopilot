@@ -55,6 +55,8 @@ export function SingleChat(
     data: Record<string, unknown>[];
   }>();
 
+  const [isResetHf, setIsResetHf] = React.useState<boolean>(false);
+
   // EFFECTS
   React.useEffect(() => {
     (async () => {
@@ -127,6 +129,8 @@ export function SingleChat(
         message: "Network error occurred",
         severity: "error",
       });
+    } finally {
+      setIsResetHf(true);
     }
   }
 
@@ -144,6 +148,7 @@ export function SingleChat(
       data: [],
       error: null,
     });
+    setIsResetHf(true);
   }
 
   function handleError() {
@@ -162,7 +167,11 @@ export function SingleChat(
           >
             <Typography variant="h4">Chat with your database </Typography>
             {/* Drawer right chat */}
-            <DrawerRightChat connId={null} setSelectConversation={setPrompt} />
+            <DrawerRightChat
+              connId={null}
+              setSelectConversation={setPrompt}
+              setIsResetHf={setIsResetHf}
+            />
           </Stack>
 
           {/* Prompt */}
@@ -182,7 +191,9 @@ export function SingleChat(
               rows={4}
               fullWidth
             />
-            {promptId !== null && <ChatFeedbackBtn promptId={promptId} />}
+            {promptId !== null && (
+              <ChatFeedbackBtn promptId={promptId} isReset={isResetHf} />
+            )}
           </Box>
 
           <Typography variant="body1">{result?.error}</Typography>

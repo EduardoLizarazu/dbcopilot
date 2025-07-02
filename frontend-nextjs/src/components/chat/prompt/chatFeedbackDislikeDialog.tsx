@@ -22,7 +22,7 @@ type TChatFeedbackDislikeDialogProps = {
     React.SetStateAction<{
       openDislike: boolean;
       feedback: string;
-      isLike: boolean;
+      isLike: boolean | null;
     }>
   >;
 };

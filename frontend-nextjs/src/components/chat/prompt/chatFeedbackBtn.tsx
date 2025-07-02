@@ -9,18 +9,31 @@ import { CreateHumanFeedbackAction } from "@/controller/_actions/chat/command/cr
 
 type TChatFeedbackBtnProps = {
   promptId: number;
+  isReset: boolean;
 };
 
-export function ChatFeedbackBtn({ promptId }: TChatFeedbackBtnProps) {
+export function ChatFeedbackBtn({ promptId, isReset }: TChatFeedbackBtnProps) {
   // USE CONTEXT
   const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
 
   // USE STATE
-  const [feedbackLikeData, setFeedbackLikeData] = React.useState({
+  const [feedbackLikeData, setFeedbackLikeData] = React.useState<{
+    openDislike: boolean;
+    feedback: string;
+    isLike: boolean | null;
+  }>({
     openDislike: false,
     feedback: "",
-    isLike: false,
+    isLike: null,
   });
+
+  if (isReset) {
+    setFeedbackLikeData({
+      ...feedbackLikeData,
+      feedback: "",
+      isLike: null,
+    });
+  }
 
   // USE HANDLER
   async function handleLike() {

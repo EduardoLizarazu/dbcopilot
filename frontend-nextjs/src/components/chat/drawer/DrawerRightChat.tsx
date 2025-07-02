@@ -13,11 +13,13 @@ import { ChatSchemaAccordion } from "./schema/accordion/chatSchemaAccordion";
 type TDrawerRightChatProps = {
   connId: number | null;
   setSelectConversation: React.Dispatch<React.SetStateAction<string>>;
+  setIsResetHf: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export function DrawerRightChat({
   connId,
   setSelectConversation,
+  setIsResetHf,
 }: TDrawerRightChatProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -66,6 +68,7 @@ export function DrawerRightChat({
           <ChatStoryList
             setSelectConversation={setSelectConversation}
             currentConversationId={currentConversationId}
+            setIsResetHf={setIsResetHf}
           />
         </TabPanel>
       </TabContext>

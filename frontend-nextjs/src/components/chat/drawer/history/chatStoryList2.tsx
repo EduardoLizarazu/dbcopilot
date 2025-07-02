@@ -28,11 +28,13 @@ interface Conversation {
 interface ChatHistoryDrawerProps {
   setSelectConversation: React.Dispatch<React.SetStateAction<string>>;
   currentConversationId?: string;
+  setIsResetHf: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function ChatStoryList({
   setSelectConversation,
   currentConversationId,
+  setIsResetHf,
 }: ChatHistoryDrawerProps) {
   const router = useRouter();
 
@@ -78,6 +80,7 @@ export function ChatStoryList({
     setSelectConversation(
       conversations.filter((item) => item.id === id)[0].prompt
     );
+    setIsResetHf(true);
     setAnchorEl(null); // Close the menu after selection
   };
 
