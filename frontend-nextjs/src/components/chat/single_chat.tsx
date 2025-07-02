@@ -138,6 +138,16 @@ export function SingleChat(
     setIsResetHf(true);
   }
 
+  function handleResetBySelectedHistoryPrompt() {
+    setPromptId(null);
+    setResult({
+      data: [],
+      error: null,
+    });
+    setIsResetHf(true);
+    console.log(`handleResetBySelectedHistoryPrompt`);
+  }
+
   function handleError() {
     throw new Error("Function not implemented.");
   }
@@ -157,6 +167,9 @@ export function SingleChat(
             <DrawerRightChat
               setSelectConversation={setPrompt}
               setIsResetHf={setIsResetHf}
+              handleResetBySelectedHistoryPrompt={
+                handleResetBySelectedHistoryPrompt
+              }
             />
           </Stack>
 

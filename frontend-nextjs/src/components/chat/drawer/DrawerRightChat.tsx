@@ -9,11 +9,13 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 type TDrawerRightChatProps = {
   setSelectConversation: React.Dispatch<React.SetStateAction<string>>;
   setIsResetHf: React.Dispatch<React.SetStateAction<boolean>>;
+  handleResetBySelectedHistoryPrompt: () => void;
 };
 
 export function DrawerRightChat({
   setSelectConversation,
   setIsResetHf,
+  handleResetBySelectedHistoryPrompt,
 }: TDrawerRightChatProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -26,8 +28,6 @@ export function DrawerRightChat({
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
-
-  const [currentConversationId, setCurrentConversationId] = React.useState("6");
 
   const DrawerList = (
     <Box sx={{ width: 400, marginTop: 10 }} role="presentation">
@@ -52,8 +52,10 @@ export function DrawerRightChat({
           {/* Chat history */}
           <ChatStoryList
             setSelectConversation={setSelectConversation}
-            currentConversationId={currentConversationId}
             setIsResetHf={setIsResetHf}
+            handleResetBySelectedHistoryPrompt={
+              handleResetBySelectedHistoryPrompt
+            }
           />
         </TabPanel>
       </TabContext>
