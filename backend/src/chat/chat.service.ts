@@ -26,12 +26,15 @@ export class ChatService {
           p.is_user_deletion,
           p.sql_query,
           p.message_error,
-          p."userId",
+          p."userId" AS id_user,
           hf.id AS hf_id,
           hf."isLike" AS is_like,
-          hf.message
+          hf.message,
+          u.name AS "user_name",
+          u.username AS "username"
         FROM prompt p
         JOIN human_feedback hf ON hf."promptId"=p.id
+        FULL JOIN "user" u ON u.id=p."userId"
         `);
       await queryRunner.commitTransaction();
       console.log(chats);
