@@ -75,6 +75,7 @@ export function SingleChat(
   // HANDLERS
 
   async function handleSubmitPrompt() {
+    setIsResetHf(true);
     // Fetch data
     console.log("Submit prompt", prompt);
     try {
@@ -129,8 +130,6 @@ export function SingleChat(
         message: "Network error occurred",
         severity: "error",
       });
-    } finally {
-      setIsResetHf(true);
     }
   }
 

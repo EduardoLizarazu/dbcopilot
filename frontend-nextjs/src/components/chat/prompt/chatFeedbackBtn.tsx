@@ -27,13 +27,15 @@ export function ChatFeedbackBtn({ promptId, isReset }: TChatFeedbackBtnProps) {
     isLike: null,
   });
 
-  if (isReset) {
-    setFeedbackLikeData({
-      ...feedbackLikeData,
-      feedback: "",
-      isLike: null,
-    });
-  }
+  React.useEffect(() => {
+    if (isReset) {
+      setFeedbackLikeData({
+        ...feedbackLikeData,
+        feedback: "",
+        isLike: null,
+      });
+    }
+  }, []);
 
   // USE HANDLER
   async function handleLike() {

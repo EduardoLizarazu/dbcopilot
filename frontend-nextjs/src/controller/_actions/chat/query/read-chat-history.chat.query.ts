@@ -5,7 +5,7 @@ type TReadChatHistoryOutput = {
   prompt: string;
 };
 
-export async function ReadChatHistory() {
+export async function ReadChatHistory(): Promise<TReadChatHistoryOutput[]> {
   try {
     const response = await fetch(`${process.env.BASE_URL}/chat`, {
       method: "GET",
@@ -16,10 +16,10 @@ export async function ReadChatHistory() {
     if (!response.ok) {
       throw new Error("Failed to fetch chat history");
     }
-    const data: TReadChatHistoryOutput[] = await response.json();
+    const data = await response.json();
     console.log("Chat history fetched successfully:", data);
-    return data.map((chat) => ({
-      id: chat.id,
+    return data.map((chat: any) => ({
+      id: chat.prompt_id,
       prompt: chat.prompt,
     }));
   } catch (error) {
