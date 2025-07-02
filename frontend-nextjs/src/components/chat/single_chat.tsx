@@ -156,16 +156,7 @@ export function SingleChat(
     setTabResultValue(newValue);
   };
 
-  const handleChangeSltDatabase = (
-    event: React.SyntheticEvent,
-    newValue: TReadConnectionQry | null
-  ) => {
-    setSelectedDatabaseId(newValue?.id || 0);
-    console.log("Selected database id", newValue);
-  };
-
   function handleReset() {
-    selectedDatabaseId !== 0 && setSelectedDatabaseId(0);
     setPrompt("");
     setPromptId(null);
     setResult({
@@ -190,9 +181,7 @@ export function SingleChat(
           >
             <Typography variant="h4">Chat with your database </Typography>
             {/* Drawer right chat */}
-            <DrawerRightChat
-              connId={selectedDatabaseId !== 0 ? selectedDatabaseId : null}
-            />
+            <DrawerRightChat connId={null} />
           </Stack>
 
           {/* Prompt */}
@@ -232,8 +221,8 @@ export function SingleChat(
                   aria-label="lab API tabs example"
                 >
                   <Tab label="RESULTS" value="1" />
-                  <Tab label="SQL EDITOR" value="2" />
-                  <Tab label="INSIGHT" value="3" />
+                  {/* <Tab label="SQL EDITOR" value="2" />
+                  <Tab label="INSIGHT" value="3" /> */}
                 </TabList>
               </Box>
               <TabPanel value="1">
