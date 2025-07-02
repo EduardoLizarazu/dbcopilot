@@ -63,11 +63,6 @@ const links = [
     label: "History Chat",
     icon: <ForumIcon />,
   },
-  {
-    href: "/profile",
-    label: "Profile",
-    icon: <AccountBoxIcon />,
-  },
   { href: "/login", label: "Login", icon: <LoginIcon /> },
   { href: "/logout", label: "Logout", icon: <LogoutIcon /> },
 ];
