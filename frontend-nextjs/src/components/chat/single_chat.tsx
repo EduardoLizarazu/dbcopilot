@@ -116,6 +116,8 @@ export function SingleChat(
         message: "Network error occurred",
         severity: "error",
       });
+    } finally {
+      setIsResetHf(false);
     }
   }
 

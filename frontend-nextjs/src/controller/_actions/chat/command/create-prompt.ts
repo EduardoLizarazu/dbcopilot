@@ -16,7 +16,6 @@ export async function CreatePrompt(
   input: TCreatePromptInput
 ): Promise<TCreatePromptOutput> {
   try {
-    console.log("create prompt with connection id: ", input.prompt);
     // validate length of prompt trim
     if (input.prompt.trim().length < 5) {
       throw new Error("Prompt must be at least 5 characters long.");
