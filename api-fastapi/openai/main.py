@@ -56,8 +56,8 @@ async def setup_graphrag_endpoint():
 async def generate_sql_endpoint(query: QueryRequest):
     try:
         # Generate SQL
-        sql_query = generator.execute_pipeline(query.prompt)
-        
+        # sql_query = generator.execute_pipeline(query.prompt)
+        sql_query = "SELECT * FROM customers"
         if sql_query == "No valid SQL query can be generated.":
             return {
                 "prompt": query.prompt, 
