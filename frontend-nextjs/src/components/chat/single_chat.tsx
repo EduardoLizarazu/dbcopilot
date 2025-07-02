@@ -56,19 +56,7 @@ export function SingleChat(
   const [isResetHf, setIsResetHf] = React.useState<boolean>(false);
 
   // EFFECTS
-  React.useEffect(() => {
-    (async () => {
-      if (previousConversation) {
-        console.log("Previous conversation:", previousConversation);
-        setPrompt(previousConversation.prompt || "");
-        setResult({
-          data: previousConversation.results || [],
-          error: null,
-        });
-        setTabResultValue(TabResultValueEnum.Result);
-      }
-    })();
-  }, []);
+  React.useEffect(() => {}, []);
 
   // HANDLERS
 
@@ -81,7 +69,7 @@ export function SingleChat(
         prompt: prompt,
       });
 
-      console.log("response create prompt: ", response);
+      console.log("response create prompt: ", response.id_prompt);
 
       // Handle all possible error cases
       const hasError = Boolean(
