@@ -47,25 +47,6 @@ export function SingleChat(
   const [tabResultValue, setTabResultValue] =
     React.useState<TabResultValueEnum>(TabResultValueEnum.Result);
 
-  // USE STATES
-  // select database connection
-  const [database, setDatabase] = React.useState<TReadConnectionQry[]>([
-    {
-      id: 0,
-      name: "",
-      description: "",
-      dbName: "",
-      dbHost: "",
-      dbPort: 0,
-      dbUsername: "",
-      dbPassword: "",
-      dbTypeId: 0,
-      dbType: "",
-      is_connected: false,
-    },
-  ]);
-  const [selectedDatabaseId, setSelectedDatabaseId] = React.useState<number>(0);
-
   // prompt, result and insight
   const [promptId, setPromptId] = React.useState<number | null>(null);
   const [prompt, setPrompt] = React.useState<string>("");
