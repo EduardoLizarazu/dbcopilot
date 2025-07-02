@@ -64,22 +64,10 @@ const links = [
     icon: <ForumIcon />,
   },
   {
-    href: "/connection",
-    label: "Db Connection",
-    icon: <CableIcon />,
-  },
-  {
-    href: "/sqlschema",
-    label: "SQL Schema",
-    icon: <SchemaIcon />,
-  },
-  {
     href: "/profile",
     label: "Profile",
     icon: <AccountBoxIcon />,
   },
-  { href: "/contact", label: "Contact", icon: <ContactsIcon /> },
-  { href: "/about", label: "About", icon: <InfoIcon /> },
   { href: "/login", label: "Login", icon: <LoginIcon /> },
   { href: "/logout", label: "Logout", icon: <LogoutIcon /> },
 ];

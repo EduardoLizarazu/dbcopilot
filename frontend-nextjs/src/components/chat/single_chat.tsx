@@ -1,7 +1,6 @@
 "use client";
 import React, { Suspense } from "react";
 import {
-  Autocomplete,
   Box,
   CircularProgress,
   Container,
@@ -12,7 +11,6 @@ import {
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { DrawerRightChat } from "@/components/chat/drawer/DrawerRightChat";
-import { TReadConnectionQry } from "@/controller/_actions/connection/query/read-connection.query";
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { ChatFeedbackBtn } from "@/components/chat/prompt/chatFeedbackBtn";
