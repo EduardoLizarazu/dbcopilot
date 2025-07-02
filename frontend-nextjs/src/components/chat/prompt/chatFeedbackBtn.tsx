@@ -29,7 +29,7 @@ export function ChatFeedbackBtn({ promptId, isReset }: TChatFeedbackBtnProps) {
 
   React.useEffect(() => {
     if (isReset) handleResetHF();
-  }, []);
+  }, [isReset]);
 
   function handleResetHF() {
     setFeedbackLikeData({
@@ -37,17 +37,21 @@ export function ChatFeedbackBtn({ promptId, isReset }: TChatFeedbackBtnProps) {
       feedback: "",
       isLike: null,
     });
-    console.log(`Resetting HF: ${feedbackLikeData}`);
+    console.log(
+      `Resetting HF text: ${feedbackLikeData.feedback}, isLike ${feedbackLikeData.isLike}.`
+    );
   }
 
   // USE HANDLER
   async function handleLike() {
     try {
-      const res = await CreateHumanFeedbackAction({
+      await CreateHumanFeedbackAction({
         promptId: promptId,
         isLike: true,
         feedbackTxt: "",
       });
+
+      console.log("submitting like human-feedback.");
 
       setFeedback({
         isActive: true,

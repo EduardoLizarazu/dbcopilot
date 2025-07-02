@@ -44,7 +44,7 @@ export function ChatFeedbackDislikeDialog({
   }
   async function handleSubmitFeedback() {
     try {
-      console.log("Feedback submitted:", feedbackText);
+      console.log("Submitting dislike human-feedback:", feedbackText);
 
       await CreateHumanFeedbackAction({
         promptId: promptId,
