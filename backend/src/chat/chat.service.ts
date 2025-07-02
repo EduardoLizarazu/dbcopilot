@@ -19,13 +19,28 @@ export class ChatService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const chats = await queryRunner.manager.find(Prompt);
+      const chats = await queryRunner.manager.query(`
+        SELECT 
+          p.id AS prompt_id,
+          p.prompt,
+          p.is_user_deletion,
+          p.sql_query,
+          p.message_error,
+          p."userId",
+          hf.id AS hf_id,
+          hf."isLike" AS is_like,
+          hf.message
+        FROM prompt p
+        JOIN human_feedback hf ON hf."promptId"=p.id
+        `);
       await queryRunner.commitTransaction();
       console.log(chats);
 
+      return chats;
+
       // Return the list of chats
       // Ensure this format [{ id: chat.id, prompt: chat.prompt}, ...]
-      return chats.map((chat) => ({ id: chat.id, prompt: chat.prompt }));
+      // return chats.map((chat) => ({ id: chat.id, prompt: chat.prompt }));
     } catch (error) {
       console.error('Error in findAll:', error);
       throw error; // Rethrow the error to be handled by the caller
