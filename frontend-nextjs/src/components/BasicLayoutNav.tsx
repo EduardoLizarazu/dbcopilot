@@ -36,7 +36,6 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import ForumIcon from "@mui/icons-material/Forum";
 
 const links = [
-  { href: "/", label: "Home", icon: <HomeIcon /> },
   { href: "/dashboard", label: "Dashboard", icon: <DashboardIcon /> },
   { href: "/auth/users", label: "User Management", icon: <PeopleIcon /> },
   {
