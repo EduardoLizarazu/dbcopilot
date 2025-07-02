@@ -11,12 +11,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import { DemoHelperModule } from './demo-helper/demo-helper.module';
 import { UsersModule } from './users/users.module';
 import { CaslModule } from './casl/casl.module';
-import { ConnectionModule } from './connection/connection.module';
-import { DatabasetypeModule } from './databasetype/databasetype.module';
-import { SchemaModule } from './schema/schema.module';
 import { ChatModule } from './chat/chat.module';
-import { AiService } from './ai/ai.service';
-import { AiModule } from './ai/ai.module';
 import { Neo4jService } from './neo4j/neo4j/neo4j.service';
 import { Neo4jModule } from './neo4j/neo4j/neo4j.module';
 
@@ -41,17 +36,12 @@ import { Neo4jModule } from './neo4j/neo4j/neo4j.module';
     AuthModule,
     DemoHelperModule,
     CaslModule,
-    ConnectionModule,
-    DatabasetypeModule,
-    SchemaModule,
     ChatModule,
-    AiModule,
     Neo4jModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    AiService,
     Neo4jService,
     // {
     //   provide: APP_GUARD,
