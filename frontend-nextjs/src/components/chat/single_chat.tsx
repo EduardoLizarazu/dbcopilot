@@ -155,7 +155,6 @@ export function SingleChat(
             <Typography variant="h4">Chat with your database </Typography>
             {/* Drawer right chat */}
             <DrawerRightChat
-              connId={null}
               setSelectConversation={setPrompt}
               setIsResetHf={setIsResetHf}
             />

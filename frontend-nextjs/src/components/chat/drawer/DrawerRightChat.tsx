@@ -7,13 +7,11 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 
 type TDrawerRightChatProps = {
-  connId: number | null;
   setSelectConversation: React.Dispatch<React.SetStateAction<string>>;
   setIsResetHf: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export function DrawerRightChat({
-  connId,
   setSelectConversation,
   setIsResetHf,
 }: TDrawerRightChatProps) {
