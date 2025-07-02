@@ -210,20 +210,7 @@ export function SingleChat(
                 {/* Chat result table */}
                 <ChatResultTable data={result?.data || []} />
               </TabPanel>
-              <TabPanel value="3">
-                {/* Chat insight */}
-                {/* <TextField
-                  label=""
-                  placeholder=""
-                  value={""}
-                  onChange={(e) => {}}
-                  multiline
-                  variant="outlined"
-                  minRows={10}
-                  maxRows={50}
-                  fullWidth
-                /> */}
-              </TabPanel>
+              <TabPanel value="3"></TabPanel>
             </TabContext>
           </Box>
         </Stack>
