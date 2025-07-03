@@ -30,7 +30,7 @@ export class AuthController {
     console.log('login controller: ', req.user);
 
     const token = this.authService.login(
-      req.user as { username: string; id: number },
+      req.user as { username: string; id: number; roles: string[] },
     );
     return token;
   }
