@@ -19,6 +19,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   // in our JWT Strategy, we called the validate method after the token's validity has been confirmed.
 
   async validate(username: string, password: string): Promise<any> {
+    console.log('local.strategy username and password: ', username, password);
+
     const user = await this.authService.validateUser({ username, password });
     if (!user) {
       throw new UnauthorizedException();
@@ -26,9 +28,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
     //  Passport automatically creates a user object, based on the value we return from the validate() method, and assigns it to the Request object as req.user
     return {
-      id: user.id,
-      username: user.username,
-      accountStatus: user.accountStatus,
+      id: user.user_id,
+      username: user.user_username,
     };
   }
 }

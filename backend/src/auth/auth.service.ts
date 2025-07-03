@@ -4,47 +4,75 @@ import * as bcrypt from 'bcryptjs';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
+import { DataSource } from 'typeorm';
+
+type SimpleUser = {
+  user_id: number;
+  user_name: string;
+  user_username: string;
+  user_password?: string; // Consider hashing/salting passwords and not transmitting raw passwords
+};
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private dataSource: DataSource,
   ) {}
 
   async validateUser({ username, password }: LoginDto) {
-    const user =
-      await this.usersService.findOneWithRolesAndPermissionsByUsername(
-        username,
-        true,
-      );
-    if (!user || !user.password) {
-      return null;
-    }
-
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
+      const userList: SimpleUser[] = await queryRunner.manager.query(
+        `SELECT
+          u.id AS "user_id" ,
+          u.name AS "user_name",
+          u.username AS "user_username",
+          u.password AS "user_password"
+          FROM "user" u
+        WHERE u.username=$1 LIMIT 1;
+      `,
+        [username],
+      );
+
+      const user = userList[0];
+
+      console.log('validate user service: ', user);
+
+      if (!user.user_password) {
+        console.log('auth.service no password found: ', user.user_password);
+
         return null;
       }
+      const isMatch = await bcrypt.compare(
+        password,
+        user.user_password as string,
+      );
+      if (!isMatch) {
+        console.log('auth service isMatch null: ', isMatch);
+        return null;
+      }
+
+      delete user.user_password;
+      console.log('auth.service without password: ', user);
+
+      return user;
     } catch (error) {
       console.error('Error Validate User: ', error);
       return null;
     }
-
-    delete (user as Partial<User>).password;
-
-    return user;
   }
 
   login(user: { username: string; id: number }) {
+    console.log('login auth service: ', user);
+
     const payload = { username: user.username, sub: user.id };
     const token = this.jwtService.sign(payload);
     return {
       access_token: token,
     };
-    // return {
-    //   access_token: this.jwtService.sign(payload),
-    // };
   }
 }
