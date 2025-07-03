@@ -57,7 +57,7 @@ async def generate_sql_endpoint(query: QueryRequest):
     try:
         # Generate SQL
         # sql_query = generator.execute_pipeline(query.prompt)
-        sql_query = "SELECT * FROM customers"
+        sql_query = "select * from customers"
         if sql_query == "No valid SQL query can be generated.":
             return {
                 "prompt": query.prompt, 
@@ -67,11 +67,9 @@ async def generate_sql_endpoint(query: QueryRequest):
                 "error": "No valid SQL query can be generated."
             }
                 
-
         # Execute on PostgreSQL
         results = executor.execute_safe_query(sql_query)
         
-
         # Save the query to the database
         prompt_generated_id = my_executor.save_query(query.prompt, sql_query)
         return {
