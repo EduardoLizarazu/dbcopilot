@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import {
   Box,
   List,
@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import { ReadAllSchemaContextByRoleIdAction } from "@/controller/_actions/schema_graph/query/read-all-schema-context-by-role-id.action";
 
 interface Column {
   column_alias: string;
@@ -25,11 +26,8 @@ interface Table {
   columns: Column[];
 }
 
-interface SchemaDrawerProps {
-  tables: Table[];
-}
-
-export function SchemaDrawer({ tables }: SchemaDrawerProps) {
+export function SchemaDrawer() {
+  const [tables, setTables] = useState<Table[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedTable, setExpandedTable] = useState<number | null>(null);
 
@@ -61,78 +59,88 @@ export function SchemaDrawer({ tables }: SchemaDrawerProps) {
     })
     .filter(Boolean) as Table[];
 
+  React.useEffect(() => {
+    (async () => {
+      const response = await ReadAllSchemaContextByRoleIdAction(2);
+      setTables(response || []);
+      console.log(response);
+    })();
+  }, []);
+
   return (
-    <Box
-      sx={{
-        overflow: "hidden",
-        bgcolor: "background.paper",
-      }}
-    >
-      <TextField
-        fullWidth
-        variant="outlined"
-        placeholder="Search tables and columns..."
-        value={searchTerm}
-        onChange={handleSearchChange}
+    <Suspense fallback={<div>Loading...</div>}>
+      <Box
         sx={{
-          p: 2,
-          position: "sticky",
-          top: 0,
+          overflow: "hidden",
           bgcolor: "background.paper",
-          zIndex: 1,
         }}
-      />
+      >
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Search tables and columns..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          sx={{
+            p: 2,
+            position: "sticky",
+            top: 0,
+            bgcolor: "background.paper",
+            zIndex: 1,
+          }}
+        />
 
-      <Divider />
+        <Divider />
 
-      <List>
-        {filteredTables.length === 0 ? (
-          <Typography sx={{ p: 2, textAlign: "center" }}>
-            No matching tables or columns found
-          </Typography>
-        ) : (
-          filteredTables.map((table) => (
-            <React.Fragment key={table.table_neo4j_id}>
-              <ListItemButton
-                onClick={() => toggleExpand(table.table_neo4j_id)}
-              >
-                <ListItemText
-                  primary={table.table_alias}
-                  secondary={table.table_description}
-                  primaryTypographyProps={{ fontWeight: "medium" }}
-                />
-                {expandedTable === table.table_neo4j_id ? (
-                  <ExpandLess />
-                ) : (
-                  <ExpandMore />
-                )}
-              </ListItemButton>
+        <List>
+          {filteredTables.length === 0 ? (
+            <Typography sx={{ p: 2, textAlign: "center" }}>
+              No matching tables or columns found
+            </Typography>
+          ) : (
+            filteredTables.map((table) => (
+              <React.Fragment key={table.table_neo4j_id}>
+                <ListItemButton
+                  onClick={() => toggleExpand(table.table_neo4j_id)}
+                >
+                  <ListItemText
+                    primary={table.table_alias}
+                    secondary={table.table_description}
+                    primaryTypographyProps={{ fontWeight: "medium" }}
+                  />
+                  {expandedTable === table.table_neo4j_id ? (
+                    <ExpandLess />
+                  ) : (
+                    <ExpandMore />
+                  )}
+                </ListItemButton>
 
-              <Collapse
-                in={expandedTable === table.table_neo4j_id}
-                timeout="auto"
-                unmountOnExit
-              >
-                <List component="div" disablePadding>
-                  {table.columns.map((column, index) => (
-                    <ListItem
-                      key={`${table.table_neo4j_id}-${index}`}
-                      //   sx={{ pl: 4 }}
-                    >
-                      <ListItemText
-                        primary={column.column_alias}
-                        secondary={column.column_description}
-                        secondaryTypographyProps={{ variant: "body2" }}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </Collapse>
-              <Divider />
-            </React.Fragment>
-          ))
-        )}
-      </List>
-    </Box>
+                <Collapse
+                  in={expandedTable === table.table_neo4j_id}
+                  timeout="auto"
+                  unmountOnExit
+                >
+                  <List component="div" disablePadding>
+                    {table.columns.map((column, index) => (
+                      <ListItem
+                        key={`${table.table_neo4j_id}-${index}`}
+                        //   sx={{ pl: 4 }}
+                      >
+                        <ListItemText
+                          primary={column.column_alias}
+                          secondary={column.column_description}
+                          secondaryTypographyProps={{ variant: "body2" }}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Collapse>
+                <Divider />
+              </React.Fragment>
+            ))
+          )}
+        </List>
+      </Box>
+    </Suspense>
   );
 }
