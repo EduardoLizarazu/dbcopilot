@@ -62,10 +62,9 @@ class MyDbManager:
                 """)
                 cursor.execute(insert_query, (prompt, sql_query, error))
                 self.conn.commit()
-                logger.info("Query saved successfully")
                 generated_id = cursor.fetchone()[0]
+                logger.info(f"Query error saved successfully with the id #{generated_id}")
                 return generated_id
-
         except psycopg2.Error as e:
             logger.error(f"Failed to save query: {str(e)}")
             raise RuntimeError(f"Database error: {str(e)}")

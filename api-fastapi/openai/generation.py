@@ -108,8 +108,6 @@ class GraphRAGSQLGenerator:
         WHERE ...
         8. Do not use ```sql SELECT ...``` format
         9. Do not include any comments or explanations in the SQL output.
-        10. If the prompt is not clear, ask for clarification.
-        11. If the prompt is too vague, return "No valid SQL query can be generated."
         """
 
         response = openai.chat.completions.create(
