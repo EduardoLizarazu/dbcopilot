@@ -31,6 +31,11 @@ export class SchemaGraphController {
     return this.schemaGraphService.findAllByRoleId(+id);
   }
 
+  @Get('roles-graph/:id')
+  findAllByRoleIdOnGraph(@Param('id') id: string) {
+    return this.schemaGraphService.findAllByRoleIdOnGraph(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.schemaGraphService.findOne(+id);

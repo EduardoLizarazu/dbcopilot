@@ -49,7 +49,7 @@ export class SchemaGraphService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const roleSchemaGraph = queryRunner.manager.find(SchemaGraph, {
+      const roleSchemaGraph = await queryRunner.manager.find(SchemaGraph, {
         where: { roleId: id },
       });
       // queryRunner.commitTransaction();
@@ -65,6 +65,59 @@ export class SchemaGraphService {
 
   findOne(id: number) {
     return `This action returns a #${id} schemaGraph`;
+  }
+
+  async findAllByRoleIdOnGraph(id: number) {
+    try {
+      const rolesSchemaGraphFromDb = await this.findAllByRoleId(id);
+      if (!rolesSchemaGraphFromDb || rolesSchemaGraphFromDb.length === 0) {
+        return [];
+      }
+
+      const allowedTableColumns = rolesSchemaGraphFromDb.map((item) => ({
+        tableId: item.tableId,
+        columnId: item.columnId,
+      }));
+
+      const cypher = `
+        UNWIND $allowedTableColumns AS allowed
+        MATCH (table:Table) WHERE id(table) = allowed.tableId
+        MATCH (column:Column) WHERE id(column) = allowed.columnId
+        MATCH (table)-[:HAS_COLUMN]->(column)
+        WITH table, column
+        ORDER BY column.name
+        WITH 
+          id(table) AS tableId,
+          table.name AS tableName,
+          table.alias AS tableAlias,
+          table.description AS tableDescription,
+          collect({
+            column_type: column.type,
+            column_alias: column.alias,
+            column_key_type: column.key_type,
+            column_name: column.name,
+            column_description: column.description,
+            column_neo4j_id: id(column)
+          }) AS columns
+        RETURN {
+          table_neo4j_id: tableId,
+          table_name: tableName,
+          table_alias: tableAlias,
+          table_description: tableDescription,
+          columns: columns
+        } AS tableData
+      `;
+
+      const result = await this.neo4jService.read(cypher, {
+        allowedTableColumns,
+      });
+      return result;
+      // Process the result array directly
+      return result.map((record) => record.get('tableData'));
+    } catch (error) {
+      console.error(`Error on finding all graph by role id: ${error}`);
+      throw new BadRequestException('Error on finding all graph by role id');
+    }
   }
 
   async update(id: number, updateSchemaGraphDto: UpdateSchemaGraphDto[]) {
