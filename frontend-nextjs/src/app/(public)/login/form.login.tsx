@@ -5,8 +5,8 @@ import { login } from "./_actions/login.action";
 import { TextField, Button, Typography, Box } from "@mui/material";
 
 const LoginForm: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("eduardolizarazu");
+  const [password, setPassword] = useState("Passw0rd");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
