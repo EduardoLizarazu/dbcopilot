@@ -111,9 +111,9 @@ export class SchemaGraphService {
       const result = await this.neo4jService.read(cypher, {
         allowedTableColumns,
       });
-      return result;
+      // return result;
       // Process the result array directly
-      return result.map((record) => record.get('tableData'));
+      return result.map((record) => record.tableData);
     } catch (error) {
       console.error(`Error on finding all graph by role id: ${error}`);
       throw new BadRequestException('Error on finding all graph by role id');
