@@ -17,10 +17,12 @@ const LoginForm: React.FC = () => {
     setError("");
 
     try {
+      console.log("form.login: ", email, password);
+
       await login(email, password);
-      router.push("/dashboard"); // Redirect to the dashboard or any other page
+      router.push("/chat"); // Redirect to the chat or any other page
     } catch (err) {
-      setError("Email or password incorrect");
+      setError("Username or password incorrect");
     } finally {
       setIsSubmitting(false);
     }
@@ -32,10 +34,10 @@ const LoginForm: React.FC = () => {
         margin="normal"
         required
         fullWidth
-        id="email"
-        label="Email"
-        name="email"
-        autoComplete="email"
+        id="username"
+        label="username"
+        name="username"
+        autoComplete="username"
         autoFocus
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -45,7 +47,7 @@ const LoginForm: React.FC = () => {
         required
         fullWidth
         name="password"
-        label="Password"
+        label="password"
         type="password"
         id="password"
         autoComplete="current-password"
