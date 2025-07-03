@@ -287,7 +287,7 @@ export function DrawerRightChat({
   ];
 
   const DrawerList = (
-    <Box sx={{ width: 400, marginTop: 10 }} role="presentation">
+    <Box sx={{ width: 450, marginTop: 10 }} role="presentation">
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList

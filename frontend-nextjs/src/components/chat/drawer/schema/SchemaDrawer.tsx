@@ -64,7 +64,7 @@ export function SchemaDrawer({ tables }: SchemaDrawerProps) {
   return (
     <Box
       sx={{
-        overflow: "auto",
+        overflow: "hidden",
         bgcolor: "background.paper",
       }}
     >
@@ -117,7 +117,7 @@ export function SchemaDrawer({ tables }: SchemaDrawerProps) {
                   {table.columns.map((column, index) => (
                     <ListItem
                       key={`${table.table_neo4j_id}-${index}`}
-                      sx={{ pl: 4 }}
+                      //   sx={{ pl: 4 }}
                     >
                       <ListItemText
                         primary={column.column_alias}
