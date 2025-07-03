@@ -36,7 +36,7 @@ export async function login(email: string, password: string) {
       throw new Error("Authentication failed");
     }
 
-    await getAccessTokenServer();
+    if (!cookieStore.has(COOKIE_NAME)) throw new Error("Cookie not found");
   } catch (error) {
     console.error("Login error:", error);
     throw new Error("Login failed");
