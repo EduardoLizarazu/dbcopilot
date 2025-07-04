@@ -29,6 +29,8 @@ import { FeedbackSnackBar } from "./shared/feedbackSnackBar";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ForumIcon from "@mui/icons-material/Forum";
+import { LogOutAction } from "@/controller/_actions/auth/logout.action";
+import { useRouter } from "next/navigation";
 
 const drawerWidth = 240;
 
@@ -121,14 +123,46 @@ export default function MiniDrawer({
   children: React.ReactNode;
   initialRoles: string[];
 }) {
+  const router = useRouter();
+
   // CONTEXT
-  const { feedback } = useFeedbackContext();
+  const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
   const { user, isLoading } = useAuth();
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
   console.log("MINIDRAWER");
+
+  async function handleLogOut() {
+    try {
+      const hasCookie = await LogOutAction();
+      if (hasCookie) {
+        // It currently has the cookie
+        setFeedback({
+          isActive: true,
+          severity: "error",
+          message: "Failed to logout by cookie.",
+        });
+      } else {
+        // It currently does not have the cookie
+        setFeedback({
+          isActive: true,
+          message: "Logout successfully",
+          severity: "success",
+        });
+        router.push(`/login`);
+      }
+    } catch (error) {
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: "Failed to logout.",
+      });
+    } finally {
+      resetFeedBack();
+    }
+  }
 
   // Define all possible links with required roles
   const allLinks = [
@@ -175,9 +209,13 @@ export default function MiniDrawer({
       public: true,
     },
     {
-      href: "/login",
+      href: "#",
       label: "Logout",
-      icon: <LogoutIcon />,
+      icon: (
+        <IconButton aria-label="logout" color="inherit" onClick={handleLogOut}>
+          <LogoutIcon />
+        </IconButton>
+      ),
       requiresAuth: true,
     },
   ];
