@@ -28,6 +28,8 @@ export default async function RootLayout({
 }>) {
   const headerList = await headers();
   const userRoles = JSON.parse(headerList.get("x-user-roles") || "[]");
+  console.log("layout.userRoles: ", userRoles);
+
   return (
     <html lang="en">
       <body

@@ -28,6 +28,8 @@ export async function middleware(request: NextRequest) {
 
   // Skip authentication for public paths
   if (isPublic) {
+    console.log("MIDDLEWARE IS_PUBLIC: ", isPublic);
+
     return NextResponse.next();
   }
 
