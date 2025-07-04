@@ -175,7 +175,7 @@ export default function MiniDrawer({
       public: true,
     },
     {
-      href: "/logout",
+      href: "/login",
       label: "Logout",
       icon: <LogoutIcon />,
       requiresAuth: true,
@@ -185,7 +185,7 @@ export default function MiniDrawer({
   // Filter links based on user roles
   const filteredLinks = allLinks.filter((link) => {
     if (link.public) return true;
-    if (link.requiresAuth && !initialRoles) return false;
+    if (link.requiresAuth && !user) return false;
     if (!link.roles) return true;
 
     return initialRoles?.some((role) => link.roles?.includes(role));
