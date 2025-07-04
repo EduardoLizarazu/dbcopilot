@@ -2,6 +2,7 @@
 import { jwtVerify } from "jose";
 import dotenv from "dotenv";
 import { cookies } from "next/headers";
+import { JWTExpired } from "jose/errors";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ export async function ReadUserDataJwt() {
       username: payload.username,
     };
   } catch (error) {
+    if (error instanceof JWTExpired) return null;
     console.error("Logout error:", error);
     throw new Error("Logout failed");
   }
