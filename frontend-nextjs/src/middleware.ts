@@ -1,21 +1,25 @@
 // middleware.ts
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 
-const PUBLIC_PATHS = ["/", "/login", "/chat", "/auth"];
+const PUBLIC_PATHS = ["/", "/login"];
 const COOKIE_NAME = process.env.COOKIE_NAME || "default_cookie_name";
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 
 // Define minimum required role for each route
 const ROUTE_ROLES: Record<string, string[]> = {
   "/dashboard": ["admin", "user"],
-  // "/auth": ["admin"],
-  // "/chat": ["admin", "user"],
+  "/auth": ["admin"],
+  "/chat": ["admin", "user"],
   // Add more routes as needed
 };
 
 export async function middleware(request: NextRequest) {
   console.log("MIDDLEWARE");
+  console.log("MIDDLEWARE COOKIE NAME: ", COOKIE_NAME);
+
+  const cookieStore = await cookies();
 
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some(
@@ -28,7 +32,9 @@ export async function middleware(request: NextRequest) {
   }
 
   // Get JWT from cookies
-  const token = request.cookies.get(COOKIE_NAME)?.value;
+  const token = cookieStore.get(COOKIE_NAME)?.value;
+
+  console.log("MIDDLEWARE TOKEN: ", token);
 
   // Redirect to login if no token
   if (!token) {

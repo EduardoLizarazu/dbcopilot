@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -28,37 +29,6 @@ import { FeedbackSnackBar } from "./shared/feedbackSnackBar";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ForumIcon from "@mui/icons-material/Forum";
-
-const links = [
-  { href: "/dashboard", label: "Dashboard", icon: <DashboardIcon /> },
-  { href: "/auth/users", label: "User Management", icon: <PeopleIcon /> },
-  {
-    href: "/auth/roles",
-    label: "Role",
-    icon: (
-      <Tooltip title="Role" arrow placement="right-start">
-        <TheaterComedyIcon />
-      </Tooltip>
-    ),
-  },
-  {
-    href: "/auth/permissions",
-    label: "Permission",
-    icon: <SecurityIcon />,
-  },
-  {
-    href: "/chat",
-    label: "Chat",
-    icon: <ChatIcon />,
-  },
-  {
-    href: "/chat/history",
-    label: "History Chat",
-    icon: <ForumIcon />,
-  },
-  { href: "/login", label: "Login", icon: <LoginIcon /> },
-  { href: "/logout", label: "Logout", icon: <LogoutIcon /> },
-];
 
 const drawerWidth = 240;
 
@@ -151,9 +121,71 @@ export default function MiniDrawer({
 }) {
   // CONTEXT
   const { feedback } = useFeedbackContext();
+  const { user, isLoading } = useAuth();
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+
+  // Define all possible links with required roles
+  const allLinks = [
+    {
+      href: "/dashboard",
+      label: "Dashboard",
+      icon: <DashboardIcon />,
+      roles: ["admin", "user"],
+    },
+    {
+      href: "/auth/users",
+      label: "User Management",
+      icon: <PeopleIcon />,
+      roles: ["admin"],
+    },
+    {
+      href: "/auth/roles",
+      label: "Role",
+      icon: <TheaterComedyIcon />,
+      roles: ["admin"],
+    },
+    {
+      href: "/auth/permissions",
+      label: "Permission",
+      icon: <SecurityIcon />,
+      roles: ["admin"],
+    },
+    {
+      href: "/chat",
+      label: "Chat",
+      icon: <ChatIcon />,
+      roles: ["admin", "user"],
+    },
+    {
+      href: "/chat/history",
+      label: "History Chat",
+      icon: <ForumIcon />,
+      roles: ["admin", "user"],
+    },
+    {
+      href: "/login",
+      label: "Login",
+      icon: <LoginIcon />,
+      public: true,
+    },
+    {
+      href: "/logout",
+      label: "Logout",
+      icon: <LogoutIcon />,
+      requiresAuth: true,
+    },
+  ];
+
+  // Filter links based on user roles
+  const filteredLinks = allLinks.filter((link) => {
+    if (link.public) return true;
+    if (link.requiresAuth && !user) return false;
+    if (!link.roles) return true;
+
+    return user?.roles?.some((role) => link.roles?.includes(role));
+  });
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -199,7 +231,7 @@ export default function MiniDrawer({
         </DrawerHeader>
         <Divider />
         <List>
-          {links.map((item) => (
+          {filteredLinks.map((item) => (
             <ListItem key={item.label} disablePadding sx={{ display: "block" }}>
               <Link href={item.href} underline="none" color="inherit">
                 <ListItemButton
