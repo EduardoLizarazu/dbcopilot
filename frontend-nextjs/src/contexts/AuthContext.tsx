@@ -1,5 +1,6 @@
 // src/contexts/AuthContext.tsx
 "use client";
+import { ReadUserDataJwt } from "@/controller/_actions/auth/read-user-data-jwt";
 import { createContext, useContext, useState, useEffect } from "react";
 
 interface User {
@@ -33,9 +34,13 @@ export const AuthProvider = ({
 
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/auth/me");
-        if (response.ok) {
-          const userData = await response.json();
+        // const response = await fetch("/api/auth/me");
+        const response = await ReadUserDataJwt();
+        if (response) {
+          // Ensure roles is a string array
+          const userData: User = {
+            roles: Array.isArray(response.roles) ? response.roles : [],
+          };
           setAuthState({ user: userData, isLoading: false });
         } else {
           setAuthState({ user: null, isLoading: false });
