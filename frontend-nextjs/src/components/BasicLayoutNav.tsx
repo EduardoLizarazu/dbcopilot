@@ -137,7 +137,7 @@ export default function MiniDrawer({
   async function handleLogOut() {
     try {
       const hasCookie = await LogOutAction();
-      if (hasCookie) {
+      if (!hasCookie) {
         // It currently has the cookie
         setFeedback({
           isActive: true,
@@ -202,12 +202,12 @@ export default function MiniDrawer({
       icon: <ForumIcon />,
       roles: ["admin", "user"],
     },
-    {
-      href: "/login",
-      label: "Login",
-      icon: <LoginIcon />,
-      public: true,
-    },
+    // {
+    //   href: "/login",
+    //   label: "Login",
+    //   icon: <LoginIcon />,
+    //   public: true,
+    // },
     {
       href: "#",
       label: "Logout",
@@ -222,7 +222,7 @@ export default function MiniDrawer({
 
   // Filter links based on user roles
   const filteredLinks = allLinks.filter((link) => {
-    if (link.public) return true;
+    // if (link.public) return true;
     if (link.requiresAuth && !user) return false;
     if (!link.roles) return true;
 
