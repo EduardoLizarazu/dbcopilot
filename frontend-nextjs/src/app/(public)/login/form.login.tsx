@@ -11,16 +11,13 @@ const LoginForm: React.FC = () => {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     setIsSubmitting(true);
     setError("");
 
     try {
-      console.log("form.login: ", email, password);
-
       await login(email, password);
-      router.push("/chat"); // Redirect to the chat or any other page
+      router.push("/chat");
     } catch (err) {
       setError("Username or password incorrect");
     } finally {
@@ -29,7 +26,7 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+    <Box sx={{ mt: 1 }}>
       <TextField
         margin="normal"
         required
@@ -60,11 +57,11 @@ const LoginForm: React.FC = () => {
         </Typography>
       )}
       <Button
-        type="submit"
         fullWidth
         variant="contained"
         color="primary"
         disabled={isSubmitting}
+        onClick={handleLogin}
         sx={{ mt: 3, mb: 2 }}
       >
         {isSubmitting ? "Submitting..." : "Login"}
