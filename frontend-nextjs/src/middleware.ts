@@ -84,6 +84,7 @@ export async function middleware(request: NextRequest) {
 // Helper functions
 function redirectToLogin(request: NextRequest) {
   const loginUrl = new URL("/login", request.url);
+  console.log("middleware.redirectToLogin: ", loginUrl);
   return NextResponse.redirect(loginUrl);
 }
 

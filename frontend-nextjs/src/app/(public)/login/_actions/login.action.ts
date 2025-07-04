@@ -27,10 +27,11 @@ export async function login(email: string, password: string) {
     if (response.status === 201) {
       const access_token = response.data.access_token;
       cookieStore.set(COOKIE_NAME, access_token, {
-        // httpOnly: true,
-        // sameSite: "lax",
-        expires: 1,
-        // path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24,
+        path: "/",
+        secure: false,
       });
     } else {
       throw new Error("Authentication failed");
