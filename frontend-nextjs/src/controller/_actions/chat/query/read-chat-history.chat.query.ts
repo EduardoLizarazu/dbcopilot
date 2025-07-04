@@ -7,6 +7,8 @@ type TReadChatHistoryOutput = {
 
 export async function ReadChatHistory(): Promise<TReadChatHistoryOutput[]> {
   try {
+    console.log("I AM ON READ CHAT HISTORY!");
+
     const response = await fetch(`${process.env.BASE_URL}/chat`, {
       method: "GET",
       headers: {

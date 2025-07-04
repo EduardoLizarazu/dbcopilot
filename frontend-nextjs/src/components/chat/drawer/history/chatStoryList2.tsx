@@ -1,3 +1,4 @@
+"use client";
 import {
   Avatar,
   Box,
@@ -48,16 +49,20 @@ export function ChatStoryList({
     },
   ]);
 
+  console.log("I AM ON CHAT HISTORY DRAWER");
+
   useEffect(() => {
+    console.log("I AM ON CHAT HISTORY DRAWER USE EFFECT");
     (async () => {
       const chats = await ReadChatHistory();
+      const chatsFiltered = chats.filter((item) => item.id !== null);
       setConversations(
-        chats.map((chat) => ({
+        chatsFiltered.map((chat) => ({
           id: String(chat.id || "") || "",
           prompt: chat.prompt || "",
         }))
       );
-      console.log("Conversations loaded:", chats);
+      console.log("Conversations loaded:", chatsFiltered);
     })();
     return () => {};
   }, []);
