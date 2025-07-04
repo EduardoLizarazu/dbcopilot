@@ -37,7 +37,7 @@ export default async function RootLayout({
       >
         <AuthProvider initialRoles={userRoles}>
           <FeedbackContextProvider>
-            <BasicLayoutNav>{children}</BasicLayoutNav>
+            <BasicLayoutNav initialRoles={userRoles}>{children}</BasicLayoutNav>
           </FeedbackContextProvider>
         </AuthProvider>
         {/* <main className="flex-grow flex justify-center w-full"></main> */}

@@ -116,8 +116,10 @@ const Drawer = styled(MuiDrawer, {
 
 export default function MiniDrawer({
   children,
+  initialRoles,
 }: {
   children: React.ReactNode;
+  initialRoles: string[];
 }) {
   // CONTEXT
   const { feedback } = useFeedbackContext();
@@ -126,7 +128,7 @@ export default function MiniDrawer({
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
-  React.useEffect(() => {}, [user]);
+  console.log("MINIDRAWER");
 
   // Define all possible links with required roles
   const allLinks = [
@@ -183,10 +185,10 @@ export default function MiniDrawer({
   // Filter links based on user roles
   const filteredLinks = allLinks.filter((link) => {
     if (link.public) return true;
-    if (link.requiresAuth && !user) return false;
+    if (link.requiresAuth && !initialRoles) return false;
     if (!link.roles) return true;
 
-    return user?.roles?.some((role) => link.roles?.includes(role));
+    return initialRoles?.some((role) => link.roles?.includes(role));
   });
 
   const handleDrawerOpen = () => {
