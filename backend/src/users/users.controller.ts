@@ -7,19 +7,27 @@ import {
   Patch,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AccountStatus } from './enums/user.enums';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(): Promise<User[]> {
+  findAll(@CurrentUser() user): Promise<User[]> {
+    console.log(user);
+
     return this.usersService.findAll();
   }
 
