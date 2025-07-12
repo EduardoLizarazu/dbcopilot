@@ -23,11 +23,10 @@ import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@CurrentUser() user): Promise<User[]> {
-    console.log(user);
-
+  // @UseGuards(JwtAuthGuard)
+  // findAll(@CurrentUser() user): Promise<User[]> {
+  findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
