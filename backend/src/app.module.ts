@@ -14,6 +14,7 @@ import { CaslModule } from './casl/casl.module';
 import { ChatModule } from './chat/chat.module';
 import { Neo4jService } from './neo4j/neo4j/neo4j.service';
 import { Neo4jModule } from './neo4j/neo4j/neo4j.module';
+import { SchemaModule } from './schema/schema.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { Neo4jModule } from './neo4j/neo4j/neo4j.module';
     CaslModule,
     ChatModule,
     Neo4jModule,
+    SchemaModule,
   ],
   controllers: [AppController],
   providers: [
