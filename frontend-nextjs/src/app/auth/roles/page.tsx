@@ -41,6 +41,7 @@ export default function RolesPage() {
         const data = await listRolesAction("");
         if (!active) return;
         setRoles(data);
+        console.log(data);
       } catch (e: any) {
         if (!active) return;
         setError(e?.message ?? "Failed to load roles.");
