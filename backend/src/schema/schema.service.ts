@@ -3,6 +3,7 @@ import { CreateSchemaDto } from './dto/create-schema.dto';
 import { UpdateSchemaDto } from './dto/update-schema.dto';
 import { Neo4jService } from 'src/neo4j/neo4j/neo4j.service';
 import { DataSource } from 'typeorm';
+import * as neo4j from 'neo4j-driver';
 
 type SchemaPhysical = {
   table_schema: string;
@@ -327,6 +328,225 @@ ORDER BY
 
   update(id: number, updateSchemaDto: UpdateSchemaDto) {
     return `This action updates a #${id} schema`;
+  }
+
+  async updateDiff(diffs: TSchemaDiff[]) {
+    try {
+      // Create a session for the transaction
+      const session = this.neo4jService.getSession({
+        accessMode: neo4j.session.WRITE,
+      });
+      const tx = session.beginTransaction();
+
+      try {
+        for (const diff of diffs) {
+          switch (diff.type) {
+            case 'MISMATCH':
+              await this.handleMismatch(tx, diff);
+              break;
+            case 'MISSING_IN_CONTEXT':
+              await this.handleMissingInContext(tx, diff);
+              break;
+            case 'MISSING_IN_PHYSICAL':
+              await this.handleMissingInPhysical(tx, diff);
+              break;
+          }
+        }
+
+        await tx.commit();
+        return {
+          success: true,
+          message: 'Schema differences applied successfully',
+        };
+      } catch (error) {
+        await tx.rollback();
+        throw new Error(`Transaction failed: ${error.message}`);
+      } finally {
+        await session.close();
+      }
+    } catch (error) {
+      throw new Error(`Schema update failed: ${error.message}`);
+    }
+  }
+
+  private async handleMismatch(tx: neo4j.Transaction, diff: TSchemaDiff) {
+    if (!diff.contextual_data || !diff.physical_data) {
+      console.warn('Skipping MISMATCH due to missing data', diff);
+      return;
+    }
+
+    // Update column properties
+    await tx.run(
+      `MATCH (col:Column) WHERE id(col) = $id_column
+       SET col.data_type = $data_type,
+           col.is_primary_key = $is_primary_key,
+           col.is_foreign_key = $is_foreign_key`,
+      {
+        id_column: diff.contextual_data.id_column,
+        data_type: diff.physical_data.data_type,
+        is_primary_key: diff.physical_data.is_primary_key,
+        is_foreign_key: diff.physical_data.is_foreign_key,
+      },
+    );
+
+    // Handle foreign key relationships
+    await this.updateForeignKeyRelations(tx, diff);
+  }
+
+  private async updateForeignKeyRelations(
+    tx: neo4j.Transaction,
+    diff: TSchemaDiff,
+  ) {
+    if (!diff.contextual_data || !diff.physical_data) return;
+
+    // Delete old relationship if exists
+    await tx.run(
+      `MATCH (tbl:Table)-[rel:RELATED_TO]->(:Table)
+       WHERE id(tbl) = $id_table AND rel.from_column = $column_name
+       DELETE rel`,
+      {
+        id_table: diff.contextual_data.id_table,
+        column_name: diff.column_name,
+      },
+    );
+
+    // Create new relationship if needed
+    if (
+      diff.physical_data.is_foreign_key &&
+      diff.physical_data.referenced_table_schema &&
+      diff.physical_data.referenced_table_name &&
+      diff.physical_data.referenced_column_name
+    ) {
+      await tx.run(
+        `MATCH (from:Table) WHERE id(from) = $from_id
+         MATCH (refSch:Schema {name: $ref_schema})-[:HAS_TABLE]->(to:Table {name: $ref_table})
+         MERGE (from)-[:RELATED_TO {
+           from_column: $from_column,
+           to_column: $to_column
+         }]->(to)`,
+        {
+          from_id: diff.contextual_data.id_table,
+          ref_schema: diff.physical_data.referenced_table_schema,
+          ref_table: diff.physical_data.referenced_table_name,
+          from_column: diff.column_name,
+          to_column: diff.physical_data.referenced_column_name,
+        },
+      );
+    }
+  }
+
+  private async handleMissingInContext(
+    tx: neo4j.Transaction,
+    diff: TSchemaDiff,
+  ) {
+    if (!diff.physical_data) {
+      console.warn(
+        'Skipping MISSING_IN_CONTEXT due to missing physical_data',
+        diff,
+      );
+      return;
+    }
+
+    // Create schema, table, and column
+    await tx.run(
+      `MERGE (sch:Schema {name: $schema})
+       MERGE (tbl:Table {name: $table, schema: $schema})
+       MERGE (sch)-[:HAS_TABLE]->(tbl)
+       MERGE (col:Column {name: $column, table: $table, schema: $schema})
+         ON CREATE SET col.data_type = $data_type,
+                      col.is_primary_key = $is_primary_key,
+                      col.is_foreign_key = $is_foreign_key
+       MERGE (tbl)-[:HAS_COLUMN]->(col)`,
+      {
+        schema: diff.table_schema,
+        table: diff.table_name,
+        column: diff.column_name,
+        data_type: diff.physical_data.data_type,
+        is_primary_key: diff.physical_data.is_primary_key,
+        is_foreign_key: diff.physical_data.is_foreign_key,
+      },
+    );
+
+    // Create foreign key relationship if needed
+    if (
+      diff.physical_data.is_foreign_key &&
+      diff.physical_data.referenced_table_schema &&
+      diff.physical_data.referenced_table_name &&
+      diff.physical_data.referenced_column_name
+    ) {
+      await tx.run(
+        `MATCH (from:Table {schema: $from_schema, name: $from_table})
+         MATCH (to:Table {schema: $ref_schema, name: $ref_table})
+         MERGE (from)-[:RELATED_TO {
+           from_column: $from_column,
+           to_column: $to_column
+         }]->(to)`,
+        {
+          from_schema: diff.table_schema,
+          from_table: diff.table_name,
+          from_column: diff.column_name,
+          ref_schema: diff.physical_data.referenced_table_schema,
+          ref_table: diff.physical_data.referenced_table_name,
+          to_column: diff.physical_data.referenced_column_name,
+        },
+      );
+    }
+  }
+
+  private async handleMissingInPhysical(
+    tx: neo4j.Transaction,
+    diff: TSchemaDiff,
+  ) {
+    if (
+      !diff.contextual_data ||
+      !diff.contextual_data.id_column ||
+      !diff.contextual_data.id_table ||
+      !diff.contextual_data.id_table_schema
+    ) {
+      console.warn(
+        'Skipping MISSING_IN_PHYSICAL due to missing contextual_data or required IDs',
+        diff,
+      );
+      return;
+    }
+
+    // Delete column and its relationships
+    await tx.run(
+      `MATCH (col:Column) WHERE id(col) = $id_column
+       OPTIONAL MATCH (tbl:Table)-[rel:RELATED_TO]->(:Table)
+         WHERE id(tbl) = $id_table AND rel.from_column = $column_name
+       DELETE rel
+       DETACH DELETE col`,
+      {
+        id_column: diff.contextual_data.id_column,
+        id_table: diff.contextual_data.id_table,
+        column_name: diff.column_name,
+      },
+    );
+
+    // Clean up orphaned tables and schemas
+    await this.cleanOrphanedTables(tx, diff.contextual_data.id_table);
+    await this.cleanOrphanedSchemas(tx, diff.contextual_data.id_table_schema);
+  }
+
+  private async cleanOrphanedTables(tx: neo4j.Transaction, tableId: number) {
+    await tx.run(
+      `MATCH (tbl:Table) WHERE id(tbl) = $table_id
+       WITH tbl, size((tbl)-[:HAS_COLUMN]->()) AS column_count
+       WHERE column_count = 0
+       DETACH DELETE tbl`,
+      { table_id: tableId },
+    );
+  }
+
+  private async cleanOrphanedSchemas(tx: neo4j.Transaction, schemaId: number) {
+    await tx.run(
+      `MATCH (sch:Schema) WHERE id(sch) = $schema_id
+       WITH sch, size((sch)-[:HAS_TABLE]->()) AS table_count
+       WHERE table_count = 0
+       DETACH DELETE sch`,
+      { schema_id: schemaId },
+    );
   }
 
   remove(id: number) {

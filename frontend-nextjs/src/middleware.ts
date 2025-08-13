@@ -16,71 +16,58 @@ const ROUTE_ROLES: Record<string, string[]> = {
 };
 
 export async function middleware(request: NextRequest) {
-  console.log("MIDDLEWARE");
-  console.log("MIDDLEWARE COOKIE NAME: ", COOKIE_NAME);
-
-  const cookieStore = await cookies();
-
-  const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some(
-    (publicPath) => path === publicPath || path.startsWith(`${publicPath}/`)
-  );
-
-  // Skip authentication for public paths
-  if (isPublic) {
-    console.log("MIDDLEWARE IS_PUBLIC: ", isPublic);
-
-    return NextResponse.next();
-  }
-
-  // Get JWT from cookies
-  const token = cookieStore.get(COOKIE_NAME)?.value;
-
-  console.log("MIDDLEWARE TOKEN: ", token);
-
-  // Redirect to login if no token
-  if (!token) {
-    return redirectToLogin(request);
-  }
-
-  try {
-    // Verify JWT
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRoles = (payload.roles as string[]) || [];
-
-    // Find matching route protection rule
-    const matchedRoute = Object.entries(ROUTE_ROLES).find(([route]) =>
-      path.startsWith(route)
-    );
-
-    // Handle route protection logic
-    if (matchedRoute) {
-      const [, requiredRoles] = matchedRoute;
-      const hasPermission = requiredRoles.some((role) =>
-        userRoles.includes(role)
-      );
-
-      if (!hasPermission) {
-        return redirectToHome(request);
-      }
-    } else {
-      // Block access to undefined protected routes
-      return redirectToHome(request);
-    }
-
-    // Add user roles to request headers for client components
-    const headers = new Headers(request.headers);
-    headers.set("x-user-roles", JSON.stringify(userRoles));
-
-    return NextResponse.next({
-      request: {
-        headers,
-      },
-    });
-  } catch (error) {
-    console.error("JWT verification failed:", error);
-    return redirectToLogin(request);
-  }
+  // console.log("MIDDLEWARE");
+  // console.log("MIDDLEWARE COOKIE NAME: ", COOKIE_NAME);
+  // const cookieStore = await cookies();
+  // const path = request.nextUrl.pathname;
+  // const isPublic = PUBLIC_PATHS.some(
+  //   (publicPath) => path === publicPath || path.startsWith(`${publicPath}/`)
+  // );
+  // // Skip authentication for public paths
+  // if (isPublic) {
+  //   console.log("MIDDLEWARE IS_PUBLIC: ", isPublic);
+  //   return NextResponse.next();
+  // }
+  // // Get JWT from cookies
+  // const token = cookieStore.get(COOKIE_NAME)?.value;
+  // console.log("MIDDLEWARE TOKEN: ", token);
+  // // Redirect to login if no token
+  // if (!token) {
+  //   return redirectToLogin(request);
+  // }
+  // try {
+  //   // Verify JWT
+  //   const { payload } = await jwtVerify(token, JWT_SECRET);
+  //   const userRoles = (payload.roles as string[]) || [];
+  //   // Find matching route protection rule
+  //   const matchedRoute = Object.entries(ROUTE_ROLES).find(([route]) =>
+  //     path.startsWith(route)
+  //   );
+  //   // Handle route protection logic
+  //   if (matchedRoute) {
+  //     const [, requiredRoles] = matchedRoute;
+  //     const hasPermission = requiredRoles.some((role) =>
+  //       userRoles.includes(role)
+  //     );
+  //     if (!hasPermission) {
+  //       return redirectToHome(request);
+  //     }
+  //   } else {
+  //     // Block access to undefined protected routes
+  //     return redirectToHome(request);
+  //   }
+  //   // Add user roles to request headers for client components
+  //   const headers = new Headers(request.headers);
+  //   headers.set("x-user-roles", JSON.stringify(userRoles));
+  //   return NextResponse.next({
+  //     request: {
+  //       headers,
+  //     },
+  //   });
+  // } catch (error) {
+  //   console.error("JWT verification failed:", error);
+  //   return redirectToLogin(request);
+  // }
 }
 
 // Helper functions

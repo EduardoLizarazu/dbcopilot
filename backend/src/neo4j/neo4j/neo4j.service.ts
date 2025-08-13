@@ -35,6 +35,13 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
+  getSession(options?: { database?: string; accessMode?: any }) {
+    return this.driver.session({
+      database: process.env.NEO4J_DATABASE || 'neo4j',
+      ...options,
+    });
+  }
+
   async read(cypher: string, params?: Record<string, any>) {
     const session = this.getReadSession();
     try {
