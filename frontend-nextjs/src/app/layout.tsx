@@ -6,6 +6,7 @@ import { FeedbackContextProvider } from "@/contexts/feedback.context";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { headers } from "next/headers";
 import MainNav from "@/components/MainNav";
+import Sidebar from "@/components/Sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,8 @@ export default async function RootLayout({
         <AuthProvider initialRoles={userRoles}>
           <FeedbackContextProvider>
             {/* <BasicLayoutNav initialRoles={userRoles}>{children}</BasicLayoutNav> */}
-            <MainNav />
+            {/* <MainNav /> */}
+            <Sidebar />
             {children}
           </FeedbackContextProvider>
         </AuthProvider>
