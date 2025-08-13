@@ -5,6 +5,7 @@ import { FeedbackContextProvider } from "@/contexts/feedback.context";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { headers } from "next/headers";
 import Sidebar from "@/components/nav/Sidebar";
+import { Grid, Grid2 } from "@mui/material";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,8 +40,14 @@ export default async function RootLayout({
           <FeedbackContextProvider>
             {/* <BasicLayoutNav initialRoles={userRoles}>{children}</BasicLayoutNav> */}
             {/* <MainNav /> */}
-            <Sidebar />
-            {children}
+            <Grid2 container>
+              <Grid2 size={3}>
+                <Sidebar />
+              </Grid2>
+              <Grid2 size={8} sx={{ marginTop: 6 }}>
+                {children}
+              </Grid2>
+            </Grid2>
           </FeedbackContextProvider>
         </AuthProvider>
         {/* <main className="flex-grow flex justify-center w-full"></main> */}
