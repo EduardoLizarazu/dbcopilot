@@ -80,12 +80,12 @@ export default function SidebarClient({
       <List sx={{ px: 0.5 }}>
         <NavItem href="/dashboard" icon={<DashboardIcon />} label="Dashboard" />
         <NavItem href="/chat" icon={<ChatIcon />} label="Chat" />
-        {isAdmin && (
-          <>
-            <NavItem href="/auth/users" icon={<GroupIcon />} label="Users" />
-            <NavItem href="/auth/roles" icon={<SecurityIcon />} label="Roles" />
-          </>
-        )}
+        {/* {isAdmin && (
+        )} */}
+        <>
+          <NavItem href="/auth/users" icon={<GroupIcon />} label="Users" />
+          <NavItem href="/auth/roles" icon={<SecurityIcon />} label="Roles" />
+        </>
       </List>
       <Box sx={{ mt: "auto", p: 2 }}>
         <LogoutButton />
