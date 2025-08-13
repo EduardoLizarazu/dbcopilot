@@ -20,7 +20,7 @@ import { loginAction } from "@/controller/_actions/auth/login";
 export default function LoginPage() {
   const router = useRouter();
   const search = useSearchParams();
-  const redirect = search.get("redirect") || "/";
+  const redirect = search.get("redirect") || "/dashboard";
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
