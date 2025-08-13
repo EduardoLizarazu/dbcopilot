@@ -20,7 +20,7 @@ import DashboardIcon from "@mui/icons-material/SpaceDashboard";
 import ChatIcon from "@mui/icons-material/Chat";
 import GroupIcon from "@mui/icons-material/Group";
 import SecurityIcon from "@mui/icons-material/Security";
-import LogoutButton from "@/components/LogoutButton";
+import LogoutButton from "@/components/nav/LogoutButton";
 
 const DRAWER_WIDTH = 280;
 

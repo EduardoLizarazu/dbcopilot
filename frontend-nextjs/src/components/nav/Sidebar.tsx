@@ -1,6 +1,6 @@
 // components/Sidebar.tsx (Server Component)
 import { getCurrentUser } from "@/lib/auth.server";
-import SidebarClient from "@/components/SidebarClient";
+import SidebarClient from "@/components/nav/SidebarClient";
 
 export default async function Sidebar() {
   const user = await getCurrentUser();
