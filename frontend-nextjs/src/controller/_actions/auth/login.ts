@@ -13,7 +13,7 @@ type FirebaseSignInResponse = {
 };
 
 export async function loginAction(email: string, password: string) {
-  const key = process.env.FIREBASE_WEB_API_KEY;
+  const key = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
   if (!key) throw new Error("Missing FIREBASE_WEB_API_KEY");
 
   const res = await fetch(

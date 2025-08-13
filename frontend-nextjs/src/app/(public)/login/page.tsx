@@ -34,7 +34,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await loginAction(email.trim(), password);
-      router.replace(redirect);
+      router.replace(redirect || "/dashboard");
     } catch (error: any) {
       setErr(error?.message ?? "Unable to sign in.");
     } finally {
@@ -43,7 +43,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-[100svh] items-center justify-center px-4">
+    <div className="flex mt-6 items-center justify-center px-4">
       <Paper
         elevation={3}
         className="w-full max-w-md p-6 sm:p-8"
