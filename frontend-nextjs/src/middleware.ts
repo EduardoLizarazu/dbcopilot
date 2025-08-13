@@ -1,87 +1,41 @@
-// middleware.ts
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
+// middleware.ts (at project root)
+import { NextResponse, NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/", "/login"];
-const COOKIE_NAME = process.env.COOKIE_NAME || "default_cookie_name";
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
+const PUBLIC_PATHS = [
+  "/login",
+  "/_next", // Next.js assets
+  "/favicon.ico",
+  "/public", // your static public folder prefix if needed
+];
 
-// Define minimum required role for each route
-const ROUTE_ROLES: Record<string, string[]> = {
-  "/dashboard": ["admin", "user"],
-  "/auth": ["admin"],
-  "/chat": ["admin", "user"],
-  // Add more routes as needed
-};
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
-export async function middleware(request: NextRequest) {
-  // console.log("MIDDLEWARE");
-  // console.log("MIDDLEWARE COOKIE NAME: ", COOKIE_NAME);
-  // const cookieStore = await cookies();
-  // const path = request.nextUrl.pathname;
-  // const isPublic = PUBLIC_PATHS.some(
-  //   (publicPath) => path === publicPath || path.startsWith(`${publicPath}/`)
-  // );
-  // // Skip authentication for public paths
-  // if (isPublic) {
-  //   console.log("MIDDLEWARE IS_PUBLIC: ", isPublic);
-  //   return NextResponse.next();
-  // }
-  // // Get JWT from cookies
-  // const token = cookieStore.get(COOKIE_NAME)?.value;
-  // console.log("MIDDLEWARE TOKEN: ", token);
-  // // Redirect to login if no token
-  // if (!token) {
-  //   return redirectToLogin(request);
-  // }
-  // try {
-  //   // Verify JWT
-  //   const { payload } = await jwtVerify(token, JWT_SECRET);
-  //   const userRoles = (payload.roles as string[]) || [];
-  //   // Find matching route protection rule
-  //   const matchedRoute = Object.entries(ROUTE_ROLES).find(([route]) =>
-  //     path.startsWith(route)
-  //   );
-  //   // Handle route protection logic
-  //   if (matchedRoute) {
-  //     const [, requiredRoles] = matchedRoute;
-  //     const hasPermission = requiredRoles.some((role) =>
-  //       userRoles.includes(role)
-  //     );
-  //     if (!hasPermission) {
-  //       return redirectToHome(request);
-  //     }
-  //   } else {
-  //     // Block access to undefined protected routes
-  //     return redirectToHome(request);
-  //   }
-  //   // Add user roles to request headers for client components
-  //   const headers = new Headers(request.headers);
-  //   headers.set("x-user-roles", JSON.stringify(userRoles));
-  //   return NextResponse.next({
-  //     request: {
-  //       headers,
-  //     },
-  //   });
-  // } catch (error) {
-  //   console.error("JWT verification failed:", error);
-  //   return redirectToLogin(request);
-  // }
-}
+  const token = req.cookies.get("fb_id_token")?.value;
 
-// Helper functions
-function redirectToLogin(request: NextRequest) {
-  const loginUrl = new URL("/login", request.url);
-  console.log("middleware.redirectToLogin: ", loginUrl);
-  return NextResponse.redirect(loginUrl);
-}
+  // If visiting login and already authed → redirect home
+  if (isPublic && pathname === "/login" && token) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
 
-function redirectToHome(request: NextRequest) {
-  const homeUrl = new URL("/", request.url);
-  return NextResponse.redirect(homeUrl);
+  // If a non-public route and no token → redirect to /login
+  if (!isPublic && !token) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/login";
+    // preserve original path as ?redirect=
+    url.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)", "/"],
+  matcher: [
+    // Run on all routes except static files; customize to your app
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
 };
