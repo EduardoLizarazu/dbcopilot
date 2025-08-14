@@ -18,10 +18,13 @@ import {
   TableBody,
   TableContainer,
   Checkbox,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import type { RoleOption } from "@/controller/_actions/user/roles";
 import type { UserProfile } from "@/controller/_actions/user/get";
 import { updateUserAction } from "@/controller/_actions/user/update";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 export default function UserEditClient({
   initialUser,
@@ -38,6 +41,10 @@ export default function UserEditClient({
   const [selectedRoleIds, setSelectedRoleIds] = React.useState<string[]>(
     initialUser.roleIds ?? []
   );
+
+  // ✅ new state for optional password
+  const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -61,6 +68,7 @@ export default function UserEditClient({
         name,
         lastname,
         roleIds: selectedRoleIds,
+        password, // ✅ will be empty if user left blank
       });
       if (res.ok) {
         setSuccess("User updated successfully. Redirecting to list…");
@@ -110,6 +118,29 @@ export default function UserEditClient({
                 fullWidth
               />
             </Box>
+
+            {/* ✅ Optional Password field */}
+            <TextField
+              label="Password (leave blank to keep current)"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              helperText="Minimum 6 characters if provided"
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword((s) => !s)}
+                      aria-label="toggle password visibility"
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
 
             <Box sx={{ mt: 1 }}>
               <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
