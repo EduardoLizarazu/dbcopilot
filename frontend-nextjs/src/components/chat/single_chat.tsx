@@ -5,23 +5,16 @@ import {
   CircularProgress,
   Container,
   Stack,
-  Tab,
   TextField,
   Typography,
+  Alert,
 } from "@mui/material";
-import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { ChatFeedbackBtn } from "@/components/chat/prompt/chatFeedbackBtn";
 import { CreatePrompt } from "@/controller/_actions/chat/command/create-prompt";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
-
-enum TabResultValueEnum {
-  Result = "1",
-  SqlEditor = "2",
-  Insight = "3",
-}
 
 interface Props {
   previousConversation?: {
@@ -37,52 +30,38 @@ export function SingleChat(
 ) {
   const router = useRouter();
 
-  // USE CONTEXT
-  const { feedback, setFeedback, resetFeedBack } = useFeedbackContext();
+  // CONTEXT
+  const { setFeedback } = useFeedbackContext();
 
-  // USE STATE TAB
-  const [tabResultValue, setTabResultValue] =
-    React.useState<TabResultValueEnum>(TabResultValueEnum.Result);
-
-  // prompt, result and insight
+  // STATE
   const [promptId, setPromptId] = React.useState<number | null>(null);
-  const [prompt, setPrompt] = React.useState<string>("");
+  const [prompt, setPrompt] = React.useState<string>(
+    previousConversation?.prompt ?? ""
+  );
   const [result, setResult] = React.useState<{
     error?: string | null;
     data: Record<string, unknown>[];
-  }>();
+  }>({ data: [], error: null });
 
   const [isResetHf, setIsResetHf] = React.useState<boolean>(false);
-
-  // EFFECTS
-  React.useEffect(() => {}, []);
+  const [submitting, setSubmitting] = React.useState<boolean>(false);
 
   // HANDLERS
-
   async function handleSubmitPrompt() {
+    if (!prompt.trim()) return;
     setIsResetHf(true);
-    // Fetch data
-    console.log("Submit prompt", prompt);
+    setSubmitting(true);
+
     try {
-      const response = await CreatePrompt({
-        prompt: prompt,
-      });
+      const response = await CreatePrompt({ prompt });
 
-      console.log("response create prompt: ", response.id_prompt);
-
-      // Handle all possible error cases
-      const hasError = Boolean(
-        response?.error &&
-          typeof response.error === "string" &&
-          response.error.trim().length > 0
-      );
+      const hasError =
+        Boolean(response?.error) &&
+        typeof response.error === "string" &&
+        response.error.trim().length > 0;
 
       if (hasError) {
-        console.log("Error in response:", response.error);
-        setResult({
-          data: [],
-          error: response.error,
-        });
+        setResult({ data: [], error: response.error });
         setFeedback({
           isActive: true,
           message: response.error ?? "Unknown error",
@@ -91,11 +70,7 @@ export function SingleChat(
         return;
       }
 
-      setResult({
-        data: response.results || [],
-        error: null,
-      });
-
+      setResult({ data: response.results || [], error: null });
       setPromptId(response.id_prompt ?? null);
 
       setFeedback({
@@ -104,64 +79,41 @@ export function SingleChat(
         severity: "success",
       });
     } catch (error) {
-      console.error("Error submitting prompt:", error);
-      // Network errors or other exceptions
-      setResult({
-        data: [],
-        error: "Failed to connect to the API",
-      });
+      setResult({ data: [], error: "Failed to connect to the API" });
       setFeedback({
         isActive: true,
         message: "Network error occurred",
         severity: "error",
       });
     } finally {
+      setSubmitting(false);
       setIsResetHf(false);
     }
   }
 
-  const handleChangeTapResultBar = (
-    event: React.SyntheticEvent,
-    newValue: TabResultValueEnum
-  ) => {
-    setTabResultValue(newValue);
-  };
-
   function handleReset() {
     setPrompt("");
     setPromptId(null);
-    setResult({
-      data: [],
-      error: null,
-    });
+    setResult({ data: [], error: null });
     setIsResetHf(true);
   }
 
   function handleResetBySelectedHistoryPrompt() {
     setPromptId(null);
-    setResult({
-      data: [],
-      error: null,
-    });
+    setResult({ data: [], error: null });
     setIsResetHf(true);
-    console.log(`handleResetBySelectedHistoryPrompt`);
-  }
-
-  function handleError() {
-    throw new Error("Function not implemented.");
   }
 
   return (
     <Container>
       <Suspense fallback={<CircularProgress />}>
         <Stack spacing={3} direction="column">
-          {/* DRAWER */}
-
+          {/* Header */}
           <Stack
             direction="row"
             sx={{ justifyContent: "space-between", alignItems: "center" }}
           >
-            <Typography variant="h4">Chat with your database </Typography>
+            <Typography variant="h4">Chat with your database</Typography>
           </Stack>
 
           {/* Prompt */}
@@ -180,40 +132,32 @@ export function SingleChat(
               variant="filled"
               rows={4}
               fullWidth
+              disabled={submitting}
             />
             {promptId !== null && (
               <ChatFeedbackBtn promptId={promptId} isReset={isResetHf} />
             )}
           </Box>
 
-          <Typography variant="body1">{result?.error}</Typography>
+          {/* Error (inline) */}
+          {result?.error ? (
+            <Alert severity="error">{result.error}</Alert>
+          ) : null}
 
-          {/* Submit prompt button */}
+          {/* Actions */}
           <ChatBtnAction
             handleSubmitPrompt={handleSubmitPrompt}
             handleReset={handleReset}
           />
 
-          {/* Result bar: Result, SQL Editor, Insight */}
-          <Box sx={{ width: "100%", typography: "body1" }}>
-            <TabContext value={tabResultValue}>
-              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                <TabList
-                  onChange={handleChangeTapResultBar}
-                  aria-label="lab API tabs example"
-                >
-                  <Tab label="RESULTS" value="1" />
-                  {/* <Tab label="SQL EDITOR" value="2" />
-                  <Tab label="INSIGHT" value="3" /> */}
-                </TabList>
-              </Box>
-              <TabPanel value="1">
-                {/* Chat result table */}
-                <ChatResultTable data={result?.data || []} />
-              </TabPanel>
-              <TabPanel value="3"></TabPanel>
-            </TabContext>
-          </Box>
+          {/* Results (no tabs — just the table) */}
+          {submitting ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <ChatResultTable data={result?.data || []} />
+          )}
         </Stack>
       </Suspense>
     </Container>
