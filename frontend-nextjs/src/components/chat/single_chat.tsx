@@ -10,7 +10,6 @@ import {
   Typography,
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { DrawerRightChat } from "@/components/chat/drawer/DrawerRightChat";
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { ChatFeedbackBtn } from "@/components/chat/prompt/chatFeedbackBtn";
@@ -163,14 +162,6 @@ export function SingleChat(
             sx={{ justifyContent: "space-between", alignItems: "center" }}
           >
             <Typography variant="h4">Chat with your database </Typography>
-            {/* Drawer right chat */}
-            <DrawerRightChat
-              setSelectConversation={setPrompt}
-              setIsResetHf={setIsResetHf}
-              handleResetBySelectedHistoryPrompt={
-                handleResetBySelectedHistoryPrompt
-              }
-            />
           </Stack>
 
           {/* Prompt */}
