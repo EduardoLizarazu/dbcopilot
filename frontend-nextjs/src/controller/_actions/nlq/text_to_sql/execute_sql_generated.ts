@@ -1,11 +1,6 @@
 import { DataSource } from "typeorm";
-import { postgresSqlExtractor } from "./postgres";
-import { oracleSqlExtractor } from "./oracle";
-import { sqlServerSqlExtractor } from "./sqlserver";
-
-export async function extractSchema(
-  //   sql: string,
-  params: any[] = [],
+export async function executeSqlGenerated(
+  sql: string,
   config: {
     type: "postgres" | "mysql" | "sqlite" | "mariadb" | "mssql" | "oracle";
     host: string;
@@ -14,7 +9,7 @@ export async function extractSchema(
     password: string;
     database: string;
   }
-): Promise<any> {
+) {
   // Create a temporary data source
   const tempDataSource = new DataSource({
     type: config.type,
@@ -44,22 +39,7 @@ export async function extractSchema(
 
     try {
       // Execute the query
-      // const result = await queryRunner.query(sql, params);
-      const dbType = config.type;
-      let result = null;
-      switch (dbType) {
-        case "postgres":
-          result = await queryRunner.query(postgresSqlExtractor, params);
-          break;
-        case "oracle":
-          result = await queryRunner.query(oracleSqlExtractor, params);
-          break;
-        case "mssql":
-          result = await queryRunner.query(sqlServerSqlExtractor, params);
-          break;
-        default:
-          throw new Error(`Unsupported database type: ${dbType}`);
-      }
+      const result = await queryRunner.query(sql, []);
 
       return result;
     } finally {
