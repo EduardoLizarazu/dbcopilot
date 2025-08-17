@@ -33,6 +33,7 @@ export async function logNlqRun(params: {
   time_question: Date;
   time_result: Date;
   user_feedback_id?: string; // default ""
+  sql_is_good: boolean; // ✅ new
 }): Promise<string> {
   const ref = await adminDb.collection("nlq").add({
     ...params,
@@ -47,4 +48,12 @@ export async function attachFeedbackToNlq(nlqId: string, feedbackId: string) {
     .collection("nlq")
     .doc(nlqId)
     .update({ user_feedback_id: feedbackId });
+}
+
+/** Set/overwrite sql_is_good on an `nlq` doc */
+export async function updateNlqSqlIsGood(nlqId: string, value: boolean) {
+  await adminDb
+    .collection("nlq")
+    .doc(nlqId)
+    .set({ sql_is_good: value }, { merge: true });
 }

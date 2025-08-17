@@ -127,6 +127,7 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
       time_question: tStart,
       time_result: tEnd,
       user_feedback_id: "", // no feedback yet
+      sql_is_good: true, // ✅ success defaults to true
     });
 
     return {
@@ -144,6 +145,7 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
       time_question: tStart,
       time_result: tEnd,
       user_feedback_id: "",
+      sql_is_good: false, // ✅ any pipeline error → false
     });
 
     return {

@@ -2,7 +2,10 @@
 "use server";
 
 import { adminDb } from "@/lib/firebase/firebase-admin";
-import { attachFeedbackToNlq } from "@/controller/_actions/nlq/nlq-logging";
+import {
+  attachFeedbackToNlq,
+  updateNlqSqlIsGood,
+} from "@/controller/_actions/nlq/nlq-logging";
 
 export async function SubmitFeedbackAction(params: {
   nlq_id: string;
@@ -14,16 +17,15 @@ export async function SubmitFeedbackAction(params: {
 
   if (!nlq_id) throw new Error("nlq_id is required.");
   if (type !== 0 && type !== 1) throw new Error("type must be 0 or 1.");
-  if (type === 0 && !explanation) {
+  if (type === 0 && !explanation)
     throw new Error("Explanation is required for negative feedback.");
-  }
 
   // Ensure run exists
   const runRef = adminDb.collection("nlq").doc(nlq_id);
   const runSnap = await runRef.get();
   if (!runSnap.exists) throw new Error("NLQ run not found.");
 
-  // If run already has feedback, update it; else create a new one
+  // Create or update feedback
   const existingFeedbackId = runSnap.get("user_feedback_id") || "";
   const payload = {
     nlq_id,
@@ -42,6 +44,11 @@ export async function SubmitFeedbackAction(params: {
     const fRef = await adminDb.collection("feedback").add(payload);
     feedbackId = fRef.id;
     await attachFeedbackToNlq(nlq_id, feedbackId);
+  }
+
+  // ✅ If negative feedback, mark run as not good
+  if (type === 0) {
+    await updateNlqSqlIsGood(nlq_id, false);
   }
 
   return { ok: true as const, feedback_id: feedbackId };
