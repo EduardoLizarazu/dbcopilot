@@ -21,6 +21,9 @@ import ChatIcon from "@mui/icons-material/Chat";
 import GroupIcon from "@mui/icons-material/Group";
 import SecurityIcon from "@mui/icons-material/Security";
 import LogoutButton from "@/components/nav/LogoutButton";
+import HistoryIcon from "@mui/icons-material/History";
+import RuleIcon from "@mui/icons-material/Rule";
+import PolylineIcon from "@mui/icons-material/Polyline";
 
 const DRAWER_WIDTH = 280;
 
@@ -85,6 +88,16 @@ export default function SidebarClient({
         <>
           <NavItem href="/auth/users" icon={<GroupIcon />} label="Users" />
           <NavItem href="/auth/roles" icon={<SecurityIcon />} label="Roles" />
+          <NavItem
+            href="/history"
+            icon={<HistoryIcon />}
+            label="Chat History"
+          />
+          <NavItem
+            href="/sql-corrections"
+            icon={<RuleIcon />}
+            label="SQL Corrections"
+          />
         </>
       </List>
       <Box sx={{ mt: "auto", p: 2 }}>
