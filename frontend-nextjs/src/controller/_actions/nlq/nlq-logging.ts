@@ -38,6 +38,7 @@ export async function logNlqRun(params: {
   const ref = await adminDb.collection("nlq").add({
     ...params,
     user_feedback_id: params.user_feedback_id ?? "",
+    user_deletion: false, // always false by default
   });
   return ref.id;
 }
