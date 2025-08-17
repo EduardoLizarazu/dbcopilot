@@ -9,11 +9,9 @@ import { buildPromptTemplate } from "@/controller/_actions/nlq/text_to_sql/promp
 import { callAIModel } from "@/controller/_actions/nlq/text_to_sql/openai";
 import { extractSqlFromResponse } from "@/controller/_actions/nlq/text_to_sql/extract_sql_response";
 import { executeSqlGenerated } from "@/controller/_actions/nlq/text_to_sql/execute_sql_generated";
-
 import {
   logNlqRun,
   logPipelineError,
-  type PipelineStage,
 } from "@/controller/_actions/nlq/nlq-logging";
 
 // ---- DB connection config from env ----
@@ -71,13 +69,12 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
   const userId = await getUserIdFromCookie();
   const dbConfig = getDbConfig();
 
-  let errorId = "";
   let sqlGenerated = "";
+  let errorId = "";
 
   try {
     if (!prompt?.trim()) throw new Error("Question is required.");
 
-    // 1) Extract physical schema
     let schema: string;
     try {
       schema = await extractSchema([], dbConfig);
@@ -86,14 +83,12 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
       throw new Error("Failed to extract database schema.");
     }
 
-    // 2) Build prompt
     const aiPrompt = buildPromptTemplate({
       user_question: prompt,
       db_type: dbConfig.type,
       physical_db_schema: schema,
     });
 
-    // 3) Call OpenAI
     let aiResponse: string;
     try {
       aiResponse = await callAIModel(aiPrompt);
@@ -102,10 +97,8 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
       throw new Error("Failed to generate SQL from the AI model.");
     }
 
-    // 4) Extract & sanitize SQL
     try {
-      const rawSql = extractSqlFromResponse(aiResponse);
-      sqlGenerated = ensureSafeSelect(rawSql);
+      sqlGenerated = ensureSafeSelect(extractSqlFromResponse(aiResponse));
     } catch (err: any) {
       errorId = await logPipelineError("extract_sql", err, {
         userId,
@@ -114,7 +107,6 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
       throw new Error("Failed to extract a valid SELECT statement.");
     }
 
-    // 5) Execute SQL
     let rows: any[] = [];
     try {
       rows = await executeSqlGenerated(sqlGenerated, dbConfig);
@@ -126,24 +118,23 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
       throw new Error("The generated SQL failed to execute.");
     }
 
-    // 6) Log success to `nlq`
     const tEnd = new Date();
-    await logNlqRun({
+    const nlq_id = await logNlqRun({
       userId,
       question: prompt,
       sql_executed: sqlGenerated,
-      error_id: "", // success → empty string
+      error_id: "", // success
       time_question: tStart,
       time_result: tEnd,
+      user_feedback_id: "", // no feedback yet
     });
 
     return {
-      id_prompt: tStart.getTime(), // or any id you prefer
+      id_prompt: nlq_id, // <-- Firestore id of the run (use this in feedback)
       results: rows,
       error: null as string | null,
     };
   } catch (e: any) {
-    // Log `nlq` even on error (with error_id)
     const tEnd = new Date();
     await logNlqRun({
       userId,
@@ -152,10 +143,11 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
       error_id: errorId || "",
       time_question: tStart,
       time_result: tEnd,
+      user_feedback_id: "",
     });
 
     return {
-      id_prompt: null,
+      id_prompt: null, // keep feedback hidden for error runs
       results: [],
       error: e?.message ?? "Unexpected error",
     };

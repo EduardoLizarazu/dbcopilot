@@ -11,7 +11,8 @@ import {
 } from "@mui/material";
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
-import { ChatFeedbackBtn } from "@/components/chat/prompt/chatFeedbackBtn";
+// import { ChatFeedbackBtn } from "@/components/chat/prompt/chatFeedbackBtn";
+import { ChatFeedbackBtn } from "@/components/chat/chatFeedbackBtn";
 // import { CreatePrompt } from "@/controller/_actions/chat/command/create-prompt";
 import { CreatePrompt } from "@/controller/_actions/chat/create-prompt";
 import { useFeedbackContext } from "@/contexts/feedback.context";
@@ -35,7 +36,7 @@ export function SingleChat(
   const { setFeedback } = useFeedbackContext();
 
   // STATE
-  const [promptId, setPromptId] = React.useState<number | null>(null);
+  const [promptId, setPromptId] = React.useState<string | null>(null);
   const [prompt, setPrompt] = React.useState<string>(
     previousConversation?.prompt ?? ""
   );

@@ -8,33 +8,43 @@ export type PipelineStage =
   | "execute_sql"
   | "unknown";
 
-/** Write an error to the `errors` collection and return the new doc id */
+/** Write an error to the `errors` collection and return the doc id */
 export async function logPipelineError(
   stage: PipelineStage,
   err: any,
   meta?: Record<string, any>
 ): Promise<string> {
-  const doc = {
+  const ref = await adminDb.collection("errors").add({
     stage,
     message: err?.message ?? String(err),
     stack: err?.stack ?? null,
     meta: meta ?? null,
     createdAt: new Date(),
-  };
-  const ref = await adminDb.collection("errors").add(doc);
+  });
   return ref.id;
 }
 
-/** Write the NLQ run to the `nlq` collection */
+/** Create an `nlq` document (returns its id) */
 export async function logNlqRun(params: {
   userId: string;
   question: string;
   sql_executed: string;
-  error_id: string; // "" when no error
+  error_id: string; // "" on success
   time_question: Date;
   time_result: Date;
-}) {
-  await adminDb.collection("nlq").add({
+  user_feedback_id?: string; // default ""
+}): Promise<string> {
+  const ref = await adminDb.collection("nlq").add({
     ...params,
+    user_feedback_id: params.user_feedback_id ?? "",
   });
+  return ref.id;
+}
+
+/** Attach/overwrite the feedback id on an `nlq` doc */
+export async function attachFeedbackToNlq(nlqId: string, feedbackId: string) {
+  await adminDb
+    .collection("nlq")
+    .doc(nlqId)
+    .update({ user_feedback_id: feedbackId });
 }
