@@ -12,7 +12,8 @@ import {
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { ChatFeedbackBtn } from "@/components/chat/prompt/chatFeedbackBtn";
-import { CreatePrompt } from "@/controller/_actions/chat/command/create-prompt";
+// import { CreatePrompt } from "@/controller/_actions/chat/command/create-prompt";
+import { CreatePrompt } from "@/controller/_actions/chat/create-prompt";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
 
