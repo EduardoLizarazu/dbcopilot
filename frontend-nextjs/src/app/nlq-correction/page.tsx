@@ -4,6 +4,6 @@ import { listNlqCorrectionsAction } from "@/controller/_actions/nlq/list-correct
 import NlqCorrectionsClient from "./nlq-correction.client";
 
 export default async function NlqCorrectionsPage() {
-  const initial = await listNlqCorrectionsAction({ limit: 200 });
+  const initial = await listNlqCorrectionsAction({ limit: 200, kind: "all" });
   return <NlqCorrectionsClient initialRows={initial} />;
 }

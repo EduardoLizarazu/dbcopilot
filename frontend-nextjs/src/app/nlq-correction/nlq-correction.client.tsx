@@ -18,12 +18,16 @@ import {
   Tooltip,
   Chip,
   CircularProgress,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   listNlqCorrectionsAction,
-  type NlqHistoryItem,
+  type NlqCorrectionItem,
 } from "@/controller/_actions/nlq/list-correction";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
@@ -31,18 +35,17 @@ import { LocalTime } from "@/components/shared/LocalTime";
 export default function NlqCorrectionsClient({
   initialRows,
 }: {
-  initialRows: NlqHistoryItem[];
+  initialRows: NlqCorrectionItem[];
 }) {
   const { setFeedback } = useFeedbackContext();
-  const [rows, setRows] = React.useState<NlqHistoryItem[]>(initialRows);
+  const [rows, setRows] = React.useState<NlqCorrectionItem[]>(initialRows);
   const [loading, setLoading] = React.useState(false);
 
   // Filters
   const [email, setEmail] = React.useState("");
   const [tqFrom, setTqFrom] = React.useState("");
   const [tqTo, setTqTo] = React.useState("");
-  const [trFrom, setTrFrom] = React.useState("");
-  const [trTo, setTrTo] = React.useState("");
+  const [kind, setKind] = React.useState<"all" | "feedback" | "error">("all");
 
   const fetchRows = async () => {
     setLoading(true);
@@ -51,8 +54,7 @@ export default function NlqCorrectionsClient({
         emailContains: email || undefined,
         tqFrom: tqFrom || undefined,
         tqTo: tqTo || undefined,
-        trFrom: trFrom || undefined,
-        trTo: trTo || undefined,
+        kind,
         limit: 200,
       });
       setRows(data);
@@ -98,22 +100,20 @@ export default function NlqCorrectionsClient({
             onChange={(e) => setTqTo(e.target.value)}
             InputLabelProps={{ shrink: true }}
           />
-          <TextField
-            label="time_result from"
-            size="small"
-            type="datetime-local"
-            value={trFrom}
-            onChange={(e) => setTrFrom(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="time_result to"
-            size="small"
-            type="datetime-local"
-            value={trTo}
-            onChange={(e) => setTrTo(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
+
+          <FormControl size="small" sx={{ minWidth: 180 }}>
+            <InputLabel id="kind-label">Show</InputLabel>
+            <Select
+              labelId="kind-label"
+              label="Show"
+              value={kind}
+              onChange={(e) => setKind(e.target.value as any)}
+            >
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="feedback">Has feedback</MenuItem>
+              <MenuItem value="error">Has execution error</MenuItem>
+            </Select>
+          </FormControl>
         </Stack>
 
         <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
@@ -127,8 +127,7 @@ export default function NlqCorrectionsClient({
               setEmail("");
               setTqFrom("");
               setTqTo("");
-              setTrFrom("");
-              setTrTo("");
+              setKind("all");
               fetchRows();
             }}
           >
@@ -150,10 +149,10 @@ export default function NlqCorrectionsClient({
                 <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>SQL</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>SQL is good</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Feedback</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Feedback message</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Execution error</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>time_question</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>time_result</TableCell>
                 <TableCell align="right" sx={{ fontWeight: 700 }}>
                   Actions
                 </TableCell>
@@ -197,13 +196,6 @@ export default function NlqCorrectionsClient({
                       </Box>
                     </TableCell>
                     <TableCell>
-                      {r.sql_is_good ? (
-                        <Chip size="small" color="success" label="true" />
-                      ) : (
-                        <Chip size="small" color="error" label="false" />
-                      )}
-                    </TableCell>
-                    <TableCell>
                       {r.user_feedback_id ? (
                         r.feedback_type === 1 ? (
                           <Chip size="small" color="success" label="good" />
@@ -216,17 +208,34 @@ export default function NlqCorrectionsClient({
                         "-"
                       )}
                     </TableCell>
-                    <TableCell>
-                      <LocalTime iso={r.time_question} />
+                    <TableCell sx={{ maxWidth: 360 }}>
+                      <Box
+                        sx={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {r.user_feedback_id
+                          ? r.feedback_explanation || "-"
+                          : "-"}
+                      </Box>
                     </TableCell>
                     <TableCell>
-                      <LocalTime iso={r.time_result} />
+                      {r.error_id ? (
+                        <Chip size="small" color="warning" label={r.error_id} />
+                      ) : (
+                        "-"
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <LocalTime iso={r.time_question} />
                     </TableCell>
                     <TableCell align="right">
                       <Tooltip title="Edit correction">
                         <IconButton
                           component={Link}
-                          href={`/nlq-correction/${r.id}`} // route uses NLQ id
+                          href={`/nlq-correction/${r.id}`}
                           size="small"
                           aria-label="edit"
                         >
