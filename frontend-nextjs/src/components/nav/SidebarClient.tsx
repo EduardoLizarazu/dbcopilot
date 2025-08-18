@@ -94,9 +94,9 @@ export default function SidebarClient({
             label="Chat History"
           />
           <NavItem
-            href="/sql-corrections"
+            href="/nlq-correction"
             icon={<RuleIcon />}
-            label="SQL Corrections"
+            label="NLQ Correction"
           />
         </>
       </List>
