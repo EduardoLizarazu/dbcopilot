@@ -1,3 +1,4 @@
+// app/nlq-correction/[nlqId]/client.tsx
 "use client";
 
 import * as React from "react";
@@ -20,34 +21,37 @@ import { runSqlAction } from "@/controller/_actions/nlq/run-sql";
 import { saveNlqCorrectionAction } from "@/controller/_actions/nlq/save-correction";
 import type { NlqDetail } from "@/controller/_actions/nlq/get-details";
 import { useFeedbackContext } from "@/contexts/feedback.context";
+import { useRouter } from "next/navigation";
 
 export default function NlqCorrectionClient({
   initial,
 }: {
   initial: NlqDetail;
 }) {
+  const router = useRouter();
   const { setFeedback } = useFeedbackContext();
 
-  // SQL editors
   const [prevSql, setPrevSql] = React.useState(initial.sql_executed || "");
   const [newSql, setNewSql] = React.useState("");
 
-  // Results
   const [prevRows, setPrevRows] = React.useState<any[] | null>(null);
   const [newRows, setNewRows] = React.useState<any[] | null>(null);
   const [loadingPrev, setLoadingPrev] = React.useState(false);
   const [loadingNew, setLoadingNew] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+
+  const [runError, setRunError] = React.useState<string | null>(null);
+  const [saveError, setSaveError] = React.useState<string | null>(null);
+  const [saveOk, setSaveOk] = React.useState<string | null>(null);
 
   const runPrev = async () => {
     setLoadingPrev(true);
-    setError(null);
+    setRunError(null);
     setPrevRows(null);
     try {
       const r = await runSqlAction(prevSql);
       setPrevRows(r.rows || []);
     } catch (e: any) {
-      setError(e?.message ?? "Failed to run previous SQL");
+      setRunError(e?.message ?? "Failed to run previous SQL");
     } finally {
       setLoadingPrev(false);
     }
@@ -55,35 +59,37 @@ export default function NlqCorrectionClient({
 
   const runNew = async () => {
     setLoadingNew(true);
-    setError(null);
+    setRunError(null);
     setNewRows(null);
     try {
       const r = await runSqlAction(newSql);
       setNewRows(r.rows || []);
     } catch (e: any) {
-      setError(e?.message ?? "Failed to run corrected SQL");
+      setRunError(e?.message ?? "Failed to run corrected SQL");
     } finally {
       setLoadingNew(false);
     }
   };
 
   const saveCorrection = async () => {
+    setSaveError(null);
+    setSaveOk(null);
     try {
       const res = await saveNlqCorrectionAction({
         nlq_id: initial.id,
         corrected_sql: newSql,
       });
+      setSaveOk("Everything was OK — correction saved and NLQ marked as good.");
       setFeedback({
         isActive: true,
         severity: "success",
-        message: "Correction saved and NLQ marked as good.",
+        message: "Correction saved.",
       });
+      router.push("/nlq-correction");
     } catch (e: any) {
-      setFeedback({
-        isActive: true,
-        severity: "error",
-        message: e?.message ?? "Save failed",
-      });
+      const msg = e?.message ?? "Save failed";
+      setSaveError(msg);
+      setFeedback({ isActive: true, severity: "error", message: msg });
     }
   };
 
@@ -171,6 +177,12 @@ export default function NlqCorrectionClient({
         </Grid>
       </Paper>
 
+      <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+        <Button variant="text" onClick={() => router.push("/nlq-correction")}>
+          Cancel
+        </Button>
+      </Stack>
+
       <Divider sx={{ my: 3 }} />
 
       {/* Editors & runners */}
@@ -198,9 +210,9 @@ export default function NlqCorrectionClient({
               </Button>
             </Stack>
 
-            {error && (
+            {runError && (
               <Alert severity="error" sx={{ mt: 2 }}>
-                {error}
+                {runError}
               </Alert>
             )}
 
@@ -246,6 +258,17 @@ export default function NlqCorrectionClient({
                 Save correction
               </Button>
             </Stack>
+
+            {saveOk && (
+              <Alert severity="success" sx={{ mt: 2 }}>
+                {saveOk}
+              </Alert>
+            )}
+            {saveError && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                {saveError}
+              </Alert>
+            )}
 
             {loadingNew ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
