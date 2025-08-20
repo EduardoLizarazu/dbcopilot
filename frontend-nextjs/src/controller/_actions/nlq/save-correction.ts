@@ -28,7 +28,7 @@ export async function saveNlqCorrectionAction(params: {
   if (!nlq_id?.trim()) throw new Error("nlq_id required");
   if (!corrected_sql?.trim()) throw new Error("corrected_sql required");
 
-  // Load NLQ for wrong_sql + question
+  // Cargar NLQ original (para wrong_sql y question)
   const nlqRef = adminDb.collection("nlq").doc(nlq_id);
   const nlqSnap = await nlqRef.get();
   if (!nlqSnap.exists) throw new Error("NLQ not found");
@@ -38,18 +38,39 @@ export async function saveNlqCorrectionAction(params: {
   const user_question = (d.question as string) || "";
   const corrected_by_user_id = await getUserIdFromCookie();
 
-  // Save correction (collection name kept as "nlq_correction")
-  const corrRef = await adminDb.collection("nlq_correction").add({
+  // Preparar refs para batch
+  const corrRef = adminDb.collection("nlq_correction").doc(); // autogen id
+  const vbdRef = adminDb.collection("vbd").doc(); // autogen id
+
+  const batch = adminDb.batch();
+
+  // 1) Guardar corrección
+  batch.set(corrRef, {
     nlq_id,
     wrong_sql,
     corrected_sql,
     user_question,
-    corrected_by_user_id, // ✅ who corrected
+    corrected_by_user_id,
     createdAt: new Date(),
   });
 
-  // Mark NLQ as good
-  await nlqRef.set({ sql_is_good: true }, { merge: true });
+  // 2) Actualizar NLQ: marcar bueno + enlazar nlq_correction_id
+  batch.set(
+    nlqRef,
+    { sql_is_good: true, nlq_correction_id: corrRef.id },
+    { merge: true }
+  );
 
-  return { ok: true as const, correction_id: corrRef.id };
+  // 3) Crear registro en VBD
+  batch.set(vbdRef, {
+    nlq_id: [nlq_id], // array con el NLQ corregido
+    vbd_location_id: "", // por ahora vacío
+    general_query: "", // por ahora vacío
+    general_question: "", // por ahora vacío
+    createdAt: new Date(),
+  });
+
+  await batch.commit();
+
+  return { ok: true as const, correction_id: corrRef.id, vbd_id: vbdRef.id };
 }
