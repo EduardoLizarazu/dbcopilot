@@ -98,6 +98,7 @@ export default function SidebarClient({
             icon={<RuleIcon />}
             label="NLQ Correction"
           />
+          <NavItem href="/nlq-good" icon={<PolylineIcon />} label="NLQ VBD" />
         </>
       </List>
       <Box sx={{ mt: "auto", p: 2 }}>
