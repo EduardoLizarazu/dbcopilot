@@ -35,6 +35,7 @@ import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "next/link";
+import EditIcon from "@mui/icons-material/Edit";
 
 export default function NlqGoodClient({
   initialRows,
@@ -282,28 +283,41 @@ export default function NlqGoodClient({
                       </TableCell>
                       <TableCell align="right">
                         {r.uploaded ? (
-                          <Tooltip
-                            title={
-                              isDeleting
-                                ? "Deleting..."
-                                : "Delete from Pinecone & VBD"
-                            }
-                          >
-                            <span>
+                          <>
+                            <Tooltip title="Edit NLQ">
                               <IconButton
-                                onClick={() => onDelete(r.id)}
+                                component={Link}
+                                href={`/nlq-good/${r.id}`}
                                 size="small"
-                                aria-label="delete"
-                                disabled={isDeleting}
+                                aria-label="edit"
+                                sx={{ ml: 0.5 }}
                               >
-                                {isDeleting ? (
-                                  <CircularProgress size={16} />
-                                ) : (
-                                  <DeleteIcon fontSize="small" />
-                                )}
+                                <EditIcon fontSize="small" />
                               </IconButton>
-                            </span>
-                          </Tooltip>
+                            </Tooltip>
+                            <Tooltip
+                              title={
+                                isDeleting
+                                  ? "Deleting..."
+                                  : "Delete from Pinecone & VBD"
+                              }
+                            >
+                              <span>
+                                <IconButton
+                                  onClick={() => onDelete(r.id)}
+                                  size="small"
+                                  aria-label="delete"
+                                  disabled={isDeleting}
+                                >
+                                  {isDeleting ? (
+                                    <CircularProgress size={16} />
+                                  ) : (
+                                    <DeleteIcon fontSize="small" />
+                                  )}
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </>
                         ) : (
                           <Tooltip
                             title={
