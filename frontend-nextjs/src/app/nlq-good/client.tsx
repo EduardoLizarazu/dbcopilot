@@ -33,6 +33,8 @@ import { deleteNlqVbdAction } from "@/controller/_actions/nlq/delete-vbd";
 import { uploadNlqToVbdAction } from "@/controller/_actions/nlq/upload-vbd";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
+import AddIcon from "@mui/icons-material/Add";
+import Link from "next/link";
 
 export default function NlqGoodClient({
   initialRows,
@@ -204,6 +206,14 @@ export default function NlqGoodClient({
             sx={{ ml: { md: "auto" } }}
           >
             Refresh
+          </Button>
+          <Button
+            component={Link}
+            href="/nlq-good/create"
+            variant="outlined"
+            startIcon={<AddIcon />}
+          >
+            Create
           </Button>
         </Stack>
       </Paper>
