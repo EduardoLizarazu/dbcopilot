@@ -17,7 +17,7 @@ function getDbConfig() {
     port: Number(process.env.DB_PORT || 5432),
     username: process.env.DB_USER || "postgres",
     password: process.env.DB_PASS || "Passw0rd",
-    database: process.env.DB_NAME || "northwind",
+    database: process.env.DB_NAME || "dvdrental",
   } as const;
 }
 

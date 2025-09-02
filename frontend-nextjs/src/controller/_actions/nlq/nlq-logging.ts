@@ -6,6 +6,7 @@ export type PipelineStage =
   | "openai_generate"
   | "extract_sql"
   | "execute_sql"
+  | "embedding"
   | "unknown";
 
 /** Write an error to the `errors` collection and return the doc id */

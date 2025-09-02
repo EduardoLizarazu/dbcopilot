@@ -43,6 +43,7 @@ export async function TextToSQLServiceExecution(
     user_question: params.user_question,
     db_type: params.config.type,
     physical_db_schema,
+    vbd_similarity: undefined
   });
 
   console.log("Final Prompt to AI:", prompt);

@@ -13,6 +13,7 @@ import {
   logNlqRun,
   logPipelineError,
 } from "@/controller/_actions/nlq/nlq-logging";
+import { searchWithQuery } from "../nlq/vbd/find-by-prompt";
 
 // ---- DB connection config from env ----
 type Supported =
@@ -30,7 +31,7 @@ function getDbConfig() {
     port: Number(process.env.DB_PORT || 5432),
     username: process.env.DB_USER || "postgres",
     password: process.env.DB_PASS || "Passw0rd",
-    database: process.env.DB_NAME || "northwind",
+    database: process.env.DB_NAME || "dvdrental",
   } as const;
 }
 
@@ -83,8 +84,19 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
       throw new Error("Failed to extract database schema.");
     }
 
+    let vbd_similarity = null;
+    try {
+      vbd_similarity = await searchWithQuery(prompt);
+      console.log("VBD similarity results:", vbd_similarity);
+    } catch (err: any) {
+      errorId = await logPipelineError("embedding", err, { userId });
+      throw new Error("Failed to generate prompt embedding.");
+    }
+
+
     const aiPrompt = buildPromptTemplate({
       user_question: prompt,
+      vbd_similarity: vbd_similarity,
       db_type: dbConfig.type,
       physical_db_schema: schema,
     });
