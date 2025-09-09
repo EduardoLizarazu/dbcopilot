@@ -1,0 +1,39 @@
+faker/
+│
+├── data/                # Datos de entrada/salida (csv, json, etc.)
+│
+├── models/              # Definición de modelos ORM (SQLAlchemy)
+│   └── __init__.py
+│   └── base.py
+│   └── maestros.py
+│   └── pedidos.py
+│   └── movimientos.py
+│   └── ... (otros modelos)
+│
+├── schemas/             # Esquemas de validación (Pandera)
+│   └── __init__.py
+│   └── sc5_schema.py
+│   └── sc6_schema.py
+│   └── ... (otros esquemas)
+│
+├── generators/          # Funciones para generar datos fake
+│   └── __init__.py
+│   └── maestros_gen.py
+│   └── pedidos_gen.py
+│   └── movimientos_gen.py
+│
+├── loaders/             # Funciones para cargar datos a la BD
+│   └── __init__.py
+│   └── maestros_loader.py
+│   └── pedidos_loader.py
+│   └── movimientos_loader.py
+│
+├── utils/               # Utilidades y helpers generales
+│   └── __init__.py
+│   └── db.py
+│   └── config.py
+│   └── logger.py
+│
+├── main.py              # Script principal (puede ser CLI)
+├── requirements.txt
+└── README.md

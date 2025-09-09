@@ -1,0 +1,11 @@
+oracledb>=2.2
+SQLAlchemy>=2.0
+pandas>=2.2
+numpy>=1.26
+faker>=25.0
+pandera>=0.20
+python-dateutil>=2.9
+tqdm>=4.66
+pydantic>=2.8
+python-dotenv>=1.0
+
