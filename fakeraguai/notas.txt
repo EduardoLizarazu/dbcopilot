@@ -37,3 +37,38 @@ faker/
 ├── main.py              # Script principal (puede ser CLI)
 ├── requirements.txt
 └── README.md
+
+
+and pb7_pedido = c6_num
+and pb7_filial = c6_filial
+and pb7_itempv = c6_item
+
+zh_alm = sd2.d2_local
+
+
+TES: 001 → Ingreso por producción
+TES: 008 → Salida por traslado de almacén
+TES: 501 → Salida por venta (facturación normal)
+TES: 501D → Salida despacho (detalle derivado de 501)
+TES: 514 → Salida por traslado (integración/ajuste entre almacenes)
+TES: 505 -> 
+TES: 507 -> 
+TES: 513 ->
+TES: 520 ->
+
+D2_TIPODOC: 01 → Factura
+D2_TIPODOC: 02 → Nota de crédito
+D2_TIPODOC: 03 → Nota de débito
+D2_TIPODOC: 04 → Cupón fiscal
+D2_TIPODOC: 05 → Recibo
+D2_TIPODOC: 50 → Remito (guía de despacho / salida sin factura)
+
+
+SUCURSAL 101, 201, 301
+
+sd21.d2_item
+sd21.d2_valimp5
+d2_grupo
+sd21.d2_conta
+sf2.f2_uglosa
+sf2.f2_upedido
