@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { loginAction } from "@/controller/_actions/auth/login";
+import { queryODBC } from "@/controller/_actions/oracledb";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,6 +42,15 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  React.useEffect(() => {
+    // Test OracleDB connection on component mount
+    (async () => {
+      await queryODBC().catch((error) => {
+        console.error("OracleDB connection test failed:", error);
+      });
+    })();
+  }, []);
 
   return (
     <div className="flex mt-6 items-center justify-center px-4">
