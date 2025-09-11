@@ -3,13 +3,13 @@ import { DataSource } from "typeorm";
 
 export async function queryODBC() {
   const tempDataSource = new DataSource({
-    type: "oracle",
-    host: "localhost",
-    port: 1521,
-    username: "TMPRD",
-    password: "TMPRD",
-    database: "orclaguai",
-    sid: "orclaguai",
+    type: process.env.ORACLE_TYPE as any,
+    host: process.env.ORACLE_HOST,
+    port: process.env.ORACLE_PORT ? parseInt(process.env.ORACLE_PORT) : 1521,
+    username: process.env.ORACLE_USER,
+    password: process.env.ORACLE_PASSWORD,
+    database: process.env.ORACLE_DB,
+    sid: process.env.ORACLE_SID,
     synchronize: false, // Explicitly disable synchronization
     logging: false, // Disable logging unless needed
     entities: [], // No entities needed
@@ -25,7 +25,20 @@ export async function queryODBC() {
     const queryRunner = tempDataSource.createQueryRunner();
     try {
       // Execute the query
-      const result = await queryRunner.query(``);
+      const result = await queryRunner.query(`
+        select sd3.d3_filial "SUCURSAL",
+       sd3.d3_emissao "FECHA",
+       sd3.d3_xnrotra "NOTA",
+       sb1.b1_desc "PRODUCTO",
+       sd3.d3_quant "BOLSA/PAQUETE",
+       d3_qtsegum "QQ/L",
+       d3_local "ALMACEN"
+        from tmprd.sd3300 sd3,
+          tmprd.sb1300 sb1
+        where 
+        d3_cod = b1_cod
+        and d3_tm = 8
+      `);
       console.log("Query result:", result);
       return result;
     } catch (queryError) {
