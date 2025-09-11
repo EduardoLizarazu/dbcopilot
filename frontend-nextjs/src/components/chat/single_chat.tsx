@@ -8,6 +8,8 @@ import {
   TextField,
   Typography,
   Alert,
+  List,
+  ListItem,
 } from "@mui/material";
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
@@ -17,6 +19,7 @@ import { ChatFeedbackBtn } from "@/components/chat/chatFeedbackBtn";
 import { CreatePrompt } from "@/controller/_actions/chat/create-prompt";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
+import { searchWithQuery } from "@/controller/_actions/nlq/vbd/find-by-prompt";
 
 interface Props {
   previousConversation?: {
@@ -45,8 +48,21 @@ export function SingleChat(
     data: Record<string, unknown>[];
   }>({ data: [], error: null });
 
+  // State of similar prompts reset
+  const [similarPrompts, setSimilarPrompts] = React.useState<unknown[]>([]);
+
   const [isResetHf, setIsResetHf] = React.useState<boolean>(false);
   const [submitting, setSubmitting] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    (async () => {
+      if (prompt.length === 0) return;
+      const results = await searchWithQuery(prompt);
+      const results_question = results.map((r) => r.metadata?.question);
+
+      setSimilarPrompts(results_question);
+    })();
+  }, [prompt]);
 
   // HANDLERS
   async function handleSubmitPrompt() {
@@ -117,7 +133,10 @@ export function SingleChat(
           >
             <Typography variant="h4">Chat with your database</Typography>
           </Stack>
-
+          {/* Similar Prompts */}
+          <Box>
+            <div>{JSON.stringify(similarPrompts, null, 2)}</div>
+          </Box>
           {/* Prompt */}
           <Box
             component="form"
