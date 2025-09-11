@@ -24,14 +24,15 @@ type Supported =
   | "mssql"
   | "oracle";
 function getDbConfig() {
-  const type = (process.env.DB_TYPE || "postgres") as Supported;
+  const type = (process.env.ORACLE_TYPE || "oracle") as Supported;
   return {
     type,
-    host: process.env.DB_HOST || "localhost",
-    port: Number(process.env.DB_PORT || 5432),
-    username: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASS || "Passw0rd",
-    database: process.env.DB_NAME || "dvdrental",
+    host: process.env.ORACLE_HOST || "",
+    port: Number(process.env.ORACLE_PORT || 5432),
+    username: process.env.ORACLE_USER || "",
+    password: process.env.ORACLE_PASSWORD || "",
+    database: process.env.ORACLE_DB || "",
+    sid: process.env.ORACLE_SID || "", // only for Oracle
   } as const;
 }
 
@@ -92,7 +93,6 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
       errorId = await logPipelineError("embedding", err, { userId });
       throw new Error("Failed to generate prompt embedding.");
     }
-
 
     const aiPrompt = buildPromptTemplate({
       user_question: prompt,

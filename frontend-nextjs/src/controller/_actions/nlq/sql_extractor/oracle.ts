@@ -80,5 +80,5 @@ WHERE
 ORDER BY
     ac.owner,
     ac.table_name,
-    ac.column_id;
+    ac.column_id
 `;

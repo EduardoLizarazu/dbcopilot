@@ -46,9 +46,15 @@ export default function LoginPage() {
   React.useEffect(() => {
     // Test OracleDB connection on component mount
     (async () => {
-      await queryODBC().catch((error) => {
-        console.error("OracleDB connection test failed:", error);
-      });
+      await queryODBC()
+        .then((result) => {
+          console.log(result);
+
+          console.log("OracleDB connection test successful");
+        })
+        .catch((error) => {
+          console.error("OracleDB connection test failed:", error);
+        });
     })();
   }, []);
 

@@ -17,21 +17,18 @@ export async function extractSchema(
 ): Promise<any> {
   // Create a temporary data source
   const tempDataSource = new DataSource({
-    type: config.type,
-    host: config.host,
-    port: config.port,
-    username: config.username,
-    password: config.password,
-    database: config.database,
+    type: process.env.ORACLE_TYPE as any,
+    host: process.env.ORACLE_HOST,
+    port: process.env.ORACLE_PORT ? parseInt(process.env.ORACLE_PORT) : 1521,
+    username: process.env.ORACLE_USER,
+    password: process.env.ORACLE_PASSWORD,
+    database: process.env.ORACLE_DB,
+    sid: process.env.ORACLE_SID,
     synchronize: false, // Explicitly disable synchronization
     logging: false, // Disable logging unless needed
     entities: [], // No entities needed
     migrations: [], // No migrations
     subscribers: [], // No subscribers
-    extra: {
-      max: 1, // Limit pool size since we're doing a single query
-      connectionTimeoutMillis: 5000, // Timeout after 5 seconds
-    },
   });
 
   try {
@@ -53,6 +50,7 @@ export async function extractSchema(
           break;
         case "oracle":
           result = await queryRunner.query(oracleSqlExtractor, params);
+          console.log("Oracle extractor result:", result);
           break;
         case "mssql":
           result = await queryRunner.query(sqlServerSqlExtractor, params);
