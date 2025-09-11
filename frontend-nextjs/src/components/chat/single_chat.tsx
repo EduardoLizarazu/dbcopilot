@@ -133,9 +133,30 @@ export function SingleChat(
           >
             <Typography variant="h4">Chat with your database</Typography>
           </Stack>
-          {/* Similar Prompts */}
+          {/* Similar Prompts [ "Give me pb7300", "question form admin test" ] */}
           <Box>
-            <div>{JSON.stringify(similarPrompts, null, 2)}</div>
+            <Typography variant="h6" gutterBottom>
+              Similar Questions:
+            </Typography>
+            {similarPrompts.length > 0 && (
+              <>
+                <List>
+                  {similarPrompts.map((sp, index) => (
+                    <ListItem
+                      // button effects with pointer cursor and hover
+                      sx={{
+                        cursor: "pointer",
+                        "&:hover": { backgroundColor: "lightgray" },
+                      }}
+                      key={index}
+                      onClick={() => setPrompt((sp as string) || "")}
+                    >
+                      {typeof sp === "string" ? sp : String(sp)}
+                    </ListItem>
+                  ))}
+                </List>
+              </>
+            )}
           </Box>
           {/* Prompt */}
           <Box
