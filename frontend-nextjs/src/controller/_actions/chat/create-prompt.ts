@@ -100,10 +100,12 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
       db_type: dbConfig.type,
       physical_db_schema: schema,
     });
+    console.log("AI Prompt:", aiPrompt);
 
     let aiResponse: string;
     try {
       aiResponse = await callAIModel(aiPrompt);
+      console.log("AI Response:", aiResponse);
     } catch (err: any) {
       errorId = await logPipelineError("openai_generate", err, { userId });
       throw new Error("Failed to generate SQL from the AI model.");
@@ -111,6 +113,7 @@ export async function CreatePrompt({ prompt }: { prompt: string }) {
 
     try {
       sqlGenerated = ensureSafeSelect(extractSqlFromResponse(aiResponse));
+      console.log("Extracted SQL:", sqlGenerated);
     } catch (err: any) {
       errorId = await logPipelineError("extract_sql", err, {
         userId,
