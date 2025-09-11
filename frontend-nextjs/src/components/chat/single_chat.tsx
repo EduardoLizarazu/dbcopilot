@@ -54,13 +54,20 @@ export function SingleChat(
   const [isResetHf, setIsResetHf] = React.useState<boolean>(false);
   const [submitting, setSubmitting] = React.useState<boolean>(false);
 
+  const prevPromptRef = React.useRef(prompt);
   React.useEffect(() => {
+    if (prevPromptRef.current === prompt) return;
     (async () => {
-      if (prompt.length === 0) return;
+      prevPromptRef.current = prompt;
+      if (prompt.length === 0) {
+        setSimilarPrompts([]);
+        return;
+      }
       const results = await searchWithQuery(prompt);
       const results_question = results.map((r) => r.metadata?.question);
 
       setSimilarPrompts(results_question);
+      console.log(prevPromptRef.current, prompt);
     })();
   }, [prompt]);
 
