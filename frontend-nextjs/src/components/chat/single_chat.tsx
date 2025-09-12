@@ -63,10 +63,10 @@ export function SingleChat(
         setSimilarPrompts([]);
         return;
       }
-      const results = await searchWithQuery(prompt);
-      const results_question = results.map((r) => r.metadata?.question);
+      // const results = await searchWithQuery(prompt);
+      // const results_question = results.map((r) => r.metadata?.question);
 
-      setSimilarPrompts(results_question);
+      // setSimilarPrompts(results_question);
       // console.log(prevPromptRef.current, prompt);
     })();
   }, [prompt]);
