@@ -1,7 +1,10 @@
 // controller/_actions/nlq/update-admin.ts
 "use server";
 
-import { adminDb, adminAuth } from "@/lib/firebase/firebase-admin";
+import {
+  adminDb,
+  adminAuth,
+} from "@/infrastructure/providers/firebase/firebase-admin";
 import { cookies } from "next/headers";
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";

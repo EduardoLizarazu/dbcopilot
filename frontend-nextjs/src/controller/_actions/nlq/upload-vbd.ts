@@ -1,7 +1,7 @@
 // controller/_actions/nlq/upload-vbd.ts
 "use server";
 
-import { adminDb } from "@/lib/firebase/firebase-admin";
+import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
 

@@ -1,6 +1,6 @@
 // Server Component: safe to read cookies, verify JWT, and render based on claims
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/auth.server";
+import { getCurrentUser } from "@/infrastructure/services/auth.server";
 import LogoutButton from "@/components/nav/LogoutButton";
 import { AppBar, Toolbar, Button, Box, Typography } from "@mui/material";
 

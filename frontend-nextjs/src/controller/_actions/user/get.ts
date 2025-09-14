@@ -1,6 +1,6 @@
 "use server";
 
-import { adminDb } from "@/lib/firebase/firebase-admin";
+import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";
 
 export type UserProfile = {
   id: string;
@@ -10,7 +10,9 @@ export type UserProfile = {
   roleIds: string[]; // single source of truth
 };
 
-export async function getUserAction(userId: string): Promise<UserProfile | null> {
+export async function getUserAction(
+  userId: string
+): Promise<UserProfile | null> {
   if (!userId) throw new Error("Missing userId");
   const doc = await adminDb.collection("users").doc(userId).get();
   if (!doc.exists) return null;

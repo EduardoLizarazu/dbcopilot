@@ -1,13 +1,13 @@
-import { adminDb } from "@/lib/firebase/firebase-admin";
-import { adminAuth } from "@/lib/firebase/firebase-admin";
+import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";
+import { adminAuth } from "@/infrastructure/providers/firebase/firebase-admin";
 
 export type UserRow = {
-  id: string;         // Firestore doc id (ideally the uid)
+  id: string; // Firestore doc id (ideally the uid)
   name: string;
   lastname?: string;
   email: string;
-  roleIds: string[];  // single source of truth
-  roleNames: string;  // computed, comma-separated for UI
+  roleIds: string[]; // single source of truth
+  roleNames: string; // computed, comma-separated for UI
 };
 
 async function loadRolesMap(): Promise<Record<string, string>> {
@@ -42,10 +42,11 @@ export async function listUsersCore(q?: string): Promise<UserRow[]> {
 
   if (q && q.trim()) {
     const s = q.trim().toLowerCase();
-    users = users.filter((u) =>
-      (u.name ?? "").toLowerCase().includes(s) ||
-      (u.lastname ?? "").toLowerCase().includes(s) ||
-      (u.email ?? "").toLowerCase().includes(s)
+    users = users.filter(
+      (u) =>
+        (u.name ?? "").toLowerCase().includes(s) ||
+        (u.lastname ?? "").toLowerCase().includes(s) ||
+        (u.email ?? "").toLowerCase().includes(s)
     );
   }
 

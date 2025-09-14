@@ -1,5 +1,5 @@
 // controller/_actions/user/roles.ts
-import { adminDb } from "@/lib/firebase/firebase-admin";
+import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";
 
 export type RoleOption = { id: string; name: string; description?: string };
 

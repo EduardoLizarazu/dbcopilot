@@ -21,13 +21,18 @@
     "paths": {
       "@/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
-      "@domain/*": ["./src/domain/*"],
-      "@data/*": ["./src/data/*"],
+      "@domain/*": ["./src/core/domain/*"],
       "@infra/*": ["./src/infrastructure/*"],
-      "@useCases/*": ["./src/useCase/*"],
+      "@useCases/*": ["./src/core/application/usecases/*"],
       "@controllers/*": ["./src/controllers/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/core/application/usecases/repositories/role/update-role.usecase.repots"
+  ],
   "exclude": ["node_modules"]
 }

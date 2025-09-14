@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { adminAuth } from "@/lib/firebase/firebase-admin"; // your Admin SDK init
+import { adminAuth } from "@/infrastructure/providers/firebase/firebase-admin"; // your Admin SDK init
 
 export type DecodedUser = {
   uid: string;

@@ -1,6 +1,6 @@
 "use server";
 
-import { adminDb } from "@/lib/firebase/firebase-admin";
+import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";
 
 export type UpdateRoleInput = {
   roleId: string;

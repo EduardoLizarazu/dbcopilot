@@ -1,7 +1,7 @@
 // controller/_actions/chat/command/submit-feedback.ts
 "use server";
 
-import { adminDb } from "@/lib/firebase/firebase-admin";
+import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";
 import {
   attachFeedbackToNlq,
   updateNlqSqlIsGood,

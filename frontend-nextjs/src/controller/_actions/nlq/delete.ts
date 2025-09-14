@@ -1,7 +1,7 @@
 // controller/_actions/nlq/delete.ts
 "use server";
 
-import { adminDb } from "@/lib/firebase/firebase-admin";
+import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";
 
 export async function deleteNlqCascadeAction(nlqId: string) {
   if (!nlqId) throw new Error("nlqId is required.");

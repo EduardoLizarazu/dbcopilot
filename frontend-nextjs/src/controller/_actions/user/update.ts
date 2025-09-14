@@ -1,6 +1,9 @@
 "use server";
 
-import { adminAuth, adminDb } from "@/lib/firebase/firebase-admin";
+import {
+  adminAuth,
+  adminDb,
+} from "@/infrastructure/providers/firebase/firebase-admin";
 
 export type UpdateUserInput = {
   userId: string;

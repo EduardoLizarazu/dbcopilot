@@ -1,7 +1,10 @@
 // controller/_actions/nlq/get-good-detail.ts
 "use server";
 
-import { adminDb, adminAuth } from "@/lib/firebase/firebase-admin";
+import {
+  adminDb,
+  adminAuth,
+} from "@/infrastructure/providers/firebase/firebase-admin";
 
 export type NlqGoodDetail = {
   id: string;

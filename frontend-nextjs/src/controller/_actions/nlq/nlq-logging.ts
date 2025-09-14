@@ -1,5 +1,5 @@
 // lib/nlq-logging.ts
-import { adminDb } from "@/lib/firebase/firebase-admin";
+import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";
 
 export type PipelineStage =
   | "extract_schema"

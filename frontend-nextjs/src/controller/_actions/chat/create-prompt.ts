@@ -2,7 +2,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { adminAuth } from "@/lib/firebase/firebase-admin";
+import { adminAuth } from "@/infrastructure/providers/firebase/firebase-admin";
 
 import { extractSchema } from "@/controller/_actions/nlq/sql_extractor/extract_schema";
 import { buildPromptTemplate } from "@/controller/_actions/nlq/text_to_sql/prompt_template";
