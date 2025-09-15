@@ -1,9 +1,9 @@
 import {
   createUserSchema,
   TCreateUserDto,
-} from "@/core/application/dtos/user.domain.dto";
+} from "@/core/application/dtos/user.app.dto";
 import { ICreateUserAppUseCase } from "../../interfaces/user/create-user.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.domain.dto";
+import { TResponseDto } from "@/core/application/dtos/response.app.dto";
 import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
 import { UserEntity } from "@/core/domain/entities/user.domain.entity";
 import { UserAppEnum } from "@/core/application/enums/user.app.enum";

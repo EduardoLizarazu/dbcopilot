@@ -1,12 +1,12 @@
 import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
 import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
 import { ICreateRoleAppUseCase } from "../../interfaces/role/create-role.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.domain.dto";
+import { TResponseDto } from "@/core/application/dtos/response.app.dto";
 import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
 import {
   createRoleSchema,
   TCreateRoleDto,
-} from "@/core/application/dtos/role.domain.dto";
+} from "@/core/application/dtos/role.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
 export class CreateRoleUseCase implements ICreateRoleAppUseCase {

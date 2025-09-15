@@ -2,7 +2,7 @@ import {
   TCreateUserDto,
   TUpdateUserDto,
   TUserOutputRequestDto,
-} from "../dtos/user.domain.dto";
+} from "../dtos/user.app.dto";
 
 export interface IUserRepository {
   create(data: TCreateUserDto): Promise<TUserOutputRequestDto>;

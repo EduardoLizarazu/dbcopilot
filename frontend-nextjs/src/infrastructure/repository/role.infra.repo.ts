@@ -4,7 +4,7 @@ import {
   TCreateRoleDto,
   TRoleOutRequestDto,
   TUpdateRoleDto,
-} from "@/core/application/dtos/role.domain.dto";
+} from "@/core/application/dtos/role.app.dto";
 import {
   collection,
   deleteDoc,

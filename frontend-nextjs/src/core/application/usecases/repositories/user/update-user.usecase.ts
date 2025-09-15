@@ -1,11 +1,11 @@
 import { UserEntity } from "@/core/domain/entities/user.domain.entity";
 import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
 import { IUpdateUserAppUseCase } from "../../interfaces/user/update-user.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.domain.dto";
+import { TResponseDto } from "@/core/application/dtos/response.app.dto";
 import {
   TUpdateUserDto,
   userSchema,
-} from "@/core/application/dtos/user.domain.dto";
+} from "@/core/application/dtos/user.app.dto";
 import { UserAppEnum } from "@/core/application/enums/user.app.enum";
 import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
 

@@ -4,7 +4,7 @@ import { HttpRequest } from "@/http/helpers/HttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { IHttpErrors } from "@/http/helpers/IHttpErrors.http";
 import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
-import { TCreateUserDto } from "@/core/application/dtos/user.domain.dto";
+import { TCreateUserDto } from "@/core/application/dtos/user.app.dto";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";

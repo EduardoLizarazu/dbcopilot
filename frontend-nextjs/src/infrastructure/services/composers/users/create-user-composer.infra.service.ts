@@ -9,6 +9,8 @@ import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo
 import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
 import { RoleInfraRepository } from "@/infrastructure/repository/role.infra.repo";
 import { CreateUserController } from "@/http/controllers/user/create-user.http.controller";
+import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
+import { FirebaseAuthService } from "../../auth.infra.service";
 
 /**
  * Composer function for creating and configuring the components required for user creation.
@@ -20,6 +22,7 @@ import { CreateUserController } from "@/http/controllers/user/create-user.http.c
 export function createUserComposer(): IController {
   const firebaseAdmin = new FirebaseAdminProvider();
   const firebaseClient = new FirebaseClientProvider();
+  const logger = new WinstonLoggerProvider();
 
   const userRepository: IUserRepository = new UserInfraRepository(
     firebaseAdmin,
@@ -27,7 +30,8 @@ export function createUserComposer(): IController {
   );
 
   const roleRepository: IRoleRepository = new RoleInfraRepository(
-    firebaseClient
+    firebaseClient,
+    logger
   );
   const useCase: ICreateUserAppUseCase = new CreateUserAppUseCase(
     userRepository,

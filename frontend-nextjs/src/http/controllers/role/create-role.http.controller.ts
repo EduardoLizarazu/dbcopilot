@@ -7,12 +7,14 @@ import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
 import { HttpRequest } from "@/http/helpers/HttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
-import { TCreateRoleDto } from "@/core/application/dtos/role.domain.dto";
+import { TCreateRoleDto } from "@/core/application/dtos/role.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
+import { IAuthService } from "@/infrastructure/services/auth.infra.service";
 
 export class CreateRoleController implements IController {
   constructor(
     private createRoleUseCase: ICreateRoleAppUseCase,
+    private authService: IAuthService,
     private logger: ILogger,
     private httpErrors: IHttpErrors = new HttpErrors(),
     private httpSuccess: IHttpSuccess = new HttpSuccess()

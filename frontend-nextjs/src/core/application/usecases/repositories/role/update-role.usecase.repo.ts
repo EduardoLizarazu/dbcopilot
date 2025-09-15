@@ -1,12 +1,12 @@
 import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
 import { IUpdateRoleAppUseCase } from "../../interfaces/role/update-role.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.domain.dto";
+import { TResponseDto } from "@/core/application/dtos/response.app.dto";
 import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
 import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
 import {
   roleSchema,
   TUpdateRoleDto,
-} from "@/core/application/dtos/role.domain.dto";
+} from "@/core/application/dtos/role.app.dto";
 
 export class UpdateRoleUseCaseRepo implements IUpdateRoleAppUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}

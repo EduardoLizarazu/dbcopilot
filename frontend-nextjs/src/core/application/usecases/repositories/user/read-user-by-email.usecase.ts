@@ -1,7 +1,7 @@
 import { UserEntity } from "@/core/domain/entities/user.domain.entity";
 import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
 import { IReadByEmailUserAppUseCase } from "../../interfaces/user/read-user-by-email.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.domain.dto";
+import { TResponseDto } from "@/core/application/dtos/response.app.dto";
 import { UserAppEnum } from "@/core/application/enums/user.app.enum";
 
 export class ReadByNameUserUseCase implements IReadByEmailUserAppUseCase {

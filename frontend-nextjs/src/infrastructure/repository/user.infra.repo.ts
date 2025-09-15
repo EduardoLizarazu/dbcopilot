@@ -17,7 +17,7 @@ import {
   TCreateUserDto,
   TUserOutputRequestDto,
   TUpdateUserDto,
-} from "@/core/application/dtos/user.domain.dto";
+} from "@/core/application/dtos/user.app.dto";
 
 export class UserInfraRepository implements IUserRepository {
   constructor(

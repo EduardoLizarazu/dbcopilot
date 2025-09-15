@@ -1,7 +1,7 @@
 import {
   TCreateUserDto,
   TUpdateUserDto,
-} from "../../application/dtos/user.domain.dto";
+} from "../../application/dtos/user.app.dto";
 
 export interface IUserEntity {
   name: string;

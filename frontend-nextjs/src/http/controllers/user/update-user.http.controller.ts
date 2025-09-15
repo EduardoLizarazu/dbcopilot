@@ -7,7 +7,7 @@ import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { HttpRequest } from "@/http/helpers/HttpRequest.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
-import { TUpdateUserDto } from "@/core/application/dtos/user.domain.dto";
+import { TUpdateUserDto } from "@/core/application/dtos/user.app.dto";
 
 export class UpdateUserController implements IController {
   constructor(

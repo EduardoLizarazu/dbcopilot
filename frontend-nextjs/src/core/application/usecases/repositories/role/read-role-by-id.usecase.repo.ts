@@ -1,6 +1,6 @@
 import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
 import { IReadByIdRoleAppUseCase } from "../../interfaces/role/read-role-by-id.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.domain.dto";
+import { TResponseDto } from "@/core/application/dtos/response.app.dto";
 import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
 
 export class ReadRoleByIdUseCase implements IReadByIdRoleAppUseCase {

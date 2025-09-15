@@ -2,7 +2,7 @@ import {
   TCreateRoleDto,
   TRoleOutRequestDto,
   TUpdateRoleDto,
-} from "../dtos/role.domain.dto";
+} from "../dtos/role.app.dto";
 
 export interface IRoleRepository {
   create(data: TCreateRoleDto): Promise<TRoleOutRequestDto>;
