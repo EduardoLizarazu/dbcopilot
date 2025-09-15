@@ -18,9 +18,17 @@ export async function nextAdapter(
   request: NextRequest,
   apiRoute: IController
 ): Promise<IHttpResponse> {
+  const body = await request.json().catch(() => null);
+  if (!body) {
+    return {
+      statusCode: 400,
+      body: { success: "false", message: "Invalid JSON body" },
+    };
+  }
+
   const httpRequest: IHttpRequest = new HttpRequest({
     header: request.headers,
-    body: request.body,
+    body: body,
     path: request.nextUrl.pathname,
     query: request.nextUrl.searchParams,
   });

@@ -7,9 +7,13 @@ import {
   userSchema,
 } from "@/core/application/dtos/user.domain.dto";
 import { UserAppEnum } from "@/core/application/enums/user.app.enum";
+import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
 
 export class UpdateUserUseCase implements IUpdateUserAppUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    private userRepository: IUserRepository,
+    private roleRepository: IRoleRepository
+  ) {}
 
   async execute(id: string, user: TUpdateUserDto): Promise<TResponseDto> {
     try {
@@ -38,6 +42,18 @@ export class UpdateUserUseCase implements IUpdateUserAppUseCase {
           message: UserAppEnum.userNotFound,
           data: null,
         };
+      }
+
+      // Check if roles exist
+      for (const roleId of user.roles) {
+        const role = await this.roleRepository.findById(roleId);
+        if (!role) {
+          return {
+            success: false,
+            message: `Role with ID ${roleId} not found`,
+            data: null,
+          };
+        }
       }
 
       const updatedUser = UserEntity.update(user);
