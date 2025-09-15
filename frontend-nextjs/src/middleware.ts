@@ -10,6 +10,12 @@ const PUBLIC_PATHS = [
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  if (pathname === "/api/roles") {
+    console.log("API middleware: Creating role...", req);
+    return NextResponse.next();
+  }
+
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
   const token = req.cookies.get("fb_id_token")?.value;

@@ -13,9 +13,15 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
 
   async execute(data: TCreateRoleDto): Promise<TResponseDto> {
     try {
+      console.log("CreateRoleUseCase: Executing with data:", data);
+
       // Validation
       const roleValidation = createRoleSchema.safeParse(data);
       if (!roleValidation.success) {
+        console.error(
+          "CreateRoleUseCase: Validation failed:",
+          roleValidation.error.errors
+        );
         return {
           data: null,
           success: false,
@@ -33,7 +39,12 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
       const roleAlreadyExists = await this.roleRepository.findByName(
         newRole.name
       );
+
       if (roleAlreadyExists) {
+        console.error(
+          "CreateRoleUseCase: Role already exists with name:",
+          newRole.name
+        );
         return {
           data: null,
           success: false,
@@ -41,17 +52,18 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
         };
       }
 
-      await this.roleRepository.create({
+      const role = await this.roleRepository.create({
         name: newRole.name,
         description: newRole.description,
       });
-
+      console.log("CreateRoleUseCase: Role created:", role);
       return {
-        data: newRole,
+        data: role,
         success: true,
         message: RoleAppEnum.roleCreatedSuccessfully,
       };
     } catch (error) {
+      console.error("CreateRoleUseCase: Unexpected error:", error);
       return {
         data: null,
         success: false,

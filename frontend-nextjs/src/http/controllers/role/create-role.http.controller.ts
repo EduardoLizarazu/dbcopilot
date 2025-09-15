@@ -17,14 +17,15 @@ export class CreateRoleController implements IController {
   ) {}
 
   async handle(httpRequest: HttpRequest): Promise<IHttpResponse> {
-    let error: IHttpResponse | null = null;
-    let response: IHttpResponse | null = null;
     try {
       // Check body
       if (!httpRequest.body) {
-        error = this.httpErrors.error_400();
+        console.error("CreateRoleController: Missing body");
+        const error = this.httpErrors.error_400();
         return new HttpResponse(error.statusCode, error.body);
       }
+
+      console.log("CreateRoleController: Received body:", httpRequest.body);
 
       const body = httpRequest.body as TCreateRoleDto;
       const bodyParams = Object.keys(body);
@@ -34,22 +35,31 @@ export class CreateRoleController implements IController {
         (param) => !bodyParams.includes(param)
       );
       if (missingParams.length > 0) {
-        error = this.httpErrors.error_400();
+        console.error(
+          "CreateRoleController: Missing parameters:",
+          missingParams
+        );
+        const error = this.httpErrors.error_400();
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      const role = await this.createRoleUseCase.execute(body);
+      console.log("CreateRoleController: Validated body:", body);
 
-      if (!role.success) {
-        error = this.httpErrors.error_400();
-        return new HttpResponse(error.statusCode, error.body);
+      const response = await this.createRoleUseCase.execute(body);
+
+      if (!response.success) {
+        console.error("CreateRoleController: Failed to create role:", response);
+        const error = this.httpErrors.error_400();
+        return new HttpResponse(error.statusCode, response.data);
       }
 
-      response = this.httpSuccess.success_201();
-      return new HttpResponse(response.statusCode, response.body);
+      console.log("CreateRoleController: Created role:", response.data);
+
+      const success = this.httpSuccess.success_201(response.data);
+      return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
-      console.error(err);
-      error = this.httpErrors.error_500();
+      console.error("CreateRoleController: Unexpected error:", err);
+      const error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, error.body);
     }
   }

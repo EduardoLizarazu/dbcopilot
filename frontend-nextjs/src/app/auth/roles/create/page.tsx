@@ -12,7 +12,10 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import { createRoleAction } from "@/controller/_actions/role/create";
+import {
+  createRoleAction,
+  createRoleActionTest,
+} from "@/controller/_actions/role/create";
 
 export default function CreateRolePage() {
   const router = useRouter();
@@ -29,7 +32,9 @@ export default function CreateRolePage() {
     setSuccess(null);
     setLoading(true);
     try {
-      const res = await createRoleAction({ name, description });
+      const res = await createRoleActionTest({ name, description });
+      console.log("Role created:", res);
+
       if (res.ok) {
         setSuccess("Role created successfully. Redirecting to list…");
         // short delay so user sees feedback, then go back to list

@@ -21,9 +21,13 @@ export class RoleInfraRepository implements IRoleRepository {
       const db = this.firebaseClient.getDb();
       const roleRef = doc(collection(db, "roles"));
       await setDoc(roleRef, { ...data, id: roleRef.id });
+      console.log("RoleInfraRepository: Created role:", {
+        id: roleRef.id,
+        ...data,
+      });
       return { id: roleRef.id, ...data };
     } catch (error) {
-      console.error(error);
+      console.error("RoleInfraRepository: Error creating role:", error);
       throw new Error("Error creating role");
     }
   }

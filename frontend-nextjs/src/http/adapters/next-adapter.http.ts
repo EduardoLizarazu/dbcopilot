@@ -19,6 +19,8 @@ export async function nextAdapter(
   apiRoute: IController
 ): Promise<IHttpResponse> {
   const body = await request.json().catch(() => null);
+  console.log("next adapter: Parsed body:", body);
+
   if (!body) {
     return {
       statusCode: 400,
@@ -32,5 +34,9 @@ export async function nextAdapter(
     path: request.nextUrl.pathname,
     query: request.nextUrl.searchParams,
   });
-  return apiRoute.handle(httpRequest);
+  console.log("next adapter: Created HttpRequest:", httpRequest);
+
+  const httpResponse: IHttpResponse = await apiRoute.handle(httpRequest);
+  console.log("next adapter: Controller response:", httpResponse);
+  return httpResponse;
 }
