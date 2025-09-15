@@ -29,7 +29,6 @@ export function createUserComposer(): IController {
   const roleRepository: IRoleRepository = new RoleInfraRepository(
     firebaseClient
   );
-
   const useCase: ICreateUserAppUseCase = new CreateUserAppUseCase(
     userRepository,
     roleRepository

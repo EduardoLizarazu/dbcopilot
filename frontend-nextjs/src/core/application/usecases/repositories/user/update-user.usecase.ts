@@ -2,7 +2,10 @@ import { UserEntity } from "@/core/domain/entities/user.domain.entity";
 import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
 import { IUpdateUserAppUseCase } from "../../interfaces/user/update-user.app.usecase.inter";
 import { TResponseDto } from "@/core/application/dtos/response.domain.dto";
-import { TUpdateUserDto } from "@/core/application/dtos/user.domain.dto";
+import {
+  TUpdateUserDto,
+  userSchema,
+} from "@/core/application/dtos/user.domain.dto";
 import { UserAppEnum } from "@/core/application/enums/user.app.enum";
 
 export class UpdateUserUseCase implements IUpdateUserAppUseCase {
@@ -10,6 +13,18 @@ export class UpdateUserUseCase implements IUpdateUserAppUseCase {
 
   async execute(id: string, user: TUpdateUserDto): Promise<TResponseDto> {
     try {
+      // Validation
+      const userValidation = userSchema.safeParse(user);
+      if (!userValidation.success) {
+        return {
+          success: false,
+          message: userValidation.error.errors
+            .map((err) => err.message)
+            .join(", "),
+          data: null,
+        };
+      }
+
       if (!id)
         return {
           success: false,

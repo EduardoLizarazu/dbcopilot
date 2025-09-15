@@ -3,12 +3,27 @@ import { IUpdateRoleAppUseCase } from "../../interfaces/role/update-role.app.use
 import { TResponseDto } from "@/core/application/dtos/response.domain.dto";
 import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
 import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
-import { TUpdateRoleDto } from "@/core/application/dtos/role.domain.dto";
+import {
+  roleSchema,
+  TUpdateRoleDto,
+} from "@/core/application/dtos/role.domain.dto";
 
 export class UpdateRoleUseCaseRepo implements IUpdateRoleAppUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
   async execute(id: string, data: TUpdateRoleDto): Promise<TResponseDto> {
     try {
+      // Schema Validation
+      const roleValidation = roleSchema.safeParse(data);
+      if (!roleValidation.success) {
+        return {
+          success: false,
+          message: roleValidation.error.errors
+            .map((err) => err.message)
+            .join(", "),
+          data: null,
+        };
+      }
+
       const existingRole = await this.roleRepository.findById(id);
       if (!existingRole) {
         return {

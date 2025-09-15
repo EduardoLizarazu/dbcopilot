@@ -6,12 +6,14 @@ import { IHttpErrors } from "@/http/helpers/IHttpErrors.http";
 import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
 import { TCreateUserDto } from "@/core/application/dtos/user.domain.dto";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
+import { HttpErrors } from "@/http/helpers/HttpErrors.http";
+import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 
 export class CreateUserController implements IController {
   constructor(
     private createUserUseCase: ICreateUserAppUseCase,
-    private httpErrors: IHttpErrors,
-    private httpSuccess: IHttpSuccess
+    private httpErrors: IHttpErrors = new HttpErrors(),
+    private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
   async handle(httpRequest: HttpRequest): Promise<IHttpResponse> {
     let error: IHttpResponse | null = null;
@@ -33,6 +35,12 @@ export class CreateUserController implements IController {
 
       const createUserDto = body as TCreateUserDto;
       const user = await this.createUserUseCase.execute(createUserDto);
+
+      if (!user.success) {
+        error = this.httpErrors.error_400();
+        return new HttpResponse(error.statusCode, error.body);
+      }
+
       response = this.httpSuccess.success_201(user);
       return new HttpResponse(response.statusCode, response.body);
     } catch (err) {
