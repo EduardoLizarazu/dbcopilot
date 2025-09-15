@@ -13,8 +13,8 @@ export function createRoleComposer(): IController {
   const loggerProvider = new WinstonLoggerProvider();
   const firebaseAdmin = new FirebaseAdminProvider();
   const firebaseAuthService = new FirebaseAuthService(
-    firebaseAdmin.auth,
-    firebaseAdmin
+    firebaseAdmin,
+    loggerProvider
   );
 
   const roleRepository: IRoleRepository = new RoleInfraRepository(

@@ -1,6 +1,7 @@
 // src/infrastructure/services/auth-service.infra.ts
 import { Auth } from "firebase-admin/auth";
 import { FirebaseAdminProvider } from "../providers/firebase/firebase-admin";
+import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
 export interface IAuthService {
   decodeToken(token: string): Promise<any>;
@@ -10,10 +11,12 @@ export interface IAuthService {
 export class FirebaseAuthService implements IAuthService {
   private auth: Auth;
   private admin_db: FirebaseAdminProvider;
+  private logger: ILogger;
 
-  constructor(authInstance: Auth, adminDbProvider: FirebaseAdminProvider) {
-    this.auth = authInstance;
+  constructor(adminDbProvider: FirebaseAdminProvider, logger: ILogger) {
+    this.auth = adminDbProvider.auth;
     this.admin_db = adminDbProvider;
+    this.logger = logger;
   }
 
   async decodeToken(token: string): Promise<any> {
@@ -23,7 +26,7 @@ export class FirebaseAuthService implements IAuthService {
 
   async getRolesNamesByUids(uid: string): Promise<string[]> {
     try {
-      console.log("Fetching roles for UID:", uid);
+      this.logger.info("AuthService: Fetching roles for UID:", uid);
 
       const user = await this.admin_db.db
         .collection("users")
@@ -34,12 +37,12 @@ export class FirebaseAuthService implements IAuthService {
         return [];
       }
 
-      console.log("User found:", user.docs[0].data());
+      this.logger.info("AuthService: User found:", user.docs[0].data());
 
       const userData = user.docs[0].data();
       const roles: string[] = userData.roleIds || [];
 
-      console.log("User roles IDs:", roles);
+      this.logger.info("AuthService: User roles IDs:", roles);
 
       // Fetch by roles document ids
       const rolesDocs = await Promise.all(
