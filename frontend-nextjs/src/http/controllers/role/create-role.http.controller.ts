@@ -22,6 +22,39 @@ export class CreateRoleController implements IController {
 
   async handle(httpRequest: HttpRequest): Promise<IHttpResponse> {
     try {
+      this.logger.info("CreateRoleController: Handling request", httpRequest);
+
+      // Authenticate
+      const headers = httpRequest.header as Record<string, string>;
+
+      this.logger.info("CreateRoleController: Headers:", headers);
+
+      const authHeader =
+        headers["Authorization"] || headers["authorization"] || "";
+      if (!authHeader.startsWith("Bearer ")) {
+        this.logger.error(
+          "CreateRoleController: No token provided",
+          httpRequest
+        );
+        const error = this.httpErrors.error_400();
+        return new HttpResponse(error.statusCode, error.body);
+      }
+
+      const token = authHeader.replace("Bearer ", "");
+
+      this.logger.info("CreateRoleController: Token:", token);
+
+      const decodedToken = await this.authService.decodeToken(token);
+      if (!decodedToken) {
+        this.logger.error("CreateRoleController: Unauthorized", httpRequest);
+        const error = this.httpErrors.error_400();
+        return new HttpResponse(error.statusCode, error.body);
+      }
+
+      this.logger.info("CreateRoleController: Decoded token:", decodedToken);
+
+      // Authorize (example: check for admin role) - UNFINISHED
+
       // Check body
       if (!httpRequest.body) {
         this.logger.error(

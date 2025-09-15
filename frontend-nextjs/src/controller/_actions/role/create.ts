@@ -1,6 +1,7 @@
 "use server";
 
 import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";
+import { readTokenFromCookie } from "../auth/token/read-token-from-cookie";
 
 export type CreateRoleInput = {
   name: string;
@@ -51,7 +52,10 @@ export async function createRoleActionTest(input: CreateRoleInput) {
   const role = await fetch(`${domain}/api/roles`, {
     method: "POST",
     body: JSON.stringify(input),
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${await readTokenFromCookie()}`,
+    },
   });
   console.log("Response:", role);
 

@@ -28,8 +28,14 @@ export async function nextAdapter(
     };
   }
 
+  // request.headers to plain object
+  const headers: Record<string, string> = {};
+  request.headers.forEach((value, key) => {
+    headers[key] = value;
+  });
+  console.log("next adapter: Parsed headers:", headers);
   const httpRequest: IHttpRequest = new HttpRequest({
-    header: request.headers,
+    header: headers,
     body: body,
     path: request.nextUrl.pathname,
     query: request.nextUrl.searchParams,
