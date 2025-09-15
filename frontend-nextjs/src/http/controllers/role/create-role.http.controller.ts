@@ -44,6 +44,7 @@ export class CreateRoleController implements IController {
 
       this.logger.info("CreateRoleController: Token:", token);
 
+      // Decode token
       const decodedToken = await this.authService.decodeToken(token);
       if (!decodedToken) {
         this.logger.error("CreateRoleController: Unauthorized", httpRequest);
@@ -53,7 +54,14 @@ export class CreateRoleController implements IController {
 
       this.logger.info("CreateRoleController: Decoded token:", decodedToken);
 
-      // Authorize (example: check for admin role) - UNFINISHED
+      // Retrieve roles
+      const userRoles = await this.authService.getRolesNamesByUids(
+        decodedToken.uid
+      );
+
+      this.logger.info("CreateRoleController: User roles:", userRoles);
+
+      decodedToken.roles = userRoles;
 
       // Check body
       if (!httpRequest.body) {
@@ -88,7 +96,10 @@ export class CreateRoleController implements IController {
 
       this.logger.info("CreateRoleController: Validated body:", body);
 
-      const response = await this.createRoleUseCase.execute(body);
+      const response = await this.createRoleUseCase.execute(body, {
+        uid: decodedToken.uid,
+        roles: decodedToken.roles || [],
+      });
 
       if (!response.success) {
         this.logger.error(

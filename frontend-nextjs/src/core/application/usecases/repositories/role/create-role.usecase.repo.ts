@@ -8,6 +8,11 @@ import {
   TCreateRoleDto,
 } from "@/core/application/dtos/role.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
+import {
+  requesterSchema,
+  TRequesterDto,
+} from "@/core/application/dtos/requester.app.dto";
+import { AuthRoleAppEnum } from "@/core/application/enums/auth.app.enum";
 
 export class CreateRoleUseCase implements ICreateRoleAppUseCase {
   constructor(
@@ -15,8 +20,42 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
     private logger: ILogger
   ) {}
 
-  async execute(data: TCreateRoleDto): Promise<TResponseDto> {
+  async execute(
+    data: TCreateRoleDto,
+    requester: TRequesterDto
+  ): Promise<TResponseDto> {
     try {
+      // Validate requester
+      const requesterValidation = requesterSchema.safeParse(requester);
+      if (!requesterValidation.success) {
+        this.logger.error(
+          "CreateRoleUseCase: Invalid requester:",
+          requesterValidation.error.errors
+        );
+        return {
+          data: null,
+          success: false,
+          message: "Invalid requester",
+        };
+      }
+
+      // Check authorization lower case admin
+      if (
+        !requester.roles
+          .map((r) => r.toLowerCase())
+          .includes(AuthRoleAppEnum.ADMIN_ROLE)
+      ) {
+        this.logger.error(
+          "CreateRoleUseCase: Unauthorized access attempt by user:",
+          `${requester.uid} with roles: ${requester.roles.join(", ")}`
+        );
+        return {
+          data: null,
+          success: false,
+          message: "Unauthorized",
+        };
+      }
+
       this.logger.info("CreateRoleUseCase: Executing with data:", data);
 
       // Validation
