@@ -13,21 +13,25 @@ import {
   getDocs,
   setDoc,
 } from "firebase/firestore";
+import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
 export class RoleInfraRepository implements IRoleRepository {
-  constructor(private firebaseClient: FirebaseClientProvider) {}
+  constructor(
+    private firebaseClient: FirebaseClientProvider,
+    private readonly logger: ILogger
+  ) {}
   async create(data: TCreateRoleDto): Promise<TRoleOutRequestDto> {
     try {
       const db = this.firebaseClient.getDb();
       const roleRef = doc(collection(db, "roles"));
       await setDoc(roleRef, { ...data, id: roleRef.id });
-      console.log("RoleInfraRepository: Created role:", {
+      this.logger.info("RoleInfraRepository: Created role:", {
         id: roleRef.id,
         ...data,
       });
       return { id: roleRef.id, ...data };
     } catch (error) {
-      console.error("RoleInfraRepository: Error creating role:", error);
+      this.logger.error("RoleInfraRepository: Error creating role:", error);
       throw new Error("Error creating role");
     }
   }
@@ -38,7 +42,7 @@ export class RoleInfraRepository implements IRoleRepository {
       await setDoc(roleRef, data);
       return { ...data };
     } catch (error) {
-      console.error(error);
+      this.logger.error("RoleInfraRepository: Error updating role:", error);
       throw new Error("Error updating role");
     }
   }
@@ -48,7 +52,7 @@ export class RoleInfraRepository implements IRoleRepository {
       const roleRef = doc(collection(db, "roles"), id);
       await deleteDoc(roleRef);
     } catch (error) {
-      console.error(error);
+      this.logger.error("RoleInfraRepository: Error deleting role:", error);
       throw new Error("Error deleting role");
     }
   }
@@ -65,7 +69,10 @@ export class RoleInfraRepository implements IRoleRepository {
         ...roleSnapshot.data(),
       } as TRoleOutRequestDto;
     } catch (error) {
-      console.error(error);
+      this.logger.error(
+        "RoleInfraRepository: Error finding role by ID:",
+        error
+      );
       return null;
     }
   }
@@ -80,7 +87,7 @@ export class RoleInfraRepository implements IRoleRepository {
       });
       return roles;
     } catch (error) {
-      console.error(error);
+      this.logger.error("RoleInfraRepository: Error finding all roles:", error);
       throw new Error("Error finding all roles");
     }
   }
@@ -94,7 +101,10 @@ export class RoleInfraRepository implements IRoleRepository {
         ? ({ id: role.id, ...role.data() } as TRoleOutRequestDto)
         : null;
     } catch (error) {
-      console.error(error);
+      this.logger.error(
+        "RoleInfraRepository: Error finding role by name:",
+        error
+      );
       return null;
     }
   }

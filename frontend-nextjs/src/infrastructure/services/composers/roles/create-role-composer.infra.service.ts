@@ -3,17 +3,23 @@ import { CreateRoleUseCase } from "@/core/application/usecases/repositories/role
 import { IController } from "@/http/controllers/IController.http.controller";
 import { CreateRoleController } from "@/http/controllers/role/create-role.http.controller";
 import { FirebaseClientProvider } from "@/infrastructure/providers/firebase/firebase-client";
+import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 import { RoleInfraRepository } from "@/infrastructure/repository/role.infra.repo";
 
 export function createRoleComposer(): IController {
   const firebaseClientProvider = new FirebaseClientProvider();
+  const loggerProvider = new WinstonLoggerProvider();
 
   const roleRepository: IRoleRepository = new RoleInfraRepository(
-    firebaseClientProvider
+    firebaseClientProvider,
+    loggerProvider
   );
 
-  const useCase = new CreateRoleUseCase(roleRepository);
+  const useCase = new CreateRoleUseCase(roleRepository, loggerProvider);
 
-  const controller: IController = new CreateRoleController(useCase);
+  const controller: IController = new CreateRoleController(
+    useCase,
+    loggerProvider
+  );
   return controller;
 }

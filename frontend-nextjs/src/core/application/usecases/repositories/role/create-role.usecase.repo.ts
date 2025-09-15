@@ -7,18 +7,22 @@ import {
   createRoleSchema,
   TCreateRoleDto,
 } from "@/core/application/dtos/role.domain.dto";
+import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
 export class CreateRoleUseCase implements ICreateRoleAppUseCase {
-  constructor(private roleRepository: IRoleRepository) {}
+  constructor(
+    private roleRepository: IRoleRepository,
+    private logger: ILogger
+  ) {}
 
   async execute(data: TCreateRoleDto): Promise<TResponseDto> {
     try {
-      console.log("CreateRoleUseCase: Executing with data:", data);
+      this.logger.info("CreateRoleUseCase: Executing with data:", data);
 
       // Validation
       const roleValidation = createRoleSchema.safeParse(data);
       if (!roleValidation.success) {
-        console.error(
+        this.logger.error(
           "CreateRoleUseCase: Validation failed:",
           roleValidation.error.errors
         );
@@ -41,7 +45,7 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
       );
 
       if (roleAlreadyExists) {
-        console.error(
+        this.logger.error(
           "CreateRoleUseCase: Role already exists with name:",
           newRole.name
         );
@@ -56,14 +60,14 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
         name: newRole.name,
         description: newRole.description,
       });
-      console.log("CreateRoleUseCase: Role created:", role);
+      this.logger.info("CreateRoleUseCase: Role created:", role);
       return {
         data: role,
         success: true,
         message: RoleAppEnum.roleCreatedSuccessfully,
       };
     } catch (error) {
-      console.error("CreateRoleUseCase: Unexpected error:", error);
+      this.logger.error("CreateRoleUseCase: Unexpected error:", error);
       return {
         data: null,
         success: false,

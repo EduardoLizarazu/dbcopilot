@@ -8,10 +8,12 @@ import { HttpRequest } from "@/http/helpers/HttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { TCreateRoleDto } from "@/core/application/dtos/role.domain.dto";
+import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
 export class CreateRoleController implements IController {
   constructor(
     private createRoleUseCase: ICreateRoleAppUseCase,
+    private logger: ILogger,
     private httpErrors: IHttpErrors = new HttpErrors(),
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
@@ -20,12 +22,18 @@ export class CreateRoleController implements IController {
     try {
       // Check body
       if (!httpRequest.body) {
-        console.error("CreateRoleController: Missing body");
+        this.logger.error(
+          "CreateRoleController: No body provided",
+          httpRequest
+        );
         const error = this.httpErrors.error_400();
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      console.log("CreateRoleController: Received body:", httpRequest.body);
+      this.logger.info(
+        "CreateRoleController: Received body:",
+        httpRequest.body
+      );
 
       const body = httpRequest.body as TCreateRoleDto;
       const bodyParams = Object.keys(body);
@@ -35,7 +43,7 @@ export class CreateRoleController implements IController {
         (param) => !bodyParams.includes(param)
       );
       if (missingParams.length > 0) {
-        console.error(
+        this.logger.error(
           "CreateRoleController: Missing parameters:",
           missingParams
         );
@@ -43,22 +51,25 @@ export class CreateRoleController implements IController {
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      console.log("CreateRoleController: Validated body:", body);
+      this.logger.info("CreateRoleController: Validated body:", body);
 
       const response = await this.createRoleUseCase.execute(body);
 
       if (!response.success) {
-        console.error("CreateRoleController: Failed to create role:", response);
+        this.logger.error(
+          "CreateRoleController: Failed to create role:",
+          response
+        );
         const error = this.httpErrors.error_400();
         return new HttpResponse(error.statusCode, response.data);
       }
 
-      console.log("CreateRoleController: Created role:", response.data);
+      this.logger.info("CreateRoleController: Created role:", response.data);
 
       const success = this.httpSuccess.success_201(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
-      console.error("CreateRoleController: Unexpected error:", err);
+      this.logger.error("CreateRoleController: Unexpected error:", err);
       const error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, error.body);
     }
