@@ -21,7 +21,7 @@ import { queryODBC } from "@/controller/_actions/oracledb";
 export default function LoginPage() {
   const router = useRouter();
   const search = useSearchParams();
-  const redirect = search.get("redirect") || "/dashboard";
+  const redirect = search.get("redirect") || "/chat";
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -35,7 +35,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await loginAction(email.trim(), password);
-      router.replace(redirect || "/dashboard");
+      router.replace(redirect || "/chat");
     } catch (error: any) {
       setErr(error?.message ?? "Unable to sign in.");
     } finally {
