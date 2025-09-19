@@ -13,12 +13,12 @@ import {
   TRequesterDto,
 } from "@/core/application/dtos/requester.app.dto";
 import { AuthRoleAppEnum } from "@/core/application/enums/auth.app.enum";
-import { IReadByNameAppUseCase } from "../../interfaces/role/read-role-by-name.app.usecase.inter";
+import { IReadRoleByNameAppUseCase } from "../../interfaces/role/read-role-by-name.app.usecase.inter";
 import { IReadByIdRoleAppUseCase } from "../../interfaces/role/read-role-by-id.app.usecase.inter";
 
 export class CreateRoleUseCase implements ICreateRoleAppUseCase {
   constructor(
-    private readRoleByNameUseCase: IReadByNameAppUseCase,
+    private readRoleByNameUseCase: IReadRoleByNameAppUseCase,
     private readRoleByIdUseCase: IReadByIdRoleAppUseCase,
     private roleRepository: IRoleRepository,
     private logger: ILogger

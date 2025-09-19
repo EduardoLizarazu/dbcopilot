@@ -1,14 +1,19 @@
 import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
-import { IReadByNameAppUseCase } from "../../interfaces/role/read-role-by-name.app.usecase.inter";
+import { IReadRoleByNameAppUseCase } from "../../interfaces/role/read-role-by-name.app.usecase.inter";
 import { TResponseDto } from "@/core/application/dtos/response.app.dto";
 import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
+import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
-export class ReadByNameRoleUseCase implements IReadByNameAppUseCase {
-  constructor(private roleRepository: IRoleRepository) {}
+export class ReadRoleByNameRoleUseCase implements IReadRoleByNameAppUseCase {
+  constructor(
+    private readonly roleRepository: IRoleRepository,
+    private readonly logger: ILogger
+  ) {}
 
   async execute(name: string): Promise<TResponseDto> {
     try {
       const role = await this.roleRepository.findByName(name);
+      this.logger.info("ReadRoleByNameRoleUseCase: Role found:", role);
       return {
         success: true,
         data: role,
