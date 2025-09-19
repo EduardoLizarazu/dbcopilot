@@ -13,9 +13,13 @@ import {
   TRequesterDto,
 } from "@/core/application/dtos/requester.app.dto";
 import { AuthRoleAppEnum } from "@/core/application/enums/auth.app.enum";
+import { IReadByNameAppUseCase } from "../../interfaces/role/read-role-by-name.app.usecase.inter";
+import { IReadByIdRoleAppUseCase } from "../../interfaces/role/read-role-by-id.app.usecase.inter";
 
 export class CreateRoleUseCase implements ICreateRoleAppUseCase {
   constructor(
+    private readRoleByNameUseCase: IReadByNameAppUseCase,
+    private readRoleByIdUseCase: IReadByIdRoleAppUseCase,
     private roleRepository: IRoleRepository,
     private logger: ILogger
   ) {}
@@ -79,7 +83,7 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
       });
 
       // already exists?
-      const roleAlreadyExists = await this.roleRepository.findByName(
+      const roleAlreadyExists = await this.readRoleByNameUseCase.execute(
         newRole.name
       );
 
@@ -95,12 +99,19 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
         };
       }
 
-      const role = await this.roleRepository.create({
+      const roleId = await this.roleRepository.create({
         name: newRole.name,
         description: newRole.description,
         createdBy: requester.uid,
+        updatedBy: requester.uid,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
-      this.logger.info("CreateRoleUseCase: Role created:", role);
+
+      // Find Role just created to return
+      const role = await this.readRoleByIdUseCase.execute(roleId);
+
+      this.logger.info("CreateRoleUseCase: Role created:", newRole);
       return {
         data: role,
         success: true,

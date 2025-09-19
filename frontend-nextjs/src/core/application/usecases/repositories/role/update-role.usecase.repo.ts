@@ -4,16 +4,27 @@ import { TResponseDto } from "@/core/application/dtos/response.app.dto";
 import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
 import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
 import {
-  roleSchema,
   TUpdateRoleDto,
+  updateRoleSchema,
 } from "@/core/application/dtos/role.app.dto";
+import { TRequesterDto } from "@/core/application/dtos/requester.app.dto";
+import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
+import { IReadByIdRoleAppUseCase } from "../../interfaces/role/read-role-by-id.app.usecase.inter";
 
 export class UpdateRoleUseCaseRepo implements IUpdateRoleAppUseCase {
-  constructor(private readonly roleRepository: IRoleRepository) {}
-  async execute(id: string, data: TUpdateRoleDto): Promise<TResponseDto> {
+  constructor(
+    private readonly roleRepository: IRoleRepository,
+    private readonly logger: ILogger,
+    private readonly readRoleByIdUseCase: IReadByIdRoleAppUseCase
+  ) {}
+  async execute(
+    id: string,
+    data: TUpdateRoleDto,
+    requester: TRequesterDto
+  ): Promise<TResponseDto> {
     try {
       // Schema Validation
-      const roleValidation = roleSchema.safeParse(data);
+      const roleValidation = updateRoleSchema.safeParse(data);
       if (!roleValidation.success) {
         return {
           success: false,
@@ -24,8 +35,12 @@ export class UpdateRoleUseCaseRepo implements IUpdateRoleAppUseCase {
         };
       }
 
-      const existingRole = await this.roleRepository.findById(id);
+      // logger
+      this.logger.info("UpdateRoleUseCase: Updating role with ID:", id);
+
+      const existingRole = await this.readRoleByIdUseCase.execute(id);
       if (!existingRole) {
+        this.logger.warn("UpdateRoleUseCase: Role not found");
         return {
           success: false,
           message: RoleAppEnum.roleNotFound,
@@ -42,14 +57,31 @@ export class UpdateRoleUseCaseRepo implements IUpdateRoleAppUseCase {
         id: id,
         name: updatedRole.name,
         description: updatedRole.description,
+        updatedBy: requester.uid,
+        updatedAt: new Date(),
+      });
+
+      // Find the updated role
+      const roleAfterUpdate = await this.readRoleByIdUseCase.execute(id);
+      if (!roleAfterUpdate) {
+        this.logger.error("UpdateRoleUseCase: Role not found after update");
+        return {
+          success: false,
+          message: RoleAppEnum.roleNotFound,
+          data: null,
+        };
+      }
+      this.logger.info("UpdateRoleUseCase: Role updated successfully:", {
+        ...roleAfterUpdate,
       });
 
       return {
         success: true,
-        data: updatedRole,
+        data: roleAfterUpdate,
         message: RoleAppEnum.roleUpdatedSuccessfully,
       };
     } catch (error) {
+      this.logger.error("UpdateRoleUseCase: Error updating role:", error);
       return {
         success: false,
         message: error instanceof Error ? error.message : String(error),

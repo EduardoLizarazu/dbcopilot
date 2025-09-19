@@ -20,7 +20,7 @@ export class RoleInfraRepository implements IRoleRepository {
     private firebaseClient: FirebaseClientProvider,
     private readonly logger: ILogger
   ) {}
-  async create(data: TCreateRoleDto): Promise<TRoleOutRequestDto> {
+  async create(data: TCreateRoleDto): Promise<string> {
     try {
       const db = this.firebaseClient.getDb();
       const roleRef = doc(collection(db, "roles"));
@@ -29,18 +29,17 @@ export class RoleInfraRepository implements IRoleRepository {
         id: roleRef.id,
         ...data,
       });
-      return { id: roleRef.id, ...data };
+      return roleRef.id;
     } catch (error) {
       this.logger.error("RoleInfraRepository: Error creating role:", error);
       throw new Error("Error creating role");
     }
   }
-  async update(id: string, data: TUpdateRoleDto): Promise<TRoleOutRequestDto> {
+  async update(id: string, data: TUpdateRoleDto): Promise<void> {
     try {
       const db = this.firebaseClient.getDb();
       const roleRef = doc(collection(db, "roles"), id);
       await setDoc(roleRef, data);
-      return { ...data };
     } catch (error) {
       this.logger.error("RoleInfraRepository: Error updating role:", error);
       throw new Error("Error updating role");

@@ -5,6 +5,9 @@ export const roleSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
   createdBy: z.string(),
+  updatedBy: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const createRoleSchema = roleSchema.omit({ id: true });
@@ -12,7 +15,12 @@ export const createRoleSchema = roleSchema.omit({ id: true });
 // Create role DTO
 export type TCreateRoleDto = z.infer<typeof createRoleSchema>;
 
-export type TUpdateRoleDto = z.infer<typeof roleSchema>;
+// Update role DTO
+export const updateRoleSchema = roleSchema.omit({
+  createdAt: true,
+  createdBy: true,
+});
+export type TUpdateRoleDto = z.infer<typeof updateRoleSchema>;
 
 export type TRoleInRequestDto = z.infer<typeof roleSchema>;
 
