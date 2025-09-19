@@ -19,12 +19,12 @@ export class RoleEntity {
     return this._description;
   }
 
-  static create(dto: TCreateRoleDto): RoleEntity {
+  static create(dto: { name: string; description: string }): RoleEntity {
     const { name, description } = dto;
     return new RoleEntity({ name, description });
   }
 
-  static update(dto: TCreateRoleDto): RoleEntity {
+  static update(dto: { name: string; description: string }): RoleEntity {
     return new RoleEntity({
       name: dto.name,
       description: dto.description,

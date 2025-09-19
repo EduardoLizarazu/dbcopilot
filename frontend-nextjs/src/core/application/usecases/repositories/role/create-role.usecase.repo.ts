@@ -98,6 +98,7 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
       const role = await this.roleRepository.create({
         name: newRole.name,
         description: newRole.description,
+        createdBy: requester.uid,
       });
       this.logger.info("CreateRoleUseCase: Role created:", role);
       return {
