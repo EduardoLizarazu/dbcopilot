@@ -1,10 +1,7 @@
 export interface IGenericMutationRepository<C, U, O> {
-  create(data: C): Promise<O>;
-  update(id: string, data: U): Promise<O>;
+  create(data: C): Promise<string>;
+  update(id: string, data: U): Promise<void>;
   delete(id: string): Promise<void>;
-}
-
-export interface IGenericQueryRepository<T> {
-  findById(id: string): Promise<T | null>;
-  findAll(): Promise<T[]>;
+  findById(id: string): Promise<O | null>;
+  findAll(): Promise<O[]>;
 }

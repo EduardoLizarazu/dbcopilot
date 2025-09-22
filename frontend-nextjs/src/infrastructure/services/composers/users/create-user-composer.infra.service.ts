@@ -6,7 +6,7 @@ import { ICreateUserAppUseCase } from "@/core/application/usecases/interfaces/us
 import { CreateUserAppUseCase } from "@/core/application/usecases/repositories/user/create-user.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo";
-import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
+import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
 import { RoleInfraRepository } from "@/infrastructure/repository/role.infra.repo";
 import { CreateUserController } from "@/http/controllers/user/create-user.http.controller";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";

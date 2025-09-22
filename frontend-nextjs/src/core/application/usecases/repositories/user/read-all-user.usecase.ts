@@ -1,7 +1,6 @@
-import { UserEntity } from "@/core/domain/entities/user.domain.entity";
-import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
+import { IUserRepository } from "@/core/application/interfaces/auth/user.app.inter";
 import { IReadAllUserAppUseCase } from "../../interfaces/user/read-all-user.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.app.dto";
+import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { UserAppEnum } from "@/core/application/enums/user.app.enum";
 
 export class ReadAllUserUseCase implements IReadAllUserAppUseCase {

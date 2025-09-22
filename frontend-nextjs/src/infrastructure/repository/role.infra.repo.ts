@@ -1,10 +1,10 @@
-import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
+import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
 import { FirebaseClientProvider } from "../providers/firebase/firebase-client";
 import {
   TCreateRoleDto,
   TRoleOutRequestDto,
   TUpdateRoleDto,
-} from "@/core/application/dtos/role.app.dto";
+} from "@/core/application/dtos/auth/role.app.dto";
 import {
   collection,
   deleteDoc,

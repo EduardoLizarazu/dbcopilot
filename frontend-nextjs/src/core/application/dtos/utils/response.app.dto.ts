@@ -1,6 +1,6 @@
-export type TResponseDto = {
+export type TResponseDto<T> = {
   success: boolean;
-  data: any;
+  data: T | null;
   statusCode?: number;
   message: string;
 };

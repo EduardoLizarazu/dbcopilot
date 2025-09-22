@@ -1,4 +1,4 @@
-import { TResponseDto } from "@/core/application/dtos/response.app.dto";
+import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 
 export interface IReadAllUserAppUseCase {
   execute(): Promise<TResponseDto>;

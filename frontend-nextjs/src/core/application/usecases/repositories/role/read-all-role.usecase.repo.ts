@@ -1,7 +1,7 @@
 import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
-import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
+import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
 import { IReadAllRoleAppUseCase } from "../../interfaces/role/read-all-role.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.app.dto";
+import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
 
 export class ReadAllRoleUseCase implements IReadAllRoleAppUseCase {

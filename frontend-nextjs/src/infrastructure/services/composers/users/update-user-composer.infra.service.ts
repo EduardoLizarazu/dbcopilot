@@ -1,4 +1,4 @@
-import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
+import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
 import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
 import { IUpdateUserAppUseCase } from "@/core/application/usecases/interfaces/user/update-user.app.usecase.inter";
 import { UpdateUserUseCase } from "@/core/application/usecases/repositories/user/update-user.usecase";

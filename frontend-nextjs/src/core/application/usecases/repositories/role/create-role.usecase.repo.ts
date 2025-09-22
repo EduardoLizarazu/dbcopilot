@@ -1,17 +1,17 @@
 import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
-import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
+import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
 import { ICreateRoleAppUseCase } from "../../interfaces/role/create-role.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.app.dto";
+import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
 import {
   createRoleSchema,
   TCreateRoleDto,
-} from "@/core/application/dtos/role.app.dto";
+} from "@/core/application/dtos/auth/role.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import {
   requesterSchema,
   TRequesterDto,
-} from "@/core/application/dtos/requester.app.dto";
+} from "@/core/application/dtos/utils/requester.app.dto";
 import { AuthRoleAppEnum } from "@/core/application/enums/auth.app.enum";
 import { IReadRoleByNameAppUseCase } from "../../interfaces/role/read-role-by-name.app.usecase.inter";
 import { IReadByIdRoleAppUseCase } from "../../interfaces/role/read-role-by-id.app.usecase.inter";

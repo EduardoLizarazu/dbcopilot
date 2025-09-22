@@ -1,5 +1,5 @@
 import { UserEntity } from "@/core/domain/entities/user.domain.entity";
-import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
+import { IUserRepository } from "@/core/application/interfaces/auth/user.app.inter";
 import { FirebaseClientProvider } from "../providers/firebase/firebase-client";
 import {
   addDoc,
@@ -17,14 +17,14 @@ import {
   TCreateUserDto,
   TUserOutputRequestDto,
   TUpdateUserDto,
-} from "@/core/application/dtos/user.app.dto";
+} from "@/core/application/dtos/auth/user.app.dto";
 
 export class UserInfraRepository implements IUserRepository {
   constructor(
     private firebaseAdmin: FirebaseAdminProvider,
     private firebaseClient: FirebaseClientProvider
   ) {}
-  async create(data: TCreateUserDto): Promise<TUserOutputRequestDto> {
+  async create(data: TCreateUserDto): Promise<string> {
     try {
       // Create user auth in Firebase Auth
       const userRecord = await this.firebaseAdmin.auth.createUser({
@@ -35,21 +35,14 @@ export class UserInfraRepository implements IUserRepository {
       const db = this.firebaseClient.getDb();
       const userCollection = collection(db, "users");
       const userRef = doc(userCollection, userRecord.uid);
-      await setDoc(userRef, {
-        ...data,
-        uid: userRecord.uid,
-      });
-      return { id: userRecord.uid, ...data };
+      return userRecord.uid;
     } catch (error) {
       console.error(error);
       throw new Error("Error creating user");
     }
   }
 
-  async update(
-    id: string,
-    data: TUpdateUserDto
-  ): Promise<TUserOutputRequestDto> {
+  async update(id: string, data: TUpdateUserDto): Promise<void> {
     try {
       // Update user auth in Firebase Auth
       if (data.email || data.password) {
@@ -76,8 +69,6 @@ export class UserInfraRepository implements IUserRepository {
       if (!updatedUser) {
         throw new Error("User not found after update");
       }
-
-      return updatedUser;
     } catch (error) {
       console.error(error);
       throw new Error("Error updating user");

@@ -1,6 +1,6 @@
-import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
+import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
 import { IDeleteRoleAppUseCase } from "../../interfaces/role/delete-role.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.app.dto";
+import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
 
 export class DeleteRoleUseCaseRepo implements IDeleteRoleAppUseCase {

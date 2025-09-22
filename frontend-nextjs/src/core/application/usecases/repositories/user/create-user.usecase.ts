@@ -1,13 +1,13 @@
 import {
   createUserSchema,
   TCreateUserDto,
-} from "@/core/application/dtos/user.app.dto";
+} from "@/core/application/dtos/auth/user.app.dto";
 import { ICreateUserAppUseCase } from "../../interfaces/user/create-user.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/response.app.dto";
-import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
+import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
+import { IUserRepository } from "@/core/application/interfaces/auth/user.app.inter";
 import { UserEntity } from "@/core/domain/entities/user.domain.entity";
 import { UserAppEnum } from "@/core/application/enums/user.app.enum";
-import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
+import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
 import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
 
 export class CreateUserAppUseCase implements ICreateUserAppUseCase {

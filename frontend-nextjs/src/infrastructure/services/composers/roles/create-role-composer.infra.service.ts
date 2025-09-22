@@ -1,4 +1,4 @@
-import { IRoleRepository } from "@/core/application/interfaces/role.app.inter";
+import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
 import { CreateRoleUseCase } from "@/core/application/usecases/repositories/role/create-role.usecase.repo";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { CreateRoleController } from "@/http/controllers/role/create-role.http.controller";
