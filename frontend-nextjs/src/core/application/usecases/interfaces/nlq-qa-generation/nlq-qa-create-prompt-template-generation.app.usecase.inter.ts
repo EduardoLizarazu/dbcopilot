@@ -4,5 +4,5 @@ import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 export interface INlqQaCreatePromptTemplateGenerationUseCase {
   execute(
     data: TCreateNlqQaGenerationPromptTemplate
-  ): Promise<TResponseDto<string>>;
+  ): Promise<TResponseDto<{ promptTemplate: string }>>;
 }

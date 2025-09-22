@@ -9,9 +9,8 @@ import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.i
 import { IReadNlqQaByIdAppUseCase } from "../../interfaces/nlq-qa/read-nlq-qa-by-id.usecase.inter";
 import { ICreateNlqQaAppUseCase } from "@/core/application/usecases/interfaces/nlq-qa/create-nlq-qa.usecase.inter";
 
-export class CreateNlqQaUseCase implements ICreateNlqQaAppUseCase {
+export class CreateNlqQaAppUseCase implements ICreateNlqQaAppUseCase {
   constructor(
-    private readNlqQaByIdUseCase: IReadNlqQaByIdAppUseCase,
     private nlqQaRepository: INlqQaRepository,
     private logger: ILogger
   ) {}
@@ -49,11 +48,11 @@ export class CreateNlqQaUseCase implements ICreateNlqQaAppUseCase {
       });
 
       // Find by id to return full object
-      const nlqQaResponse = await this.readNlqQaByIdUseCase.execute(nlqQaId);
+      const nlqQaResponse = await this.nlqQaRepository.findById(nlqQaId);
 
       return {
         success: true,
-        data: nlqQaResponse.data,
+        data: nlqQaResponse,
         message: "NLQ QA created",
       };
     } catch (error) {

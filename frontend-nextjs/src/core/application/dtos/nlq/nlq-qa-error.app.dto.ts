@@ -2,10 +2,9 @@ import { z } from "zod";
 
 export const nlqQaErrorSchema = z.object({
   id: z.string(),
-  nlqQaId: z.string(),
+  question: z.string(),
+  query: z.string(),
   errorMessage: z.string(),
-  query: z.string().optional(),
-  stack: z.string().optional(),
   createdBy: z.string(),
   createdAt: z.date(),
 });

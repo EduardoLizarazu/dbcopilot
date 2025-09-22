@@ -10,7 +10,7 @@ export class NlqQaGenerationInfraRepository
     private readonly logger: ILogger,
     private readonly aiProvider: OpenAIProvider
   ) {}
-  async queryGeneration(prompt: string): Promise<string> {
+  async queryGeneration(prompt: string): Promise<{ answer: string }> {
     try {
       this.logger.info(`Generating query from prompt: ${prompt}`);
 
@@ -32,7 +32,7 @@ export class NlqQaGenerationInfraRepository
         top_p: 0.1,
       });
 
-      return response.choices[0]?.message?.content?.trim() || "";
+      return { answer: response.choices[0]?.message?.content?.trim() || "" };
     } catch (error) {
       this.logger.error("Error generating query from prompt", { error });
       throw new Error("Error generating query from prompt");
@@ -40,7 +40,7 @@ export class NlqQaGenerationInfraRepository
   }
   async createPromptTemplateToGenerateQuery(
     data: TCreateNlqQaGenerationPromptTemplate
-  ): Promise<string> {
+  ): Promise<{ promptTemplate: string }> {
     try {
       const template = `
         You are a SQL expert specialized in oracle19c databases. 
@@ -82,7 +82,7 @@ export class NlqQaGenerationInfraRepository
       `;
       this.logger.info(`Created prompt template: ${template}`);
 
-      return template;
+      return { promptTemplate: template };
     } catch (error) {
       this.logger.error(
         "NlqQaGenerationInfraRepository: Error creating prompt template",
@@ -91,26 +91,46 @@ export class NlqQaGenerationInfraRepository
       throw new Error("Error creating prompt template");
     }
   }
-  async extractQueryFromPrompt(prompt: string): Promise<string> {
+  async extractQueryFromGenerationResponse(
+    prompt: string
+  ): Promise<{ query: string }> {
     try {
-      const notAnsweredMatch = prompt.match(/```NOT_ANSWERED([\s\S]*?)```/);
-      if (notAnsweredMatch && notAnsweredMatch[1]) {
-        const reason = notAnsweredMatch[1].trim();
-        this.logger.info(`Model did not answer: ${reason}`);
-        return `NOT_ANSWERED: ${reason}`;
-      }
       const sqlMatch = prompt.match(/```sql([\s\S]*?)```/);
       if (sqlMatch && sqlMatch[1]) {
         const sqlQuery = sqlMatch[1].trim();
         this.logger.info(`Extracted SQL query: ${sqlQuery}`);
-        return sqlQuery;
+        return { query: sqlQuery };
       } else {
         this.logger.warn("No SQL query found in the prompt");
-        return "";
+        return { query: "" };
       }
     } catch (error) {
       this.logger.error("Error extracting SQL query from prompt", { error });
       throw new Error("Error extracting SQL query from prompt");
+    }
+  }
+
+  async extractSuggestionsFromGenerationResponse(
+    generationResponse: string
+  ): Promise<{ suggestion: string }> {
+    try {
+      const suggestionMatch = generationResponse.match(
+        /```NOT_ANSWERED([\s\S]*?)```/
+      );
+      if (suggestionMatch && suggestionMatch[1]) {
+        const suggestion = suggestionMatch[1].trim();
+        this.logger.info(`Extracted suggestion: ${suggestion}`);
+        return { suggestion };
+      } else {
+        this.logger.warn("No suggestion found in the generation response");
+        return { suggestion: "" };
+      }
+    } catch (error) {
+      this.logger.error(
+        "Error extracting suggestion from generation response",
+        { error }
+      );
+      throw new Error("Error extracting suggestion from generation response");
     }
   }
 }

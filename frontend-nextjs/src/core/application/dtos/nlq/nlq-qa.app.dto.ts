@@ -20,7 +20,7 @@ export const nlqQaSchema = z.object({
   updatedAt: z.date(),
 });
 
-export const createNlqQaSchema = nlqQaSchema.pick({ id: true });
+export const createNlqQaSchema = nlqQaSchema.omit({ id: true });
 
 export type TCreateNlqQaDto = z.infer<typeof createNlqQaSchema>;
 

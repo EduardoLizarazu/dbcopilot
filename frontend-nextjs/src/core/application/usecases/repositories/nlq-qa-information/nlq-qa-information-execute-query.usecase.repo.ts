@@ -2,6 +2,7 @@ import { INlqQaInformationExecuteQueryUseCase } from "../../interfaces/nlq-qa-in
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaInformationRepository } from "@/core/application/interfaces/nlq/nlq-qa-information.app.inter";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
+import { TNlqInformationData } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
 
 export class NlqQaInformationExecuteQueryUseCase
   implements INlqQaInformationExecuteQueryUseCase
@@ -13,7 +14,7 @@ export class NlqQaInformationExecuteQueryUseCase
   async execute(
     query: string,
     dateParams?: { start: Date; end: Date }
-  ): Promise<TResponseDto> {
+  ): Promise<TResponseDto<TNlqInformationData>> {
     try {
       this.logger.info(
         `[NlqQaInformationExecuteQueryUseCase] Executing query: ${query} with dateParams: ${JSON.stringify(dateParams)}`

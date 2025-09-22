@@ -11,13 +11,15 @@ export class NlqQaExtractQueryFromPromptAppUseCase
     private readonly nlqQaGenerationRepository: INlqQaGenerationRepository
   ) {}
 
-  async execute(prompt: string): Promise<TResponseDto> {
+  async execute(prompt: string): Promise<TResponseDto<{ query: string }>> {
     try {
       this.logger.info(
         `[NlqQaExtractQueryFromPromptAppUseCase] Extracting query from prompt: ${prompt}`
       );
       const query =
-        await this.nlqQaGenerationRepository.extractQueryFromPrompt(prompt);
+        await this.nlqQaGenerationRepository.extractQueryFromGenerationResponse(
+          prompt
+        );
       if (!query) {
         this.logger.warn(
           `[NlqQaExtractQueryFromPromptAppUseCase] No query extracted from prompt`

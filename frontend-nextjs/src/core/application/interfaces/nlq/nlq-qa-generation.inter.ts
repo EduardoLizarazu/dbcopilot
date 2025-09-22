@@ -1,9 +1,14 @@
 import { TCreateNlqQaGenerationPromptTemplate } from "../../dtos/nlq/nlq-qa-generation.dto";
 
 export interface INlqQaGenerationRepository {
-  queryGeneration(prompt: string): Promise<string>;
+  queryGeneration(prompt: string): Promise<{ answer: string }>;
   createPromptTemplateToGenerateQuery(
     data: TCreateNlqQaGenerationPromptTemplate
-  ): Promise<string>;
-  extractQueryFromPrompt(prompt: string): Promise<string>;
+  ): Promise<{ promptTemplate: string }>;
+  extractQueryFromGenerationResponse(
+    generationResponse: string
+  ): Promise<{ query: string }>;
+  extractSuggestionsFromGenerationResponse(
+    generationResponse: string
+  ): Promise<{ suggestion: string }>;
 }

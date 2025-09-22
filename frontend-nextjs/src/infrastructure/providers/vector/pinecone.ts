@@ -6,9 +6,9 @@ export class PineconeProvider {
   private _client: Pinecone;
   private _indexName: string;
 
-  constructor(apiKey: string, indexName: string) {
-    this._client = new Pinecone({ apiKey });
-    this._indexName = indexName;
+  constructor() {
+    this._client = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
+    this._indexName = process.env.PINECONE_INDEX!;
   }
 
   get client() {
@@ -25,5 +25,20 @@ export class PineconeProvider {
 
   getClient() {
     return this.client;
+  }
+
+  // Uploads a vector to Pinecone
+  async upload(data: {
+    id: string;
+    embedding: number[];
+    metadata: Record<string, any>;
+  }) {
+    return this.getIndex().upsert([
+      {
+        id: data.id,
+        values: data.embedding,
+        metadata: data.metadata,
+      },
+    ]);
   }
 }

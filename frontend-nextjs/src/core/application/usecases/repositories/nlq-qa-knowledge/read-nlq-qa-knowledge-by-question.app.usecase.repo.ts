@@ -8,8 +8,8 @@ export class ReadNlqQaKnowledgeByQuestionUseCase
   implements IReadNlqQaKnowledgeByQuestionUseCase
 {
   constructor(
-    private readonly nlqQaKnowledgeRepository: INlqQaKnowledgeRepository,
-    private readonly logger: ILogger
+    private readonly logger: ILogger,
+    private readonly nlqQaKnowledgeRepository: INlqQaKnowledgeRepository
   ) {}
   async execute(
     question: string

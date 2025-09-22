@@ -10,6 +10,7 @@ export const nlqQaGenerationSchema = z.object({
       question: z.string().min(2),
       query: z.string().min(2),
       tablesColumns: z.array(z.string().min(1)).min(1), // ["[TABLE].[COLUMN]"]
+      score: z.number(),
     })
   ),
   schemaBased: z.array(
@@ -32,6 +33,7 @@ export const nlqQaGenerationSchema = z.object({
   answer: z.string(),
 });
 
+// Create prompt template
 export const createNlqQaGenerationPromptTemplate = nlqQaGenerationSchema.pick({
   question: true,
   similarKnowledgeBased: true,
@@ -42,9 +44,8 @@ export type TCreateNlqQaGenerationPromptTemplate = z.infer<
   typeof createNlqQaGenerationPromptTemplate
 >;
 
+// Output
 export const nlqQaGenerationOutSchema = nlqQaGenerationSchema.pick({
-  question: true,
-  similarKnowledgeBased: true,
   answer: true,
 });
 

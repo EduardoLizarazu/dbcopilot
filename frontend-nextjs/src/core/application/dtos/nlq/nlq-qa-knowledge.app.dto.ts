@@ -7,16 +7,17 @@ const nlqQaKnowledgeSchema = z.object({
   question: z.string().min(2),
   query: z.string().min(2),
   tablesColumns: z.array(z.string().min(1)).min(1), // ["[TABLE].[COLUMN]"]
+  score: z.number().min(0),
 });
 
-export const createNlqQaKnowledgeSchema = nlqQaKnowledgeSchema.omit({
-  id: true,
-});
+export const createNlqQaKnowledgeSchema = nlqQaKnowledgeSchema;
 export type TCreateNlqQaKnowledgeDto = z.infer<
   typeof createNlqQaKnowledgeSchema
 >;
 
-export const updateNlqQaKnowledgeSchema = createNlqQaKnowledgeSchema;
+export const updateNlqQaKnowledgeSchema = createNlqQaKnowledgeSchema.omit({
+  score: true,
+});
 
 export type TUpdateNlqQaKnowledgeDto = z.infer<
   typeof updateNlqQaKnowledgeSchema

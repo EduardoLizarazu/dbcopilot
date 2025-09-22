@@ -13,7 +13,7 @@ export class NlqQaCreatePromptTemplateGenerationUseCase
   ) {}
   async execute(
     data: TCreateNlqQaGenerationPromptTemplate
-  ): Promise<TResponseDto<string>> {
+  ): Promise<TResponseDto<{ promptTemplate: string }>> {
     try {
       this.logger.info(
         `[NlqQaCreatePromptTemplateGenerationUseCase] Generating NLQ QA prompt template with data: ${JSON.stringify(data)}`
