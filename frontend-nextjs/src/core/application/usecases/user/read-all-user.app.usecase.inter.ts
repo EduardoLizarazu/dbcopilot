@@ -1,12 +1,20 @@
-import { IUserRepository } from "@/core/application/interfaces/auth/user.app.inter";
-import { IReadAllUserAppUseCase } from "../../interfaces/user/read-all-user.app.usecase.inter";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
-import { UserAppEnum } from "@/core/application/enums/user.app.enum";
+import { TUserOutputRequestDto } from "../../dtos/auth/user.app.dto";
+import { IUserRepository } from "../../interfaces/auth/user.app.inter";
+import { ILogger } from "../../interfaces/ilog.app.inter";
+import { UserAppEnum } from "../../enums/user.app.enum";
+
+export interface IReadAllUserAppUseCase {
+  execute(): Promise<TResponseDto<TUserOutputRequestDto[]>>;
+}
 
 export class ReadAllUserUseCase implements IReadAllUserAppUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    private readonly logger: ILogger,
+    private readonly userRepository: IUserRepository
+  ) {}
 
-  async execute(): Promise<TResponseDto> {
+  async execute(): Promise<TResponseDto<TUserOutputRequestDto[]>> {
     try {
       const users = await this.userRepository.findAll();
       return {

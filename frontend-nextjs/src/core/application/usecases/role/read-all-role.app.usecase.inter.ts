@@ -1,13 +1,16 @@
-import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
-import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
-import { IReadAllRoleAppUseCase } from "../../interfaces/role/read-all-role.app.usecase.inter";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
-import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
+import { TRoleOutRequestDto } from "../../dtos/auth/role.app.dto";
+import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
+import { RoleAppEnum } from "../../enums/role.app.enum";
+
+export interface IReadAllRoleAppUseCase {
+  execute(): Promise<TResponseDto<TRoleOutRequestDto[]>>;
+}
 
 export class ReadAllRoleUseCase implements IReadAllRoleAppUseCase {
   constructor(private roleRepository: IRoleRepository) {}
 
-  async execute(): Promise<TResponseDto> {
+  async execute(): Promise<TResponseDto<TRoleOutRequestDto[]>> {
     try {
       const roles = await this.roleRepository.findAll();
       return {

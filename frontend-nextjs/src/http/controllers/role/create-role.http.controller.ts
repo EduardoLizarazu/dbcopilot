@@ -1,4 +1,4 @@
-import { ICreateRoleAppUseCase } from "@/core/application/usecases/interfaces/role/create-role.app.usecase.inter";
+import { ICreateRoleAppUseCase } from "@/core/application/usecases/role/create-role.app.usecase.inter";
 import { IController } from "../IController.http.controller";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";

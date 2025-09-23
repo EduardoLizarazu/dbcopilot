@@ -1,4 +1,4 @@
-import { ICreateUserAppUseCase } from "@/core/application/usecases/interfaces/user/create-user.app.usecase.inter";
+import { ICreateUserAppUseCase } from "@/core/application/usecases/user/create-user.app.usecase.inter";
 import { IController } from "../IController.http.controller";
 import { HttpRequest } from "@/http/helpers/HttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";

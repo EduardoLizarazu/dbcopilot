@@ -1,22 +1,30 @@
+import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import {
   createUserSchema,
   TCreateUserDto,
+  TUserOutputRequestDto,
 } from "@/core/application/dtos/auth/user.app.dto";
-import { ICreateUserAppUseCase } from "../../interfaces/user/create-user.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
-import { IUserRepository } from "@/core/application/interfaces/auth/user.app.inter";
+import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
+import { IUserRepository } from "../../interfaces/auth/user.app.inter";
+import { ILogger } from "../../interfaces/ilog.app.inter";
+import { UserAppEnum } from "../../enums/user.app.enum";
+import { RoleAppEnum } from "../../enums/role.app.enum";
 import { UserEntity } from "@/core/domain/entities/user.domain.entity";
-import { UserAppEnum } from "@/core/application/enums/user.app.enum";
-import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
-import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
+
+export interface ICreateUserAppUseCase {
+  execute(data: TCreateUserDto): Promise<TResponseDto<TUserOutputRequestDto>>;
+}
 
 export class CreateUserAppUseCase implements ICreateUserAppUseCase {
   constructor(
+    private readonly logger: ILogger,
     private readonly userRepository: IUserRepository,
     private readonly roleRepository: IRoleRepository
   ) {}
 
-  async execute(input: TCreateUserDto): Promise<TResponseDto> {
+  async execute(
+    input: TCreateUserDto
+  ): Promise<TResponseDto<TUserOutputRequestDto>> {
     try {
       // Check if input is valid
       const valid = createUserSchema.safeParse(input);
@@ -51,13 +59,24 @@ export class CreateUserAppUseCase implements ICreateUserAppUseCase {
       );
 
       const user = UserEntity.create(input);
-      const output = await this.userRepository.create({
+      const id = await this.userRepository.create({
         name: user.name,
         lastname: user.lastname,
         email: user.email,
         password: user.password,
         roles: input.roles,
       });
+
+      //  find user by id to return full object
+      const output = await this.userRepository.findById(id);
+      if (!output) {
+        return {
+          success: false,
+          message: UserAppEnum.userNotFound,
+          data: null,
+        };
+      }
+
       return {
         success: true,
         message: UserAppEnum.userCreatedSuccessfully,

@@ -1,44 +1,35 @@
-import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
-import { IUpdateRoleAppUseCase } from "../../interfaces/role/update-role.app.usecase.inter";
-import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
-import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
-import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
-import {
-  TUpdateRoleDto,
-  updateRoleSchema,
-} from "@/core/application/dtos/auth/role.app.dto";
 import { TRequesterDto } from "@/core/application/dtos/utils/requester.app.dto";
-import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { IReadByIdRoleAppUseCase } from "../../interfaces/role/read-role-by-id.app.usecase.inter";
+import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
+import {
+  TRoleOutRequestDto,
+  TUpdateRoleDto,
+} from "@/core/application/dtos/auth/role.app.dto";
+import { ILogger } from "../../interfaces/ilog.app.inter";
+import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
+import { RoleAppEnum } from "../../enums/role.app.enum";
+import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
+
+export interface IUpdateRoleAppUseCase {
+  execute(
+    id: string,
+    data: TUpdateRoleDto
+  ): Promise<TResponseDto<TRoleOutRequestDto>>;
+}
 
 export class UpdateRoleUseCaseRepo implements IUpdateRoleAppUseCase {
   constructor(
-    private readonly roleRepository: IRoleRepository,
     private readonly logger: ILogger,
-    private readonly readRoleByIdUseCase: IReadByIdRoleAppUseCase
+    private readonly roleRepository: IRoleRepository
   ) {}
   async execute(
     id: string,
-    data: TUpdateRoleDto,
-    requester: TRequesterDto
-  ): Promise<TResponseDto> {
+    data: TUpdateRoleDto
+  ): Promise<TResponseDto<TRoleOutRequestDto>> {
     try {
-      // Schema Validation
-      const roleValidation = updateRoleSchema.safeParse(data);
-      if (!roleValidation.success) {
-        return {
-          success: false,
-          message: roleValidation.error.errors
-            .map((err) => err.message)
-            .join(", "),
-          data: null,
-        };
-      }
-
       // logger
       this.logger.info("UpdateRoleUseCase: Updating role with ID:", id);
 
-      const existingRole = await this.readRoleByIdUseCase.execute(id);
+      const existingRole = await this.roleRepository.findById(id);
       if (!existingRole) {
         this.logger.warn("UpdateRoleUseCase: Role not found");
         return {
@@ -48,21 +39,17 @@ export class UpdateRoleUseCaseRepo implements IUpdateRoleAppUseCase {
         };
       }
 
-      const updatedRole = RoleEntity.update({
+      RoleEntity.update({
         name: data.name,
         description: data.description,
       });
 
       await this.roleRepository.update(id, {
-        id: id,
-        name: updatedRole.name,
-        description: updatedRole.description,
-        updatedBy: requester.uid,
-        updatedAt: new Date(),
+        ...data,
       });
 
       // Find the updated role
-      const roleAfterUpdate = await this.readRoleByIdUseCase.execute(id);
+      const roleAfterUpdate = await this.roleRepository.findById(id);
       if (!roleAfterUpdate) {
         this.logger.error("UpdateRoleUseCase: Role not found after update");
         return {

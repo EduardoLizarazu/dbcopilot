@@ -3,7 +3,7 @@ import { IController } from "@/http/controllers/IController.http.controller";
 import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo";
 import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
-import { IReadAllRoleAppUseCase } from "@/core/application/usecases/interfaces/role/read-all-role.app.usecase.inter";
+import { IReadAllRoleAppUseCase } from "@/core/application/usecases/role/read-all-role.app.usecase.inter";
 import { ReadAllUserController } from "@/http/controllers/user/read-all-user.http.controller";
 import { ReadAllUserUseCase } from "@/core/application/usecases/repositories/user/read-all-user.usecase";
 

@@ -1,16 +1,20 @@
-import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
-import { IReadRoleByNameAppUseCase } from "../../interfaces/role/read-role-by-name.app.usecase.inter";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
-import { RoleAppEnum } from "@/core/application/enums/role.app.enum";
-import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
+import { TRoleOutRequestDto } from "../../dtos/auth/role.app.dto";
+import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
+import { ILogger } from "../../interfaces/ilog.app.inter";
+import { RoleAppEnum } from "../../enums/role.app.enum";
+
+export interface IReadRoleByNameAppUseCase {
+  execute(name: string): Promise<TResponseDto<TRoleOutRequestDto>>;
+}
 
 export class ReadRoleByNameRoleUseCase implements IReadRoleByNameAppUseCase {
   constructor(
-    private readonly roleRepository: IRoleRepository,
-    private readonly logger: ILogger
+    private readonly logger: ILogger,
+    private readonly roleRepository: IRoleRepository
   ) {}
 
-  async execute(name: string): Promise<TResponseDto> {
+  async execute(name: string): Promise<TResponseDto<TRoleOutRequestDto>> {
     try {
       const role = await this.roleRepository.findByName(name);
       this.logger.info("ReadRoleByNameRoleUseCase: Role found:", role);

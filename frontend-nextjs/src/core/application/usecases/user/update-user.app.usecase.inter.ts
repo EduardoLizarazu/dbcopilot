@@ -1,13 +1,20 @@
-import { UserEntity } from "@/core/domain/entities/user.domain.entity";
-import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
-import { IUpdateUserAppUseCase } from "../../interfaces/user/update-user.app.usecase.inter";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import {
   TUpdateUserDto,
+  TUserOutputRequestDto,
   userSchema,
 } from "@/core/application/dtos/auth/user.app.dto";
-import { UserAppEnum } from "@/core/application/enums/user.app.enum";
-import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
+import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
+import { IUserRepository } from "../../interfaces/auth/user.app.inter";
+import { UserAppEnum } from "../../enums/user.app.enum";
+import { UserEntity } from "@/core/domain/entities/user.domain.entity";
+
+export interface IUpdateUserAppUseCase {
+  execute(
+    id: string,
+    data: TUpdateUserDto
+  ): Promise<TResponseDto<TUserOutputRequestDto | null>>;
+}
 
 export class UpdateUserUseCase implements IUpdateUserAppUseCase {
   constructor(
@@ -15,7 +22,10 @@ export class UpdateUserUseCase implements IUpdateUserAppUseCase {
     private roleRepository: IRoleRepository
   ) {}
 
-  async execute(id: string, user: TUpdateUserDto): Promise<TResponseDto> {
+  async execute(
+    id: string,
+    user: TUpdateUserDto
+  ): Promise<TResponseDto<TUserOutputRequestDto | null>> {
     try {
       // Validation
       const userValidation = userSchema.safeParse(user);
@@ -57,7 +67,7 @@ export class UpdateUserUseCase implements IUpdateUserAppUseCase {
       }
 
       const updatedUser = UserEntity.update(user);
-      const out = await this.userRepository.update(id, {
+      await this.userRepository.update(id, {
         name: updatedUser.name,
         lastname: updatedUser.lastname,
         email: updatedUser.email,
@@ -65,6 +75,16 @@ export class UpdateUserUseCase implements IUpdateUserAppUseCase {
         roles: user.roles,
         id: existingUser.id,
       });
+
+      const out = await this.userRepository.findById(id);
+      if (!out) {
+        return {
+          success: false,
+          message: UserAppEnum.userNotFound,
+          data: null,
+        };
+      }
+
       return {
         success: true,
         message: UserAppEnum.userUpdatedSuccessfully,
