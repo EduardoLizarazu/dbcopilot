@@ -2,6 +2,16 @@ import { getApps, initializeApp, cert, getApp, App } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 
+enum FbCollection {
+  NLQ_QA = "nlq_qa",
+  NLQ_FEEDBACKS = "nlq_feedbacks",
+  NLQ_ERRORS = "nlq_errors",
+  NLQ_GOODS = "nlq_goods",
+  NLQ_GOODS_DETAILS = "nlq_goods_details",
+  NLQ_USERS = "nlq_users",
+  NLQ_ROLES = "nlq_roles",
+}
+
 // Handle \n when key is stored in a single-line env var
 const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
@@ -23,6 +33,7 @@ export const adminDb = getFirestore(adminApp);
 
 export class FirebaseAdminProvider {
   private app: App;
+  private readonly _coll = FbCollection;
 
   constructor() {
     const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
@@ -40,6 +51,10 @@ export class FirebaseAdminProvider {
 
   get auth() {
     return getAuth(this.app);
+  }
+
+  get coll() {
+    return this._coll;
   }
 
   get db() {

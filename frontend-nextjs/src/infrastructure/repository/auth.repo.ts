@@ -23,7 +23,7 @@ export class AuthorizationRepository implements IAuthorizationRepository {
       this.logger.info("AuthService: Fetching roles for UID:", uid);
 
       const user = await this.firebaseAdmin.db
-        .collection("users")
+        .collection(this.firebaseAdmin.coll.NLQ_USERS)
         .where("uid", "==", uid)
         .get();
       if (user.empty) {
@@ -42,7 +42,7 @@ export class AuthorizationRepository implements IAuthorizationRepository {
       const rolesDocs = await Promise.all(
         roles.map(async (roleId) => {
           const roleDoc = await this.firebaseAdmin.db
-            .collection("roles")
+            .collection(this.firebaseAdmin.coll.NLQ_ROLES)
             .doc(roleId)
             .get();
           return roleDoc.data();

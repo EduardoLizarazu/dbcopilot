@@ -18,7 +18,7 @@ export class NlqQaErrorRepository implements INlqQaErrorRepository {
       this.logger.info("[NlqQaErrorRepository] Creating NLQ QA Error", data);
       // On nlq-error collection, create a new document with the data provided
       const docRef = await this.fbAdminProvider.db
-        .collection("nlq-errors")
+        .collection(this.fbAdminProvider.coll.NLQ_ERRORS)
         .add({
           ...data,
         });

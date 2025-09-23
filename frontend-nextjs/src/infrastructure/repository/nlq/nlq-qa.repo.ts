@@ -16,7 +16,7 @@ export class NlqQaAppRepository implements INlqQaRepository {
   async create(data: TCreateNlqQaDto): Promise<string> {
     try {
       const docRef = await this.fbAdminProvider.db
-        .collection("nlq_qa")
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
         .add({ ...data });
       return docRef.id;
     } catch (error) {
@@ -37,7 +37,9 @@ export class NlqQaAppRepository implements INlqQaRepository {
   }
   async findAll(): Promise<TNlqQaOutRequestDto[]> {
     try {
-      const snapshot = await this.fbAdminProvider.db.collection("nlq_qa").get();
+      const snapshot = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
+        .get();
       const results: TNlqQaOutRequestDto[] = [];
       snapshot.forEach((doc) => {
         results.push({ id: doc.id, ...doc.data() } as TNlqQaOutRequestDto);
@@ -52,5 +54,19 @@ export class NlqQaAppRepository implements INlqQaRepository {
   }
   findByQuestion(question: string): Promise<TNlqQaOutRequestDto[]> {
     throw new Error("Method not implemented.");
+  }
+  async softDeleteById(id: string): Promise<void> {
+    try {
+      // update the deleted by user to true
+      await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
+        .doc(id)
+        .update({ deletedByUser: true });
+    } catch (error) {
+      this.logger.error("[NlqQaAppRepository] Error soft deleting NLQ QA", {
+        error,
+      });
+      throw new Error("Error soft deleting NLQ QA");
+    }
   }
 }

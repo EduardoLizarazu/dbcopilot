@@ -1,35 +1,29 @@
 import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
-import { FirebaseClientProvider } from "../providers/firebase/firebase-client";
 import {
   TCreateRoleDto,
   TRoleOutRequestDto,
   TUpdateRoleDto,
 } from "@/core/application/dtos/role.app.dto";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-} from "firebase/firestore";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
+import { FirebaseAdminProvider } from "../providers/firebase/firebase-admin";
 
 export class RoleInfraRepository implements IRoleRepository {
   constructor(
-    private firebaseClient: FirebaseClientProvider,
+    private fbAdminProvider: FirebaseAdminProvider,
     private readonly logger: ILogger
   ) {}
   async create(data: TCreateRoleDto): Promise<string> {
     try {
-      const db = this.firebaseClient.getDb();
-      const roleRef = doc(collection(db, "roles"));
-      await setDoc(roleRef, { ...data, id: roleRef.id });
+      // Use Firebase Admin SDK to insert role
+      const db = this.fbAdminProvider.db;
+      const roleDocRef = await db
+        .collection(this.fbAdminProvider.coll.NLQ_ROLES)
+        .add(data);
       this.logger.info("RoleInfraRepository: Created role:", {
-        id: roleRef.id,
+        id: roleDocRef.id,
         ...data,
       });
-      return roleRef.id;
+      return roleDocRef.id;
     } catch (error) {
       this.logger.error("RoleInfraRepository: Error creating role:", error);
       throw new Error("Error creating role");
@@ -37,9 +31,12 @@ export class RoleInfraRepository implements IRoleRepository {
   }
   async update(id: string, data: TUpdateRoleDto): Promise<void> {
     try {
-      const db = this.firebaseClient.getDb();
-      const roleRef = doc(collection(db, "roles"), id);
-      await setDoc(roleRef, data);
+      // Use Firebase Admin SDK to update role
+      const db = this.fbAdminProvider.db;
+      await db
+        .collection(this.fbAdminProvider.coll.NLQ_ROLES)
+        .doc(id)
+        .update(data);
     } catch (error) {
       this.logger.error("RoleInfraRepository: Error updating role:", error);
       throw new Error("Error updating role");
@@ -47,9 +44,9 @@ export class RoleInfraRepository implements IRoleRepository {
   }
   async delete(id: string): Promise<void> {
     try {
-      const db = this.firebaseClient.getDb();
-      const roleRef = doc(collection(db, "roles"), id);
-      await deleteDoc(roleRef);
+      // Use Firebase Admin SDK to delete role
+      const db = this.fbAdminProvider.db;
+      await db.collection(this.fbAdminProvider.coll.NLQ_ROLES).doc(id).delete();
     } catch (error) {
       this.logger.error("RoleInfraRepository: Error deleting role:", error);
       throw new Error("Error deleting role");
@@ -57,15 +54,18 @@ export class RoleInfraRepository implements IRoleRepository {
   }
   async findById(id: string): Promise<TRoleOutRequestDto | null> {
     try {
-      const db = this.firebaseClient.getDb();
-      const roleRef = doc(collection(db, "roles"), id);
-      const roleSnapshot = await getDoc(roleRef);
-      if (!roleSnapshot.exists()) {
+      // Use Firebase Admin SDK to fetch role by ID
+      const db = this.fbAdminProvider.db;
+      const roleDoc = await db
+        .collection(this.fbAdminProvider.coll.NLQ_ROLES)
+        .doc(id)
+        .get();
+      if (!roleDoc.exists) {
         return null;
       }
       return {
-        id: roleSnapshot.id,
-        ...roleSnapshot.data(),
+        id: roleDoc.id,
+        ...roleDoc.data(),
       } as TRoleOutRequestDto;
     } catch (error) {
       this.logger.error(
@@ -77,9 +77,11 @@ export class RoleInfraRepository implements IRoleRepository {
   }
   async findAll(): Promise<TRoleOutRequestDto[]> {
     try {
-      const db = this.firebaseClient.getDb();
-      const rolesCollection = collection(db, "roles");
-      const rolesSnapshot = await getDocs(rolesCollection);
+      // Use Firebase Admin SDK to fetch all roles
+      const db = this.fbAdminProvider.db;
+      const rolesSnapshot = await db
+        .collection(this.fbAdminProvider.coll.NLQ_ROLES)
+        .get();
       const roles: TRoleOutRequestDto[] = [];
       rolesSnapshot.forEach((doc) => {
         roles.push({ id: doc.id, ...doc.data() } as TRoleOutRequestDto);
@@ -92,13 +94,17 @@ export class RoleInfraRepository implements IRoleRepository {
   }
   async findByName(name: string): Promise<TRoleOutRequestDto | null> {
     try {
-      const db = this.firebaseClient.getDb();
-      const rolesCollection = collection(db, "roles");
-      const rolesSnapshot = await getDocs(rolesCollection);
-      const role = rolesSnapshot.docs.find((doc) => doc.data().name === name);
-      return role
-        ? ({ id: role.id, ...role.data() } as TRoleOutRequestDto)
-        : null;
+      // Use Firebase Admin SDK to query role by name
+      const db = this.fbAdminProvider.db;
+      const querySnapshot = await db
+        .collection(this.fbAdminProvider.coll.NLQ_ROLES)
+        .where("name", "==", name)
+        .get();
+      if (querySnapshot.empty) {
+        return null;
+      }
+      const doc = querySnapshot.docs[0];
+      return { id: doc.id, ...doc.data() } as TRoleOutRequestDto;
     } catch (error) {
       this.logger.error(
         "RoleInfraRepository: Error finding role by name:",
