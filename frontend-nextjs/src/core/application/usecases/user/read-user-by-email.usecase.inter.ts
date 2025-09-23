@@ -1,5 +1,5 @@
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
-import { TUserOutputRequestDto } from "../../dtos/auth/user.app.dto";
+import { TUserOutputRequestDto } from "../../dtos/user.app.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IUserRepository } from "../../interfaces/auth/user.app.inter";
 import { UserAppEnum } from "../../enums/user.app.enum";

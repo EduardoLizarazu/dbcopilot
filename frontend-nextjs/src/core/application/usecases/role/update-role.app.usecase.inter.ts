@@ -3,7 +3,7 @@ import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import {
   TRoleOutRequestDto,
   TUpdateRoleDto,
-} from "@/core/application/dtos/auth/role.app.dto";
+} from "@/core/application/dtos/role.app.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
 import { RoleAppEnum } from "../../enums/role.app.enum";

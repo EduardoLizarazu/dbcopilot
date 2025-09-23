@@ -2,7 +2,7 @@ import {
   TCreateUserDto,
   TUpdateUserDto,
   TUserOutputRequestDto,
-} from "@/core/application/dtos/auth/user.app.dto";
+} from "@/core/application/dtos/user.app.dto";
 import { IGenericMutationRepository } from "@/core/application/interfaces/generic.app.inter";
 
 export interface IUserRepository

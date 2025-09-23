@@ -7,7 +7,7 @@ import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
 import { HttpRequest } from "@/http/helpers/HttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
-import { TCreateRoleDto } from "@/core/application/dtos/auth/role.app.dto";
+import { TCreateRoleDto } from "@/core/application/dtos/role.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { IAuthService } from "@/infrastructure/services/auth.infra.service";
 

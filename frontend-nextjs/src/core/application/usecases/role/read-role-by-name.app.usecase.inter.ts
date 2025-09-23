@@ -1,5 +1,5 @@
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
-import { TRoleOutRequestDto } from "../../dtos/auth/role.app.dto";
+import { TRoleOutRequestDto } from "../../dtos/role.app.dto";
 import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { RoleAppEnum } from "../../enums/role.app.enum";

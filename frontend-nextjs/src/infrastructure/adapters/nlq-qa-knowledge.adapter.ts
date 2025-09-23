@@ -8,7 +8,7 @@ import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.a
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
 import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
 
-export class NlqQaKnowledgeAppRepository implements INlqQaKnowledgePort {
+export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
   constructor(
     private readonly logger: ILogger,
     private readonly pineconeProvider: PineconeProvider,

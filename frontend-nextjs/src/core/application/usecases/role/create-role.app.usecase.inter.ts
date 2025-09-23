@@ -7,7 +7,7 @@ import {
   createRoleSchema,
   TCreateRoleDto,
   TRoleOutRequestDto,
-} from "@/core/application/dtos/auth/role.app.dto";
+} from "@/core/application/dtos/role.app.dto";
 import { IReadRoleByNameAppUseCase } from "./read-role-by-name.app.usecase.inter";
 import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
 import { ILogger } from "../../interfaces/ilog.app.inter";

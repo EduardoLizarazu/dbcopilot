@@ -6,7 +6,7 @@ import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
 import { OracleProvider } from "@/infrastructure/providers/database/oracle.infra.provider";
 
-export class NlqQaInformationInfraRepository implements INlqQaInformationPort {
+export class NlqQaInformationAdapter implements INlqQaInformationPort {
   constructor(
     private readonly logger: ILogger,
     private readonly oracleProvider: OracleProvider

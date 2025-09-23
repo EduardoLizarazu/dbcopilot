@@ -3,7 +3,7 @@ import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaGenerationPort } from "@/core/application/ports/nlq-qa-generation.port";
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
 
-export class NlqQaGenerationInfraRepository implements INlqQaGenerationPort {
+export class NlqQaGenerationAdapter implements INlqQaGenerationPort {
   constructor(
     private readonly logger: ILogger,
     private readonly aiProvider: OpenAIProvider

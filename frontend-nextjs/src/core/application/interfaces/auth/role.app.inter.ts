@@ -2,7 +2,7 @@ import {
   TCreateRoleDto,
   TRoleOutRequestDto,
   TUpdateRoleDto,
-} from "../../dtos/auth/role.app.dto";
+} from "../../dtos/role.app.dto";
 import { IGenericMutationRepository } from "../generic.app.inter";
 
 export interface IRoleRepository

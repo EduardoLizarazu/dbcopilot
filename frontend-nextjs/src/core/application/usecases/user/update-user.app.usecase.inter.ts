@@ -3,7 +3,7 @@ import {
   TUpdateUserDto,
   TUserOutputRequestDto,
   userSchema,
-} from "@/core/application/dtos/auth/user.app.dto";
+} from "@/core/application/dtos/user.app.dto";
 import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
 import { IUserRepository } from "../../interfaces/auth/user.app.inter";
 import { UserAppEnum } from "../../enums/user.app.enum";
