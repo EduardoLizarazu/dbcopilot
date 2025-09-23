@@ -4,6 +4,7 @@ export const nlqQaErrorSchema = z.object({
   id: z.string(),
   question: z.string(),
   query: z.string(),
+  knowledgeSourceUsedId: z.array(z.string()),
   errorMessage: z.string(),
   createdBy: z.string(),
   createdAt: z.date(),

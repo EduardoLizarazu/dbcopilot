@@ -3,7 +3,7 @@ import {
   TNlqQaInformationSchemaExtractionDto,
 } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
 
-export interface INlqQaInformationRepository {
+export interface INlqQaInformationPort {
   extractSchemaBased(
     tables: string[]
   ): Promise<TNlqQaInformationSchemaExtractionDto>;

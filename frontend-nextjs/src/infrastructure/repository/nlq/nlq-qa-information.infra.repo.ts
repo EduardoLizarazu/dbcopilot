@@ -3,7 +3,7 @@ import {
   TNlqInformationData,
 } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { INlqQaInformationRepository } from "@/core/application/interfaces/nlq/nlq-qa-information.app.inter";
+import { INlqQaInformationRepository } from "@/core/application/ports/nlq-qa-information.port";
 import { OracleProvider } from "@/infrastructure/providers/database/oracle.infra.provider";
 
 export class NlqQaInformationInfraRepository

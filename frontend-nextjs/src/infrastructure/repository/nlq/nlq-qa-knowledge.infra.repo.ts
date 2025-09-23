@@ -4,7 +4,7 @@ import {
   TUpdateNlqQaKnowledgeDto,
 } from "@/core/application/dtos/nlq/nlq-qa-knowledge.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { INlqQaKnowledgeRepository } from "@/core/application/interfaces/nlq/nlq-qa-knowledge.app.inter";
+import { INlqQaKnowledgeRepository } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
 import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
 

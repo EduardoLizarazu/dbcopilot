@@ -10,17 +10,16 @@ export const nlqQaSchema = z.object({
   knowledgeSourceUsedId: z.array(z.string()),
   userDeleted: z.boolean().default(false),
 
-  errorId: z.string(),
   feedbackId: z.string(),
-  userId: z.string(),
-
   createdBy: z.string(),
   updatedBy: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
-export const createNlqQaSchema = nlqQaSchema.omit({ id: true });
+export const createNlqQaSchema = nlqQaSchema.omit({
+  id: true,
+});
 
 export type TCreateNlqQaDto = z.infer<typeof createNlqQaSchema>;
 
@@ -33,11 +32,7 @@ export type TUpdateNlqQaDto = z.infer<typeof updateNlqQaSchema>;
 
 export const nlqQaInRequestSchema = nlqQaSchema.pick({
   question: true,
-  userId: true,
-  createdAt: true,
   createdBy: true,
-  updatedAt: true,
-  updatedBy: true,
 });
 
 export type TNlqQaInRequestDto = z.infer<typeof nlqQaInRequestSchema>;

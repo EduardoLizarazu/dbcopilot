@@ -5,7 +5,7 @@ import {
 } from "@/core/application/dtos/nlq/nlq-qa-knowledge.app.dto";
 import { IGenericMutationRepository } from "@/core/application/interfaces/generic.app.inter";
 
-export interface INlqQaKnowledgeRepository
+export interface INlqQaKnowledgePort
   extends IGenericMutationRepository<
     TCreateNlqQaKnowledgeDto,
     TUpdateNlqQaKnowledgeDto,

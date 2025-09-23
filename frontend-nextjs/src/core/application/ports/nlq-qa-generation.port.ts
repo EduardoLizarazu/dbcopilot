@@ -1,6 +1,6 @@
-import { TCreateNlqQaGenerationPromptTemplate } from "../../dtos/nlq/nlq-qa-generation.dto";
+import { TCreateNlqQaGenerationPromptTemplate } from "../dtos/nlq/nlq-qa-generation.dto";
 
-export interface INlqQaGenerationRepository {
+export interface INlqQaGenerationPort {
   queryGeneration(prompt: string): Promise<{ answer: string }>;
   createPromptTemplateToGenerateQuery(
     data: TCreateNlqQaGenerationPromptTemplate
