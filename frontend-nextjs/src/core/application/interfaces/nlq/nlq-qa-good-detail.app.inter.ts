@@ -10,9 +10,4 @@ export interface INlqQaGoodDetailsRepository
     TCreateNlqQaGoodDetailsDto,
     TUpdateNlqQaGoodDetailsDto,
     TNlqQaGoodDetailsOutRequestDto
-  > {
-  findByTableName(tableName: string): Promise<TNlqQaGoodDetailsOutRequestDto[]>;
-  findByColumnName(
-    columnName: string
-  ): Promise<TNlqQaGoodDetailsOutRequestDto[]>;
-}
+  > {}
