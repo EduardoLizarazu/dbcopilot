@@ -34,7 +34,7 @@ export async function nextAdapter(
     headers[key] = value;
   });
   console.log("next adapter: Parsed headers:", headers);
-  const httpRequest: IHttpRequest = new HttpRequest({
+  const httpRequest: IHttpRequest<typeof body> = new HttpRequest({
     header: headers,
     body: body,
     path: request.nextUrl.pathname,

@@ -3,7 +3,7 @@ import { IHttpRequest } from "./IHttpRequest.http";
 /**
  * Implementation of IHttpRequest representing an HTTP request.
  */
-export class HttpRequest implements IHttpRequest {
+export class HttpRequest<B> implements IHttpRequest<B> {
   /**
    * Represents the headers of the HTTP request.
    */
@@ -12,7 +12,7 @@ export class HttpRequest implements IHttpRequest {
   /**
    * Represents the body of the HTTP request.
    */
-  body?: unknown;
+  body?: B;
 
   /**
    * Represents the query parameters of the HTTP request.
@@ -28,7 +28,7 @@ export class HttpRequest implements IHttpRequest {
    * Initializes a new instance of the `HttpRequest` class.
    * @param init - An optional object containing properties to initialize the instance.
    */
-  constructor(init?: HttpRequest) {
+  constructor(init?: HttpRequest<B>) {
     Object.assign(this, init);
   }
 }

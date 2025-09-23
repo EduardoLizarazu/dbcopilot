@@ -32,7 +32,6 @@ export type TUpdateNlqQaDto = z.infer<typeof updateNlqQaSchema>;
 
 export const nlqQaInRequestSchema = nlqQaSchema.pick({
   question: true,
-  createdBy: true,
 });
 
 export type TNlqQaInRequestDto = z.infer<typeof nlqQaInRequestSchema>;

@@ -8,6 +8,8 @@ import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { ICreateNlqQaUseCase } from "@/core/application/usecases/nlq/nlq-qa/create-nlq-qa.usecase";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
+import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
+import { TNlqQaInRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 
 export class CreateNlqQaController implements IController {
   constructor(
@@ -17,7 +19,9 @@ export class CreateNlqQaController implements IController {
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
-  async handle(httpRequest: HttpRequest): Promise<IHttpResponse> {
+  async handle(
+    httpRequest: IHttpRequest<TNlqQaInRequestDto>
+  ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info("[CreateNlqQaController] handling request", httpRequest);

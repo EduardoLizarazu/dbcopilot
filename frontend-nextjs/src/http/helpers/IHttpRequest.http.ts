@@ -1,7 +1,7 @@
 /**
  * Interface representing an HTTP request.
  */
-export interface IHttpRequest {
+export interface IHttpRequest<B> {
   /**
    * Represents the headers of the HTTP request.
    */
@@ -10,7 +10,7 @@ export interface IHttpRequest {
   /**
    * Represents the body of the HTTP request.
    */
-  body?: unknown;
+  body?: B;
 
   /**
    * Represents the query parameters of the HTTP request.
