@@ -69,11 +69,15 @@ export class CreateNlqQaController implements IController {
       this.logger.info("[CreateNlqQaController] Body params:", bodyParams);
 
       // ==== BUSINESS LOGIC USE CASES ====
+      const useCase = await this.createNlqQaUseCase.execute({
+        question: body.question,
+        createdBy: "",
+      });
 
       // ==== OUTPUT RESPONSE ====
       const success = this.httpSuccess.success_200({
         message: "NLQ QA created successfully",
-        data: createNlqQa.data,
+        data: useCase.data,
       });
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
