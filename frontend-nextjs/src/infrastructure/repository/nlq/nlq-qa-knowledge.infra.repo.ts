@@ -4,11 +4,11 @@ import {
   TUpdateNlqQaKnowledgeDto,
 } from "@/core/application/dtos/nlq/nlq-qa-knowledge.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { INlqQaKnowledgeRepository } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
+import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
 import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
 
-export class NlqQaKnowledgeAppRepository implements INlqQaKnowledgeRepository {
+export class NlqQaKnowledgeAppRepository implements INlqQaKnowledgePort {
   constructor(
     private readonly logger: ILogger,
     private readonly pineconeProvider: PineconeProvider,

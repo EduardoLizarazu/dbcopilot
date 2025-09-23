@@ -1,11 +1,9 @@
 import { TCreateNlqQaGenerationPromptTemplate } from "@/core/application/dtos/nlq/nlq-qa-generation.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { INlqQaGenerationRepository } from "@/core/application/interfaces/nlq/nlq-qa-generation.inter";
+import { INlqQaGenerationPort } from "@/core/application/ports/nlq-qa-generation.port";
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
 
-export class NlqQaGenerationInfraRepository
-  implements INlqQaGenerationRepository
-{
+export class NlqQaGenerationInfraRepository implements INlqQaGenerationPort {
   constructor(
     private readonly logger: ILogger,
     private readonly aiProvider: OpenAIProvider

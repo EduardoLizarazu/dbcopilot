@@ -1,6 +1,5 @@
 import {
   createNlqQaSchema,
-  TCreateNlqQaDto,
   TNlqQaInRequestDto,
   TNlqQaOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa.app.dto";

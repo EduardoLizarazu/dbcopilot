@@ -3,12 +3,10 @@ import {
   TNlqInformationData,
 } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { INlqQaInformationRepository } from "@/core/application/ports/nlq-qa-information.port";
+import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
 import { OracleProvider } from "@/infrastructure/providers/database/oracle.infra.provider";
 
-export class NlqQaInformationInfraRepository
-  implements INlqQaInformationRepository
-{
+export class NlqQaInformationInfraRepository implements INlqQaInformationPort {
   constructor(
     private readonly logger: ILogger,
     private readonly oracleProvider: OracleProvider
