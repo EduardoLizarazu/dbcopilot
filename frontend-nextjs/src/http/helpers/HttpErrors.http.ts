@@ -9,20 +9,20 @@ export class HttpErrors implements IHttpErrors {
    * Returns a 401 Unauthorized HTTP error response.
    * @returns The HTTP error response.
    */
-  error_401(): IHttpResponse {
+  error_401(message: string): IHttpResponse {
     return {
       statusCode: 401,
-      body: { error: "Unauthorized" },
+      body: { error: "Unauthorized", message },
     };
   }
   /**
    * Returns a 422 Unprocessable Entity HTTP error response.
    * @returns The HTTP error response.
    */
-  error_422(): IHttpResponse {
+  error_422(message: string): IHttpResponse {
     return {
       statusCode: 422,
-      body: { error: "Unprocessable Entity" },
+      body: { error: "Unprocessable Entity", message },
     };
   }
 
@@ -30,10 +30,10 @@ export class HttpErrors implements IHttpErrors {
    * Returns a 400 Bad Request HTTP error response.
    * @returns The HTTP error response.
    */
-  error_400(): IHttpResponse {
+  error_400(message: string): IHttpResponse {
     return {
       statusCode: 400,
-      body: { error: "Bad Request" },
+      body: { error: "Bad Request", message },
     };
   }
 
@@ -41,10 +41,10 @@ export class HttpErrors implements IHttpErrors {
    * Returns a 404 Not Found HTTP error response.
    * @returns The HTTP error response.
    */
-  error_404(): IHttpResponse {
+  error_404(message: string): IHttpResponse {
     return {
       statusCode: 404,
-      body: { error: "Not Found" },
+      body: { error: "Not Found", message },
     };
   }
 
@@ -52,10 +52,10 @@ export class HttpErrors implements IHttpErrors {
    * Returns a 500 Internal Server Error HTTP error response.
    * @returns The HTTP error response.
    */
-  error_500(): IHttpResponse {
+  error_500(message: string): IHttpResponse {
     return {
       statusCode: 500,
-      body: { error: "Internal Error" },
+      body: { error: "Internal Error", message },
     };
   }
 }

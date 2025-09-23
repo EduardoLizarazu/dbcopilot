@@ -39,7 +39,7 @@ export class CreateNlqQaController implements IController {
           "[CreateNlqQaController] No token provided",
           httpRequest
         );
-        const error = this.httpErrors.error_400();
+        const error = this.httpErrors.error_400("Error creating NLQ QA");
         return new HttpResponse(error.statusCode, error.body);
       }
       const token = authHeader.replace("Bearer ", "");
@@ -49,7 +49,7 @@ export class CreateNlqQaController implements IController {
       const decoded = await this.decodeTokenAdapter.decodeToken(token);
       if (!decoded) {
         this.logger.error("[CreateNlqQaController] Invalid token", httpRequest);
-        const error = this.httpErrors.error_401();
+        const error = this.httpErrors.error_401("Invalid token");
         return new HttpResponse(error.statusCode, error.body);
       }
       //   4. Retrieve roles
@@ -67,7 +67,7 @@ export class CreateNlqQaController implements IController {
       });
       if (!hasAuth) {
         this.logger.error("[CreateNlqQaController] User is not authorized");
-        const error = this.httpErrors.error_401();
+        const error = this.httpErrors.error_401("User is not authorized");
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -76,7 +76,7 @@ export class CreateNlqQaController implements IController {
       this.logger.info("[CreateNlqQaController] Body:", httpRequest.body);
       if (!httpRequest.body) {
         this.logger.error("[CreateNlqQaController] No body provided");
-        const error = this.httpErrors.error_400();
+        const error = this.httpErrors.error_400("No body provided");
         return new HttpResponse(error.statusCode, error.body);
       }
       const body = httpRequest.body as {
@@ -89,7 +89,7 @@ export class CreateNlqQaController implements IController {
       for (const param of requiredParams) {
         if (!bodyParams.includes(param)) {
           this.logger.error(`[CreateNlqQaController] Missing param: ${param}`);
-          const error = this.httpErrors.error_400();
+          const error = this.httpErrors.error_400(`Missing param: ${param}`);
           return new HttpResponse(error.statusCode, error.body);
         }
       }
@@ -105,19 +105,21 @@ export class CreateNlqQaController implements IController {
         this.logger.error("[CreateNlqQaController] Error creating NLQ QA", {
           ...useCase,
         });
-        const error = this.httpErrors.error_400();
+        const error = this.httpErrors.error_400(
+          "Error creating NLQ QA: " + useCase.message
+        );
         return new HttpResponse(error.statusCode, error.body);
       }
 
       // ==== OUTPUT RESPONSE ====
-      const success = this.httpSuccess.success_200({
+      const success = this.httpSuccess.success_201({
         message: "NLQ QA created successfully",
         data: useCase.data,
       });
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
       this.logger.error("[CreateNlqQaController] Unexpected error", err);
-      const error = this.httpErrors.error_500();
+      const error = this.httpErrors.error_500("Unexpected error");
       return new HttpResponse(error.statusCode, error.body);
     }
   }
