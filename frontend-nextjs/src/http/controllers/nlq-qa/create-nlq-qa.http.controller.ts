@@ -20,8 +20,8 @@ export class CreateNlqQaController implements IController {
   async handle(httpRequest: HttpRequest): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
-
       this.logger.info("[CreateNlqQaController] handling request", httpRequest);
+
       //   ==== INPUT HEADERS ====
       //   1. Check headers
       const headers = httpRequest.header as Record<string, string>;

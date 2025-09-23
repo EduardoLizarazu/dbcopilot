@@ -6,6 +6,16 @@ import { IHttpResponse } from "./IHttResponse.http";
  */
 export class HttpErrors implements IHttpErrors {
   /**
+   * Returns a 401 Unauthorized HTTP error response.
+   * @returns The HTTP error response.
+   */
+  error_401(): IHttpResponse {
+    return {
+      statusCode: 401,
+      body: { error: "Unauthorized" },
+    };
+  }
+  /**
    * Returns a 422 Unprocessable Entity HTTP error response.
    * @returns The HTTP error response.
    */

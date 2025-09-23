@@ -5,6 +5,12 @@ import { IHttpResponse } from "./IHttResponse.http";
  */
 export interface IHttpErrors {
   /**
+   * Creates an HTTP response with status code 401 (Unauthorized).
+   * @returns An HTTP response with status code 401.
+   */
+  error_401(): IHttpResponse;
+
+  /**
    * Creates an HTTP response with status code 422 (Unprocessable Entity).
    * @returns An HTTP response with status code 422.
    */
