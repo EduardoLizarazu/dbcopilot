@@ -18,9 +18,11 @@ import {
   TUserOutputRequestDto,
   TUpdateUserDto,
 } from "@/core/application/dtos/user.app.dto";
+import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
 export class UserInfraRepository implements IUserRepository {
   constructor(
+    private readonly logger: ILogger,
     private firebaseAdmin: FirebaseAdminProvider,
     private firebaseClient: FirebaseClientProvider
   ) {}

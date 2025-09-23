@@ -1,4 +1,4 @@
-import { IAuthRepository } from "../../interfaces/auth.app.inter";
+import { IAuthRepository } from "../../interfaces/auth/auth.app.inter";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 
 export interface IAuthorizationByUIdAppUseCase {

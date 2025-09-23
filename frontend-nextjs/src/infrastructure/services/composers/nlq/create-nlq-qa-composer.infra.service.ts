@@ -1,6 +1,7 @@
 import { CreateNlqQaUseCase } from "@/core/application/usecases/nlq/nlq-qa/create-nlq-qa.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { CreateNlqQaController } from "@/http/controllers/nlq-qa/create-nlq-qa.http.controller";
+import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 import { NlqQaGenerationAdapter } from "@/infrastructure/adapters/nlq-qa-generation.adapter";
 import { NlqQaInformationAdapter } from "@/infrastructure/adapters/nlq-qa-information.adapter";
 import { NlqQaKnowledgeAdapter } from "@/infrastructure/adapters/nlq-qa-knowledge.adapter";
@@ -9,8 +10,10 @@ import { OracleProvider } from "@/infrastructure/providers/database/oracle.infra
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
+import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { NlqQaErrorRepository } from "@/infrastructure/repository/nlq/nlq-qa-error.repo";
 import { NlqQaAppRepository } from "@/infrastructure/repository/nlq/nlq-qa.repo";
+import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo";
 
 export function createNlqQaComposer(): IController {
   // Providers
@@ -39,6 +42,11 @@ export function createNlqQaComposer(): IController {
     loggerProvider,
     firebaseAdmin
   );
+  const decodeTokenAdapter = new DecodeTokenAdapter(
+    loggerProvider,
+    firebaseAdmin
+  );
+  const authRepository = new AuthorizationRepository();
 
   // Use cases
   const createNlqQaUseCase = new CreateNlqQaUseCase(
@@ -53,7 +61,9 @@ export function createNlqQaComposer(): IController {
   // Controllers
   const controller: IController = new CreateNlqQaController(
     loggerProvider,
-    createNlqQaUseCase
+    createNlqQaUseCase,
+    decodeTokenAdapter,
+    authRepository
   );
 
   return controller;

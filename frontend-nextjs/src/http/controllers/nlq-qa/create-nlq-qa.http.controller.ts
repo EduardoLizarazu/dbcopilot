@@ -10,11 +10,16 @@ import { ICreateNlqQaUseCase } from "@/core/application/usecases/nlq/nlq-qa/crea
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
 import { TNlqQaInRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
+import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
+import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
+import { ROLE } from "@/http/utils/role.enum";
 
 export class CreateNlqQaController implements IController {
   constructor(
     private readonly logger: ILogger,
     private readonly createNlqQaUseCase: ICreateNlqQaUseCase,
+    private readonly decodeTokenAdapter: IDecodeTokenPort,
+    private readonly accessRepo: IAuthorizationRepository,
     private httpErrors: IHttpErrors = new HttpErrors(),
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
@@ -43,8 +48,30 @@ export class CreateNlqQaController implements IController {
       this.logger.info("[CreateNlqQaController] Token:", token);
 
       //   3. Decode token
+      const decoded = await this.decodeTokenAdapter.decodeToken(token);
+      if (!decoded) {
+        this.logger.error("[CreateNlqQaController] Invalid token", httpRequest);
+        const error = this.httpErrors.error_401();
+        return new HttpResponse(error.statusCode, error.body);
+      }
       //   4. Retrieve roles
+      const roleNames = await this.accessRepo.findRolesNamesByUserId(
+        decoded.uid
+      );
+      this.logger.info(
+        "[CreateNlqQaController] User roles names:",
+        roleNames.roleNames
+      );
       //   5. Check roles permissions
+      const { hasAuth } = await this.accessRepo.hasRoles({
+        ctxRoleNames: roleNames.roleNames,
+        requiredRoleNames: [ROLE.ANALYST, ROLE.ADMIN],
+      });
+      if (!hasAuth) {
+        this.logger.error("[CreateNlqQaController] User is not authorized");
+        const error = this.httpErrors.error_401();
+        return new HttpResponse(error.statusCode, error.body);
+      }
 
       //   ==== INPUT BODY ====
       //   1. Check body
@@ -73,8 +100,16 @@ export class CreateNlqQaController implements IController {
       // ==== BUSINESS LOGIC USE CASES ====
       const useCase = await this.createNlqQaUseCase.execute({
         question: body.question,
-        createdBy: "",
+        createdBy: decoded.uid,
       });
+
+      if (!useCase.success) {
+        this.logger.error("[CreateNlqQaController] Error creating NLQ QA", {
+          ...useCase,
+        });
+        const error = this.httpErrors.error_400();
+        return new HttpResponse(error.statusCode, error.body);
+      }
 
       // ==== OUTPUT RESPONSE ====
       const success = this.httpSuccess.success_200({
