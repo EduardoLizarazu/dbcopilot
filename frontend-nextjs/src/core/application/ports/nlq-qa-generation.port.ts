@@ -8,6 +8,7 @@ export interface INlqQaGenerationPort {
   extractQueryFromGenerationResponse(
     generationResponse: string
   ): Promise<{ query: string }>;
+  safeQuery(query: string): Promise<{ query: string; isSafe: boolean }>;
   extractSuggestionsFromGenerationResponse(
     generationResponse: string
   ): Promise<{ suggestion: string }>;

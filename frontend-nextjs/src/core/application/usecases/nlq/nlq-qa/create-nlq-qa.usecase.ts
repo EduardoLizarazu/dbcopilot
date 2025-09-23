@@ -105,6 +105,41 @@ export class CreateNlqQaAppUseCase implements ICreateNlqQaAppUseCase {
       this.logger.info(
         `[CreateNlqQaUseCase]: Extracted SQL query: ${query.query}`
       );
+      // 5.a.1 Validate SQL query
+      if (query.query) {
+        const isSafeQuery = await this.nlqQaGenerationPort.safeQuery(
+          query.query
+        );
+        if (!isSafeQuery || !query.query || query.query.trim() === "") {
+          this.logger.error(
+            `[CreateNlqQaUseCase]: SQL query is not safe: ${query.query}`
+          );
+          return {
+            data: null,
+            success: false,
+            message: "Generated SQL query is not safe",
+          };
+        }
+        if (!isSafeQuery.isSafe) {
+          this.logger.error(
+            `[CreateNlqQaUseCase]: SQL query is not safe: ${query.query}`
+          );
+          await this.nlqQaErrorRepository.create({
+            question: data.question,
+            errorMessage: "Generated SQL query is not safe",
+            query: query.query,
+            knowledgeSourceUsedId: similarQuestionsId,
+            createdBy: data.createdBy,
+            createdAt: new Date(),
+          });
+          return {
+            data: null,
+            success: false,
+            message: "Generated SQL query is not safe",
+          };
+        }
+      }
+
       // 5.b Extract suggestions
       let suggestion = null;
       if (!query.query) {

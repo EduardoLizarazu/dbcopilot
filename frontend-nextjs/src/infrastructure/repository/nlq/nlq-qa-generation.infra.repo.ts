@@ -108,6 +108,24 @@ export class NlqQaGenerationInfraRepository implements INlqQaGenerationPort {
     }
   }
 
+  async safeQuery(query: string): Promise<{ query: string; isSafe: boolean }> {
+    try {
+      // Implement safety checks for the query, e.g., prevent destructive operations or mutations
+      const unsafePatterns = [
+        /DELETE/i,
+        /DROP/i,
+        /UPDATE/i,
+        /INSERT/i,
+        /ALTER/i,
+      ];
+      const isSafe = !unsafePatterns.some((pattern) => pattern.test(query));
+      return { query, isSafe };
+    } catch (error) {
+      this.logger.error("Error checking query safety", { error });
+      throw new Error("Error checking query safety");
+    }
+  }
+
   async extractSuggestionsFromGenerationResponse(
     generationResponse: string
   ): Promise<{ suggestion: string }> {
