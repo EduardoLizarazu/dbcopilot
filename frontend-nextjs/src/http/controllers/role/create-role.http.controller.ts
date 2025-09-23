@@ -96,10 +96,7 @@ export class CreateRoleController implements IController {
 
       this.logger.info("CreateRoleController: Validated body:", body);
 
-      const response = await this.createRoleUseCase.execute(body, {
-        uid: decodedToken.uid,
-        roles: decodedToken.roles || [],
-      });
+      const response = await this.createRoleUseCase.execute(body);
 
       if (!response.success) {
         this.logger.error(

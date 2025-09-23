@@ -6,14 +6,14 @@ import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.inter";
 
-export interface IUpdateNlqQaAppUseCase {
+export interface IUpdateNlqQaUseCase {
   execute(
     id: string,
     data: TUpdateNlqQaDto
   ): Promise<TResponseDto<TNlqQaOutRequestDto>>;
 }
 
-export class UpdateNlqQaUseCase implements IUpdateNlqQaAppUseCase {
+export class UpdateNlqQaUseCase implements IUpdateNlqQaUseCase {
   constructor(
     private logger: ILogger,
     private nlqQaRepository: INlqQaRepository

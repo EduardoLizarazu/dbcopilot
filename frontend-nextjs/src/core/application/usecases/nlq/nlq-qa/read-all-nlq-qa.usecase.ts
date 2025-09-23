@@ -3,11 +3,11 @@ import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.inter";
 
-export interface IReadAllNlqQaAppUseCase {
+export interface IReadAllNlqQaUseCase {
   execute(): Promise<TResponseDto<TNlqQaOutRequestDto[]>>;
 }
 
-export class ReadAllNlqQaUseCase implements IReadAllNlqQaAppUseCase {
+export class ReadAllNlqQaUseCase implements IReadAllNlqQaUseCase {
   constructor(
     private logger: ILogger,
     private nlqQaRepository: INlqQaRepository

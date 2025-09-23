@@ -10,11 +10,11 @@ import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.i
 import { INlqQaGenerationPort } from "@/core/application/ports/nlq-qa-generation.port";
 import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
 import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
-export interface ICreateNlqQaAppUseCase {
+export interface ICreateNlqQaUseCase {
   execute(data: TNlqQaInRequestDto): Promise<TResponseDto<TNlqQaOutRequestDto>>;
 }
 
-export class CreateNlqQaAppUseCase implements ICreateNlqQaAppUseCase {
+export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly nlqQaRepository: INlqQaRepository,
