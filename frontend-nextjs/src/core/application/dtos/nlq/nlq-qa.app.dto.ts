@@ -31,6 +31,15 @@ export const updateNlqQaSchema = nlqQaSchema.omit({
 
 export type TUpdateNlqQaDto = z.infer<typeof updateNlqQaSchema>;
 
-export type TNlqQaInRequestDto = z.infer<typeof nlqQaSchema>;
+export const nlqQaInRequestSchema = nlqQaSchema.pick({
+  question: true,
+  userId: true,
+  createdAt: true,
+  createdBy: true,
+  updatedAt: true,
+  updatedBy: true,
+});
+
+export type TNlqQaInRequestDto = z.infer<typeof nlqQaInRequestSchema>;
 
 export type TNlqQaOutRequestDto = z.infer<typeof nlqQaSchema>;
