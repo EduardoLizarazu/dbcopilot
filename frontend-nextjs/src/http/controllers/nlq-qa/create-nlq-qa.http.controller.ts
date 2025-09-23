@@ -1,4 +1,3 @@
-import { HttpRequest } from "@/http/helpers/HttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { IController } from "../IController.http.controller";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
@@ -9,7 +8,6 @@ import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { ICreateNlqQaUseCase } from "@/core/application/usecases/nlq/nlq-qa/create-nlq-qa.usecase";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
-import { TNlqQaInRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
 import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
 import { ROLE } from "@/http/utils/role.enum";
