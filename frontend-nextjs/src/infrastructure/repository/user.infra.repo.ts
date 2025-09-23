@@ -35,7 +35,7 @@ export class UserInfraRepository implements IUserRepository {
       });
 
       const db = this.firebaseClient.getDb();
-      const userCollection = collection(db, "users");
+      const userCollection = collection(db, this.firebaseAdmin.coll.NLQ_USERS);
       const userRef = doc(userCollection, userRecord.uid);
       return userRecord.uid;
     } catch (error) {
@@ -60,7 +60,7 @@ export class UserInfraRepository implements IUserRepository {
 
       // Update user data in Firestore
       const db = this.firebaseClient.getDb();
-      const userRef = doc(db, "users", id);
+      const userRef = doc(db, this.firebaseAdmin.coll.NLQ_USERS, id);
       await updateDoc(userRef, {
         ...data,
         updatedAt: new Date(),
@@ -81,7 +81,10 @@ export class UserInfraRepository implements IUserRepository {
       // Delete user auth in Firebase Auth
       await this.firebaseAdmin.auth.deleteUser(id);
       // Delete user data in Firestore permanently
-      await this.firebaseAdmin.db.collection("users").doc(id).delete();
+      await this.firebaseAdmin.db
+        .collection(this.firebaseAdmin.coll.NLQ_USERS)
+        .doc(id)
+        .delete();
     } catch (error) {
       console.error(error);
       throw new Error("Error deleting user");
@@ -90,7 +93,7 @@ export class UserInfraRepository implements IUserRepository {
   async findAll(): Promise<TUserOutputRequestDto[]> {
     try {
       const db = this.firebaseClient.getDb();
-      const userCollection = collection(db, "users");
+      const userCollection = collection(db, this.firebaseAdmin.coll.NLQ_USERS);
       const userSnapshot = await getDocs(userCollection);
       const users: TUserOutputRequestDto[] = [];
       userSnapshot.forEach((doc) => {
@@ -105,7 +108,9 @@ export class UserInfraRepository implements IUserRepository {
   async findById(id: string): Promise<TUserOutputRequestDto | null> {
     try {
       const db = this.firebaseClient.getDb();
-      const userDoc = await getDoc(doc(db, "users", id));
+      const userDoc = await getDoc(
+        doc(db, this.firebaseAdmin.coll.NLQ_USERS, id)
+      );
       if (!userDoc.exists()) {
         return null;
       }
@@ -119,7 +124,7 @@ export class UserInfraRepository implements IUserRepository {
     try {
       const db = this.firebaseClient.getDb();
       const userQuery = query(
-        collection(db, "users"),
+        collection(db, this.firebaseAdmin.coll.NLQ_USERS),
         where("email", "==", email)
       );
       const userSnapshot = await getDocs(userQuery);
@@ -137,7 +142,7 @@ export class UserInfraRepository implements IUserRepository {
     try {
       const db = this.firebaseClient.getDb();
       const userQuery = query(
-        collection(db, "users"),
+        collection(db, this.firebaseAdmin.coll.NLQ_USERS),
         where("name", "==", name)
       );
       const userSnapshot = await getDocs(userQuery);
