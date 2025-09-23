@@ -14,11 +14,11 @@ import { OracleProvider } from "@/infrastructure/providers/database/oracle.infra
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
-import { NlqQaErrorRepository } from "@/infrastructure/repository/nlq/nlq-qa-error.infra.repo";
-import { NlqQaGenerationInfraRepository } from "@/infrastructure/repository/nlq/nlq-qa-generation.infra.repo";
-import { NlqQaInformationInfraRepository } from "@/infrastructure/repository/nlq/nlq-qa-information.infra.repo";
-import { NlqQaKnowledgeAppRepository } from "@/infrastructure/repository/nlq/nlq-qa-knowledge.infra.repo";
-import { NlqQaAppRepository } from "@/infrastructure/repository/nlq/nlq-qa.app.infra.repo";
+import { NlqQaErrorRepository } from "@/infrastructure/repository/nlq/nlq-qa-error.repo";
+import { NlqQaGenerationInfraRepository } from "@/infrastructure/adapters/nlq-qa-generation.adapter";
+import { NlqQaInformationInfraRepository } from "@/infrastructure/adapters/nlq-qa-information.adapter";
+import { NlqQaKnowledgeAppRepository } from "@/infrastructure/adapters/nlq-qa-knowledge.adapter";
+import { NlqQaAppRepository } from "@/infrastructure/repository/nlq/nlq-qa.repo";
 
 export function createNlqQaComposer(): IController {
   // Providers
