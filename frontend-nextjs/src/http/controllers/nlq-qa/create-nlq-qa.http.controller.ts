@@ -22,7 +22,9 @@ export class CreateNlqQaController implements IController {
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
-  async handle(httpRequest: IHttpRequest<unknown>): Promise<IHttpResponse> {
+  async handle(
+    httpRequest: IHttpRequest<{ question: string }>
+  ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info("[CreateNlqQaController] handling request", httpRequest);
