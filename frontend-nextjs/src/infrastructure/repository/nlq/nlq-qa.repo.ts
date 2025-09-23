@@ -26,14 +26,48 @@ export class NlqQaAppRepository implements INlqQaRepository {
       throw new Error("Error creating NLQ QA");
     }
   }
-  update(id: string, data: TUpdateNlqQaDto): Promise<void> {
-    throw new Error("Method not implemented.");
+  async update(id: string, data: TUpdateNlqQaDto): Promise<void> {
+    try {
+      await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
+        .doc(id)
+        .update({ ...data });
+    } catch (error) {
+      this.logger.error("[NlqQaAppRepository] Error updating NLQ QA", {
+        error,
+      });
+      throw new Error("Error updating NLQ QA");
+    }
   }
-  delete(id: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  async delete(id: string): Promise<void> {
+    try {
+      await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
+        .doc(id)
+        .delete();
+    } catch (error) {
+      this.logger.error("[NlqQaAppRepository] Error deleting NLQ QA", {
+        error,
+      });
+      throw new Error("Error deleting NLQ QA");
+    }
   }
-  findById(id: string): Promise<TNlqQaOutRequestDto | null> {
-    throw new Error("Method not implemented.");
+  async findById(id: string): Promise<TNlqQaOutRequestDto | null> {
+    try {
+      const doc = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
+        .doc(id)
+        .get();
+      if (doc.exists) {
+        return { id: doc.id, ...doc.data() } as TNlqQaOutRequestDto;
+      }
+      return null;
+    } catch (error) {
+      this.logger.error("[NlqQaAppRepository] Error finding NLQ QA by ID", {
+        error,
+      });
+      throw new Error("Error finding NLQ QA by ID");
+    }
   }
   async findAll(): Promise<TNlqQaOutRequestDto[]> {
     try {
@@ -52,16 +86,13 @@ export class NlqQaAppRepository implements INlqQaRepository {
       throw new Error("Error finding all NLQ QA");
     }
   }
-  findByQuestion(question: string): Promise<TNlqQaOutRequestDto[]> {
-    throw new Error("Method not implemented.");
-  }
   async softDeleteById(id: string): Promise<void> {
     try {
       // update the deleted by user to true
       await this.fbAdminProvider.db
         .collection(this.fbAdminProvider.coll.NLQ_QA)
         .doc(id)
-        .update({ deletedByUser: true });
+        .update({ userDeleted: true });
     } catch (error) {
       this.logger.error("[NlqQaAppRepository] Error soft deleting NLQ QA", {
         error,

@@ -11,6 +11,5 @@ export interface INlqQaErrorRepository
     TUpdateNlqQaErrorDto,
     TNlqQaErrorOutRequestDto
   > {
-  findByErrorMessage(errorMessage: string): Promise<TNlqQaErrorOutRequestDto[]>;
   findByUserId(uid: string): Promise<TNlqQaErrorOutRequestDto[]>;
 }

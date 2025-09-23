@@ -11,6 +11,5 @@ export interface INlqQaRepository
     TUpdateNlqQaDto,
     TNlqQaOutRequestDto
   > {
-  findByQuestion(question: string): Promise<TNlqQaOutRequestDto[]>;
   softDeleteById(id: string): Promise<void>;
 }

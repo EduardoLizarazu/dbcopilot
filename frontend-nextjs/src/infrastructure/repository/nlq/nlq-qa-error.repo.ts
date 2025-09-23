@@ -38,6 +38,10 @@ export class NlqQaErrorRepository implements INlqQaErrorRepository {
   }
   async update(id: string, data: TUpdateNlqQaErrorDto): Promise<void> {
     try {
+      await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_ERRORS)
+        .doc(id)
+        .update({ ...data });
     } catch (error) {
       this.logger.error(
         "[NlqQaErrorRepository] Error updating NLQ QA Error",
@@ -48,6 +52,10 @@ export class NlqQaErrorRepository implements INlqQaErrorRepository {
   }
   async delete(id: string): Promise<void> {
     try {
+      await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_ERRORS)
+        .doc(id)
+        .delete();
     } catch (error) {
       this.logger.error(
         "[NlqQaErrorRepository] Error deleting NLQ QA Error",
@@ -58,8 +66,14 @@ export class NlqQaErrorRepository implements INlqQaErrorRepository {
   }
   async findById(id: string): Promise<TNlqQaErrorOutRequestDto | null> {
     try {
-      // Method not implemented yet
-      throw new Error("Method not implemented.");
+      const doc = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_ERRORS)
+        .doc(id)
+        .get();
+      if (doc.exists) {
+        return { id: doc.id, ...doc.data() } as TNlqQaErrorOutRequestDto;
+      }
+      return null;
     } catch (error) {
       this.logger.error(
         "[NlqQaErrorRepository] Error finding NLQ QA Error by ID",
@@ -70,28 +84,31 @@ export class NlqQaErrorRepository implements INlqQaErrorRepository {
   }
   async findAll(): Promise<TNlqQaErrorOutRequestDto[]> {
     try {
-      // Method not implemented yet
-      throw new Error("Method not implemented.");
+      const snapshot = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_ERRORS)
+        .get();
+      const errors: TNlqQaErrorOutRequestDto[] = [];
+      snapshot.forEach((doc) => {
+        errors.push({ id: doc.id, ...doc.data() } as TNlqQaErrorOutRequestDto);
+      });
+      return errors;
     } catch (error) {
       this.logger.error("Error finding all NLQ QA Errors", error);
       throw new Error("Error finding all NLQ QA Errors");
     }
   }
-  async findByErrorMessage(
-    errorMessage: string
-  ): Promise<TNlqQaErrorOutRequestDto[]> {
-    try {
-      // Method not implemented yet
-      throw new Error("Method not implemented.");
-    } catch (error) {
-      this.logger.error("Error finding NLQ QA Errors by message", error);
-      throw new Error("Error finding NLQ QA Errors by message");
-    }
-  }
+
   async findByUserId(uid: string): Promise<TNlqQaErrorOutRequestDto[]> {
     try {
-      // Method not implemented yet
-      throw new Error("Method not implemented.");
+      const snapshot = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_ERRORS)
+        .where("createdBy", "==", uid)
+        .get();
+      const errors: TNlqQaErrorOutRequestDto[] = [];
+      snapshot.forEach((doc) => {
+        errors.push({ id: doc.id, ...doc.data() } as TNlqQaErrorOutRequestDto);
+      });
+      return errors;
     } catch (error) {
       this.logger.error("Error finding NLQ QA Errors by user ID", error);
       throw new Error("Error finding NLQ QA Errors by user ID");
