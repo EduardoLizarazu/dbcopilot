@@ -1,6 +1,9 @@
-import { IAuthRepository } from "@/core/application/interfaces/auth.app.inter";
-import { ILoginByEmailAndPwAppUseCase } from "../../interfaces/auth/login-by-email-and-pw.app.usecase.inter";
-import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
+import { IAuthRepository } from "../../interfaces/auth.app.inter";
+import { ILogger } from "../../interfaces/ilog.app.inter";
+
+export interface ILoginByEmailAndPwAppUseCase {
+  execute(email: string, password: string): Promise<{ token: string } | null>;
+}
 
 export class LoginByEmailAndPwUseCase implements ILoginByEmailAndPwAppUseCase {
   constructor(

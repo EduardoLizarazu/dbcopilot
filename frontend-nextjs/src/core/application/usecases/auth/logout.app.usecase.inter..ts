@@ -1,4 +1,6 @@
-import { ILogoutAppUseCase } from "../../interfaces/auth/logout.app.usecase.inter.";
+export interface ILogoutAppUseCase {
+  execute(uid: string): Promise<void>;
+}
 
 export class LogoutUseCase implements ILogoutAppUseCase {
   constructor(

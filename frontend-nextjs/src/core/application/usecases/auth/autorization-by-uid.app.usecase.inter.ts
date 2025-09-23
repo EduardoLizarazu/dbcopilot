@@ -1,6 +1,9 @@
-import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { IAuthorizationByUIdAppUseCase } from "../../interfaces/auth/autorization-by-uid.app.usecase.inter";
-import { IAuthRepository } from "@/core/application/interfaces/auth.app.inter";
+import { IAuthRepository } from "../../interfaces/auth.app.inter";
+import { ILogger } from "../../interfaces/ilog.app.inter";
+
+export interface IAuthorizationByUIdAppUseCase {
+  execute(uid: string): Promise<{ roles_names: string[] }>;
+}
 
 export class AuthorizationByUIdAppUseCase
   implements IAuthorizationByUIdAppUseCase

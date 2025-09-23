@@ -1,10 +1,14 @@
-import { IAuthRepository } from "@/core/application/interfaces/auth.app.inter";
-import { IDecodeTokenAppUseCase } from "../../interfaces/auth/decode-token.app.usecase.inter";
+import { IAuthRepository } from "../../interfaces/auth.app.inter";
+import { ILogger } from "../../interfaces/ilog.app.inter";
+
+export interface IDecodeTokenAppUseCase {
+  execute(token: string): Promise<{ uid: string } | null>;
+}
 
 export class DecodeTokenUseCase implements IDecodeTokenAppUseCase {
   constructor(
     private authRepository: IAuthRepository,
-    private logger: any
+    private logger: ILogger
   ) {}
 
   async execute(token: string): Promise<{ uid: string } | null> {
