@@ -12,5 +12,4 @@ export interface INlqQaFeedbackRepository
     TNlqQaFeedbackOutRequestDto
   > {
   findByIsItGood(isGood: boolean): Promise<TNlqQaFeedbackOutRequestDto[]>;
-  findByComment(comment: string): Promise<TNlqQaFeedbackOutRequestDto[]>;
 }
