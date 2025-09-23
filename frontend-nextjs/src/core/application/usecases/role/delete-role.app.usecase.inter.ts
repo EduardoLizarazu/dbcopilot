@@ -1,4 +1,3 @@
-import { TRequesterDto } from "@/core/application/dtos/utils/requester.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
 import { RoleAppEnum } from "../../enums/role.app.enum";

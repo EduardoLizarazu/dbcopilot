@@ -1,14 +1,9 @@
-import {
-  requesterSchema,
-  TRequesterDto,
-} from "@/core/application/dtos/utils/requester.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import {
   createRoleSchema,
   TCreateRoleDto,
   TRoleOutRequestDto,
 } from "@/core/application/dtos/role.app.dto";
-import { IReadRoleByNameAppUseCase } from "./read-role-by-name.app.usecase.inter";
 import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
