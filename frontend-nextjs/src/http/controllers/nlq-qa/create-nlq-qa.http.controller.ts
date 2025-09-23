@@ -6,16 +6,15 @@ import { IHttpErrors } from "@/http/helpers/IHttpErrors.http";
 import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
-import { IReadNlqQaKnowledgeByQuestionUseCase } from "@/core/application/usecases/interfaces/nlq-qa-knowledge/read-nlq-qa-knowledge-by-question.usecase.inter";
-import { INlqQaInformationExtractSchemaBasedUseCase } from "@/core/application/usecases/interfaces/nlq-qa-information/nlq-qa-information-extract-schema-based.usecase.inter";
-import { INlqQaCreatePromptTemplateGenerationUseCase } from "@/core/application/usecases/interfaces/nlq-qa-generation/nlq-qa-create-prompt-template-generation.app.usecase.inter";
-import { INlqQaQueryGenerationUseCase } from "@/core/application/usecases/interfaces/nlq-qa-generation/nlq-qa-query-generation.app.usecase.inter";
-import { INlqQaExtractQueryFromPromptAppUseCase } from "@/core/application/usecases/interfaces/nlq-qa-generation/nlq-qa-extract-query-from-prompt.app.usecase.inter";
-import { INlqQaExtractSuggestionFromPromptAppUseCase } from "@/core/application/usecases/interfaces/nlq-qa-generation/nlq-qa-extract-suggestion-from-prompt.app.usecase.inter";
-import { INlqQaInformationExecuteQueryUseCase } from "@/core/application/usecases/interfaces/nlq-qa-information/nlq-qa-information-execute-query.usecase.inter";
-import { ICreateNlqQaErrorUseCase } from "@/core/application/usecases/interfaces/nlq-qa-error/create-nlq-qa-error.usecasee.inter";
-import { ICreateNlqQaAppUseCase } from "@/core/application/usecases/interfaces/nlq-qa/create-nlq-qa.usecase.inter";
-import { HttpResponse } from "@/http/helpers/HttpResponse.http";
+import { IReadNlqQaKnowledgeByQuestionUseCase } from "@/core/application/usecases/nlq/nlq-qa-knowledge/read-nlq-qa-knowledge-by-question.usecase";
+import { INlqQaInformationExtractSchemaBasedUseCase } from "@/core/application/usecases/nlq/nlq-qa-information/nlq-qa-information-extract-schema-based.usecase.inter";
+import { INlqQaCreatePromptTemplateGenerationUseCase } from "@/core/application/usecases/nlq/nlq-qa-generation/nlq-qa-create-prompt-template-generation.usecase";
+import { INlqQaQueryGenerationUseCase } from "@/core/application/usecases/nlq/nlq-qa-generation/nlq-qa-query-generation.usecase";
+import { INlqQaExtractQueryFromPromptAppUseCase } from "@/core/application/usecases/nlq/nlq-qa-generation/nlq-qa-extract-query-from-prompt.usecase";
+import { INlqQaExtractSuggestionFromPromptAppUseCase } from "@/core/application/usecases/nlq/nlq-qa-generation/nlq-qa-extract-suggestion-from-prompt.usecase";
+import { INlqQaInformationExecuteQueryUseCase } from "@/core/application/usecases/nlq/nlq-qa-information/nlq-qa-information-execute-query.usecase.inter";
+import { ICreateNlqQaErrorUseCase } from "@/core/application/usecases/nlq/nlq-qa-error/create-nlq-qa-error.usecase";
+import { ICreateNlqQaAppUseCase } from "@/core/application/usecases/nlq/nlq-qa/create-nlq-qa.usecase";
 
 export class CreateNlqQaController implements IController {
   constructor(
