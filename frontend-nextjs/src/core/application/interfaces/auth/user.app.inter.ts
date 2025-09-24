@@ -13,4 +13,5 @@ export interface IUserRepository
   > {
   findByEmail(email: string): Promise<TUserOutputRequestDto | null>;
   findByName(name: string): Promise<TUserOutputRequestDto[]>;
+  findByRoleId(roleId: string): Promise<TUserOutputRequestDto[]>;
 }

@@ -26,26 +26,34 @@ export class UserInfraRepository implements IUserRepository {
     private firebaseAdmin: FirebaseAdminProvider,
     private firebaseClient: FirebaseClientProvider
   ) {}
+
   async create(data: TCreateUserDto): Promise<string> {
     try {
+      this.logger.info("[UserInfraRepository] Creating user with data:", data);
       // Create user auth in Firebase Auth
       const userRecord = await this.firebaseAdmin.auth.createUser({
         email: data.email,
         password: data.password,
       });
 
+      this.logger.info(
+        "[UserInfraRepository] User auth created with UID:",
+        userRecord.uid
+      );
+
       const db = this.firebaseClient.getDb();
       const userCollection = collection(db, this.firebaseAdmin.coll.NLQ_USERS);
       const userRef = doc(userCollection, userRecord.uid);
       return userRecord.uid;
     } catch (error) {
-      console.error(error);
+      this.logger.error("[UserInfraRepository] Error creating user:", error);
       throw new Error("Error creating user");
     }
   }
 
   async update(id: string, data: TUpdateUserDto): Promise<void> {
     try {
+      this.logger.info("[UserInfraRepository] Updating user:", data);
       // Update user auth in Firebase Auth
       if (data.email || data.password) {
         const user = await this.findById(id);
@@ -71,13 +79,18 @@ export class UserInfraRepository implements IUserRepository {
       if (!updatedUser) {
         throw new Error("User not found after update");
       }
+      this.logger.info(
+        "[UserInfraRepository] User updated successfully:",
+        updatedUser
+      );
     } catch (error) {
-      console.error(error);
+      this.logger.error("[UserInfraRepository] Error updating user:", error);
       throw new Error("Error updating user");
     }
   }
   async delete(id: string): Promise<void> {
     try {
+      this.logger.info("[UserInfraRepository] Deleting user with ID:", id);
       // Delete user auth in Firebase Auth
       await this.firebaseAdmin.auth.deleteUser(id);
       // Delete user data in Firestore permanently
@@ -86,7 +99,7 @@ export class UserInfraRepository implements IUserRepository {
         .doc(id)
         .delete();
     } catch (error) {
-      console.error(error);
+      this.logger.error("[UserInfraRepository] Error deleting user:", error);
       throw new Error("Error deleting user");
     }
   }
@@ -99,14 +112,19 @@ export class UserInfraRepository implements IUserRepository {
       userSnapshot.forEach((doc) => {
         users.push({ id: doc.id, ...doc.data() } as TUserOutputRequestDto);
       });
+      this.logger.info("[UserInfraRepository] Found all users:", users);
       return users;
     } catch (error) {
-      console.error(error);
+      this.logger.error(
+        "[UserInfraRepository] Error finding all users:",
+        error
+      );
       throw new Error("Error finding all users");
     }
   }
   async findById(id: string): Promise<TUserOutputRequestDto | null> {
     try {
+      this.logger.info("[UserInfraRepository] Finding user by ID:", id);
       const db = this.firebaseClient.getDb();
       const userDoc = await getDoc(
         doc(db, this.firebaseAdmin.coll.NLQ_USERS, id)
@@ -114,14 +132,19 @@ export class UserInfraRepository implements IUserRepository {
       if (!userDoc.exists()) {
         return null;
       }
+      this.logger.info("[UserInfraRepository] User found by ID:", userDoc.id);
       return { id: userDoc.id, ...userDoc.data() } as TUserOutputRequestDto;
     } catch (error) {
-      console.error(error);
+      this.logger.error(
+        "[UserInfraRepository] Error finding user by ID:",
+        error
+      );
       return null;
     }
   }
   async findByEmail(email: string): Promise<TUserOutputRequestDto | null> {
     try {
+      this.logger.info("[UserInfraRepository] Finding user by email:", email);
       const db = this.firebaseClient.getDb();
       const userQuery = query(
         collection(db, this.firebaseAdmin.coll.NLQ_USERS),
@@ -132,14 +155,22 @@ export class UserInfraRepository implements IUserRepository {
         return null;
       }
       const userDoc = userSnapshot.docs[0];
+      this.logger.info(
+        "[UserInfraRepository] User found by email:",
+        userDoc.id
+      );
       return { id: userDoc.id, ...userDoc.data() } as TUserOutputRequestDto;
     } catch (error) {
-      console.error(error);
+      this.logger.error(
+        "[UserInfraRepository] Error finding user by email:",
+        error
+      );
       return null;
     }
   }
   async findByName(name: string): Promise<TUserOutputRequestDto[]> {
     try {
+      this.logger.info("[UserInfraRepository] Finding users by name:", name);
       const db = this.firebaseClient.getDb();
       const userQuery = query(
         collection(db, this.firebaseAdmin.coll.NLQ_USERS),
@@ -153,9 +184,43 @@ export class UserInfraRepository implements IUserRepository {
       userSnapshot.forEach((doc) => {
         users.push({ id: doc.id, ...doc.data() } as TUserOutputRequestDto);
       });
+      this.logger.info("[UserInfraRepository] Users found by name:", users);
       return users;
     } catch (error) {
-      console.error(error);
+      this.logger.error(
+        "[UserInfraRepository] Error finding users by name:",
+        error
+      );
+      return [];
+    }
+  }
+  async findByRoleId(roleId: string): Promise<TUserOutputRequestDto[]> {
+    try {
+      this.logger.info(
+        "[UserInfraRepository] Finding users by role ID:",
+        roleId
+      );
+      // Remember that roleId is a list of roleIds in the user document
+      const db = this.firebaseClient.getDb();
+      const userQuery = query(
+        collection(db, this.firebaseAdmin.coll.NLQ_USERS),
+        where("roleIds", "array-contains", roleId)
+      );
+      const userSnapshot = await getDocs(userQuery);
+      if (userSnapshot.empty) {
+        return [];
+      }
+      const users: TUserOutputRequestDto[] = [];
+      userSnapshot.forEach((doc) => {
+        users.push({ id: doc.id, ...doc.data() } as TUserOutputRequestDto);
+      });
+      this.logger.info("[UserInfraRepository] Users found by role ID:", users);
+      return users;
+    } catch (error) {
+      this.logger.error(
+        "[UserInfraRepository] Error finding users by role ID:",
+        error
+      );
       return [];
     }
   }

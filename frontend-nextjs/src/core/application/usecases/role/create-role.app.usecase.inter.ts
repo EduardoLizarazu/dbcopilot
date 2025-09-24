@@ -23,13 +23,13 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
     data: TCreateRoleDto
   ): Promise<TResponseDto<TRoleOutRequestDto>> {
     try {
-      this.logger.info("CreateRoleUseCase: Executing with data:", data);
+      this.logger.info("[CreateRoleUseCase] Executing with data:", data);
 
-      // Validation
+      // 1. Validation
       const roleValidation = createRoleSchema.safeParse(data);
       if (!roleValidation.success) {
         this.logger.error(
-          "CreateRoleUseCase: Validation failed:",
+          "[CreateRoleUseCase] Validation failed:",
           roleValidation.error.errors
         );
         return {
@@ -45,14 +45,14 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
         description: data.description,
       });
 
-      // already exists?
+      // 2. Check if role already exists by name
       const roleAlreadyExists = await this.roleRepository.findByName(
         newRole.name
       );
 
       if (!roleAlreadyExists) {
         this.logger.error(
-          "CreateRoleUseCase: Role already exists with name:",
+          "[CreateRoleUseCase] Role already exists with name:",
           newRole.name
         );
         return {
@@ -62,21 +62,33 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
         };
       }
 
+      // 3. Create role
       const roleId = await this.roleRepository.create({
         ...data,
       });
 
-      // Find Role just created to return
+      // 4. Find Role just created to return
       const role = await this.roleRepository.findById(roleId);
+      if (!role) {
+        this.logger.error(
+          "[CreateRoleUseCase] Role not found after creation with ID:",
+          roleId
+        );
+        return {
+          data: null,
+          success: false,
+          message: RoleAppEnum.roleNotFound,
+        };
+      }
 
-      this.logger.info("CreateRoleUseCase: Role created:", newRole);
+      this.logger.info("[CreateRoleUseCase] Role created:", newRole);
       return {
         data: role,
         success: true,
         message: RoleAppEnum.roleCreatedSuccessfully,
       };
     } catch (error) {
-      this.logger.error("CreateRoleUseCase: Unexpected error:", error);
+      this.logger.error("[CreateRoleUseCase] Unexpected error:", error);
       return {
         data: null,
         success: false,

@@ -2,6 +2,7 @@ import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import {
   TRoleOutRequestDto,
   TUpdateRoleDto,
+  updateRoleSchema,
 } from "@/core/application/dtos/role.app.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
@@ -25,12 +26,40 @@ export class UpdateRoleUseCaseRepo implements IUpdateRoleAppUseCase {
     data: TUpdateRoleDto
   ): Promise<TResponseDto<TRoleOutRequestDto>> {
     try {
-      // logger
-      this.logger.info("UpdateRoleUseCase: Updating role with ID:", id);
+      this.logger.info("[UpdateRoleUseCase] Updating role:", {
+        ...data,
+      });
+      // 1. Validate data
+      const roleValidation = await updateRoleSchema.safeParseAsync(data);
+      if (!roleValidation.success) {
+        this.logger.error(
+          "[UpdateRoleUseCase] Validation failed:",
+          roleValidation.error.errors
+        );
+        return {
+          data: null,
+          success: false,
+          message: roleValidation.error.errors
+            .map((err) => err.message)
+            .join(", "),
+        };
+      }
 
-      const existingRole = await this.roleRepository.findById(id);
+      if (!id) {
+        this.logger.error("[UpdateRoleUseCase] ID is required");
+        return {
+          success: false,
+          message: "ID is required",
+          data: null,
+        };
+      }
+
+      // logger
+
+      // 2. Check if role exists by name
+      const existingRole = await this.roleRepository.findByName(data.name);
       if (!existingRole) {
-        this.logger.warn("UpdateRoleUseCase: Role not found");
+        this.logger.warn("[UpdateRoleUseCase] Role not found");
         return {
           success: false,
           message: RoleAppEnum.roleNotFound,
@@ -43,24 +72,26 @@ export class UpdateRoleUseCaseRepo implements IUpdateRoleAppUseCase {
         description: data.description,
       });
 
+      // 3. Update role
       await this.roleRepository.update(id, {
         ...data,
       });
 
-      // Find the updated role
+      // 4. Find the updated role
       const roleAfterUpdate = await this.roleRepository.findById(id);
       if (!roleAfterUpdate) {
-        this.logger.error("UpdateRoleUseCase: Role not found after update");
+        this.logger.error("[UpdateRoleUseCase] Role not found after update");
         return {
           success: false,
           message: RoleAppEnum.roleNotFound,
           data: null,
         };
       }
-      this.logger.info("UpdateRoleUseCase: Role updated successfully:", {
+      this.logger.info("[UpdateRoleUseCase] Role updated successfully:", {
         ...roleAfterUpdate,
       });
 
+      // 5. Return the updated role
       return {
         success: true,
         data: roleAfterUpdate,
