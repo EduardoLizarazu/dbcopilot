@@ -12,4 +12,5 @@ export interface INlqQaGoodRepository
     TNlqQaGoodOutRequestDto
   > {
   findByUserId(uid: string): Promise<TNlqQaGoodOutRequestDto[]>;
+  switchSoftDelete(id: string): Promise<void>;
 }

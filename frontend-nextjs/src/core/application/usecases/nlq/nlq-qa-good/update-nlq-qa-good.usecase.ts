@@ -76,6 +76,7 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
       }
 
       // 2. Update NLQ QA Good
+      data.isDelete = false; // Ensure isDelete remains false on update
       await this.nlqQaGoodRepository.update(id, data);
 
       // 3. Find updated NLQ QA Good

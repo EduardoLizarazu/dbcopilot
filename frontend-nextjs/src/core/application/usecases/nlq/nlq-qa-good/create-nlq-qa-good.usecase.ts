@@ -95,6 +95,7 @@ export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
         updatedBy: data.createdBy,
         createdAt: new Date(),
         updatedAt: new Date(),
+        isDelete: false,
       });
       if (!nlqQaGoodId) {
         this.logger.error(

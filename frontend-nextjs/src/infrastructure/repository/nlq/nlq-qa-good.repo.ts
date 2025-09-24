@@ -12,6 +12,24 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
     private readonly logger: ILogger,
     private readonly fbAdminProvider: FirebaseAdminProvider
   ) {}
+  async switchSoftDelete(id: string): Promise<void> {
+    try {
+      const record = await this.findById(id); // Ensure the record exists
+      if (!record) {
+        throw new Error("NLQ QA Good not found");
+      }
+      await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_GOODS)
+        .doc(id)
+        .update({ isDelete: !record.isDelete });
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaGoodRepository] Error soft deleting NLQ QA Good",
+        error
+      );
+      throw new Error("Error soft deleting NLQ QA Good");
+    }
+  }
 
   async create(data: TCreateNlqQaGoodDto): Promise<string> {
     try {

@@ -40,6 +40,7 @@ export const nlqQaGoodSchema = z.object({
     .min(1),
 
   // Who did what and when
+  isDelete: z.boolean().default(false),
   questionBy: z.string().min(2),
   createdBy: z.string().min(2),
   updatedBy: z.string().min(2),
