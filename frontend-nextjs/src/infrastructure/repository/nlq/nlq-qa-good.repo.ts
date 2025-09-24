@@ -12,6 +12,7 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
     private readonly logger: ILogger,
     private readonly fbAdminProvider: FirebaseAdminProvider
   ) {}
+
   async create(data: TCreateNlqQaGoodDto): Promise<string> {
     try {
       // Use Firebase Admin SDK to insert NLQ QA Good
@@ -63,6 +64,7 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
       throw new Error("Error deleting NLQ QA Good");
     }
   }
+
   async findByUserId(uid: string): Promise<TNlqQaGoodOutRequestDto[]> {
     try {
       const snapshot = await this.fbAdminProvider.db
