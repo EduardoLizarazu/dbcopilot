@@ -1,4 +1,4 @@
-import { ICreateRoleAppUseCase } from "@/core/application/usecases/role/create-role.app.usecase.inter";
+import { ICreateRoleAppUseCase } from "@/core/application/usecases/role/create-role.app.usecase";
 import { IController } from "../IController.http.controller";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
@@ -10,6 +10,7 @@ import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { TCreateRoleDto } from "@/core/application/dtos/role.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { IAuthService } from "@/infrastructure/services/auth.infra.service";
+import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
 
 export class CreateRoleController implements IController {
   constructor(
@@ -20,7 +21,7 @@ export class CreateRoleController implements IController {
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
-  async handle(httpRequest: HttpRequest): Promise<IHttpResponse> {
+  async handle(httpRequest: IHttpRequest<unknown>): Promise<IHttpResponse> {
     try {
       this.logger.info("CreateRoleController: Handling request", httpRequest);
 
@@ -36,7 +37,7 @@ export class CreateRoleController implements IController {
           "CreateRoleController: No token provided",
           httpRequest
         );
-        const error = this.httpErrors.error_400();
+        const error = this.httpErrors.error_400(`No token provided`);
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -48,7 +49,7 @@ export class CreateRoleController implements IController {
       const decodedToken = await this.authService.decodeToken(token);
       if (!decodedToken) {
         this.logger.error("CreateRoleController: Unauthorized", httpRequest);
-        const error = this.httpErrors.error_400();
+        const error = this.httpErrors.error_400(`Unauthorized`);
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -69,7 +70,7 @@ export class CreateRoleController implements IController {
           "CreateRoleController: No body provided",
           httpRequest
         );
-        const error = this.httpErrors.error_400();
+        const error = this.httpErrors.error_400(`No body provided`);
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -90,7 +91,9 @@ export class CreateRoleController implements IController {
           "CreateRoleController: Missing parameters:",
           missingParams
         );
-        const error = this.httpErrors.error_400();
+        const error = this.httpErrors.error_400(
+          `Missing parameters: ${missingParams.join(", ")}`
+        );
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -103,8 +106,8 @@ export class CreateRoleController implements IController {
           "CreateRoleController: Failed to create role:",
           response
         );
-        const error = this.httpErrors.error_400();
-        return new HttpResponse(error.statusCode, response.data);
+        const error = this.httpErrors.error_400(response.message);
+        return new HttpResponse(error.statusCode, error.body);
       }
 
       this.logger.info("CreateRoleController: Created role:", response.data);
@@ -113,7 +116,13 @@ export class CreateRoleController implements IController {
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
       this.logger.error("CreateRoleController: Unexpected error:", err);
-      const error = this.httpErrors.error_500();
+      const errorMessage =
+        err && typeof err === "object" && "message" in err
+          ? (err as Error).message
+          : String(err);
+      const error = this.httpErrors.error_500(
+        `Unexpected error: ${errorMessage}`
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

@@ -1,24 +1,23 @@
 import { FirebaseClientProvider } from "@/infrastructure/providers/firebase/firebase-client";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo";
-import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
-import { IReadAllRoleAppUseCase } from "@/core/application/usecases/role/read-all-role.app.usecase.inter";
 import { ReadAllUserController } from "@/http/controllers/user/read-all-user.http.controller";
-import { ReadAllUserUseCase } from "@/core/application/usecases/repositories/user/read-all-user.usecase";
+import { ReadAllUserUseCase } from "@/core/application/usecases/user/read-all-user.app.usecase.inter";
+import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 
 export function readUserComposer(): IController {
   const firebaseAdmin = new FirebaseAdminProvider();
   const firebaseClient = new FirebaseClientProvider();
+  const logger = new WinstonLoggerProvider();
 
-  const userRepository: IUserRepository = new UserInfraRepository(
+  const userRepository = new UserInfraRepository(
+    logger,
     firebaseAdmin,
     firebaseClient
   );
 
-  const useCase: IReadAllRoleAppUseCase = new ReadAllUserUseCase(
-    userRepository
-  );
+  const useCase = new ReadAllUserUseCase(logger, userRepository);
 
   const controller: IController = new ReadAllUserController(useCase);
   return controller;
