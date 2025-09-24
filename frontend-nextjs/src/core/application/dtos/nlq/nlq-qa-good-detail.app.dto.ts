@@ -6,15 +6,14 @@ import { z } from "zod";
 
 export const nlqQaGoodDetailsSchema = z.object({
   id: z.string(),
-  knowledgeSourceId: z.string().min(2), // VDB
-  isOnKnowledgeSource: z.boolean(),
-  originalQuestion: z.string().min(2),
-  detailQuestion: z.string().min(2),
+  // knowledgeSourceId: z.string().min(2), // VDB
+  // isOnKnowledgeSource: z.boolean(),
+  // originalQuestion: z.string().min(2),
+
   query: z.string().min(2),
   think: z.string().min(2),
   intent: z.string().min(2),
   domain: z.string().min(2),
-  granularity: z.string().min(2),
   tablesColumns: z.array(z.string().min(1)).min(1), // ["[TABLE].[COLUMN]"]
   joinsTableNames: z
     .array(
