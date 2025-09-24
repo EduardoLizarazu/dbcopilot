@@ -11,5 +11,5 @@ export interface INlqQaGoodRepository
     TUpdateNlqQaGoodDto,
     TNlqQaGoodOutRequestDto
   > {
-  findByUserId(uid: string): Promise<TCreateNlqQaGoodDto[]>;
+  findByUserId(uid: string): Promise<TNlqQaGoodOutRequestDto[]>;
 }
