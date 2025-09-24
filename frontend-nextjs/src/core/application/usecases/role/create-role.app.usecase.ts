@@ -50,7 +50,7 @@ export class CreateRoleUseCase implements ICreateRoleAppUseCase {
         newRole.name
       );
 
-      if (!roleAlreadyExists) {
+      if (roleAlreadyExists) {
         this.logger.error(
           "[CreateRoleUseCase] Role already exists with name:",
           newRole.name
