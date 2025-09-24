@@ -6,22 +6,31 @@ export interface IDeleteNlqQaUseCase {
   execute(id: string): Promise<TResponseDto<null>>;
 }
 
-export class DeleteNlqQaUseCase implements IDeleteNlqQaUseCase {
+export class SoftDeleteNlqQaUseCase implements IDeleteNlqQaUseCase {
   constructor(
     private readonly nlqQaRepository: INlqQaRepository,
     private readonly logger: ILogger
   ) {}
   async execute(id: string): Promise<TResponseDto<null>> {
     try {
-      await this.nlqQaRepository.delete(id);
+      // 1. Validate input
+      if (!id) {
+        this.logger.error(`[SoftDeleteNlqQaAppUseCase] Invalid id: ${id}`);
+        return {
+          success: false,
+          message: "Invalid id",
+          data: null,
+        };
+      }
+      await this.nlqQaRepository.softDeleteById(id);
       return {
         success: true,
-        message: "NLQ QA entry deleted successfully",
+        message: "NLQ QA entry soft deleted successfully",
         data: null,
       };
     } catch (error) {
       this.logger.error(
-        `Error in DeleteNlqQaAppUseCase: ${(error as Error).message}`
+        `Error in SoftDeleteNlqQaAppUseCase: ${(error as Error).message}`
       );
       throw error;
     }
