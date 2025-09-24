@@ -7,6 +7,7 @@ import { TRequesterDto } from "@/core/application/dtos/utils/requester.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { INlqQaFeedbackRepository } from "../../../interfaces/nlq/nlq-qa-feedback.app.inter";
 import { ILogger } from "../../../interfaces/ilog.app.inter";
+import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.inter";
 
 export interface IUpdateNlqQaFeedbackUseCase {
   execute(
@@ -18,7 +19,8 @@ export interface IUpdateNlqQaFeedbackUseCase {
 export class UpdateNlqQaFeedbackUseCase implements IUpdateNlqQaFeedbackUseCase {
   constructor(
     private readonly logger: ILogger,
-    private readonly nlqQaFeedbackRepository: INlqQaFeedbackRepository
+    private readonly nlqQaFeedbackRepository: INlqQaFeedbackRepository,
+    private readonly nlqQaRepository: INlqQaRepository
   ) {}
 
   async execute(
@@ -78,6 +80,25 @@ export class UpdateNlqQaFeedbackUseCase implements IUpdateNlqQaFeedbackUseCase {
           data: null,
         };
       }
+
+      // 6. Update NLQ QA isGood status
+      const nlqQa = await this.nlqQaRepository.findById(nlqQaFeedback.nlqQaId);
+      if (!nlqQa) {
+        this.logger.error(
+          `[UpdateNlqQaFeedbackUseCase] NLQ QA not found for ID: ${nlqQaFeedback.nlqQaId}`
+        );
+        return {
+          success: false,
+          message: "NLQ QA not found",
+          data: null,
+        };
+      }
+      await this.nlqQaRepository.update(nlqQaFeedback.nlqQaId, {
+        ...nlqQa,
+        isGood: nlqQaFeedback.isGood,
+        updatedAt: new Date(),
+        updatedBy: data.updatedBy,
+      });
 
       // 5. Return success response
       return {
