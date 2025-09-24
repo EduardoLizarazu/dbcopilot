@@ -7,6 +7,7 @@ import { TRequesterDto } from "@/core/application/dtos/utils/requester.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { INlqQaFeedbackRepository } from "../../../interfaces/nlq/nlq-qa-feedback.app.inter";
 import { ILogger } from "../../../interfaces/ilog.app.inter";
+import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.inter";
 
 export interface ICreateNlqQaFeedbackUseCase {
   execute(
@@ -16,8 +17,9 @@ export interface ICreateNlqQaFeedbackUseCase {
 
 export class CreateNlqQaFeedbackUseCase implements ICreateNlqQaFeedbackUseCase {
   constructor(
+    private readonly logger: ILogger,
     private readonly nlqQaFeedbackRepository: INlqQaFeedbackRepository,
-    private readonly logger: ILogger
+    private readonly nlqQaRepository: INlqQaRepository
   ) {}
   async execute(
     data: TCreateNlqQaFeedbackDto
@@ -39,12 +41,25 @@ export class CreateNlqQaFeedbackUseCase implements ICreateNlqQaFeedbackUseCase {
         };
       }
 
-      // 2. Create Nlq Qa Feedback
+      // 2. Check if NLQ QA exists
+      const nlqQa = await this.nlqQaRepository.findById(data.nlqQaId);
+      if (!nlqQa) {
+        this.logger.error(
+          `[CreateNlqQaFeedbackUseCase] NLQ QA not found for ID: ${data.nlqQaId}`
+        );
+        return {
+          success: false,
+          message: "NLQ QA not found",
+          data: null,
+        };
+      }
+
+      // 3. Create Nlq Qa Feedback
       const nlqQaFeedbackId = await this.nlqQaFeedbackRepository.create({
         ...data,
       });
 
-      // 3. Find Nlq Qa Feedback
+      // 4. Find Nlq Qa Feedback
       const nlqQaFeedback =
         await this.nlqQaFeedbackRepository.findById(nlqQaFeedbackId);
       if (!nlqQaFeedback) {
@@ -58,7 +73,16 @@ export class CreateNlqQaFeedbackUseCase implements ICreateNlqQaFeedbackUseCase {
         };
       }
 
-      // 4. Return success response
+      // 5. Update NLQ QA with feedback ID and status
+      await this.nlqQaRepository.update(data.nlqQaId, {
+        ...nlqQa,
+        feedbackId: nlqQaFeedbackId,
+        isGood: data.isGood,
+        updatedAt: new Date(),
+        updatedBy: data.createdBy,
+      });
+
+      // 6. Return success response
       return {
         success: true,
         message: "Nlq Qa Feedback created successfully",
