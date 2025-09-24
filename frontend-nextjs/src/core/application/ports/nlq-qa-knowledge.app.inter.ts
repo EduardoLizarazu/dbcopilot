@@ -12,5 +12,4 @@ export interface INlqQaKnowledgePort
     TNlqQaKnowledgeOutRequestDto
   > {
   findByQuestion(question: string): Promise<TNlqQaKnowledgeOutRequestDto[]>;
-  findByQuery(query: string): Promise<TNlqQaKnowledgeOutRequestDto[]>;
 }

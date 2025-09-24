@@ -26,7 +26,6 @@ export class PineconeProvider {
   getClient() {
     return this.client;
   }
-
   // Uploads a vector to Pinecone
   async upload(data: {
     id: string;

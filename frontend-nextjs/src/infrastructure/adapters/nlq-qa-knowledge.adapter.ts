@@ -44,13 +44,35 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
   }
   async update(id: string, data: TUpdateNlqQaKnowledgeDto): Promise<void> {
     try {
+      // To update a vector in Pinecone, I need to re-upload it with the same ID
+      const embedding = await this.openaiProvider.generateEmbedding(
+        data.question
+      );
+      await this.pineconeProvider.getIndex().upsert([
+        {
+          id,
+          values: embedding,
+          metadata: {
+            question: data.question,
+            answer: data.query,
+            tablesColumns: data.tablesColumns,
+            nlqQaGoodId: data.nlqQaGoodId,
+            nlqQaGoodDetailsId: data.nlqQaGoodDetailsId,
+          },
+        },
+      ]);
     } catch (error) {
       this.logger.error("Error updating NLQ QA knowledge", { error });
       throw new Error("Error updating NLQ QA knowledge");
     }
   }
   async delete(id: string): Promise<void> {
-    throw new Error("Method not implemented.");
+    try {
+      await this.pineconeProvider.getIndex().deleteOne(id);
+    } catch (error) {
+      this.logger.error("Error deleting NLQ QA knowledge", { error });
+      throw new Error("Error deleting NLQ QA knowledge");
+    }
   }
   async findByQuestion(
     question: string
@@ -96,13 +118,32 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
       throw new Error("Error finding NLQ QA knowledge by question");
     }
   }
-  async findByQuery(query: string): Promise<TNlqQaKnowledgeOutRequestDto[]> {
-    throw new Error("Method not implemented.");
-  }
   async findById(id: string): Promise<TNlqQaKnowledgeOutRequestDto | null> {
-    throw new Error("Method not implemented.");
+    try {
+      const result = await this.pineconeProvider.getIndex().fetch([id]);
+      const record = result?.records?.[id];
+      if (!record) {
+        return null;
+      }
+      return record.metadata as unknown as TNlqQaKnowledgeOutRequestDto;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaKnowledgeAdapter] Error finding NLQ QA knowledge by ID",
+        { error }
+      );
+      throw new Error("Error finding NLQ QA knowledge by ID");
+    }
   }
   async findAll(): Promise<TNlqQaKnowledgeOutRequestDto[]> {
-    throw new Error("Method not implemented.");
+    try {
+      // Pinecone retrieve everything with embeddings and metadata.
+      throw new Error("Method not implemented.");
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaKnowledgeAdapter] Error finding all NLQ QA knowledge",
+        { error }
+      );
+      throw new Error("Error finding all NLQ QA knowledge");
+    }
   }
 }
