@@ -1,4 +1,4 @@
-import { IReadAllUserAppUseCase } from "@/core/application/usecases/user/read-all-user.app.usecase.inter";
+import { IReadAllUserAppUseCase } from "@/core/application/usecases/user/read-all-user.usecase";
 import { IController } from "../IController.http.controller";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";

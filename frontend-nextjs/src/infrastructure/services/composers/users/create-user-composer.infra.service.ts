@@ -2,7 +2,7 @@
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { FirebaseClientProvider } from "@/infrastructure/providers/firebase/firebase-client";
 import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
-import { ICreateUserAppUseCase } from "@/core/application/usecases/user/create-user.app.usecase.inter";
+import { ICreateUserAppUseCase } from "@/core/application/usecases/user/create-user.usecase";
 import { CreateUserAppUseCase } from "@/core/application/usecases/repositories/user/create-user.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo";

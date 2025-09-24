@@ -3,7 +3,7 @@ import { IController } from "@/http/controllers/IController.http.controller";
 import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { ReadAllUserController } from "@/http/controllers/user/read-all-user.http.controller";
-import { ReadAllUserUseCase } from "@/core/application/usecases/user/read-all-user.app.usecase.inter";
+import { ReadAllUserUseCase } from "@/core/application/usecases/user/read-all-user.usecase";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 
 export function readUserComposer(): IController {

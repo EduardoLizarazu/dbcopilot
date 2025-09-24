@@ -1,4 +1,4 @@
-import { IUpdateUserAppUseCase } from "@/core/application/usecases/user/update-user.app.usecase.inter";
+import { IUpdateUserAppUseCase } from "@/core/application/usecases/user/update-user.app.usecase";
 import { IController } from "../IController.http.controller";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { IHttpErrors } from "@/http/helpers/IHttpErrors.http";

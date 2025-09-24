@@ -1,6 +1,6 @@
 import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
 import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
-import { IUpdateUserAppUseCase } from "@/core/application/usecases/user/update-user.app.usecase.inter";
+import { IUpdateUserAppUseCase } from "@/core/application/usecases/user/update-user.app.usecase";
 import { UpdateUserUseCase } from "@/core/application/usecases/repositories/user/update-user.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { UpdateUserController } from "@/http/controllers/user/update-user.http.controller";
