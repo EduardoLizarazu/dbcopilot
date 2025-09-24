@@ -32,7 +32,6 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
           answer: data.query,
           tablesColumns: data.tablesColumns,
           nlqQaGoodId: data.nlqQaGoodId,
-          nlqQaGoodDetailsId: data.nlqQaGoodDetailsId,
         },
       });
 
@@ -57,7 +56,6 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
             answer: data.query,
             tablesColumns: data.tablesColumns,
             nlqQaGoodId: data.nlqQaGoodId,
-            nlqQaGoodDetailsId: data.nlqQaGoodDetailsId,
           },
         },
       ]);

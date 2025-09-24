@@ -8,6 +8,8 @@ import {
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "../../../interfaces/ilog.app.inter";
 import { INlqQaGoodRepository } from "../../../interfaces/nlq/nlq-qa-good.app.inter";
+import { INlqQaTopologyGenerationPort } from "@/core/application/ports/nlq-qa-topology-generation.port";
+import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
 
 export interface ICreateNlqQaGoodUseCase {
   execute(
@@ -18,7 +20,9 @@ export interface ICreateNlqQaGoodUseCase {
 export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
   constructor(
     private readonly logger: ILogger,
-    private readonly nlqQaGoodRepository: INlqQaGoodRepository
+    private readonly nlqQaGoodRepository: INlqQaGoodRepository,
+    private readonly topologyGenPort: INlqQaTopologyGenerationPort,
+    private readonly knowledgePort: INlqQaKnowledgePort
   ) {}
 
   async execute(
@@ -40,25 +44,59 @@ export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
         };
       }
 
-      // 2. Upload to knowledge source
+      // 2. GENERATION STEPS
 
-      // 3. GENERATION STEPS
+      // 2.1 Generate detail question.
+      const { detailQuestion } = await this.topologyGenPort.genDetailQuestion({
+        question: data.question,
+        query: data.query,
+      });
 
-      // 3.1 Generate detail question.
+      // 2.2 Generate tableColumns ["[TABLE].[COLUMN]"] .
+      const { tablesColumns } = await this.topologyGenPort.genTablesColumns({
+        query: data.query,
+      });
 
-      // 3.2 Generate tableColumns ["[TABLE].[COLUMN]"] .
+      // 2.3 Generate Semantic Fields
+      const { semanticFields } = await this.topologyGenPort.genSemanticFields({
+        question: detailQuestion,
+        query: data.query,
+      });
 
-      // 3.3 Generate Semantic Fields
+      // 2.4 Generate Semantic Tables.
+      const { semanticTables } = await this.topologyGenPort.genSemanticTables({
+        question: detailQuestion,
+        query: data.query,
+      });
 
-      // 3.4 Generate Semantic Tables.
+      // 2.5 Generate Semantic Flags
+      const { flags } = await this.topologyGenPort.genFlags({
+        question: detailQuestion,
+        query: data.query,
+      });
 
-      // 3.5 Generate Semantic Flags
+      // 2.6 Generate thinking process
+      const { think } = await this.topologyGenPort.genThinkProcess({
+        question: detailQuestion,
+        query: data.query,
+      });
 
-      // 3.6 Generate thinking process
-
-      // 4. Create NLQ QA Good
-      const id = await this.nlqQaGoodRepository.create(data);
-      if (!id) {
+      // 3. Create NLQ QA Good
+      const nlqQaGoodId = await this.nlqQaGoodRepository.create({
+        ...dateValidate.data,
+        detailQuestion,
+        tablesColumns,
+        semanticFields,
+        semanticTables,
+        flags,
+        think,
+        knowledgeSourceId: "",
+        isOnKnowledgeSource: false,
+        updatedBy: data.createdBy,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      if (!nlqQaGoodId) {
         this.logger.error(
           "[CreateNlqQaGoodUseCase] Failed to create NLQ QA Good"
         );
@@ -69,8 +107,17 @@ export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
         };
       }
 
+      // 4. Add to knowledge source if not exists
+      const knowledgeSourceId = await this.knowledgePort.create({
+        question: data.question,
+        query: data.query,
+        nlqQaGoodId: nlqQaGoodId,
+        id: nlqQaGoodId,
+        tablesColumns: tablesColumns,
+      });
+
       // 5. Search the created record to return
-      const result = await this.nlqQaGoodRepository.findById(id);
+      const result = await this.nlqQaGoodRepository.findById(nlqQaGoodId);
       if (!result) {
         this.logger.error(
           "[CreateNlqQaGoodUseCase] Created NLQ QA Good not found"
