@@ -22,7 +22,22 @@ export class SoftDeleteNlqQaUseCase implements IDeleteNlqQaUseCase {
           data: null,
         };
       }
+      // 2. Check if NLQ QA entry exists
+      const existingNlqQa = await this.nlqQaRepository.findById(id);
+      if (!existingNlqQa) {
+        this.logger.error(
+          `[SoftDeleteNlqQaAppUseCase] NLQ QA entry not found: ${id}`
+        );
+        return {
+          success: false,
+          message: "NLQ QA entry not found",
+          data: null,
+        };
+      }
+      // 3. Soft delete NLQ QA entry
       await this.nlqQaRepository.softDeleteById(id);
+
+      // 4. Return success response
       return {
         success: true,
         message: "NLQ QA entry soft deleted successfully",

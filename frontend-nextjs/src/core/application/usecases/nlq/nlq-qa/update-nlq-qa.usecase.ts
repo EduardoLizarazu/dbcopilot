@@ -1,6 +1,7 @@
 import {
   TNlqQaOutRequestDto,
   TUpdateNlqQaDto,
+  updateNlqQaSchema,
 } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
@@ -24,8 +25,46 @@ export class UpdateNlqQaUseCase implements IUpdateNlqQaUseCase {
     data: TUpdateNlqQaDto
   ): Promise<TResponseDto<TNlqQaOutRequestDto>> {
     try {
+      // 1. Validate input
+      if (!id) {
+        this.logger.error(`[UpdateNlqQaUseCase] Invalid id: ${id}`);
+        return {
+          success: false,
+          message: "Invalid id",
+          data: null,
+        };
+      }
+      const dataValidate = await updateNlqQaSchema.safeParseAsync(data);
+      if (!dataValidate.success) {
+        this.logger.error(
+          `[UpdateNlqQaUseCase] Invalid data: ${JSON.stringify(
+            dataValidate.error.issues
+          )}`
+        );
+        return {
+          success: false,
+          message: "Invalid data",
+          data: null,
+        };
+      }
+
       this.logger.info(`Updating NLQ QA with id: ${id}`);
+
+      // 2. Check if NLQ QA entry exists
+      const existingNlqQa = await this.nlqQaRepository.findById(id);
+      if (!existingNlqQa) {
+        this.logger.error(`[UpdateNlqQaUseCase] NLQ QA not found: ${id}`);
+        return {
+          success: false,
+          message: "NLQ QA not found",
+          data: null,
+        };
+      }
+
+      // 3. Update NLQ QA entry
       await this.nlqQaRepository.update(id, data);
+
+      // 4. Fetch updated NLQ QA entry
       const updatedNlqQa = await this.nlqQaRepository.findById(id);
       if (!updatedNlqQa) {
         this.logger.warn(`NLQ QA with id ${id} not found after update`);
@@ -33,6 +72,7 @@ export class UpdateNlqQaUseCase implements IUpdateNlqQaUseCase {
       }
       this.logger.info(`NLQ QA updated: ${JSON.stringify(updatedNlqQa)}`);
 
+      // 5. Return success response
       return {
         success: true,
         message: "NLQ QA updated successfully",

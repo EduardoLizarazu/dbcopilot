@@ -19,6 +19,17 @@ export class ReadNlqQaFeedbackByIdUseCase
     id: string
   ): Promise<TResponseDto<TNlqQaFeedbackOutRequestDto>> {
     try {
+      // 1. Validate input
+      if (!id) {
+        this.logger.error(`[ReadNlqQaFeedbackByIdUseCase] Invalid id: ${id}`);
+        return {
+          success: false,
+          message: "Invalid id",
+          data: null,
+        };
+      }
+
+      // 2. Find Nlq Qa Feedback
       const nlqQaFeedback = await this.nlqQaFeedbackRepository.findById(id);
       if (!nlqQaFeedback) {
         this.logger.error(
@@ -30,6 +41,8 @@ export class ReadNlqQaFeedbackByIdUseCase
           data: null,
         };
       }
+
+      // 3. Return success response
       return {
         success: true,
         message: "Nlq Qa Feedback retrieved successfully",

@@ -1,4 +1,7 @@
-import { TCreateNlqQaGoodDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import {
+  createNlqQaGoodSchema,
+  TCreateNlqQaGoodDto,
+} from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "../../../interfaces/ilog.app.inter";
 import { INlqQaGoodRepository } from "../../../interfaces/nlq/nlq-qa-good.app.inter";
@@ -19,6 +22,22 @@ export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
     data: TCreateNlqQaGoodDto
   ): Promise<TResponseDto<TCreateNlqQaGoodDto>> {
     try {
+      // 1. Validate input data
+      const dateValidate = await createNlqQaGoodSchema.safeParseAsync(data);
+      if (!dateValidate.success) {
+        this.logger.error(
+          `[CreateNlqQaGoodUseCase] Invalid input data: ${JSON.stringify(
+            dateValidate.error.issues
+          )}`
+        );
+        return {
+          success: false,
+          message: "Invalid input data",
+          data: null,
+        };
+      }
+
+      // 2. Create NLQ QA Good
       const id = await this.nlqQaGoodRepository.create(data);
       if (!id) {
         this.logger.error(
@@ -31,7 +50,7 @@ export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
         };
       }
 
-      // search the created record to return
+      // 3. Search the created record to return
       const result = await this.nlqQaGoodRepository.findById(id);
       if (!result) {
         this.logger.error(
@@ -44,6 +63,7 @@ export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
         };
       }
 
+      // 4. Return success response
       return {
         success: true,
         data: result,

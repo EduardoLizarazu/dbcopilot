@@ -14,10 +14,35 @@ export class ReadNlqQaErrorByIdUseCase implements IReadNlqQaErrorByIdUseCase {
   ) {}
   async execute(id: string): Promise<TResponseDto<TNlqQaErrorOutRequestDto>> {
     try {
+      // 1. Validate input
+      if (!id) {
+        this.loggerProvider.error(
+          `[ReadNlqQaErrorByIdUseCase] Invalid id: ${id}`
+        );
+        return {
+          success: false,
+          message: "Invalid id",
+          data: null,
+        };
+      }
+
       this.loggerProvider.info(
         `[ReadNlqQaErrorByIdUseCase] - Executing read NLQ QA Error by ID: ${id}`
       );
+
+      // 2. Fetch NLQ QA Error by ID
       const nlqQaError = await this.nlqQaErrorRepository.findById(id);
+      if (!nlqQaError) {
+        this.loggerProvider.warn(
+          `[ReadNlqQaErrorByIdUseCase] - NLQ QA Error not found for ID: ${id}`
+        );
+        return {
+          message: "NLQ QA Error not found",
+          data: null,
+          success: false,
+        };
+      }
+      // 3. Return success response
       return {
         message: "NLQ QA Error retrieved successfully",
         data: nlqQaError ? nlqQaError : null,

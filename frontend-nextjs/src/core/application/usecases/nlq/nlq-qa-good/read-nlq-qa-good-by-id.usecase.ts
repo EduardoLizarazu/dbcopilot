@@ -15,6 +15,17 @@ export class ReadNlqQaGoodByIdUseCase implements IReadNlqQaGoodByIdUseCase {
 
   async execute(id: string): Promise<TResponseDto<TNlqQaGoodOutRequestDto>> {
     try {
+      // 1. Validate
+      if (!id) {
+        this.logger.error("[ReadNlqQaGoodByIdUseCase] ID is required");
+        return {
+          success: false,
+          message: "ID is required",
+          data: null,
+        };
+      }
+
+      // 2. Find NLQ QA Good by ID
       const result = await this.nlqQaGoodRepository.findById(id);
       if (!result) {
         this.logger.error(
@@ -26,6 +37,8 @@ export class ReadNlqQaGoodByIdUseCase implements IReadNlqQaGoodByIdUseCase {
           data: null,
         };
       }
+
+      // 3. Return success response
       return {
         success: true,
         data: result,

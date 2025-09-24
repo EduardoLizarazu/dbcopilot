@@ -49,7 +49,7 @@ export class UpdateNlqQaFeedbackUseCase implements IUpdateNlqQaFeedbackUseCase {
         };
       }
 
-      // Find if Nlq Qa Feedback exists
+      // 2. Find if Nlq Qa Feedback exists
       const existingNlqQaFeedback =
         await this.nlqQaFeedbackRepository.findById(id);
       if (!existingNlqQaFeedback) {
@@ -63,10 +63,10 @@ export class UpdateNlqQaFeedbackUseCase implements IUpdateNlqQaFeedbackUseCase {
         };
       }
 
-      // Update Nlq Qa Feedback
+      // 3. Update Nlq Qa Feedback
       await this.nlqQaFeedbackRepository.update(id, data);
 
-      // Find Nlq Qa Feedback
+      // 4. Find Nlq Qa Feedback
       const nlqQaFeedback = await this.nlqQaFeedbackRepository.findById(id);
       if (!nlqQaFeedback) {
         this.logger.error(
@@ -78,6 +78,8 @@ export class UpdateNlqQaFeedbackUseCase implements IUpdateNlqQaFeedbackUseCase {
           data: null,
         };
       }
+
+      // 5. Return success response
       return {
         success: true,
         message: "Nlq Qa Feedback updated successfully",

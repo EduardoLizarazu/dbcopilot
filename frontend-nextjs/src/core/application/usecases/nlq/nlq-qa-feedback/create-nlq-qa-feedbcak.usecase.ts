@@ -23,7 +23,7 @@ export class CreateNlqQaFeedbackUseCase implements ICreateNlqQaFeedbackUseCase {
     data: TCreateNlqQaFeedbackDto
   ): Promise<TResponseDto<TNlqQaFeedbackOutRequestDto>> {
     try {
-      // Validate data
+      // 1. Validate data
       const validateNlqQaFeedback =
         await createNlqQaFeedbackSchema.safeParseAsync(data);
       if (!validateNlqQaFeedback.success) {
@@ -32,13 +32,19 @@ export class CreateNlqQaFeedbackUseCase implements ICreateNlqQaFeedbackUseCase {
             validateNlqQaFeedback.error.issues
           )}`
         );
+        return {
+          success: false,
+          message: "Invalid data",
+          data: null,
+        };
       }
-      // Create Nlq Qa Feedback
+
+      // 2. Create Nlq Qa Feedback
       const nlqQaFeedbackId = await this.nlqQaFeedbackRepository.create({
         ...data,
       });
 
-      //   Find Nlq Qa Feedback
+      // 3. Find Nlq Qa Feedback
       const nlqQaFeedback =
         await this.nlqQaFeedbackRepository.findById(nlqQaFeedbackId);
       if (!nlqQaFeedback) {
@@ -52,6 +58,7 @@ export class CreateNlqQaFeedbackUseCase implements ICreateNlqQaFeedbackUseCase {
         };
       }
 
+      // 4. Return success response
       return {
         success: true,
         message: "Nlq Qa Feedback created successfully",
