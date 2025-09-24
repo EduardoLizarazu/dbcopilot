@@ -1,6 +1,7 @@
 import {
   TNlqQaFeedbackOutRequestDto,
   TUpdateNlqQaFeedbackDto,
+  updateNlqQaFeedbackSchema,
 } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
 import { TRequesterDto } from "@/core/application/dtos/utils/requester.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
@@ -25,6 +26,29 @@ export class UpdateNlqQaFeedbackUseCase implements IUpdateNlqQaFeedbackUseCase {
     data: TUpdateNlqQaFeedbackDto
   ): Promise<TResponseDto<TNlqQaFeedbackOutRequestDto>> {
     try {
+      // 1. Validate input
+      if (!id) {
+        this.logger.error(`[UpdateNlqQaFeedbackUseCase] Invalid id: ${id}`);
+        return {
+          success: false,
+          message: "Invalid id",
+          data: null,
+        };
+      }
+      const validateData = await updateNlqQaFeedbackSchema.safeParseAsync(data);
+      if (!validateData.success) {
+        this.logger.error(
+          `[UpdateNlqQaFeedbackUseCase] Invalid data: ${JSON.stringify(
+            validateData.error.issues
+          )}`
+        );
+        return {
+          success: false,
+          message: "Invalid data",
+          data: null,
+        };
+      }
+
       // Find if Nlq Qa Feedback exists
       const existingNlqQaFeedback =
         await this.nlqQaFeedbackRepository.findById(id);
