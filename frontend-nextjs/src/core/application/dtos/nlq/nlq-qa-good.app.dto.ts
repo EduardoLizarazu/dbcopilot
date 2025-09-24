@@ -62,8 +62,9 @@ export const nlqQaGoodInRequestSchema = nlqQaGoodSchema.pick({
   query: true,
   originId: true,
   questionBy: true,
+  createdBy: true,
 });
-export type TNlqQaGoodInRequestDto = z.infer<typeof nlqQaGoodSchema>;
+export type TNlqQaGoodInRequestDto = z.infer<typeof nlqQaGoodInRequestSchema>;
 
 export type TNlqQaGoodOutRequestDto = z.infer<typeof nlqQaGoodSchema>;
 

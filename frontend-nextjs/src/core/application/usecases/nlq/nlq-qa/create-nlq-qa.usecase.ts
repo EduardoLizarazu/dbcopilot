@@ -7,7 +7,7 @@ import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaErrorRepository } from "@/core/application/interfaces/nlq/nlq-qa-error.app.inter";
 import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.inter";
-import { INlqQaGenerationPort } from "@/core/application/ports/nlq-qa-generation.port";
+import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
 import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
 import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
 export interface ICreateNlqQaUseCase {
@@ -20,7 +20,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
     private readonly nlqQaRepository: INlqQaRepository,
     private readonly nlqQaKnowledgePort: INlqQaKnowledgePort,
     private readonly nlqQaInformationPort: INlqQaInformationPort,
-    private readonly nlqQaGenerationPort: INlqQaGenerationPort,
+    private readonly nlqQaGenerationPort: INlqQaQueryGenerationPort,
     private readonly nlqQaErrorRepository: INlqQaErrorRepository
   ) {}
 

@@ -1,6 +1,9 @@
 import {
   createNlqQaGoodSchema,
+  nlqQaGoodInRequestSchema,
   TCreateNlqQaGoodDto,
+  TNlqQaGoodInRequestDto,
+  TNlqQaGoodOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "../../../interfaces/ilog.app.inter";
@@ -8,8 +11,8 @@ import { INlqQaGoodRepository } from "../../../interfaces/nlq/nlq-qa-good.app.in
 
 export interface ICreateNlqQaGoodUseCase {
   execute(
-    data: TCreateNlqQaGoodDto
-  ): Promise<TResponseDto<TCreateNlqQaGoodDto>>;
+    data: TNlqQaGoodInRequestDto
+  ): Promise<TResponseDto<TNlqQaGoodOutRequestDto>>;
 }
 
 export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
@@ -19,11 +22,11 @@ export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
   ) {}
 
   async execute(
-    data: TCreateNlqQaGoodDto
-  ): Promise<TResponseDto<TCreateNlqQaGoodDto>> {
+    data: TNlqQaGoodInRequestDto
+  ): Promise<TResponseDto<TNlqQaGoodOutRequestDto>> {
     try {
       // 1. Validate input data
-      const dateValidate = await createNlqQaGoodSchema.safeParseAsync(data);
+      const dateValidate = await nlqQaGoodInRequestSchema.safeParseAsync(data);
       if (!dateValidate.success) {
         this.logger.error(
           `[CreateNlqQaGoodUseCase] Invalid input data: ${JSON.stringify(
@@ -37,7 +40,23 @@ export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
         };
       }
 
-      // 2. Create NLQ QA Good
+      // 2. Upload to knowledge source
+
+      // 3. GENERATION STEPS
+
+      // 3.1 Generate detail question.
+
+      // 3.2 Generate tableColumns ["[TABLE].[COLUMN]"] .
+
+      // 3.3 Generate Semantic Fields
+
+      // 3.4 Generate Semantic Tables.
+
+      // 3.5 Generate Semantic Flags
+
+      // 3.6 Generate thinking process
+
+      // 4. Create NLQ QA Good
       const id = await this.nlqQaGoodRepository.create(data);
       if (!id) {
         this.logger.error(
@@ -50,7 +69,7 @@ export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
         };
       }
 
-      // 3. Search the created record to return
+      // 5. Search the created record to return
       const result = await this.nlqQaGoodRepository.findById(id);
       if (!result) {
         this.logger.error(
@@ -63,7 +82,7 @@ export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
         };
       }
 
-      // 4. Return success response
+      // Return success response
       return {
         success: true,
         data: result,
