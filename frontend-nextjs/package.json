@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "cross-env NODE_ENV=development jest",
-    "build:prod": "cross-env NODE_ENV=production next build",
+    "build:prod": "cross-env NODE_ENV=production NEXT_DISABLE_ESLINT=true next build",
     "start:prod": "cross-env NODE_ENV=production next start"
   },
   "dependencies": {
