@@ -1,7 +1,10 @@
 // Importá tus tipos reales si los tenés
 // import { TCreateRoleDto, TRoleOutRequestDto, TResponseDto } from '...';
 
+import { TCreateRoleDto } from "../../dtos/role.app.dto";
 import { RoleAppEnum } from "../../enums/role.app.enum";
+import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
+import { ILogger } from "../../interfaces/ilog.app.inter";
 import { CreateRoleUseCase } from "./create-role.usecase";
 
 describe("CreateRoleUseCase (unit)", () => {
@@ -18,9 +21,14 @@ describe("CreateRoleUseCase (unit)", () => {
 
   const makeSut = () => new CreateRoleUseCase(repo as any, logger as any);
 
+  // A valid DTO example to create a role
   const validDto = {
     name: "Admin",
     description: "Full access",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: "system",
+    updatedBy: "system",
   };
 
   beforeEach(() => {
@@ -47,7 +55,14 @@ describe("CreateRoleUseCase (unit)", () => {
     const sut = makeSut();
 
     // Arrange: existe un rol con ese nombre
-    repo.findByName.mockResolvedValue({ id: "r-1", name: "Admin" });
+    repo.findByName.mockResolvedValue({
+      id: "r-1",
+      name: "Admin",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      createdBy: "system",
+      updatedBy: "system",
+    });
 
     const out = await sut.execute(validDto as any);
 
