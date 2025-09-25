@@ -13,10 +13,23 @@ import { IController } from "../controllers/IController.http.controller";
 import { HttpRequest } from "../helpers/HttpRequest.http";
 import { IHttpResponse } from "../helpers/IHttResponse.http";
 import { IHttpRequest } from "../helpers/IHttpRequest.http";
+import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
+import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
+import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
+import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
+
+type AuthContext = { uid?: string } | null;
+
+// Helpers
+const getBearer = (headers: Record<string, string>) => {
+  const h = headers["authorization"] || headers["Authorization"] || "";
+  return h.startsWith("Bearer ") ? h.slice(7) : null;
+};
 
 export async function nextAdapter(
   request: NextRequest,
-  apiRoute: IController
+  apiRoute: IController,
+  opts?: { isTokenRequired: boolean }
 ): Promise<IHttpResponse> {
   const body = await request.json().catch(() => null);
   console.log("next adapter: Parsed body:", body);
@@ -34,11 +47,30 @@ export async function nextAdapter(
     headers[key] = value;
   });
   console.log("next adapter: Parsed headers:", headers);
+
+  // Optional decode
+  const decodeToken = new DecodeTokenAdapter(
+    new WinstonLoggerProvider(),
+    new FirebaseAdminProvider()
+  );
+  let auth: AuthContext = null;
+  const token = getBearer(headers);
+  if (token && opts?.isTokenRequired) {
+    try {
+      const decoded = await decodeToken.decodeToken(token);
+      console.log("[next adapter] Decoded token:", decoded);
+      auth = { uid: decoded?.uid };
+    } catch (e) {
+      // leave auth = null; controller can decide to reject or allow public access
+    }
+  }
+
   const httpRequest: IHttpRequest<typeof body> = new HttpRequest({
     header: headers,
     body: body,
     path: request.nextUrl.pathname,
     query: request.nextUrl.searchParams,
+    auth: auth?.uid ? { uid: auth.uid } : null,
   });
   console.log("next adapter: Created HttpRequest:", httpRequest);
 

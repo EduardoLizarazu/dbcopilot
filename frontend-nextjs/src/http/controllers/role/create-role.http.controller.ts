@@ -4,67 +4,58 @@ import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { IHttpErrors } from "@/http/helpers/IHttpErrors.http";
 import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
-import { HttpRequest } from "@/http/helpers/HttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { TCreateRoleDto } from "@/core/application/dtos/role.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { IAuthService } from "@/infrastructure/services/auth.infra.service";
 import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
+import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
+import { ROLE } from "@/http/utils/role.enum";
 
 export class CreateRoleController implements IController {
   constructor(
-    private createRoleUseCase: ICreateRoleAppUseCase,
-    private authService: IAuthService,
-    private logger: ILogger,
+    private readonly createRoleUseCase: ICreateRoleAppUseCase,
+    private readonly accessRepo: IAuthorizationRepository,
+    private readonly logger: ILogger,
     private httpErrors: IHttpErrors = new HttpErrors(),
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
   async handle(httpRequest: IHttpRequest<unknown>): Promise<IHttpResponse> {
     try {
-      this.logger.info("CreateRoleController: Handling request", httpRequest);
-
-      // Authenticate
+      // ==== INPUT OF REQUEST ====
+      //   ==== INPUT HEADERS ====
+      //   1. Check headers
       const headers = httpRequest.header as Record<string, string>;
-
-      this.logger.info("CreateRoleController: Headers:", headers);
-
-      const authHeader =
-        headers["Authorization"] || headers["authorization"] || "";
-      if (!authHeader.startsWith("Bearer ")) {
-        this.logger.error(
-          "CreateRoleController: No token provided",
-          httpRequest
-        );
-        const error = this.httpErrors.error_400(`No token provided`);
-        return new HttpResponse(error.statusCode, error.body);
+      this.logger.info("[CreateNlqQaController] Headers:", headers);
+      //   2. Check authorization
+      if (!httpRequest.auth) {
+        return new HttpResponse(401, {
+          success: false,
+          message: "Unauthorized",
+        });
       }
-
-      const token = authHeader.replace("Bearer ", "");
-
-      this.logger.info("CreateRoleController: Token:", token);
-
-      // Decode token
-      const decodedToken = await this.authService.decodeToken(token);
-      if (!decodedToken) {
-        this.logger.error("CreateRoleController: Unauthorized", httpRequest);
-        const error = this.httpErrors.error_400(`Unauthorized`);
-        return new HttpResponse(error.statusCode, error.body);
-      }
-
-      this.logger.info("CreateRoleController: Decoded token:", decodedToken);
-
-      // Retrieve roles
-      const userRoles = await this.authService.getRolesNamesByUids(
-        decodedToken.uid
+      //   4. Retrieve roles
+      const roleNames = await this.accessRepo.findRolesNamesByUserId(
+        httpRequest.auth.uid
       );
+      this.logger.info(
+        "[CreateNlqQaController] User roles names:",
+        roleNames.roleNames
+      );
+      //   5. Check roles permissions
+      const { hasAuth } = await this.accessRepo.hasRoles({
+        ctxRoleNames: roleNames.roleNames,
+        requiredRoleNames: [ROLE.ANALYST, ROLE.ADMIN],
+      });
+      if (!hasAuth) {
+        this.logger.error("[CreateNlqQaController] User is not authorized");
+        const error = this.httpErrors.error_401("User is not authorized");
+        return new HttpResponse(error.statusCode, error.body);
+      }
 
-      this.logger.info("CreateRoleController: User roles:", userRoles);
-
-      decodedToken.roles = userRoles;
-
-      // Check body
+      //   ==== INPUT BODY ====
+      // 1. Check body
       if (!httpRequest.body) {
         this.logger.error(
           "CreateRoleController: No body provided",

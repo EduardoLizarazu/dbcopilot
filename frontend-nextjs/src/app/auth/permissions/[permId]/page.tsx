@@ -1,10 +1,6 @@
 "use client";
 import React from "react";
 import {
-  GetPermissionById,
-  UpdatePermission,
-} from "@/controller/_actions/index.actions";
-import {
   Button,
   CircularProgress,
   Container,
@@ -12,11 +8,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { UpdatePermissionDataModel } from "@/data/model/index.data.model";
 import { useRouter } from "next/navigation";
 import { useFeedbackContext } from "@/contexts/feedback.context";
-import { ReadPermissionByIdAction } from "@/controller/_actions/permission/query/read-permission-by-id.action";
-import { UpdatePermissionById } from "@/controller/_actions/permission/command/update-permission.action";
 
 interface UpdatePermissionPageProps {
   params: Promise<{

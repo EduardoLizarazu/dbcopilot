@@ -21,4 +21,9 @@ export interface IHttpRequest<B> {
    * Represents the path parameters of the HTTP request.
    */
   path?: unknown;
+
+  /**
+   * Represents the authentication context of the HTTP request.
+   */
+  auth: { uid: string } | null;
 }

@@ -24,6 +24,8 @@ export class HttpRequest<B> implements IHttpRequest<B> {
    */
   path?: unknown;
 
+  auth: { uid: string } | null = null;
+
   /**
    * Initializes a new instance of the `HttpRequest` class.
    * @param init - An optional object containing properties to initialize the instance.
