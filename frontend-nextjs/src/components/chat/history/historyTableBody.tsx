@@ -4,7 +4,6 @@ import { TableCell, TableRow } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { SharedTableAction } from "@components/shared/sharedTableAction";
-import { DeleteRoleByIdAction } from "@/controller/_actions/role/command/delete-role-by-id.action";
 
 type TReadHistoryPrompt = {
   prompt_id: number;
@@ -37,7 +36,7 @@ export function HistoryTableBody({
 
   async function handleDeleteBtn() {
     try {
-      await DeleteRoleByIdAction(fetchedData.prompt_id);
+      // await DeleteRoleByIdAction(fetchedData.prompt_id);
       setFeedback({
         isActive: true,
         message: "Deleted successfully",
