@@ -5,7 +5,6 @@ export const nlqQaGenerationSchema = z.object({
   similarKnowledgeBased: z.array(
     z.object({
       id: z.string(),
-      nlqQaGoodDetailsId: z.string().min(2),
       nlqQaGoodId: z.string().min(2),
       question: z.string().min(2),
       query: z.string().min(2),
