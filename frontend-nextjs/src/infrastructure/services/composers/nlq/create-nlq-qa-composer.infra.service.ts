@@ -46,7 +46,10 @@ export function createNlqQaComposer(): IController {
     loggerProvider,
     firebaseAdmin
   );
-  const authRepository = new AuthorizationRepository();
+  const authRepository = new AuthorizationRepository(
+    loggerProvider,
+    firebaseAdmin
+  );
 
   // Use cases
   const createNlqQaUseCase = new CreateNlqQaUseCase(
