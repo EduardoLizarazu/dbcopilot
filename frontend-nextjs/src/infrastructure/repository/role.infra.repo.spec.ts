@@ -15,7 +15,14 @@ describe("RoleInfraRepository (unit, Firestore mocked)", () => {
 
   it("create -> returns id; findById -> returns role", async () => {
     const { sut } = makeSut();
-    const dto = RoleBuilder.makeCreate({ name: "Admin" });
+    const dto = RoleBuilder.makeCreate({
+      name: "Admin",
+      description: "Full access",
+      createdBy: "user-123",
+      updatedBy: "user-123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     const id = await sut.create(dto);
     const found = await sut.findById(id);
