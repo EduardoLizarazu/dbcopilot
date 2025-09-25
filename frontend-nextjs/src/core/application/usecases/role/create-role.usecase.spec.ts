@@ -49,23 +49,30 @@ describe("CreateRoleUseCase (unit)", () => {
   it("should fail when validation (zod) does not pass", async () => {
     // Use an invalid DTO (for example, without name)
     const sut = makeSut();
-    const badDto = { name: "", description: "X" } as any;
+    const badDto: TCreateRoleDto = {
+      name: "",
+      description: "X",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      createdBy: "system",
+      updatedBy: "system",
+    };
 
     // Assuming your zod marks error for empty name
     const out = await sut.execute(badDto);
 
-    expect(out.success).toBe(false);
-    expect(out.data).toBeNull();
-    expect(out.message).toMatch(/name/i); // zod error message
-    expect(logger.error).toHaveBeenCalled();
+    expect(out.success).toBe(false); // success = false
+    expect(out.data).toBeNull(); // data = null
+    expect(out.message).toMatch(/name/i); // zod error message mentions 'name'
+    expect(logger.error).toHaveBeenCalled(); // logs the validation error
     // No debe consultar repos
-    expect(repo.findByName).not.toHaveBeenCalled();
+    expect(repo.findByName).not.toHaveBeenCalled(); // no repo calls, it stop at validation
   });
 
-  it("debe fallar si el rol YA existe (condición corregida)", async () => {
+  it("should fail if the role already exists (condition fixed)", async () => {
     const sut = makeSut();
 
-    // Arrange: existe un rol con ese nombre
+    // Arrange: already exists the role, this is output from repo (out)
     repo.findByName.mockResolvedValue({
       id: "r-1",
       name: "Admin",
@@ -75,28 +82,31 @@ describe("CreateRoleUseCase (unit)", () => {
       updatedBy: "system",
     });
 
-    const out = await sut.execute(validDto as any);
+    const out = await sut.execute(validDto);
 
-    // Con tu código actual esta prueba FALLA. Tras corregir la condición, pasa.
-    expect(repo.findByName).toHaveBeenCalledWith("Admin");
+    // Your current code has a bug in the existence check condition.
+    expect(repo.findByName).toHaveBeenCalledWith("Admin"); // specific argument
     expect(out.success).toBe(false);
     expect(out.message).toBe(RoleAppEnum.roleAlreadyExists);
     expect(repo.create).not.toHaveBeenCalled();
   });
 
-  it("debe crear y devolver el rol cuando NO existe", async () => {
+  it("should create and return the role when it does NOT exist", async () => {
     const sut = makeSut();
 
-    repo.findByName.mockResolvedValue(null); // no existe
-    repo.create.mockResolvedValue("new-id"); // id creado
-    const createdRole = {
-      id: "new-id",
+    repo.findByName.mockResolvedValue(null); // does not exist
+    repo.create.mockResolvedValue("new-id"); // created id
+    const createdRole: TCreateRoleDto = {
       name: "Admin",
       description: "Full access",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      createdBy: "system",
+      updatedBy: "system",
     };
     repo.findById.mockResolvedValue(createdRole); // lectura post-crear
 
-    const out = await sut.execute(validDto as any);
+    const out = await sut.execute(validDto);
 
     expect(out.success).toBe(true);
     expect(out.data).toEqual(createdRole);
@@ -107,14 +117,14 @@ describe("CreateRoleUseCase (unit)", () => {
     expect(repo.findById).toHaveBeenCalledWith("new-id");
   });
 
-  it("debe fallar si después de crear no encuentra el rol por id", async () => {
+  it("should fail if the role is not found by id after creation", async () => {
     const sut = makeSut();
 
     repo.findByName.mockResolvedValue(null);
     repo.create.mockResolvedValue("new-id");
-    repo.findById.mockResolvedValue(null); // no lo encuentra
+    repo.findById.mockResolvedValue(null); // does not find it
 
-    const out = await sut.execute(validDto as any);
+    const out = await sut.execute(validDto);
 
     expect(out.success).toBe(false);
     expect(out.data).toBeNull();
@@ -127,7 +137,7 @@ describe("CreateRoleUseCase (unit)", () => {
 
     repo.findByName.mockRejectedValue(new Error("DB down"));
 
-    const out = await sut.execute(validDto as any);
+    const out = await sut.execute(validDto);
 
     expect(out.success).toBe(false);
     expect(out.data).toBeNull();
