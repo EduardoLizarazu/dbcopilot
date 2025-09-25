@@ -11,7 +11,14 @@ describe("RoleInfraRepository (unit, Firestore mocked)", () => {
     return { sut, fbAdminProvider, logger };
   };
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(async () => {
+    const fbAdmin = new FirebaseAdminProvider();
+    const snapshot = await fbAdmin.db.collection(fbAdmin.coll.NLQ_ROLES).get();
+    const batch = fbAdmin.db.batch();
+    snapshot.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+    jest.clearAllMocks();
+  });
 
   it("create -> returns id; findById -> returns role", async () => {
     const { sut } = makeSut();
@@ -87,7 +94,7 @@ describe("RoleInfraRepository (unit, Firestore mocked)", () => {
     const { sut, fbAdminProvider } = makeSut();
     // fuerza un error: reemplaza temporalmente .get()
     const col = fbAdminProvider.db.collection(fbAdminProvider.coll.NLQ_ROLES);
-    const origGet = col.doc("").get;
+    const origGet = col.doc("NOT-FOUND-ID").get;
     (col as any).doc = () => ({
       get: async () => {
         throw new Error("boom");
