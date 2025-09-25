@@ -1,5 +1,5 @@
 import {
-  createNlqQaSchema,
+  nlqQaInRequestSchema,
   TNlqQaInRequestDto,
   TNlqQaOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
@@ -33,7 +33,8 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       });
 
       // ==== VALIDATE ====
-      const nlqQaValidationAsync = await createNlqQaSchema.safeParseAsync(data);
+      const nlqQaValidationAsync =
+        await nlqQaInRequestSchema.safeParseAsync(data);
       if (!nlqQaValidationAsync.success) {
         this.logger.error(
           "[CreateNlqQaUseCase]: Invalid data:",

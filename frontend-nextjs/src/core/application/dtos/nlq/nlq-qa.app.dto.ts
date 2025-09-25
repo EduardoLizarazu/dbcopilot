@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const nlqQaSchema = z.object({
   id: z.string(),
-  question: z.string().min(2).max(1000),
-  query: z.string().min(2).max(1000),
+  question: z.string().min(2),
+  query: z.string().min(2),
   isGood: z.boolean().default(true),
   timeQuestion: z.date(),
   timeQuery: z.date(),
