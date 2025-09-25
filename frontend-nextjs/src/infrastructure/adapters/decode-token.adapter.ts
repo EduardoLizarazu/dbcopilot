@@ -10,13 +10,17 @@ export class DecodeTokenAdapter implements IDecodeTokenPort {
   ) {}
   async decodeToken(token: string): Promise<TTokenDecodedDto | null> {
     try {
+      this.logger.info("[DecodeTokenAdapter] Decoding token: ", token);
+
       // Implementation for decoding the token
       const decodedToken = await this.fbAdminProvider.auth.verifyIdToken(token);
-      if (!decodedToken || !decodedToken.uid) {
+      this.logger.info("[DecodeTokenAdapter] Decoded token: ", decodedToken);
+      if (!decodedToken || !decodedToken.sub) {
+        this.logger.warn("[DecodeTokenAdapter] Invalid token structure");
         return null;
       }
       return {
-        uid: decodedToken.uid,
+        uid: decodedToken.sub,
       } as TTokenDecodedDto;
     } catch (error) {
       this.logger.error("Error decoding token", error);

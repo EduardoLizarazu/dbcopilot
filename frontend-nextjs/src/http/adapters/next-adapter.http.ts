@@ -32,7 +32,7 @@ export async function nextAdapter(
   opts?: { isTokenRequired: boolean }
 ): Promise<IHttpResponse> {
   const body = await request.json().catch(() => null);
-  console.log("next adapter: Parsed body:", body);
+  console.log("[next adapter] Parsed body:", body);
 
   if (!body) {
     return {
@@ -46,7 +46,7 @@ export async function nextAdapter(
   request.headers.forEach((value, key) => {
     headers[key] = value;
   });
-  console.log("next adapter: Parsed headers:", headers);
+  console.log("[next adapter] Parsed headers:", headers);
 
   // Optional decode
   const decodeToken = new DecodeTokenAdapter(
@@ -55,6 +55,8 @@ export async function nextAdapter(
   );
   let auth: AuthContext = null;
   const token = getBearer(headers);
+  console.log("[next adapter] Extracted token:", token);
+
   if (token && opts?.isTokenRequired) {
     try {
       const decoded = await decodeToken.decodeToken(token);
