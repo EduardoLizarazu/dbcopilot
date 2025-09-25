@@ -1,15 +1,13 @@
 // src/infrastructure/repositories/role/role.infra.repository.spec.ts
-import { createFirebaseAdminProviderMock } from "@/test-utils/mocks/firebase-admin-provider.mock";
 import { RoleInfraRepository } from "./role.infra.repo";
 import { RoleBuilder } from "@/test/test-utils/builders/role.builder";
-
-const createLoggerMock = () => ({ info: jest.fn(), error: jest.fn() });
+import { FirebaseAdminProvider } from "../providers/firebase/firebase-admin";
 
 describe("RoleInfraRepository (unit, Firestore mocked)", () => {
   const makeSut = () => {
-    const fbAdminProvider = createFirebaseAdminProviderMock();
-    const logger = createLoggerMock();
-    const sut = new RoleInfraRepository(fbAdminProvider as any, logger as any);
+    const fbAdminProvider = new FirebaseAdminProvider();
+    const logger = { info: jest.fn(), error: jest.fn() } as any;
+    const sut = new RoleInfraRepository(fbAdminProvider, logger);
     return { sut, fbAdminProvider, logger };
   };
 
@@ -29,16 +27,16 @@ describe("RoleInfraRepository (unit, Firestore mocked)", () => {
 
   it("findByName -> returns correct role", async () => {
     const { sut } = makeSut();
-    const a = RoleBuilder.makeCreate({ name: "Manager" });
-    const b = RoleBuilder.makeCreate({ name: "Viewer" });
+    const a = RoleBuilder.makeCreate({ name: "Admin" });
+    const b = RoleBuilder.makeCreate({ name: "Analyst" });
     const idA = await sut.create(a);
     await sut.create(b);
 
-    const found = await sut.findByName("Manager");
+    const found = await sut.findByName("Admin");
 
     expect(found).toBeTruthy();
     expect(found!.id).toBe(idA);
-    expect(found!.name).toBe("Manager");
+    expect(found!.name).toBe("Admin");
   });
 
   it("findAll -> returns all roles", async () => {
