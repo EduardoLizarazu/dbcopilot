@@ -7,10 +7,8 @@ module.exports = {
   roots: ["<rootDir>/src"],
   testMatch: ["**/?(*.)+(spec|test).ts?(x)"],
   // Usa el tsconfig especial para Jest
-  globals: {
-    "ts-jest": {
-      tsconfig: "<rootDir>/tsconfig.jest.json",
-    },
+  transform: {
+    "^.+\\.tsx?$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.jest.json" }],
   },
   // Soporte para tus paths del tsconfig
   moduleNameMapper: {
