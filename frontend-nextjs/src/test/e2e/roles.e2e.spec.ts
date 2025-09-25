@@ -2,6 +2,7 @@
 import { NextRequest } from "next/server";
 import { POST as RolesPOST } from "@/app/api/roles/route"; // <-- your route file
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
+import { token } from "../test-utils/constants";
 
 // // 1) Mock the class that the adapter `new`'s inside
 // jest.mock("@/infrastructure/auth/decode-token.adapter", () => ({
@@ -37,7 +38,7 @@ describe("E2E /api/roles POST", () => {
     const req = makeNextJsonRequest(
       "/api/roles",
       { name: "New-Role", description: "Full access" },
-      { Authorization: "Bearer FAKE" }
+      { Authorization: `Bearer ${token}` }
     );
 
     const res = await RolesPOST(req);
@@ -61,7 +62,7 @@ describe("E2E /api/roles POST", () => {
     const req = makeNextJsonRequest(
       "/api/roles",
       { name: "NoDesc" },
-      { Authorization: "Bearer FAKE" }
+      { Authorization: `Bearer ${token}` }
     );
     const res = await RolesPOST(req);
     expect(res.status).toBe(400);
