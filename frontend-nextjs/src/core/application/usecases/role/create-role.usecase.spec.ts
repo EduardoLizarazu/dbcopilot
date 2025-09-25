@@ -8,21 +8,32 @@ import { ILogger } from "../../interfaces/ilog.app.inter";
 import { CreateRoleUseCase } from "./create-role.usecase";
 
 describe("CreateRoleUseCase (unit)", () => {
-  const logger = {
+  const logger: Partial<ILogger> = {
     info: jest.fn(),
     error: jest.fn(),
   };
 
-  const repo = {
+  const repo: {
+    findByName: jest.Mock;
+    create: jest.Mock;
+    findById: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    findAll: jest.Mock;
+  } = {
     findByName: jest.fn(),
     create: jest.fn(),
     findById: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    findAll: jest.fn(),
   };
 
-  const makeSut = () => new CreateRoleUseCase(repo as any, logger as any);
+  const makeSut = () =>
+    new CreateRoleUseCase(repo as IRoleRepository, logger as ILogger);
 
   // A valid DTO example to create a role
-  const validDto = {
+  const validDto: TCreateRoleDto = {
     name: "Admin",
     description: "Full access",
     createdAt: new Date(),
@@ -35,17 +46,17 @@ describe("CreateRoleUseCase (unit)", () => {
     jest.clearAllMocks();
   });
 
-  it("debe fallar cuando la validación (zod) no pasa", async () => {
-    // Usá un dto inválido (por ejemplo, sin name)
+  it("should fail when validation (zod) does not pass", async () => {
+    // Use an invalid DTO (for example, without name)
     const sut = makeSut();
     const badDto = { name: "", description: "X" } as any;
 
-    // Asumiendo que tu zod marca error por name vacío
+    // Assuming your zod marks error for empty name
     const out = await sut.execute(badDto);
 
     expect(out.success).toBe(false);
     expect(out.data).toBeNull();
-    expect(out.message).toMatch(/name/i); // mensaje de zod
+    expect(out.message).toMatch(/name/i); // zod error message
     expect(logger.error).toHaveBeenCalled();
     // No debe consultar repos
     expect(repo.findByName).not.toHaveBeenCalled();
