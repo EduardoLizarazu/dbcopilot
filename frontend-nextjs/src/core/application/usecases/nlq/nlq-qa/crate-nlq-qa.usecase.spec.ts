@@ -6,6 +6,7 @@ import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-informati
 import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
 import { INlqQaErrorRepository } from "@/core/application/interfaces/nlq/nlq-qa-error.app.inter";
 import { CreateNlqQaUseCase } from "./create-nlq-qa.usecase";
+import { TNlqQaInRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 
 /** What each test covers
  * 1. Validation: halts before hitting any ports if the DTO fails Zod validation.
@@ -17,56 +18,67 @@ import { CreateNlqQaUseCase } from "./create-nlq-qa.usecase";
  * 7. Happy path: generates, validates, executes, creates NLQ QA and returns it.
  */
 
-type DeepPartial<T> = { [K in keyof T]?: any };
-
-// ===== Builder: AJUSTÁ estos campos si tu Zod pide más =====
+/** Builder: AJUSTÁ estos campos si tu Zod pide más */
 const makeValidInput = (
-  overrides: Partial<{ question: string; createdBy: string }> = {}
-) => ({
+  over: Partial<TNlqQaInRequestDto> = {}
+): TNlqQaInRequestDto => ({
   question: "How many orders last month?",
   createdBy: "user-123",
-  ...overrides,
+  ...over,
 });
 
 describe("CreateNlqQaUseCase (unit)", () => {
   // Mocks básicos
-  const logger: DeepPartial<ILogger> = { info: jest.fn(), error: jest.fn() };
+  const logger: jest.Mocked<ILogger> = {
+    info: jest.fn(),
+    error: jest.fn(),
+  } as any;
 
-  const repo: DeepPartial<INlqQaRepository> = {
-    create: jest.fn(),
-    findById: jest.fn(),
-  };
+  // Repositorios/puertos: tipar CADA método con MockedFunction<Interface['metodo']>
+  const repo = {
+    create: jest.fn() as jest.MockedFunction<INlqQaRepository["create"]>,
+    findById: jest.fn() as jest.MockedFunction<INlqQaRepository["findById"]>,
+  } as unknown as jest.Mocked<INlqQaRepository>;
 
-  const knowledge: DeepPartial<INlqQaKnowledgePort> = {
-    findByQuestion: jest.fn(),
-  };
+  const knowledge = {
+    findByQuestion: jest.fn() as jest.MockedFunction<
+      INlqQaKnowledgePort["findByQuestion"]
+    >,
+  } as unknown as jest.Mocked<INlqQaKnowledgePort>;
 
-  const info: DeepPartial<INlqQaInformationPort> = {
-    extractSchemaBased: jest.fn(),
-    executeQuery: jest.fn(),
-  };
+  const info = {
+    extractSchemaBased: jest.fn() as jest.MockedFunction<
+      INlqQaInformationPort["extractSchemaBased"]
+    >,
+    executeQuery: jest.fn() as jest.MockedFunction<
+      INlqQaInformationPort["executeQuery"]
+    >,
+  } as unknown as jest.Mocked<INlqQaInformationPort>;
 
-  const gen: DeepPartial<INlqQaQueryGenerationPort> = {
-    createPromptTemplateToGenerateQuery: jest.fn(),
-    queryGeneration: jest.fn(),
-    extractQueryFromGenerationResponse: jest.fn(),
-    safeQuery: jest.fn(),
-    extractSuggestionsFromGenerationResponse: jest.fn(),
-  };
+  const gen = {
+    createPromptTemplateToGenerateQuery: jest.fn() as jest.MockedFunction<
+      INlqQaQueryGenerationPort["createPromptTemplateToGenerateQuery"]
+    >,
+    queryGeneration: jest.fn() as jest.MockedFunction<
+      INlqQaQueryGenerationPort["queryGeneration"]
+    >,
+    extractQueryFromGenerationResponse: jest.fn() as jest.MockedFunction<
+      INlqQaQueryGenerationPort["extractQueryFromGenerationResponse"]
+    >,
+    safeQuery: jest.fn() as jest.MockedFunction<
+      INlqQaQueryGenerationPort["safeQuery"]
+    >,
+    extractSuggestionsFromGenerationResponse: jest.fn() as jest.MockedFunction<
+      INlqQaQueryGenerationPort["extractSuggestionsFromGenerationResponse"]
+    >,
+  } as unknown as jest.Mocked<INlqQaQueryGenerationPort>;
 
-  const errRepo: DeepPartial<INlqQaErrorRepository> = {
-    create: jest.fn(),
-  };
+  const errRepo = {
+    create: jest.fn() as jest.MockedFunction<INlqQaErrorRepository["create"]>,
+  } as unknown as jest.Mocked<INlqQaErrorRepository>;
 
   const makeSut = () =>
-    new CreateNlqQaUseCase(
-      logger as ILogger,
-      repo as INlqQaRepository,
-      knowledge as INlqQaKnowledgePort,
-      info as INlqQaInformationPort,
-      gen as INlqQaQueryGenerationPort,
-      errRepo as INlqQaErrorRepository
-    );
+    new CreateNlqQaUseCase(logger, repo, knowledge, info, gen, errRepo);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -89,13 +101,13 @@ describe("CreateNlqQaUseCase (unit)", () => {
     const sut = makeSut();
     const dto = makeValidInput();
 
-    (knowledge.findByQuestion as jest.Mock).mockResolvedValue([]);
-    (info.extractSchemaBased as jest.Mock).mockResolvedValue([]); // 0 tablas
-    (gen.createPromptTemplateToGenerateQuery as jest.Mock).mockResolvedValue({
+    knowledge.findByQuestion.mockResolvedValue([]);
+    info.extractSchemaBased.mockResolvedValue([]); // 0 tablas
+    gen.createPromptTemplateToGenerateQuery.mockResolvedValue({
       promptTemplate: "",
     });
 
-    const out = await sut.execute(dto as any);
+    const out = await sut.execute(dto);
 
     expect(out.success).toBe(false);
     expect(out.message).toBe("Prompt template is empty");
@@ -105,12 +117,28 @@ describe("CreateNlqQaUseCase (unit)", () => {
     const sut = makeSut();
     const dto = makeValidInput();
 
-    (knowledge.findByQuestion as jest.Mock).mockResolvedValue([]);
-    (info.extractSchemaBased as jest.Mock).mockResolvedValue(["t1"]);
-    (gen.createPromptTemplateToGenerateQuery as jest.Mock).mockResolvedValue({
+    knowledge.findByQuestion.mockResolvedValue([]);
+    info.extractSchemaBased.mockResolvedValue([
+      {
+        TABLE_SCHEMA: "TABLE_SCHEMA",
+        TABLE_NAME: "",
+        COLUMN_NAME: "",
+        DATA_TYPE: "",
+        DATA_LENGTH: 0,
+        DATA_PRECISION: 0,
+        DATA_SCALE: 0,
+        NULLABLE: "",
+        IS_PRIMARY_KEY: "",
+        IS_FOREIGN_KEY: "",
+        REFERENCED_TABLE_SCHEMA: null,
+        REFERENCED_TABLE_NAME: null,
+        REFERENCED_COLUMN_NAME: null,
+      },
+    ]);
+    gen.createPromptTemplateToGenerateQuery.mockResolvedValue({
       promptTemplate: "PROMPT...",
     });
-    (gen.queryGeneration as jest.Mock).mockResolvedValue({ answer: "" });
+    gen.queryGeneration.mockResolvedValue({ answer: "" });
 
     const out = await sut.execute(dto as any);
 
@@ -122,20 +150,48 @@ describe("CreateNlqQaUseCase (unit)", () => {
     const sut = makeSut();
     const dto = makeValidInput();
 
-    (knowledge.findByQuestion as jest.Mock).mockResolvedValue([{ id: "k1" }]);
-    (info.extractSchemaBased as jest.Mock).mockResolvedValue(["t1"]);
-    (gen.createPromptTemplateToGenerateQuery as jest.Mock).mockResolvedValue({
+    knowledge.findByQuestion.mockResolvedValue([
+      {
+        id: "k1",
+        question: "question",
+        query: "SELECT * FROM users",
+        nlqQaGoodId: "g1",
+        tablesColumns: ["orders.id"],
+        score: 0,
+      },
+    ]);
+    info.extractSchemaBased.mockResolvedValue([
+      {
+        TABLE_SCHEMA: "TABLE_SCHEMA",
+        TABLE_NAME: "",
+        COLUMN_NAME: "",
+        DATA_TYPE: "",
+        DATA_LENGTH: 0,
+        DATA_PRECISION: 0,
+        DATA_SCALE: 0,
+        NULLABLE: "",
+        IS_PRIMARY_KEY: "",
+        IS_FOREIGN_KEY: "",
+        REFERENCED_TABLE_SCHEMA: null,
+        REFERENCED_TABLE_NAME: null,
+        REFERENCED_COLUMN_NAME: null,
+      },
+    ]);
+    gen.createPromptTemplateToGenerateQuery.mockResolvedValue({
       promptTemplate: "PROMPT...",
     });
-    (gen.queryGeneration as jest.Mock).mockResolvedValue({
-      answer: "SQL: SELECT * FROM users;",
+    gen.queryGeneration.mockResolvedValue({
+      answer: "SQL: DELETE * FROM users",
     });
-    (gen.extractQueryFromGenerationResponse as jest.Mock).mockResolvedValue({
-      query: "SELECT * FROM users;",
+    gen.extractQueryFromGenerationResponse.mockResolvedValue({
+      query: "DELETE * FROM users",
     });
-    (gen.safeQuery as jest.Mock).mockResolvedValue({ isSafe: false }); // <- insegura
+    gen.safeQuery.mockResolvedValue({
+      query: "DELETE * FROM users",
+      isSafe: false,
+    }); // <- insegura
 
-    const out = await sut.execute(dto as any);
+    const out = await sut.execute(dto);
 
     expect(out.success).toBe(false);
     expect(out.message).toBe("Generated SQL query is not safe");
@@ -143,7 +199,7 @@ describe("CreateNlqQaUseCase (unit)", () => {
       expect.objectContaining({
         question: dto.question,
         errorMessage: "Generated SQL query is not safe",
-        query: "SELECT * FROM users;",
+        query: "DELETE * FROM users",
         knowledgeSourceUsedId: ["k1"],
         createdBy: dto.createdBy,
       })
@@ -154,24 +210,22 @@ describe("CreateNlqQaUseCase (unit)", () => {
     const sut = makeSut();
     const dto = makeValidInput();
 
-    (knowledge.findByQuestion as jest.Mock).mockResolvedValue([]);
-    (info.extractSchemaBased as jest.Mock).mockResolvedValue(["t1"]);
-    (gen.createPromptTemplateToGenerateQuery as jest.Mock).mockResolvedValue({
+    knowledge.findByQuestion.mockResolvedValue([]);
+    info.extractSchemaBased.mockResolvedValue([]);
+    gen.createPromptTemplateToGenerateQuery.mockResolvedValue({
       promptTemplate: "PROMPT...",
     });
-    (gen.queryGeneration as jest.Mock).mockResolvedValue({
+    gen.queryGeneration.mockResolvedValue({
       answer: "No SQL found",
     });
-    (gen.extractQueryFromGenerationResponse as jest.Mock).mockResolvedValue({
+    gen.extractQueryFromGenerationResponse.mockResolvedValue({
       query: "",
     }); // <- sin query
-    (
-      gen.extractSuggestionsFromGenerationResponse as jest.Mock
-    ).mockResolvedValue({
+    gen.extractSuggestionsFromGenerationResponse.mockResolvedValue({
       suggestion: "Try narrowing the date range.",
     });
 
-    const out = await sut.execute(dto as any);
+    const out = await sut.execute(dto);
 
     expect(out.success).toBe(false);
     expect(out.message).toBe("Try narrowing the date range.");
@@ -181,19 +235,28 @@ describe("CreateNlqQaUseCase (unit)", () => {
     const sut = makeSut();
     const dto = makeValidInput();
 
-    (knowledge.findByQuestion as jest.Mock).mockResolvedValue([{ id: "k1" }]);
-    (info.extractSchemaBased as jest.Mock).mockResolvedValue(["t1"]);
-    (gen.createPromptTemplateToGenerateQuery as jest.Mock).mockResolvedValue({
+    knowledge.findByQuestion.mockResolvedValue([
+      {
+        id: "k1",
+        question: "",
+        query: "",
+        nlqQaGoodId: "",
+        tablesColumns: [],
+        score: 0,
+      },
+    ]);
+    info.extractSchemaBased.mockResolvedValue([]);
+    gen.createPromptTemplateToGenerateQuery.mockResolvedValue({
       promptTemplate: "PROMPT...",
     });
-    (gen.queryGeneration as jest.Mock).mockResolvedValue({
+    gen.queryGeneration.mockResolvedValue({
       answer: "SQL: SELECT 1",
     });
-    (gen.extractQueryFromGenerationResponse as jest.Mock).mockResolvedValue({
+    gen.extractQueryFromGenerationResponse.mockResolvedValue({
       query: "SELECT 1",
     });
-    (gen.safeQuery as jest.Mock).mockResolvedValue({ isSafe: true });
-    (info.executeQuery as jest.Mock).mockRejectedValue(new Error("timeout"));
+    gen.safeQuery.mockResolvedValue({ query: "SELECT 1", isSafe: true });
+    info.executeQuery.mockRejectedValue(new Error("timeout"));
 
     const out = await sut.execute(dto as any);
 
@@ -214,27 +277,57 @@ describe("CreateNlqQaUseCase (unit)", () => {
     const sut = makeSut();
     const dto = makeValidInput();
 
-    (knowledge.findByQuestion as jest.Mock).mockResolvedValue([
-      { id: "k1" },
-      { id: "k2" },
+    knowledge.findByQuestion.mockResolvedValue([
+      {
+        id: "k1",
+        question: "question 1",
+        nlqQaGoodId: "nqlqg1",
+        query: "select * from orders",
+        tablesColumns: [],
+        score: 0,
+      },
+      {
+        id: "k2",
+        question: "question 2",
+        query: "select * from customers",
+        nlqQaGoodId: "nqlqg2",
+        tablesColumns: [],
+        score: 0,
+      },
     ]);
-    (info.extractSchemaBased as jest.Mock).mockResolvedValue([
-      "orders",
-      "customers",
+    info.extractSchemaBased.mockResolvedValue([
+      {
+        TABLE_SCHEMA: "TABLE_SCHEMA",
+        TABLE_NAME: "orders",
+        COLUMN_NAME: "id",
+        DATA_TYPE: "number",
+        DATA_LENGTH: 0,
+        DATA_PRECISION: 10,
+        DATA_SCALE: 0,
+        NULLABLE: "NO",
+        IS_PRIMARY_KEY: "YES",
+        IS_FOREIGN_KEY: "NO",
+        REFERENCED_TABLE_SCHEMA: null,
+        REFERENCED_TABLE_NAME: null,
+        REFERENCED_COLUMN_NAME: null,
+      },
     ]);
-    (gen.createPromptTemplateToGenerateQuery as jest.Mock).mockResolvedValue({
+    gen.createPromptTemplateToGenerateQuery.mockResolvedValue({
       promptTemplate: "PROMPT...",
     });
-    (gen.queryGeneration as jest.Mock).mockResolvedValue({
+    gen.queryGeneration.mockResolvedValue({
       answer: "SQL: SELECT * FROM orders",
     });
-    (gen.extractQueryFromGenerationResponse as jest.Mock).mockResolvedValue({
+    gen.extractQueryFromGenerationResponse.mockResolvedValue({
       query: "SELECT * FROM orders",
     });
-    (gen.safeQuery as jest.Mock).mockResolvedValue({ isSafe: true });
-    (info.executeQuery as jest.Mock).mockResolvedValue({ data: [{ id: 1 }] });
+    gen.safeQuery.mockResolvedValue({
+      query: "SELECT * FROM orders",
+      isSafe: true,
+    });
+    info.executeQuery.mockResolvedValue({ data: [{ id: 1 }] });
 
-    (repo.create as jest.Mock).mockResolvedValue("nlq-1");
+    repo.create.mockResolvedValue("nlq-1");
     const persisted = {
       id: "nlq-1",
       question: dto.question,
@@ -250,7 +343,7 @@ describe("CreateNlqQaUseCase (unit)", () => {
       timeQuestion: new Date(),
       timeQuery: new Date(),
     };
-    (repo.findById as jest.Mock).mockResolvedValue(persisted);
+    repo.findById.mockResolvedValue(persisted);
 
     const out = await sut.execute(dto as any);
 
@@ -262,8 +355,41 @@ describe("CreateNlqQaUseCase (unit)", () => {
     expect(gen.createPromptTemplateToGenerateQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         question: dto.question,
-        similarKnowledgeBased: [{ id: "k1" }, { id: "k2" }],
-        schemaBased: ["orders", "customers"],
+        similarKnowledgeBased: [
+          {
+            id: "k1",
+            question: "question 1",
+            nlqQaGoodId: "nqlqg1",
+            query: "select * from orders",
+            tablesColumns: [],
+            score: 0,
+          },
+          {
+            id: "k2",
+            question: "question 2",
+            query: "select * from customers",
+            nlqQaGoodId: "nqlqg2",
+            tablesColumns: [],
+            score: 0,
+          },
+        ],
+        schemaBased: [
+          {
+            TABLE_SCHEMA: "TABLE_SCHEMA",
+            TABLE_NAME: "orders",
+            COLUMN_NAME: "id",
+            DATA_TYPE: "number",
+            DATA_LENGTH: 0,
+            DATA_PRECISION: 10,
+            DATA_SCALE: 0,
+            NULLABLE: "NO",
+            IS_PRIMARY_KEY: "YES",
+            IS_FOREIGN_KEY: "NO",
+            REFERENCED_TABLE_SCHEMA: null,
+            REFERENCED_TABLE_NAME: null,
+            REFERENCED_COLUMN_NAME: null,
+          },
+        ],
       })
     );
     expect(info.executeQuery).toHaveBeenCalledWith("SELECT * FROM orders");
