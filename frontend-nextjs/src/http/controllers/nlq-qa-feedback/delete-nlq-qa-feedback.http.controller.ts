@@ -27,33 +27,33 @@ export class DeleteNlqQaFeedbackController implements IController {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info(
-        "[CreateNlqQaFeedbackController] handling request",
+        "[DeleteNlqQaFeedbackController] handling request",
         httpRequest
       );
 
       //   ==== INPUT HEADERS ====
       //   1. Check headers
       const headers = httpRequest.header as Record<string, string>;
-      this.logger.info("[CreateNlqQaFeedbackController] Headers:", headers);
+      this.logger.info("[DeleteNlqQaFeedbackController] Headers:", headers);
       //   2. Check authorization
       const authHeader =
         headers["Authorization"] || headers["authorization"] || "";
       if (!authHeader.startsWith("Bearer ")) {
         this.logger.error(
-          "[CreateNlqQaFeedbackController] No token provided",
+          "[DeleteNlqQaFeedbackController] No token provided",
           httpRequest
         );
         const error = this.httpErrors.error_400("Error creating");
         return new HttpResponse(error.statusCode, error.body);
       }
       const token = authHeader.replace("Bearer ", "");
-      this.logger.info("[CreateNlqQaFeedbackController] Token:", token);
+      this.logger.info("[DeleteNlqQaFeedbackController] Token:", token);
 
       //   3. Decode token
       const decoded = await this.decodeTokenAdapter.decodeToken(token);
       if (!decoded) {
         this.logger.error(
-          "[CreateNlqQaFeedbackController] Invalid token",
+          "[DeleteNlqQaFeedbackController] Invalid token",
           httpRequest
         );
         const error = this.httpErrors.error_401("Invalid token");
@@ -64,7 +64,7 @@ export class DeleteNlqQaFeedbackController implements IController {
         decoded.uid
       );
       this.logger.info(
-        "[CreateNlqQaFeedbackController] User roles names:",
+        "[DeleteNlqQaFeedbackController] User roles names:",
         roleNames.roleNames
       );
       //   5. Check roles permissions
@@ -75,7 +75,7 @@ export class DeleteNlqQaFeedbackController implements IController {
 
       if (!hasAuth) {
         this.logger.error(
-          "[CreateNlqQaFeedbackController] User not authorized",
+          "[DeleteNlqQaFeedbackController] User not authorized",
           httpRequest
         );
         const error = this.httpErrors.error_401("User not authorized");

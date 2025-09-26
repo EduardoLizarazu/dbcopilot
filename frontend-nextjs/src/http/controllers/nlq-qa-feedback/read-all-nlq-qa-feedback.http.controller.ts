@@ -26,33 +26,33 @@ export class ReadAllNlqQaFeedbackController implements IController {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info(
-        "[CreateNlqQaFeedbackController] handling request",
+        "[ReadAllNlqQaFeedbackController] handling request",
         httpRequest
       );
 
       //   ==== INPUT HEADERS ====
       //   1. Check headers
       const headers = httpRequest.header as Record<string, string>;
-      this.logger.info("[CreateNlqQaFeedbackController] Headers:", headers);
+      this.logger.info("[ReadAllNlqQaFeedbackController] Headers:", headers);
       //   2. Check authorization
       const authHeader =
         headers["Authorization"] || headers["authorization"] || "";
       if (!authHeader.startsWith("Bearer ")) {
         this.logger.error(
-          "[CreateNlqQaFeedbackController] No token provided",
+          "[ReadAllNlqQaFeedbackController] No token provided",
           httpRequest
         );
         const error = this.httpErrors.error_400("Error creating");
         return new HttpResponse(error.statusCode, error.body);
       }
       const token = authHeader.replace("Bearer ", "");
-      this.logger.info("[CreateNlqQaFeedbackController] Token:", token);
+      this.logger.info("[ReadAllNlqQaFeedbackController] Token:", token);
 
       //   3. Decode token
       const decoded = await this.decodeTokenAdapter.decodeToken(token);
       if (!decoded) {
         this.logger.error(
-          "[CreateNlqQaFeedbackController] Invalid token",
+          "[ReadAllNlqQaFeedbackController] Invalid token",
           httpRequest
         );
         const error = this.httpErrors.error_401("Invalid token");
@@ -63,7 +63,7 @@ export class ReadAllNlqQaFeedbackController implements IController {
         decoded.uid
       );
       this.logger.info(
-        "[CreateNlqQaFeedbackController] User roles names:",
+        "[ReadAllNlqQaFeedbackController] User roles names:",
         roleNames.roleNames
       );
       //   5. Check roles permissions
@@ -74,7 +74,7 @@ export class ReadAllNlqQaFeedbackController implements IController {
 
       if (!hasAuth) {
         this.logger.error(
-          "[CreateNlqQaFeedbackController] User not authorized",
+          "[ReadAllNlqQaFeedbackController] User not authorized",
           httpRequest
         );
         const error = this.httpErrors.error_401("User not authorized");
@@ -84,11 +84,11 @@ export class ReadAllNlqQaFeedbackController implements IController {
 
       //   1. Check body
       this.logger.info(
-        "[CreateNlqQaFeedbackController] Body:",
+        "[ReadAllNlqQaFeedbackController] Body:",
         httpRequest.body
       );
       if (!httpRequest.body) {
-        this.logger.error("[CreateNlqQaFeedbackController] No body provided");
+        this.logger.error("[ReadAllNlqQaFeedbackController] No body provided");
         const error = this.httpErrors.error_400("No body provided");
         return new HttpResponse(error.statusCode, error.body);
       }
