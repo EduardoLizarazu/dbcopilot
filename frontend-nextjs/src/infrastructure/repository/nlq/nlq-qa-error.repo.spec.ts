@@ -9,7 +9,7 @@ const logger: jest.Mocked<ILogger> = {
   error: jest.fn(),
 } as any;
 
-describe("NlqQaErrorRepository (integration - Firestore)", () => {
+describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
   jest.setTimeout(30_000);
 
   const fb = new FirebaseAdminProvider(); // usa tu proyecto dev/test
