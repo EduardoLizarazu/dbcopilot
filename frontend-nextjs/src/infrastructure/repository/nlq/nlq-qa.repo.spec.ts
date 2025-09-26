@@ -9,22 +9,32 @@ const logger: jest.Mocked<ILogger> = {
   error: jest.fn(),
 } as any;
 
-describe.skip("NlqQaAppRepository (integration - Firestore)", () => {
+describe("NlqQaAppRepository (integration - Firestore)", () => {
   jest.setTimeout(30_000);
 
   const fb = new FirebaseAdminProvider(); // Usa tu proyecto de dev/test
   const repo = new NlqQaAppRepository(logger, fb);
 
+  const createdIds: string[] = []; // Array to track created document IDs
+
   const clean = async () => {
-    const snap = await fb.db.collection(fb.coll.NLQ_QA).get();
+    if (createdIds.length === 0) return; // No documents to delete
     const batch = fb.db.batch();
-    snap.forEach((d) => batch.delete(d.ref));
+    for (const id of createdIds) {
+      const docRef = fb.db.collection(fb.coll.NLQ_QA).doc(id);
+      batch.delete(docRef);
+    }
     await batch.commit();
+    createdIds.length = 0; // Clear the array after cleanup
   };
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    await clean();
+    await clean(); // Ensure no leftover data from previous tests
+  });
+
+  afterEach(async () => {
+    await clean(); // Cleanup after each test
   });
 
   it("create -> returns id; findById -> returns inserted document", async () => {
@@ -35,6 +45,7 @@ describe.skip("NlqQaAppRepository (integration - Firestore)", () => {
     });
 
     const id = await repo.create(createDto);
+    createdIds.push(id); // Track the created ID
     expect(id).toBeTruthy();
 
     const found = await repo.findById(id);
@@ -58,8 +69,9 @@ describe.skip("NlqQaAppRepository (integration - Firestore)", () => {
       query: "SELECT 2",
       knowledgeSourceUsedId: ["k2"],
     });
-    await repo.create(a);
-    await repo.create(b);
+    const id1 = await repo.create(a);
+    const id2 = await repo.create(b);
+    createdIds.push(id1, id2); // Track the created IDs
 
     const all = await repo.findAll();
     const names = all.map((d) => d.question).sort();
@@ -74,6 +86,8 @@ describe.skip("NlqQaAppRepository (integration - Firestore)", () => {
         knowledgeSourceUsedId: ["k1"],
       })
     );
+
+    createdIds.push(id); // Track the created ID
 
     await repo.update(
       id,
@@ -97,7 +111,7 @@ describe.skip("NlqQaAppRepository (integration - Firestore)", () => {
         knowledgeSourceUsedId: ["k1"],
       })
     );
-
+    createdIds.push(id); // Track the created ID
     await repo.softDeleteById(id);
 
     const found = await repo.findById(id);
@@ -113,6 +127,7 @@ describe.skip("NlqQaAppRepository (integration - Firestore)", () => {
         knowledgeSourceUsedId: ["k1"],
       })
     );
+    createdIds.push(id); // Track the created ID
 
     await repo.delete(id);
 
