@@ -31,30 +31,36 @@ export class CreateNlqQaFeedbackController implements IController {
   async handle(httpRequest: IHttpRequest<body>): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
-      this.logger.info("[CreateNlqQaController] handling request", httpRequest);
+      this.logger.info(
+        "[CreateNlqQaFeedbackController] handling request",
+        httpRequest
+      );
 
       //   ==== INPUT HEADERS ====
       //   1. Check headers
       const headers = httpRequest.header as Record<string, string>;
-      this.logger.info("[CreateNlqQaController] Headers:", headers);
+      this.logger.info("[CreateNlqQaFeedbackController] Headers:", headers);
       //   2. Check authorization
       const authHeader =
         headers["Authorization"] || headers["authorization"] || "";
       if (!authHeader.startsWith("Bearer ")) {
         this.logger.error(
-          "[CreateNlqQaController] No token provided",
+          "[CreateNlqQaFeedbackController] No token provided",
           httpRequest
         );
-        const error = this.httpErrors.error_400("Error creating NLQ QA");
+        const error = this.httpErrors.error_400("Error creating");
         return new HttpResponse(error.statusCode, error.body);
       }
       const token = authHeader.replace("Bearer ", "");
-      this.logger.info("[CreateNlqQaController] Token:", token);
+      this.logger.info("[CreateNlqQaFeedbackController] Token:", token);
 
       //   3. Decode token
       const decoded = await this.decodeTokenAdapter.decodeToken(token);
       if (!decoded) {
-        this.logger.error("[CreateNlqQaController] Invalid token", httpRequest);
+        this.logger.error(
+          "[CreateNlqQaFeedbackController] Invalid token",
+          httpRequest
+        );
         const error = this.httpErrors.error_401("Invalid token");
         return new HttpResponse(error.statusCode, error.body);
       }
@@ -63,7 +69,7 @@ export class CreateNlqQaFeedbackController implements IController {
         decoded.uid
       );
       this.logger.info(
-        "[CreateNlqQaController] User roles names:",
+        "[CreateNlqQaFeedbackController] User roles names:",
         roleNames.roleNames
       );
       //   5. Check roles permissions
@@ -74,9 +80,12 @@ export class CreateNlqQaFeedbackController implements IController {
       //   ==== INPUT BODY ====
 
       //   1. Check body
-      this.logger.info("[CreateNlqQaController] Body:", httpRequest.body);
+      this.logger.info(
+        "[CreateNlqQaFeedbackController] Body:",
+        httpRequest.body
+      );
       if (!httpRequest.body) {
-        this.logger.error("[CreateNlqQaController] No body provided");
+        this.logger.error("[CreateNlqQaFeedbackController] No body provided");
         const error = this.httpErrors.error_400("No body provided");
         return new HttpResponse(error.statusCode, error.body);
       }
@@ -92,7 +101,7 @@ export class CreateNlqQaFeedbackController implements IController {
       });
 
       if (!useCase.success) {
-        this.logger.error("[CreateNlqQaController] Error creating NLQ QA", {
+        this.logger.error("[CreateNlqQaFeedbackController] Error creating: ", {
           ...useCase,
         });
         const error = this.httpErrors.error_400(
@@ -103,12 +112,12 @@ export class CreateNlqQaFeedbackController implements IController {
 
       // ==== OUTPUT RESPONSE ====
       const success = this.httpSuccess.success_201({
-        message: "NLQ QA created successfully",
+        message: "NLQ QA Feedback created successfully",
         data: useCase.data,
       });
       return new HttpResponse(success.statusCode, success.body);
     } catch (error) {
-      this.logger.error("[CreateNlqQaController] Error:", error);
+      this.logger.error("[CreateNlqQaFeedbackController] Error:", error);
       const httpError = this.httpErrors.error_500("Internal server error");
       return new HttpResponse(httpError.statusCode, httpError.body);
     }

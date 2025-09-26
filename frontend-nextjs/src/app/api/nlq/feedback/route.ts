@@ -14,3 +14,14 @@ export async function POST(req: NextRequest) {
   });
 }
 
+export async function DELETE(req: NextRequest) {
+  console.log("API: NLQ Feedback DELETE request...", req);
+  const adapter = await nextAdapter(req, deleteNlqQaFeedbackComposer(), {
+    isTokenRequired: true,
+  });
+  console.log("API: NLQ Feedback DELETE response:", adapter);
+  return new Response(JSON.stringify(adapter.body), {
+    status: adapter.statusCode,
+    headers: { "Content-Type": "application/json" },
+  });
+}
