@@ -11,8 +11,8 @@ export class ReadNlqQaFeedbackByIdUseCase
   implements IReadNlqQaFeedbackByIdUseCase
 {
   constructor(
-    private readonly nlqQaFeedbackRepository: INlqQaFeedbackRepository,
-    private readonly logger: ILogger
+    private readonly logger: ILogger,
+    private readonly nlqQaFeedbackRepository: INlqQaFeedbackRepository
   ) {}
 
   async execute(
