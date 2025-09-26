@@ -15,7 +15,7 @@ export interface ICreateUserUseCase {
   execute(data: TCreateUserDto): Promise<TResponseDto<TUserOutputRequestDto>>;
 }
 
-export class CreateUserAppUseCase implements ICreateUserUseCase {
+export class CreateUserUseCase implements ICreateUserUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly userRepository: IUserRepository,

@@ -8,6 +8,7 @@ import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
 import { IUserRepository } from "../../interfaces/auth/user.app.inter";
 import { UserAppEnum } from "../../enums/user.app.enum";
 import { UserEntity } from "@/core/domain/entities/user.domain.entity";
+import { ILogger } from "../../interfaces/ilog.app.inter";
 
 export interface IUpdateUserUseCase {
   execute(
@@ -18,6 +19,7 @@ export interface IUpdateUserUseCase {
 
 export class UpdateUserUseCase implements IUpdateUserUseCase {
   constructor(
+    private readonly logger: ILogger,
     private userRepository: IUserRepository,
     private roleRepository: IRoleRepository
   ) {}
@@ -28,8 +30,13 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
   ): Promise<TResponseDto<TUserOutputRequestDto | null>> {
     try {
       // Validation
+      this.logger.info("Validating user data", user);
       const userValidation = userSchema.safeParse(user);
       if (!userValidation.success) {
+        this.logger.error(
+          "User validation failed",
+          userValidation.error.errors
+        );
         return {
           success: false,
           message: userValidation.error.errors
@@ -39,14 +46,17 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
         };
       }
 
-      if (!id)
+      if (!id) {
+        this.logger.error("User ID is required for update");
         return {
           success: false,
           message: UserAppEnum.userIdNotFound,
           data: null,
         };
+      }
       const existingUser = await this.userRepository.findById(id);
       if (!existingUser) {
+        this.logger.error("User not found", { userId: id });
         return {
           success: false,
           message: UserAppEnum.userNotFound,
@@ -58,6 +68,7 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
       for (const roleId of user.roles) {
         const role = await this.roleRepository.findById(roleId);
         if (!role) {
+          this.logger.error("Role not found", { roleId });
           return {
             success: false,
             message: `Role with ID ${roleId} not found`,
@@ -77,7 +88,9 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
       });
 
       const out = await this.userRepository.findById(id);
+      this.logger.info("User updated successfully", out);
       if (!out) {
+        this.logger.error("User not found", { userId: id });
         return {
           success: false,
           message: UserAppEnum.userNotFound,
@@ -91,7 +104,7 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
         data: out,
       };
     } catch (error) {
-      console.error(error);
+      this.logger.error("Error updating user", { error });
       return {
         success: false,
         message: error instanceof Error ? error.message : String(error),

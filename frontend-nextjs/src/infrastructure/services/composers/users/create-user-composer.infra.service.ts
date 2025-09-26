@@ -1,16 +1,15 @@
 // Import or instantiate your providers as needed
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { FirebaseClientProvider } from "@/infrastructure/providers/firebase/firebase-client";
-import { IUserRepository } from "@/core/application/interfaces/user.app.inter";
-import { ICreateUserAppUseCase } from "@/core/application/usecases/user/create-user.usecase";
-import { CreateUserAppUseCase } from "@/core/application/usecases/repositories/user/create-user.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
-import { UserInfraRepository } from "@/infrastructure/repository/user.repo";
 import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
-import { RoleInfraRepository } from "@/infrastructure/repository/role.repo";
 import { CreateUserController } from "@/http/controllers/user/create-user.http.controller";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
-import { FirebaseAuthService } from "../../auth.infra.service";
+import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
+import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
+import { UserRepository } from "@/infrastructure/repository/user.repo";
+import { RoleRepository } from "@/infrastructure/repository/role.repo";
+import { CreateUserUseCase } from "@/core/application/usecases/user/create-user.usecase";
 
 /**
  * Composer function for creating and configuring the components required for user creation.
@@ -24,20 +23,25 @@ export function createUserComposer(): IController {
   const firebaseClient = new FirebaseClientProvider();
   const logger = new WinstonLoggerProvider();
 
-  const userRepository: IUserRepository = new UserInfraRepository(
+  const userRepository = new UserRepository(
+    logger,
     firebaseAdmin,
     firebaseClient
   );
 
-  const roleRepository: IRoleRepository = new RoleInfraRepository(
-    firebaseClient,
-    logger
-  );
-  const useCase: ICreateUserAppUseCase = new CreateUserAppUseCase(
-    userRepository,
-    roleRepository
-  );
+  const roleRepository = new RoleRepository(firebaseAdmin, logger);
 
-  const controller: IController = new CreateUserController(useCase);
+  // Other repositories
+  const decodeTokenAdapter = new DecodeTokenAdapter(logger, firebaseAdmin);
+  const authRepository = new AuthorizationRepository(logger, firebaseAdmin);
+
+  const useCase = new CreateUserUseCase(logger, userRepository, roleRepository);
+
+  const controller: IController = new CreateUserController(
+    logger,
+    useCase,
+    decodeTokenAdapter,
+    authRepository
+  );
   return controller;
 }

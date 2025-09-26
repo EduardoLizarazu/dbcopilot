@@ -2,25 +2,23 @@
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { FirebaseClientProvider } from "@/infrastructure/providers/firebase/firebase-client";
 import { IController } from "@/http/controllers/IController.http.controller";
-import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
-import { CreateUserController } from "@/http/controllers/user/create-user.http.controller";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { UserRepository } from "@/infrastructure/repository/user.repo";
-import { RoleRepository } from "@/infrastructure/repository/role.repo";
-import { CreateUserUseCase } from "@/core/application/usecases/user/create-user.usecase";
-import { UpdateUserUseCase } from "@/core/application/usecases/user/update-user.app.usecase";
-import { UpdateUserController } from "@/http/controllers/user/update-user.http.controller";
+import { ReadAllUserController } from "@/http/controllers/user/read-all-user.http.controller";
+import { ReadAllUserUseCase } from "@/core/application/usecases/user/read-all-user.usecase";
+import { DeleteUserUseCase } from "@/core/application/usecases/user/delete-user.usecase";
+import { DeleteUserController } from "@/http/controllers/user/delete-user.http.controller";
 
 /**
  * Composer function for creating and configuring the components required for user creation.
  *
  * @function
- * @returns {IController} The configured user update controller.
+ * @returns {IController} The configured user creation controller.
  */
 
-export function updateUserComposer(): IController {
+export function deleteUserComposer(): IController {
   const firebaseAdmin = new FirebaseAdminProvider();
   const firebaseClient = new FirebaseClientProvider();
   const logger = new WinstonLoggerProvider();
@@ -31,15 +29,13 @@ export function updateUserComposer(): IController {
     firebaseClient
   );
 
-  const roleRepository = new RoleRepository(firebaseAdmin, logger);
-
   // Other repositories
   const decodeTokenAdapter = new DecodeTokenAdapter(logger, firebaseAdmin);
   const authRepository = new AuthorizationRepository(logger, firebaseAdmin);
 
-  const useCase = new UpdateUserUseCase(logger, userRepository, roleRepository);
+  const useCase = new DeleteUserUseCase(logger, userRepository);
 
-  const controller: IController = new UpdateUserController(
+  const controller: IController = new DeleteUserController(
     logger,
     useCase,
     decodeTokenAdapter,
