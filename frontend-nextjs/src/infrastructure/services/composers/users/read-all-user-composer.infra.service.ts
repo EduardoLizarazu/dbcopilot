@@ -1,6 +1,6 @@
 import { FirebaseClientProvider } from "@/infrastructure/providers/firebase/firebase-client";
 import { IController } from "@/http/controllers/IController.http.controller";
-import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo";
+import { UserInfraRepository } from "@/infrastructure/repository/user.repo";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { ReadAllUserController } from "@/http/controllers/user/read-all-user.http.controller";
 import { ReadAllUserUseCase } from "@/core/application/usecases/user/read-all-user.usecase";

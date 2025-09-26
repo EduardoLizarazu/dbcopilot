@@ -2,12 +2,12 @@ import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.int
 import { IController } from "@/http/controllers/IController.http.controller";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
-import { RoleInfraRepository } from "@/infrastructure/repository/role.infra.repo";
+import { RoleRepository } from "@/infrastructure/repository/role.repo";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 import { DeleteRoleUseCaseRepo } from "@/core/application/usecases/role/delete-role.usecase";
 import { DeleteRoleController } from "@/http/controllers/role/delete-role.http.controller";
-import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo";
+import { UserRepository } from "@/infrastructure/repository/user.repo";
 import { FirebaseClientProvider } from "@/infrastructure/providers/firebase/firebase-client";
 
 export function deleteRoleComposer(): IController {
@@ -17,11 +17,11 @@ export function deleteRoleComposer(): IController {
   const firebaseClientProvider = new FirebaseClientProvider();
 
   // Repositories
-  const roleRepository: IRoleRepository = new RoleInfraRepository(
+  const roleRepository: IRoleRepository = new RoleRepository(
     firebaseAdmin,
     loggerProvider
   );
-  const userRepo = new UserInfraRepository(
+  const userRepo = new UserRepository(
     loggerProvider,
     firebaseAdmin,
     firebaseClientProvider

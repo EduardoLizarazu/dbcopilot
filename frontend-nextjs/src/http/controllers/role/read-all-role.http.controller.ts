@@ -1,6 +1,5 @@
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { IController } from "../IController.http.controller";
-import { ICreateNlqQaFeedbackUseCase } from "@/core/application/usecases/nlq/nlq-qa-feedback/create-nlq-qa-feedbcak.usecase";
 import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
 import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";

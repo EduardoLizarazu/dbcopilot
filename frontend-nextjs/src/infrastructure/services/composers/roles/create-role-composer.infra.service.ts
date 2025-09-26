@@ -3,7 +3,7 @@ import { IController } from "@/http/controllers/IController.http.controller";
 import { CreateRoleController } from "@/http/controllers/role/create-role.http.controller";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
-import { RoleInfraRepository } from "@/infrastructure/repository/role.infra.repo";
+import { RoleRepository } from "@/infrastructure/repository/role.repo";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { CreateRoleUseCase } from "@/core/application/usecases/role/create-role.usecase";
 import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
@@ -14,7 +14,7 @@ export function createRoleComposer(): IController {
   const firebaseAdmin = new FirebaseAdminProvider();
 
   // Repositories
-  const roleRepository: IRoleRepository = new RoleInfraRepository(
+  const roleRepository: IRoleRepository = new RoleRepository(
     firebaseAdmin,
     loggerProvider
   );

@@ -1,13 +1,13 @@
 // src/infrastructure/repositories/role/role.infra.repository.spec.ts
-import { RoleInfraRepository } from "./role.infra.repo";
+import { RoleRepository } from "./role.repo";
 import { RoleBuilder } from "@/test/test-utils/builders/role.builder";
 import { FirebaseAdminProvider } from "../providers/firebase/firebase-admin";
 
-describe("RoleInfraRepository (unit, Firestore mocked)", () => {
+describe("RoleRepository (unit, Firestore mocked)", () => {
   const makeSut = () => {
     const fbAdminProvider = new FirebaseAdminProvider();
     const logger = { info: jest.fn(), error: jest.fn() } as any;
-    const sut = new RoleInfraRepository(fbAdminProvider, logger);
+    const sut = new RoleRepository(fbAdminProvider, logger);
     return { sut, fbAdminProvider, logger };
   };
 

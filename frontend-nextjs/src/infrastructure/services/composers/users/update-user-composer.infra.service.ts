@@ -6,8 +6,8 @@ import { IController } from "@/http/controllers/IController.http.controller";
 import { UpdateUserController } from "@/http/controllers/user/update-user.http.controller";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { FirebaseClientProvider } from "@/infrastructure/providers/firebase/firebase-client";
-import { RoleInfraRepository } from "@/infrastructure/repository/role.infra.repo";
-import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo";
+import { RoleInfraRepository } from "@/infrastructure/repository/role.repo";
+import { UserInfraRepository } from "@/infrastructure/repository/user.repo";
 
 export function updateUserComposer(): IController {
   const firebaseAdmin = new FirebaseAdminProvider();

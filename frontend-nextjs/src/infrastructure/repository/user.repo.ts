@@ -20,7 +20,7 @@ import {
 } from "@/core/application/dtos/user.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
-export class UserInfraRepository implements IUserRepository {
+export class UserRepository implements IUserRepository {
   constructor(
     private readonly logger: ILogger,
     private firebaseAdmin: FirebaseAdminProvider,
@@ -29,7 +29,7 @@ export class UserInfraRepository implements IUserRepository {
 
   async create(data: TCreateUserDto): Promise<string> {
     try {
-      this.logger.info("[UserInfraRepository] Creating user with data:", data);
+      this.logger.info("[UserRepository] Creating user with data:", data);
       // Create user auth in Firebase Auth
       const userRecord = await this.firebaseAdmin.auth.createUser({
         email: data.email,
@@ -37,7 +37,7 @@ export class UserInfraRepository implements IUserRepository {
       });
 
       this.logger.info(
-        "[UserInfraRepository] User auth created with UID:",
+        "[UserRepository] User auth created with UID:",
         userRecord.uid
       );
 
@@ -46,14 +46,14 @@ export class UserInfraRepository implements IUserRepository {
       const userRef = doc(userCollection, userRecord.uid);
       return userRecord.uid;
     } catch (error) {
-      this.logger.error("[UserInfraRepository] Error creating user:", error);
+      this.logger.error("[UserRepository] Error creating user:", error);
       throw new Error("Error creating user");
     }
   }
 
   async update(id: string, data: TUpdateUserDto): Promise<void> {
     try {
-      this.logger.info("[UserInfraRepository] Updating user:", data);
+      this.logger.info("[UserRepository] Updating user:", data);
       // Update user auth in Firebase Auth
       if (data.email || data.password) {
         const user = await this.findById(id);
@@ -80,17 +80,17 @@ export class UserInfraRepository implements IUserRepository {
         throw new Error("User not found after update");
       }
       this.logger.info(
-        "[UserInfraRepository] User updated successfully:",
+        "[UserRepository] User updated successfully:",
         updatedUser
       );
     } catch (error) {
-      this.logger.error("[UserInfraRepository] Error updating user:", error);
+      this.logger.error("[UserRepository] Error updating user:", error);
       throw new Error("Error updating user");
     }
   }
   async delete(id: string): Promise<void> {
     try {
-      this.logger.info("[UserInfraRepository] Deleting user with ID:", id);
+      this.logger.info("[UserRepository] Deleting user with ID:", id);
       // Delete user auth in Firebase Auth
       await this.firebaseAdmin.auth.deleteUser(id);
       // Delete user data in Firestore permanently
@@ -99,7 +99,7 @@ export class UserInfraRepository implements IUserRepository {
         .doc(id)
         .delete();
     } catch (error) {
-      this.logger.error("[UserInfraRepository] Error deleting user:", error);
+      this.logger.error("[UserRepository] Error deleting user:", error);
       throw new Error("Error deleting user");
     }
   }
@@ -112,19 +112,16 @@ export class UserInfraRepository implements IUserRepository {
       userSnapshot.forEach((doc) => {
         users.push({ id: doc.id, ...doc.data() } as TUserOutputRequestDto);
       });
-      this.logger.info("[UserInfraRepository] Found all users:", users);
+      this.logger.info("[UserRepository] Found all users:", users);
       return users;
     } catch (error) {
-      this.logger.error(
-        "[UserInfraRepository] Error finding all users:",
-        error
-      );
+      this.logger.error("[UserRepository] Error finding all users:", error);
       throw new Error("Error finding all users");
     }
   }
   async findById(id: string): Promise<TUserOutputRequestDto | null> {
     try {
-      this.logger.info("[UserInfraRepository] Finding user by ID:", id);
+      this.logger.info("[UserRepository] Finding user by ID:", id);
       const db = this.firebaseClient.getDb();
       const userDoc = await getDoc(
         doc(db, this.firebaseAdmin.coll.NLQ_USERS, id)
@@ -132,19 +129,16 @@ export class UserInfraRepository implements IUserRepository {
       if (!userDoc.exists()) {
         return null;
       }
-      this.logger.info("[UserInfraRepository] User found by ID:", userDoc.id);
+      this.logger.info("[UserRepository] User found by ID:", userDoc.id);
       return { id: userDoc.id, ...userDoc.data() } as TUserOutputRequestDto;
     } catch (error) {
-      this.logger.error(
-        "[UserInfraRepository] Error finding user by ID:",
-        error
-      );
+      this.logger.error("[UserRepository] Error finding user by ID:", error);
       return null;
     }
   }
   async findByEmail(email: string): Promise<TUserOutputRequestDto | null> {
     try {
-      this.logger.info("[UserInfraRepository] Finding user by email:", email);
+      this.logger.info("[UserRepository] Finding user by email:", email);
       const db = this.firebaseClient.getDb();
       const userQuery = query(
         collection(db, this.firebaseAdmin.coll.NLQ_USERS),
@@ -155,16 +149,10 @@ export class UserInfraRepository implements IUserRepository {
         return null;
       }
       const userDoc = userSnapshot.docs[0];
-      this.logger.info(
-        "[UserInfraRepository] User found by email:",
-        userDoc.id
-      );
+      this.logger.info("[UserRepository] User found by email:", userDoc.id);
       return { id: userDoc.id, ...userDoc.data() } as TUserOutputRequestDto;
     } catch (error) {
-      this.logger.error(
-        "[UserInfraRepository] Error finding user by email:",
-        error
-      );
+      this.logger.error("[UserRepository] Error finding user by email:", error);
       return null;
     }
   }

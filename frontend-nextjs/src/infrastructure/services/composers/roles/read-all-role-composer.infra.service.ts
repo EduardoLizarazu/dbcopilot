@@ -2,7 +2,7 @@ import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.int
 import { IController } from "@/http/controllers/IController.http.controller";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
-import { RoleInfraRepository } from "@/infrastructure/repository/role.infra.repo";
+import { RoleInfraRepository } from "@/infrastructure/repository/role.repo";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 import { ReadAllRoleUseCase } from "@/core/application/usecases/role/read-all-role.usecase";

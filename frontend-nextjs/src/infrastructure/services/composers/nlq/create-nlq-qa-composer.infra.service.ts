@@ -13,7 +13,7 @@ import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { NlqQaErrorRepository } from "@/infrastructure/repository/nlq/nlq-qa-error.repo";
 import { NlqQaAppRepository } from "@/infrastructure/repository/nlq/nlq-qa.repo";
-import { UserInfraRepository } from "@/infrastructure/repository/user.infra.repo";
+import { UserInfraRepository } from "@/infrastructure/repository/user.repo";
 
 export function createNlqQaComposer(): IController {
   // Providers

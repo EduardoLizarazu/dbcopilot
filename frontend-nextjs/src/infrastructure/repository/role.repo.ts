@@ -7,7 +7,7 @@ import {
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { FirebaseAdminProvider } from "../providers/firebase/firebase-admin";
 
-export class RoleInfraRepository implements IRoleRepository {
+export class RoleRepository implements IRoleRepository {
   constructor(
     private fbAdminProvider: FirebaseAdminProvider,
     private readonly logger: ILogger
