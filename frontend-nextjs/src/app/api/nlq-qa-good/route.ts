@@ -1,5 +1,5 @@
 import { nextAdapter } from "@/http/adapters/next-adapter.http";
-import { createNlqQaGoodComposer } from "@/infrastructure/services/composers/nlq/create-nlq-qa-good-composer.infra.service";
+import { createNlqQaGoodComposer } from "@/infrastructure/services/composers/nlq-qa-good/create-nlq-qa-good-composer.infra.service";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {

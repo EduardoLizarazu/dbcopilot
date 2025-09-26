@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { nextAdapter } from "@/http/adapters/next-adapter.http";
-import { deleteNlqQaFeedbackComposer } from "@/infrastructure/services/composers/nlq/delete-nlq-qa-feedback-composer.infra.service";
-import { UpdateNlqQaFeedbackComposer } from "@/infrastructure/services/composers/nlq/update-nlq-qa-feedback-composer.infra.service";
+import { deleteNlqQaFeedbackComposer } from "@/infrastructure/services/composers/nlq-qa-feedback/delete-nlq-qa-feedback-composer.infra.service";
+import { UpdateNlqQaFeedbackComposer } from "@/infrastructure/services/composers/nlq-qa-feedback/update-nlq-qa-feedback-composer.infra.service";
 
 export async function DELETE(req: NextRequest) {
   console.log("API: NLQ Feedback DELETE request...", req);

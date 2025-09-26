@@ -1,6 +1,6 @@
 import { nextAdapter } from "@/http/adapters/next-adapter.http";
-import { createNlqQaFeedbackComposer } from "@/infrastructure/services/composers/nlq/create-nlq-qa-feecbak-composer.infra.service";
-import { readAllNlqQaFeedbackComposer } from "@/infrastructure/services/composers/nlq/read-all-nlq-qa-feedback-composer.infra.service";
+import { createNlqQaFeedbackComposer } from "@/infrastructure/services/composers/nlq-qa-feedback/create-nlq-qa-feecbak-composer.infra.service";
+import { readAllNlqQaFeedbackComposer } from "@/infrastructure/services/composers/nlq-qa-feedback/read-all-nlq-qa-feedback-composer.infra.service";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
