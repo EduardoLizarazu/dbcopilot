@@ -6,14 +6,13 @@ import { IHttpErrors } from "@/http/helpers/IHttpErrors.http";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
-import { HttpRequest } from "@/http/helpers/HttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { IDeleteNlqQaFeedbackUseCase } from "@/core/application/usecases/nlq/nlq-qa-feedback/delete-nlq-qa-feedback.usecase";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
 import { ROLE } from "@/http/utils/role.enum";
 
-export class DeleteNlqQaFeedbackHttpController implements IController {
+export class DeleteNlqQaFeedbackController implements IController {
   constructor(
     private readonly logger: ILogger,
     private readonly deleteNlqQaFeedbackUseCase: IDeleteNlqQaFeedbackUseCase,

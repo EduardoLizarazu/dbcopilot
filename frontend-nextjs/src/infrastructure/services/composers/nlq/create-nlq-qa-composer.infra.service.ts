@@ -42,6 +42,7 @@ export function createNlqQaComposer(): IController {
     loggerProvider,
     firebaseAdmin
   );
+  // Other repositories
   const decodeTokenAdapter = new DecodeTokenAdapter(
     loggerProvider,
     firebaseAdmin
