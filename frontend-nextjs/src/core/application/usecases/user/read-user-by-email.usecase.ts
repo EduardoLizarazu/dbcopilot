@@ -4,11 +4,11 @@ import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IUserRepository } from "../../interfaces/auth/user.app.inter";
 import { UserAppEnum } from "../../enums/user.app.enum";
 
-export interface IReadByEmailUserAppUseCase {
+export interface IReadByEmailUserUseCase {
   execute(email: string): Promise<TResponseDto<TUserOutputRequestDto | null>>;
 }
 
-export class ReadByNameUserUseCase implements IReadByEmailUserAppUseCase {
+export class ReadByNameUserUseCase implements IReadByEmailUserUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly userRepository: IUserRepository

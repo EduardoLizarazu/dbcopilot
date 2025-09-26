@@ -3,11 +3,11 @@ import { TRoleOutRequestDto } from "../../dtos/role.app.dto";
 import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
 import { RoleAppEnum } from "../../enums/role.app.enum";
 
-export interface IReadAllRoleAppUseCase {
+export interface IReadAllRoleUseCase {
   execute(): Promise<TResponseDto<TRoleOutRequestDto[]>>;
 }
 
-export class ReadAllRoleUseCase implements IReadAllRoleAppUseCase {
+export class ReadAllRoleUseCase implements IReadAllRoleUseCase {
   constructor(private roleRepository: IRoleRepository) {}
 
   async execute(): Promise<TResponseDto<TRoleOutRequestDto[]>> {

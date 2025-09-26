@@ -4,11 +4,11 @@ import { RoleAppEnum } from "../../enums/role.app.enum";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IUserRepository } from "../../interfaces/auth/user.app.inter";
 
-export interface IDeleteRoleAppUseCase {
+export interface IDeleteRoleUseCase {
   execute(id: string): Promise<TResponseDto<null>>;
 }
 
-export class DeleteRoleUseCaseRepo implements IDeleteRoleAppUseCase {
+export class DeleteRoleUseCaseRepo implements IDeleteRoleUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly roleRepository: IRoleRepository,

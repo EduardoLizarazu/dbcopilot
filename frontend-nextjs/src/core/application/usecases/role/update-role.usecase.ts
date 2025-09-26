@@ -9,14 +9,14 @@ import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
 import { RoleAppEnum } from "../../enums/role.app.enum";
 import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
 
-export interface IUpdateRoleAppUseCase {
+export interface IUpdateRoleUseCase {
   execute(
     id: string,
     data: TUpdateRoleDto
   ): Promise<TResponseDto<TRoleOutRequestDto>>;
 }
 
-export class UpdateRoleUseCaseRepo implements IUpdateRoleAppUseCase {
+export class UpdateRoleUseCaseRepo implements IUpdateRoleUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly roleRepository: IRoleRepository

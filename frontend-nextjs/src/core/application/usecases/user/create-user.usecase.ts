@@ -11,11 +11,11 @@ import { UserAppEnum } from "../../enums/user.app.enum";
 import { RoleAppEnum } from "../../enums/role.app.enum";
 import { UserEntity } from "@/core/domain/entities/user.domain.entity";
 
-export interface ICreateUserAppUseCase {
+export interface ICreateUserUseCase {
   execute(data: TCreateUserDto): Promise<TResponseDto<TUserOutputRequestDto>>;
 }
 
-export class CreateUserAppUseCase implements ICreateUserAppUseCase {
+export class CreateUserAppUseCase implements ICreateUserUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly userRepository: IUserRepository,

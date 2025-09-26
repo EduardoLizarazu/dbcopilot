@@ -1,13 +1,14 @@
 import { IRoleRepository } from "@/core/application/interfaces/auth/role.app.inter";
 import { IController } from "@/http/controllers/IController.http.controller";
-import { CreateRoleController } from "@/http/controllers/role/create-role.http.controller";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 import { RoleInfraRepository } from "@/infrastructure/repository/role.infra.repo";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
-import { CreateRoleUseCase } from "@/core/application/usecases/role/create-role.usecase";
+import { UpdateRoleUseCaseRepo } from "@/core/application/usecases/role/update-role.usecase";
+import { UpdateRoleController } from "@/http/controllers/role/update-role.http.controller";
+import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 
-export function createRoleComposer(): IController {
+export function updateRoleComposer(): IController {
   // Providers
   const loggerProvider = new WinstonLoggerProvider();
   const firebaseAdmin = new FirebaseAdminProvider();
@@ -17,6 +18,12 @@ export function createRoleComposer(): IController {
     firebaseAdmin,
     loggerProvider
   );
+
+  // Other repositories
+  const decodeTokenAdapter = new DecodeTokenAdapter(
+    loggerProvider,
+    firebaseAdmin
+  );
   const authRepository = new AuthorizationRepository(
     loggerProvider,
     firebaseAdmin
@@ -24,12 +31,13 @@ export function createRoleComposer(): IController {
 
   // Use cases
 
-  const useCase = new CreateRoleUseCase(roleRepository, loggerProvider);
+  const useCase = new UpdateRoleUseCaseRepo(loggerProvider, roleRepository);
 
-  const controller: IController = new CreateRoleController(
+  const controller: IController = new UpdateRoleController(
+    loggerProvider,
     useCase,
-    authRepository,
-    loggerProvider
+    decodeTokenAdapter,
+    authRepository
   );
   return controller;
 }

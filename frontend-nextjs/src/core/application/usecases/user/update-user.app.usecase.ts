@@ -9,14 +9,14 @@ import { IUserRepository } from "../../interfaces/auth/user.app.inter";
 import { UserAppEnum } from "../../enums/user.app.enum";
 import { UserEntity } from "@/core/domain/entities/user.domain.entity";
 
-export interface IUpdateUserAppUseCase {
+export interface IUpdateUserUseCase {
   execute(
     id: string,
     data: TUpdateUserDto
   ): Promise<TResponseDto<TUserOutputRequestDto | null>>;
 }
 
-export class UpdateUserUseCase implements IUpdateUserAppUseCase {
+export class UpdateUserUseCase implements IUpdateUserUseCase {
   constructor(
     private userRepository: IUserRepository,
     private roleRepository: IRoleRepository

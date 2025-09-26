@@ -9,11 +9,11 @@ import { ILogger } from "../../interfaces/ilog.app.inter";
 import { RoleEntity } from "@/core/domain/entities/role.domain.entity";
 import { RoleAppEnum } from "../../enums/role.app.enum";
 
-export interface ICreateRoleAppUseCase {
+export interface ICreateRoleUseCase {
   execute(data: TCreateRoleDto): Promise<TResponseDto<TRoleOutRequestDto>>;
 }
 
-export class CreateRoleUseCase implements ICreateRoleAppUseCase {
+export class CreateRoleUseCase implements ICreateRoleUseCase {
   constructor(
     private roleRepository: IRoleRepository,
     private logger: ILogger

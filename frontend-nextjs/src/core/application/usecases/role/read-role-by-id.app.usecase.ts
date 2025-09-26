@@ -4,11 +4,11 @@ import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
 import { RoleAppEnum } from "../../enums/role.app.enum";
 
-export interface IReadByIdRoleAppUseCase {
+export interface IReadByIdRoleUseCase {
   execute(id: string): Promise<TResponseDto<TRoleOutRequestDto>>;
 }
 
-export class ReadRoleByIdUseCase implements IReadByIdRoleAppUseCase {
+export class ReadRoleByIdUseCase implements IReadByIdRoleUseCase {
   constructor(
     private readonly roleRepository: IRoleRepository,
     private readonly logger: ILogger
