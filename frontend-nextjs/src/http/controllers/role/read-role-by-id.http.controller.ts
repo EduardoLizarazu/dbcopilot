@@ -12,7 +12,7 @@ import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { ROLE } from "@/http/utils/role.enum";
 import { IReadByIdRoleUseCase } from "@/core/application/usecases/role/read-role-by-id.app.usecase";
 
-export class ReadByIdRoleController implements IController {
+export class ReadRoleByIdController implements IController {
   constructor(
     private readonly logger: ILogger,
     private readonly readByIdRoleUseCase: IReadByIdRoleUseCase,

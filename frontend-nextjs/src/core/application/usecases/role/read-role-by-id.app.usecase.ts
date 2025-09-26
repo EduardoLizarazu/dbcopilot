@@ -10,8 +10,8 @@ export interface IReadByIdRoleUseCase {
 
 export class ReadRoleByIdUseCase implements IReadByIdRoleUseCase {
   constructor(
-    private readonly roleRepository: IRoleRepository,
-    private readonly logger: ILogger
+    private readonly logger: ILogger,
+    private readonly roleRepository: IRoleRepository
   ) {}
 
   async execute(id: string): Promise<TResponseDto<TRoleOutRequestDto>> {
