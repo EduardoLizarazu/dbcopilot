@@ -17,7 +17,7 @@ export interface ICreateNlqQaGoodUseCase {
   ): Promise<TResponseDto<TNlqQaGoodOutRequestDto>>;
 }
 
-export class CreateNlqQaGoodUseCasePayload implements ICreateNlqQaGoodUseCase {
+export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly nlqQaGoodRepository: INlqQaGoodRepository,

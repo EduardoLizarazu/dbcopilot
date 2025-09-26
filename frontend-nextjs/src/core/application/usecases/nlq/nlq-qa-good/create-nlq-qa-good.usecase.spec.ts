@@ -1,4 +1,4 @@
-import { CreateNlqQaGoodUseCasePayload } from "./create-nlq-qa-good.usecase";
+import { CreateNlqQaGoodUseCase } from "./create-nlq-qa-good.usecase";
 import { ILogger } from "../../../interfaces/ilog.app.inter";
 import { INlqQaGoodRepository } from "../../../interfaces/nlq/nlq-qa-good.app.inter";
 import { INlqQaTopologyGenerationPort } from "../../../ports/nlq-qa-topology-generation.port";
@@ -6,7 +6,7 @@ import { INlqQaKnowledgePort } from "../../../ports/nlq-qa-knowledge.app.inter";
 import { NlqQaGoodBuilder } from "@/test/test-utils/builders/nlq-qa-good.builder";
 
 describe("CreateNlqQaGoodUseCase", () => {
-  let useCase: CreateNlqQaGoodUseCasePayload;
+  let useCase: CreateNlqQaGoodUseCase;
   let mockLogger: jest.Mocked<ILogger>;
   let mockRepository: jest.Mocked<INlqQaGoodRepository>;
   let mockTopologyGenPort: jest.Mocked<INlqQaTopologyGenerationPort>;
@@ -36,7 +36,7 @@ describe("CreateNlqQaGoodUseCase", () => {
       create: jest.fn(),
     } as any;
 
-    useCase = new CreateNlqQaGoodUseCasePayload(
+    useCase = new CreateNlqQaGoodUseCase(
       mockLogger,
       mockRepository,
       mockTopologyGenPort,
