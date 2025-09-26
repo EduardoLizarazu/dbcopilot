@@ -47,6 +47,12 @@ export async function nextAdapter(
   });
   console.log("[next adapter] Parsed headers:", headers);
 
+  // Extract the `id` from the path (e.g., `/api/nlq/feedback/:id`)
+  const path = request.nextUrl.pathname;
+  const pathSegments = path.split("/").filter(Boolean); // Split and remove empty segments
+  const id = pathSegments[pathSegments.length - 1]; // Assuming `id` is the last segment
+  console.log("[next adapter] Extracted id:", id);
+
   // Optional decode
   const decodeToken = new DecodeTokenAdapter(
     new WinstonLoggerProvider(),
@@ -72,6 +78,7 @@ export async function nextAdapter(
     path: request.nextUrl.pathname,
     query: request.nextUrl.searchParams,
     auth: auth?.uid ? { uid: auth.uid } : null,
+    // params: id ? { id } : {},
   });
   console.log("next adapter: Created HttpRequest:", httpRequest);
 
