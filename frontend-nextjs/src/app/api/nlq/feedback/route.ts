@@ -1,5 +1,6 @@
 import { nextAdapter } from "@/http/adapters/next-adapter.http";
 import { createNlqQaFeedbackComposer } from "@/infrastructure/services/composers/nlq/create-nlq-qa-feecbak-composer.infra.service";
+import { readAllNlqQaFeedbackComposer } from "@/infrastructure/services/composers/nlq/read-all-nlq-qa-feedback-composer.infra.service";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -8,6 +9,18 @@ export async function POST(req: NextRequest) {
     isTokenRequired: true,
   });
   console.log("API: NLQ Feedback response:", adapter);
+  return new Response(JSON.stringify(adapter.body), {
+    status: adapter.statusCode,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+export async function GET(req: NextRequest) {
+  console.log("API: NLQ Feedback GET request...", req);
+  const adapter = await nextAdapter(req, readAllNlqQaFeedbackComposer(), {
+    isTokenRequired: true,
+  });
+  console.log("API: NLQ Feedback GET response:", adapter);
   return new Response(JSON.stringify(adapter.body), {
     status: adapter.statusCode,
     headers: { "Content-Type": "application/json" },
