@@ -48,18 +48,21 @@ export class DeleteNlqQaFeedbackUseCase implements IDeleteNlqQaFeedbackUseCase {
 
       // 4. Update related NLQ QA with feedbackId = ""
       // 4.1 Find all NLQ QAs
-      const nlqQas = await this.nlqQaRepo.findAll();
-
-      // 4.2 Filter NLQ QAs that have this feedback ID
-      const relatedNlqQas = nlqQas.filter((qa) => qa.feedbackId === id);
-      this.logger.info(
-        `[DeleteNlqQaFeedbackUseCase] Found ${relatedNlqQas.length} related NLQ QAs to update`
-      );
-
-      // 4.3 Update each related NLQ QA to remove feedbackId
-      for (const qa of relatedNlqQas) {
-        await this.nlqQaRepo.update(qa.id, { feedbackId: "" });
+      const nlqQa = await this.nlqQaRepo.findById(feedback.nlqQaId);
+      if (!nlqQa) {
+        this.logger.warn(
+          `[DeleteNlqQaFeedbackUseCase] Related NLQ QA not found with ID: ${feedback.nlqQaId}`
+        );
+        return {
+          message: "NLQ QA feedback deleted, but related NLQ QA not found",
+          success: true,
+          data: null,
+        };
       }
+
+      // 4.2 If found, update feedbackId to ""
+
+      await this.nlqQaRepo.update(nlqQa.id, { feedbackId: "" });
 
       return {
         message: "NLQ QA feedback deleted successfully",
