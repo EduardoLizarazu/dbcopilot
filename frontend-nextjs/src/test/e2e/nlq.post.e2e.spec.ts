@@ -78,42 +78,6 @@ jest.mock("@/infrastructure/adapters/nlq-qa-generation.adapter", () => ({
   })),
 }));
 
-// 4) Repo de persistencia (Firestore) – puedes elegir:
-//    a) Usar Firestore real (dev/test) -> NO mockear este repo
-//    b) Mockear para que sea 100% determinista y no requiera red
-//    Aquí lo mockeamos para E2E estable:
-jest.mock("@/infrastructure/repository/nlq/nlq-qa.repo", () => ({
-  NlqQaAppRepository: jest.fn().mockImplementation(() => {
-    let lastId = "nlq-1";
-    const stored = {
-      id: lastId,
-      question: "How many orders last month?",
-      query: "SELECT * FROM ORDERS",
-      isGood: true,
-      timeQuestion: new Date(),
-      timeQuery: new Date(),
-      knowledgeSourceUsedId: [],
-      userDeleted: false,
-      feedbackId: "",
-      createdBy: "test-user-1",
-      updatedBy: "test-user-1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    return {
-      create: jest.fn().mockResolvedValue(lastId),
-      findById: jest.fn().mockResolvedValue(stored),
-      update: jest.fn(),
-      delete: jest.fn(),
-      findAll: jest.fn().mockResolvedValue([stored]),
-      softDeleteById: jest.fn(),
-    };
-  }),
-}));
-
-// 5) Si tu composer (createNlqQaComposer) construye con los módulos anteriores,
-//    no es necesario mockear el composer. Si tu path es distinto, ajusta el import de la ruta debajo.
-
 // 🔹 Importa la route real (después de mocks)
 import { POST as NLQ_POST } from "@/app/api/nlq/route";
 
