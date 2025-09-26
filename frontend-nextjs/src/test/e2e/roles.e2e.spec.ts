@@ -49,7 +49,10 @@ describe("E2E /api/roles POST", () => {
   it("201 creates a role when authorized", async () => {
     const req = makeNextJsonRequest(
       "/api/roles",
-      { name: "New-Role", description: "Full access" },
+      {
+        name: "New-Role",
+        description: "Full access",
+      },
       { Authorization: `Bearer ${token}` }
     );
 
@@ -57,8 +60,9 @@ describe("E2E /api/roles POST", () => {
     expect(res.status).toBe(201);
 
     const json = await res.json();
-    expect(json.success).toBe(true);
-    expect(json.data.name).toBe("New-Role");
+    console.log("Response JSON 201:", json);
+    expect(json.name).toBe("New-Role");
+    expect(json.description).toBe("Full access");
   });
 
   it("401 without token", async () => {

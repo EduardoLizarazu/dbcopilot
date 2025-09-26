@@ -90,7 +90,13 @@ export class CreateRoleController implements IController {
 
       this.logger.info("CreateRoleController: Validated body:", body);
 
-      const response = await this.createRoleUseCase.execute(body);
+      const response = await this.createRoleUseCase.execute({
+        ...body,
+        createdBy: httpRequest.auth.uid,
+        updatedBy: httpRequest.auth.uid,
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      });
 
       if (!response.success) {
         this.logger.error(
