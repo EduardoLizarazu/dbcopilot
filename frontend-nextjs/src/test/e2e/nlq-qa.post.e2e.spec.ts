@@ -23,8 +23,27 @@ jest.mock("@/infrastructure/adapters/decode-token.adapter", () => ({
 //    Si tu composer usa estos módulos, los dejamos “buenos” para el happy path:
 jest.mock("@/infrastructure/adapters/nlq-qa-knowledge.adapter", () => ({
   NlqQaKnowledgeAdapter: jest.fn().mockImplementation(() => ({
-    // similar questions vacías
-    findByQuestion: jest.fn().mockResolvedValue([]),
+    // Mocked similar questions with the specified data structure
+    findByQuestion: jest.fn().mockResolvedValue([
+      {
+        id: "mock-id-1",
+        nlqQaGoodId: "mock-good-id-1",
+        question: "Mock question 1",
+        query: "SELECT * FROM MOCK_TABLE_1",
+        tablesColumns: ["MOCK_TABLE_1.MOCK_COLUMN_1"],
+        values: [0.1, 0.2, 0.3],
+        score: 0.95,
+      },
+      {
+        id: "mock-id-2",
+        nlqQaGoodId: "mock-good-id-2",
+        question: "Mock question 2",
+        query: "SELECT * FROM MOCK_TABLE_2",
+        tablesColumns: ["MOCK_TABLE_2.MOCK_COLUMN_2"],
+        values: [0.4, 0.5, 0.6],
+        score: 0.85,
+      },
+    ]),
   })),
 }));
 
