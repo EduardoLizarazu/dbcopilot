@@ -77,6 +77,15 @@ export class CreateNlqQaFeedbackController implements IController {
         ctxRoleNames: roleNames.roleNames,
         requiredRoleNames: [ROLE.ANALYST, ROLE.ADMIN],
       });
+
+      if (!hasAuth) {
+        this.logger.error(
+          "[CreateNlqQaFeedbackController] User not authorized",
+          httpRequest
+        );
+        const error = this.httpErrors.error_401("User not authorized");
+        return new HttpResponse(error.statusCode, error.body);
+      }
       //   ==== INPUT BODY ====
 
       //   1. Check body
