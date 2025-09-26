@@ -75,6 +75,20 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
         data.knowledgeSourceId = ""; // Clear knowledgeSourceId
       }
 
+      // ==== UPDATE KNOWLEDGE BASED ON isOnKnowledgeSource ====
+      if (data.isOnKnowledgeSource) {
+        // If isOnKnowledgeSource is true, ensure it's in the knowledge base
+        await this.knowledgePort.delete(id); // Remove existing entry if any
+        await this.knowledgePort.create({
+          question: data.question,
+          query: data.query,
+          nlqQaGoodId: id,
+          id: id,
+          tablesColumns: data.tablesColumns,
+        });
+        data.isOnKnowledgeSource = true; // Ensure it's true
+      }
+
       // 2. Update NLQ QA Good
       data.isDelete = false; // Ensure isDelete remains false on update
       await this.nlqQaGoodRepository.update(id, data);
