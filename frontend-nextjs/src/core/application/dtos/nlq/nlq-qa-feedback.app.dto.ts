@@ -3,7 +3,7 @@ import { z } from "zod";
 export const nlqQaFeedbackSchema = z.object({
   id: z.string(),
   nlqQaId: z.string(),
-  isGood: z.boolean().default(true),
+  isGood: z.boolean(),
   comment: z.string().max(8000),
   createdBy: z.string(),
   updatedBy: z.string(),
