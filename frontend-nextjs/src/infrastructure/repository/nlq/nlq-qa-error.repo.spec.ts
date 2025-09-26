@@ -9,23 +9,32 @@ const logger: jest.Mocked<ILogger> = {
   error: jest.fn(),
 } as any;
 
-describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
+describe("NlqQaErrorRepository (integration - Firestore)", () => {
   jest.setTimeout(30_000);
 
   const fb = new FirebaseAdminProvider(); // usa tu proyecto dev/test
   const repo = new NlqQaErrorRepository(logger, fb);
 
+  const createdIds: string[] = []; // Array to track created document IDs
+
   const clean = async () => {
-    const snap = await fb.db.collection(fb.coll.NLQ_ERRORS).get();
-    if (snap.empty) return;
+    if (createdIds.length === 0) return; // No documents to delete
     const batch = fb.db.batch();
-    snap.forEach((d) => batch.delete(d.ref));
+    for (const id of createdIds) {
+      const docRef = fb.db.collection(fb.coll.NLQ_ERRORS).doc(id);
+      batch.delete(docRef);
+    }
     await batch.commit();
+    createdIds.length = 0; // Clear the array after cleanup
   };
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    await clean();
+    await clean(); // Ensure no leftover data from previous tests
+  });
+
+  afterEach(async () => {
+    await clean(); // Cleanup after each test
   });
 
   it("create -> returns id; findById -> returns inserted doc", async () => {
@@ -37,6 +46,7 @@ describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
     });
 
     const id = await repo.create(dto);
+    createdIds.push(id); // Track the created ID
     expect(id).toBeTruthy();
 
     const found = await repo.findById(id);
@@ -49,7 +59,7 @@ describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
   });
 
   it("findAll -> returns all errors", async () => {
-    await repo.create(
+    const id1 = await repo.create(
       NlqQaErrorBuilder.makeCreateDto({
         question: "Q1",
         query: "SELECT 1",
@@ -57,7 +67,7 @@ describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
         createdBy: "u1",
       })
     );
-    await repo.create(
+    const id2 = await repo.create(
       NlqQaErrorBuilder.makeCreateDto({
         question: "Q2",
         query: "SELECT 2",
@@ -66,9 +76,13 @@ describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
       })
     );
 
+    createdIds.push(id1); // Track the created ID
+    createdIds.push(id2); // Track the created ID
+
     const all = await repo.findAll();
     const qs = all.map((e) => e.question).sort();
-    expect(qs).toEqual(["Q1", "Q2"]);
+    expect(qs).toContain("Q1");
+    expect(qs).toContain("Q2");
   });
 
   it("update -> persists changes", async () => {
@@ -80,6 +94,8 @@ describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
         createdBy: "u1",
       })
     );
+
+    createdIds.push(id); // Track the created ID
 
     await repo.update(
       id,
@@ -102,13 +118,15 @@ describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
       })
     );
 
+    createdIds.push(id); // Track the created ID
+
     await repo.delete(id);
     const found = await repo.findById(id);
     expect(found).toBeNull();
   });
 
   it("findByUserId -> returns only user’s errors", async () => {
-    await repo.create(
+    const id1 = await repo.create(
       NlqQaErrorBuilder.makeCreateDto({
         question: "U1 err",
         query: "SELECT a",
@@ -116,7 +134,7 @@ describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
         createdBy: "u1",
       })
     );
-    await repo.create(
+    const id2 = await repo.create(
       NlqQaErrorBuilder.makeCreateDto({
         question: "U2 err",
         query: "SELECT b",
@@ -124,7 +142,7 @@ describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
         createdBy: "u2",
       })
     );
-    await repo.create(
+    const id3 = await repo.create(
       NlqQaErrorBuilder.makeCreateDto({
         question: "U1 err 2",
         query: "SELECT c",
@@ -132,6 +150,10 @@ describe.skip("NlqQaErrorRepository (integration - Firestore)", () => {
         createdBy: "u1",
       })
     );
+
+    createdIds.push(id1);
+    createdIds.push(id2);
+    createdIds.push(id3);
 
     const onlyU1 = await repo.findByUserId("u1");
     const qs = onlyU1.map((e) => e.question).sort();
