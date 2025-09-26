@@ -9,8 +9,8 @@ export interface IReadNlqQaByIdUseCase {
 
 export class ReadNlqQaByIdUseCase implements IReadNlqQaByIdUseCase {
   constructor(
-    private nlqQaRepository: INlqQaRepository,
-    private logger: ILogger
+    private logger: ILogger,
+    private nlqQaRepository: INlqQaRepository
   ) {}
 
   async execute(id: string): Promise<TResponseDto<TNlqQaOutRequestDto>> {
