@@ -34,10 +34,10 @@ export function createRoleComposer(): IController {
   const useCase = new CreateRoleUseCase(roleRepository, loggerProvider);
 
   const controller: IController = new CreateRoleController(
+    loggerProvider,
     useCase,
     decodeTokenAdapter,
-    authRepository,
-    loggerProvider
+    authRepository
   );
   return controller;
 }
