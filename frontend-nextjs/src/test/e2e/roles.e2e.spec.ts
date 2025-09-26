@@ -1,15 +1,27 @@
+// Antes de importar tu route/composer:
+jest.mock("@/infrastructure/repository/auth.repo", () => {
+  return {
+    AuthorizationRepository: jest.fn().mockImplementation(() => ({
+      findRolesNamesByUserId: jest
+        .fn()
+        .mockResolvedValue({ roleNames: ["ADMIN"] }),
+      hasRoles: jest.fn().mockResolvedValue({ hasAuth: true }),
+    })),
+  };
+});
+
+// Mockea también el decoder:
+jest.mock("@/infrastructure/adapters/decode-token.adapter", () => ({
+  DecodeTokenAdapter: jest.fn().mockImplementation(() => ({
+    decodeToken: jest.fn().mockResolvedValue({ uid: "test-user-1" }),
+  })),
+}));
+
 // tests-e2e/roles.route.e2e.spec.ts
 import { NextRequest } from "next/server";
 import { POST as RolesPOST } from "@/app/api/roles/route"; // <-- your route file
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { token } from "../test-utils/constants";
-
-// // 1) Mock the class that the adapter `new`'s inside
-// jest.mock("@/infrastructure/auth/decode-token.adapter", () => ({
-//   DecodeTokenAdapter: jest.fn().mockImplementation(() => ({
-//     decodeToken: jest.fn().mockResolvedValue({ uid: "test-user-1" }),
-//   })),
-// }));
 
 // helper to build a NextRequest with JSON body
 const makeNextJsonRequest = (
