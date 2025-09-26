@@ -13,7 +13,6 @@ import { IController } from "../controllers/IController.http.controller";
 import { HttpRequest } from "../helpers/HttpRequest.http";
 import { IHttpResponse } from "../helpers/IHttResponse.http";
 import { IHttpRequest } from "../helpers/IHttpRequest.http";
-import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
 import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
