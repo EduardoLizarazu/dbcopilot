@@ -3,7 +3,6 @@ import {
   TCreateNlqQaFeedbackDto,
   TNlqQaFeedbackOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
-import { TRequesterDto } from "@/core/application/dtos/utils/requester.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { INlqQaFeedbackRepository } from "../../../interfaces/nlq/nlq-qa-feedback.app.inter";
 import { ILogger } from "../../../interfaces/ilog.app.inter";
