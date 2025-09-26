@@ -15,10 +15,10 @@ import { ICreateRoleUseCase } from "@/core/application/usecases/role/create-role
 
 export class CreateRoleController implements IController {
   constructor(
+    private readonly logger: ILogger,
     private readonly createRoleUseCase: ICreateRoleUseCase,
     private readonly decodeTokenAdapter: IDecodeTokenPort,
     private readonly accessRepo: IAuthorizationRepository,
-    private readonly logger: ILogger,
     private httpErrors: IHttpErrors = new HttpErrors(),
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
@@ -71,7 +71,7 @@ export class CreateRoleController implements IController {
       //   5. Check roles permissions
       const { hasAuth } = await this.accessRepo.hasRoles({
         ctxRoleNames: roleNames.roleNames,
-        requiredRoleNames: [ROLE.ANALYST, ROLE.ADMIN],
+        requiredRoleNames: [ROLE.ADMIN],
       });
 
       if (!hasAuth) {
