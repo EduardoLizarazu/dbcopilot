@@ -1,6 +1,6 @@
-import { CreateNlqQaGoodUseCase } from "@/core/application/usecases/nlq/nlq-qa-good/create-nlq-qa-good.usecase";
+import { UpdateNlqQaGoodUseCase } from "@/core/application/usecases/nlq/nlq-qa-good/update-nlq-qa-good.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
-import { CreateNlqQaGoodController } from "@/http/controllers/nlq-qa-good/create-nlq-qa-good.http.controller";
+import { UpdateNlqQaGoodController } from "@/http/controllers/nlq-qa-good/update-nlq-qa-good.http.controller";
 import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 import { NlqQaKnowledgeAdapter } from "@/infrastructure/adapters/nlq-qa-knowledge.adapter";
 import { NlqQaTopologyGenerationAdapter } from "@/infrastructure/adapters/nlq-qa-topology-generation";
@@ -11,7 +11,7 @@ import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { NlqQaGoodRepository } from "@/infrastructure/repository/nlq/nlq-qa-good.repo";
 
-export function createNlqQaGoodComposer(): IController {
+export function updateNlqQaGoodComposer(): IController {
   // PROVIDERS
   const loggerProvider = new WinstonLoggerProvider();
   const firebaseAdmin = new FirebaseAdminProvider();
@@ -39,21 +39,15 @@ export function createNlqQaGoodComposer(): IController {
     openAiProvider
   );
 
-  const nlqQaTopologyAdapter = new NlqQaTopologyGenerationAdapter(
-    loggerProvider,
-    openAiProvider
-  );
-
   // USE CASES
-  const useCase = new CreateNlqQaGoodUseCase(
+  const useCase = new UpdateNlqQaGoodUseCase(
     loggerProvider,
     nlqQaGoodRepo,
-    nlqQaTopologyAdapter,
     nlqQaKnowledgeAdapter
   );
 
   // CONTROLLER
-  const controller = new CreateNlqQaGoodController(
+  const controller = new UpdateNlqQaGoodController(
     loggerProvider,
     useCase,
     decodeTokenAdapter,
