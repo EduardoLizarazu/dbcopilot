@@ -117,7 +117,7 @@ export class ReadRoleByIdController implements IController {
 
       // ==== OUTPUT RESPONSE ====
       const success = this.httpSuccess.success_200({
-        message: "Role retrieved successfully",
+        message: useCase.message,
         data: useCase.data,
       });
       return new HttpResponse(success.statusCode, success.body);

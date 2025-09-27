@@ -22,9 +22,7 @@ export class ReadNlqQaFeedbackByIdController implements IController {
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
-  async handle(
-    httpRequest: IHttpRequest<{ id: string }>
-  ): Promise<IHttpResponse> {
+  async handle(httpRequest: IHttpRequest<null>): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info(
@@ -71,7 +69,7 @@ export class ReadNlqQaFeedbackByIdController implements IController {
       //   5. Check roles permissions
       const { hasAuth } = await this.accessRepo.hasRoles({
         ctxRoleNames: roleNames.roleNames,
-        requiredRoleNames: [ROLE.ANALYST, ROLE.ADMIN],
+        requiredRoleNames: [],
       });
 
       if (!hasAuth) {
@@ -82,22 +80,25 @@ export class ReadNlqQaFeedbackByIdController implements IController {
         const error = this.httpErrors.error_401("User not authorized");
         return new HttpResponse(error.statusCode, error.body);
       }
-      //   ==== INPUT BODY ====
-
-      //   1. Check body
-      this.logger.info(
-        "[ReadNlqQaFeedbackByIdController] Body:",
-        httpRequest.body
-      );
-      if (!httpRequest.body) {
-        this.logger.error("[ReadNlqQaFeedbackByIdController] No body provided");
-        const error = this.httpErrors.error_400("No body provided");
+      //   ==== INPUT PARAMS ====
+      if (!httpRequest.params || !httpRequest.params.id) {
+        this.logger.error(
+          "[ReadByIdRoleController] No id parameter provided",
+          httpRequest
+        );
+        const error = this.httpErrors.error_400("No id parameter provided");
         return new HttpResponse(error.statusCode, error.body);
       }
-      const body = httpRequest.body;
+
+      this.logger.info(
+        "[ReadByIdRoleController] Received params:",
+        httpRequest.params
+      );
 
       // ==== BUSINESS LOGIC ====
-      const useCase = await this.readNlqQaFeedbackByIdUseCase.execute(body.id);
+      const useCase = await this.readNlqQaFeedbackByIdUseCase.execute(
+        httpRequest.params.id
+      );
       this.logger.info(
         "[ReadNlqQaFeedbackByIdController] Use case executed successfully",
         useCase

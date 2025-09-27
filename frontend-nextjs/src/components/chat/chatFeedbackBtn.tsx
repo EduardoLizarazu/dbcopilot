@@ -14,8 +14,8 @@ import {
 } from "@mui/material";
 import ThumbUpAlt from "@mui/icons-material/ThumbUpAlt";
 import ThumbDownAlt from "@mui/icons-material/ThumbDownAlt";
-import { SubmitFeedbackAction } from "@/controller/_actions/chat/submit-feedback";
 import { useFeedbackContext } from "@/contexts/feedback.context";
+import { ManageFeedbackAction } from "@/_actions/feedback/manager";
 
 export function ChatFeedbackBtn({
   promptId,
@@ -27,21 +27,53 @@ export function ChatFeedbackBtn({
   const { setFeedback } = useFeedbackContext();
   const [open, setOpen] = React.useState(false);
   const [explanation, setExplanation] = React.useState("");
+  const [activeThumb, setActiveThumb] = React.useState<0 | 1 | null>(null); // 0 = down, 1 = up, null = none
+  const [feedbackId, setFeedbackId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (isReset) {
       setExplanation("");
       setOpen(false);
+      setActiveThumb(null);
+      setFeedbackId(null);
     }
   }, [isReset]);
 
-  const send = async (type: 0 | 1, explanationText?: string) => {
+  const toggleThumb = async (type: 0 | 1) => {
     try {
-      const res = await SubmitFeedbackAction({
-        nlq_id: promptId,
-        type,
-        explanation: explanationText,
+      if (!promptId) throw new Error("Prompt ID is missing.");
+
+      if (activeThumb === type) {
+        // Deactivate if the same thumb is clicked again
+        setActiveThumb(null);
+        setFeedback({
+          isActive: true,
+          severity: "info",
+          message: "Feedback cleared.",
+        });
+        // Clear feedback on the server
+        await ManageFeedbackAction({
+          feedbackId: feedbackId,
+          nlqQaId: promptId,
+          isGood: null,
+          comment: null,
+        });
+        setFeedbackId(null);
+        console.log("Feedback cleared on server");
+        return;
+      }
+
+      // Activate the clicked thumb
+      setActiveThumb(type);
+      const res = await ManageFeedbackAction({
+        feedbackId: feedbackId,
+        nlqQaId: promptId,
+        isGood: type === 1,
+        comment: explanation,
       });
+      console.log("Feedback response:", res);
+      setFeedbackId(res.id);
+
       setFeedback({
         isActive: true,
         severity: "success",
@@ -59,12 +91,22 @@ export function ChatFeedbackBtn({
   return (
     <div style={{ marginTop: 8 }}>
       <Tooltip title="Looks good">
-        <IconButton onClick={() => send(1)} aria-label="thumb up">
+        <IconButton
+          onClick={() => toggleThumb(1)}
+          aria-label="thumb up"
+          color={activeThumb === 1 ? "primary" : "default"}
+        >
           <ThumbUpAlt fontSize="small" />
         </IconButton>
       </Tooltip>
       <Tooltip title="Something’s wrong">
-        <IconButton onClick={() => setOpen(true)} aria-label="thumb down">
+        <IconButton
+          onClick={() => {
+            if (activeThumb !== 0) setOpen(true);
+          }}
+          aria-label="thumb down"
+          color={activeThumb === 0 ? "primary" : "default"}
+        >
           <ThumbDownAlt fontSize="small" />
         </IconButton>
       </Tooltip>
@@ -92,7 +134,7 @@ export function ChatFeedbackBtn({
           <Button
             variant="contained"
             onClick={async () => {
-              await send(0, explanation);
+              await toggleThumb(0);
               setOpen(false);
               setExplanation("");
             }}
