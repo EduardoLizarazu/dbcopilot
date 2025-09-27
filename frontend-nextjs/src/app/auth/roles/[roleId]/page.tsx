@@ -10,9 +10,9 @@ type Params = { roleId: string };
 export default async function EditRolePage({ params }: { params: Params }) {
   console.log("EditRolePage params:", await params);
   const role = await ReadRoleByIdAction(params.roleId);
-  if (!role) {
+  if (!role?.data) {
     // You could render a nicer UI instead of notFound()
     notFound();
   }
-  return <EditRoleClient initialRole={role} />;
+  return <EditRoleClient initialRole={role.data} />;
 }

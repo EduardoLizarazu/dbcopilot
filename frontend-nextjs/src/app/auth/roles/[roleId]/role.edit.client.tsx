@@ -13,12 +13,12 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { updateRoleAction } from "@/controller/_actions/role/update";
-import type { RoleRecord } from "@/controller/_actions/role/get";
+import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
 
 export default function EditRoleClient({
   initialRole,
 }: {
-  initialRole: RoleRecord;
+  initialRole: TRoleOutRequestDto;
 }) {
   const router = useRouter();
 
