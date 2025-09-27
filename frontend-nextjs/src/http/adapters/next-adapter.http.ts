@@ -83,7 +83,7 @@ export async function nextAdapter(
     path: request.nextUrl.pathname,
     query: request.nextUrl.searchParams,
     auth: auth?.uid ? { uid: auth.uid } : null,
-    // params: id ? { id } : {},
+    params: id ? { id } : {},
   });
   console.log("[next adapter] Created HttpRequest:", httpRequest);
 

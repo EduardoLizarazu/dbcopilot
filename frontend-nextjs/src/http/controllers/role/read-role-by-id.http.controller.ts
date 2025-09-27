@@ -22,9 +22,7 @@ export class ReadRoleByIdController implements IController {
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
-  async handle(
-    httpRequest: IHttpRequest<{ id: string }>
-  ): Promise<IHttpResponse> {
+  async handle(httpRequest: IHttpRequest<null>): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info(
@@ -73,7 +71,7 @@ export class ReadRoleByIdController implements IController {
       //   5. Check roles permissions
       const { hasAuth } = await this.accessRepo.hasRoles({
         ctxRoleNames: roleNames.roleNames,
-        requiredRoleNames: [ROLE.ANALYST, ROLE.ADMIN],
+        requiredRoleNames: [],
       });
 
       if (!hasAuth) {
@@ -87,25 +85,27 @@ export class ReadRoleByIdController implements IController {
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      //   ==== INPUT BODY ====
-      if (!httpRequest.body) {
+      //   ==== INPUT PARAMS ====
+      if (!httpRequest.params || !httpRequest.params.id) {
         this.logger.error(
-          "[ReadByIdRoleController] No body provided",
+          "[ReadByIdRoleController] No id parameter provided",
           httpRequest
         );
-        const error = this.httpErrors.error_400("No body provided");
+        const error = this.httpErrors.error_400("No id parameter provided");
         return new HttpResponse(error.statusCode, error.body);
       }
 
       this.logger.info(
-        "[ReadByIdRoleController] Received body:",
-        httpRequest.body
+        "[ReadByIdRoleController] Received params:",
+        httpRequest.params
       );
 
       const body = httpRequest.body;
 
       // ==== BUSINESS LOGIC USE CASES ====
-      const useCase = await this.readByIdRoleUseCase.execute(body.id);
+      const useCase = await this.readByIdRoleUseCase.execute(
+        httpRequest.params.id
+      );
 
       if (!useCase.success) {
         this.logger.error("[ReadByIdRoleController] Error retrieving role: ", {

@@ -26,4 +26,6 @@ export interface IHttpRequest<B> {
    * Represents the authentication context of the HTTP request.
    */
   auth: { uid: string } | null;
+
+  params?: Record<string, string>;
 }

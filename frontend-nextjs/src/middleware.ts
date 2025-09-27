@@ -15,6 +15,14 @@ export function middleware(req: NextRequest) {
     console.log("API middleware: Creating role...", req);
     return NextResponse.next();
   }
+  if (pathname === "/api/roles/create") {
+    console.log("API middleware: Creating role...", req);
+    return NextResponse.next();
+  }
+  if (pathname === "/api/roles/66K7ZTrxdukoVDItHMpC") {
+    console.log("API middleware: Reading role by ID...", req);
+    return NextResponse.next();
+  }
 
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
