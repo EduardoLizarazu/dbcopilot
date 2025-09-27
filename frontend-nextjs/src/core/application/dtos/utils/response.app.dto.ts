@@ -4,3 +4,8 @@ export type TResponseDto<T> = {
   statusCode?: number;
   message: string;
 };
+
+export type TResOutContent<T> = {
+  message: string | null;
+  data: T | null;
+} | null;

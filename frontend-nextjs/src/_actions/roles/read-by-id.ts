@@ -1,16 +1,12 @@
 "use server";
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
 import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
+import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
-
-export type TResContent<T> = {
-  message: string | null;
-  data: T | null;
-} | null;
 
 export async function ReadRoleByIdAction(
   id: string
-): Promise<TResContent<TRoleOutRequestDto>> {
+): Promise<TResOutContent<TRoleOutRequestDto>> {
   console.log("Reading role by ID (test)...", id);
 
   const roleRes = await fetch(`${domain}/api/roles/${id}`, {
