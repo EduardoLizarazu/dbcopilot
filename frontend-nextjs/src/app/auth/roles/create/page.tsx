@@ -12,10 +12,7 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import {
-  createRoleAction,
-  createRoleActionTest,
-} from "@/controller/_actions/role/create";
+import { CreateRoleAction } from "@/_actions/roles/role.action";
 
 export default function CreateRolePage() {
   const router = useRouter();
@@ -32,7 +29,7 @@ export default function CreateRolePage() {
     setSuccess(null);
     setLoading(true);
     try {
-      const res = await createRoleActionTest({ name, description });
+      const res = await CreateRoleAction({ name, description });
       console.log("Role created:", res);
 
       if (res) {

@@ -44,27 +44,3 @@ export async function createRoleAction(input: CreateRoleInput) {
 
   return { ok: true as const, id: docRef.id };
 }
-
-export async function createRoleActionTest(input: CreateRoleInput) {
-  console.log("Creating role (test)...", input);
-
-  const domain = "http://localhost:3000"; // adjust as needed
-  const roleRes = await fetch(`${domain}/api/roles`, {
-    method: "POST",
-    body: JSON.stringify(input),
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${await readTokenFromCookie()}`,
-    },
-  });
-  console.log("Response:", roleRes);
-
-  if (!roleRes.ok) {
-    throw new Error(`Failed to create role: ${roleRes.statusText}`);
-  }
-
-  const roleData = await roleRes.json();
-  console.log("Created role:", roleData);
-
-  return roleData;
-}
