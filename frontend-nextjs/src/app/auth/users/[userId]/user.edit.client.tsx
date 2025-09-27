@@ -27,6 +27,7 @@ import { updateUserAction } from "@/controller/_actions/user/update";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { TUserOutputRequestDto } from "@/core/application/dtos/user.app.dto";
 import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
+import { UpdateUserAction } from "@/_actions/users/update.action";
 
 export default function UserEditClient({
   initialUser,
@@ -64,15 +65,15 @@ export default function UserEditClient({
     setSuccess(null);
     setLoading(true);
     try {
-      const res = await updateUserAction({
-        userId: initialUser.id,
+      const res = await UpdateUserAction({
+        id: initialUser.id,
         email,
         name,
         lastname,
-        roleIds: selectedRoleIds,
+        roles: selectedRoleIds,
         password, // ✅ will be empty if user left blank
       });
-      if (res.ok) {
+      if (res.data) {
         setSuccess("User updated successfully. Redirecting to list…");
         setTimeout(() => router.replace("/auth/users"), 800);
       }

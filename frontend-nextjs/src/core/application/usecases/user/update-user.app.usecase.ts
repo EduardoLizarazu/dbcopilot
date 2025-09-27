@@ -2,6 +2,7 @@ import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import {
   TUpdateUserDto,
   TUserOutputRequestDto,
+  updateUserSchema,
   userSchema,
 } from "@/core/application/dtos/user.app.dto";
 import { IRoleRepository } from "../../interfaces/auth/role.app.inter";
@@ -31,7 +32,7 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
     try {
       // 1. Validation
       this.logger.info("Validating user data", user);
-      const userValidation = await userSchema.safeParseAsync(user);
+      const userValidation = await updateUserSchema.safeParseAsync(user);
       if (!userValidation.success) {
         this.logger.error(
           "User validation failed",
@@ -96,16 +97,27 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
         }
       }
 
-      // 5. Update user
-      const updatedUser = UserEntity.update(user);
-      await this.userRepository.update(id, {
-        name: updatedUser.name,
-        lastname: updatedUser.lastname,
-        email: updatedUser.email,
-        password: updatedUser.password,
-        roles: user.roles,
-        id: existingUser.id,
-      });
+      // 5. Update user with new data with password
+      // const updatedUser = UserEntity.update(user);
+      if (user.password) {
+        await this.userRepository.update(id, {
+          name: user.name,
+          lastname: user.lastname,
+          email: user.email,
+          password: user.password,
+          roles: user.roles,
+          id: existingUser.id,
+        });
+      }
+      if (!user.password) {
+        await this.userRepository.update(id, {
+          name: user.name,
+          lastname: user.lastname,
+          email: user.email,
+          roles: user.roles,
+          id: existingUser.id,
+        });
+      }
 
       // 6. Return updated user
       const out = await this.userRepository.findById(id);

@@ -7,7 +7,7 @@ import {
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
-export async function CreateUserAction(
+export async function UpdateUserAction(
   input: TUpdateUserDto
 ): Promise<TResOutContent<TUserOutputRequestDto>> {
   console.log("Updating user (test)...", input);

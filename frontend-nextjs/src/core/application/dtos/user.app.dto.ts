@@ -15,7 +15,8 @@ export const createUserSchema = userSchema.omit({ id: true });
 export type TCreateUserDto = z.infer<typeof createUserSchema>;
 
 // Update user DTO
-export type TUpdateUserDto = z.infer<typeof userSchema>;
+export const updateUserSchema = userSchema.partial();
+export type TUpdateUserDto = z.infer<typeof updateUserSchema>;
 
 // User Input Request DTO
 
