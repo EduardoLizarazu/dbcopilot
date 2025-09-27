@@ -35,7 +35,7 @@ export default function CreateRolePage() {
       const res = await createRoleActionTest({ name, description });
       console.log("Role created:", res);
 
-      if (res.ok) {
+      if (res) {
         setSuccess("Role created successfully. Redirecting to list…");
         // short delay so user sees feedback, then go back to list
         setTimeout(() => router.replace("/auth/roles"), 800);

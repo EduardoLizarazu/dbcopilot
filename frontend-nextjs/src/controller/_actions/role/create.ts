@@ -49,7 +49,7 @@ export async function createRoleActionTest(input: CreateRoleInput) {
   console.log("Creating role (test)...", input);
 
   const domain = "http://localhost:3000"; // adjust as needed
-  const role = await fetch(`${domain}/api/roles`, {
+  const roleRes = await fetch(`${domain}/api/roles`, {
     method: "POST",
     body: JSON.stringify(input),
     headers: {
@@ -57,13 +57,13 @@ export async function createRoleActionTest(input: CreateRoleInput) {
       Authorization: `Bearer ${await readTokenFromCookie()}`,
     },
   });
-  console.log("Response:", role);
+  console.log("Response:", roleRes);
 
-  if (!role.ok) {
-    throw new Error(`Failed to create role: ${role.statusText}`);
+  if (!roleRes.ok) {
+    throw new Error(`Failed to create role: ${roleRes.statusText}`);
   }
 
-  const roleData = await role.json();
+  const roleData = await roleRes.json();
   console.log("Created role:", roleData);
 
   return roleData;
