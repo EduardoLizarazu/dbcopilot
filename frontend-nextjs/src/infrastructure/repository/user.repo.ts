@@ -26,6 +26,32 @@ export class UserRepository implements IUserRepository {
     private firebaseAdmin: FirebaseAdminProvider,
     private firebaseClient: FirebaseClientProvider
   ) {}
+  async findAllByEmail(email: string): Promise<TUserOutputRequestDto[]> {
+    try {
+      const db = this.firebaseAdmin.db;
+      const userRef = db.collection(this.firebaseAdmin.coll.NLQ_USERS);
+      const querySnapshot = await userRef.where("email", "==", email).get();
+
+      if (querySnapshot.empty) {
+        this.logger.info("[UserRepository] No users found by email:", email);
+        return [];
+      }
+
+      const users: TUserOutputRequestDto[] = [];
+      querySnapshot.forEach((doc) => {
+        users.push({ id: doc.id, ...doc.data() } as TUserOutputRequestDto);
+      });
+
+      this.logger.info("[UserRepository] Users found by email:", email);
+      return users;
+    } catch (error) {
+      this.logger.error(
+        "[UserRepository] Error finding users by email:",
+        error
+      );
+      throw new Error("Error finding users by email");
+    }
+  }
 
   async create(data: TCreateUserDto): Promise<string> {
     try {
@@ -64,34 +90,28 @@ export class UserRepository implements IUserRepository {
   async update(id: string, data: TUpdateUserDto): Promise<void> {
     try {
       this.logger.info("[UserRepository] Updating user:", data);
+
       // Update user auth in Firebase Auth
       if (data.email || data.password) {
-        const user = await this.findById(id);
-        if (!user) {
-          throw new Error("User not found");
-        }
-        await this.firebaseAdmin.auth.updateUser(user.id, {
+        await this.firebaseAdmin.auth.updateUser(id, {
           email: data.email,
           password: data.password,
         });
+        this.logger.info(
+          "[UserRepository] Updated user auth in Firebase Auth for ID:",
+          id
+        );
       }
 
       // Update user data in Firestore
-      const db = this.firebaseClient.getDb();
-      const userRef = doc(db, this.firebaseAdmin.coll.NLQ_USERS, id);
-      await updateDoc(userRef, {
+      const db = this.firebaseAdmin.db;
+      const userRef = db.collection(this.firebaseAdmin.coll.NLQ_USERS).doc(id);
+      await userRef.update({
         ...data,
-        updatedAt: new Date(),
       });
-
-      // Return updated user
-      const updatedUser = await this.findById(id);
-      if (!updatedUser) {
-        throw new Error("User not found after update");
-      }
       this.logger.info(
-        "[UserRepository] User updated successfully:",
-        updatedUser
+        "[UserRepository] Updated user data in Firestore for ID:",
+        id
       );
     } catch (error) {
       this.logger.error("[UserRepository] Error updating user:", error);

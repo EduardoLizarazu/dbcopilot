@@ -29,9 +29,9 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
     user: TUpdateUserDto
   ): Promise<TResponseDto<TUserOutputRequestDto | null>> {
     try {
-      // Validation
+      // 1. Validation
       this.logger.info("Validating user data", user);
-      const userValidation = userSchema.safeParse(user);
+      const userValidation = await userSchema.safeParseAsync(user);
       if (!userValidation.success) {
         this.logger.error(
           "User validation failed",
@@ -54,6 +54,8 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
           data: null,
         };
       }
+
+      // 2. Check if user exists
       const existingUser = await this.userRepository.findById(id);
       if (!existingUser) {
         this.logger.error("User not found", { userId: id });
@@ -64,7 +66,7 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
         };
       }
 
-      // Check if roles exist
+      // 3. Check if roles exist
       for (const roleId of user.roles) {
         const role = await this.roleRepository.findById(roleId);
         if (!role) {
@@ -77,6 +79,24 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
         }
       }
 
+      // 4. Check if email email already exists for another user
+      if (user.email && user.email !== existingUser.email) {
+        const userByEmail = await this.userRepository.findAllByEmail(
+          user.email
+        );
+        if (userByEmail.length > 1) {
+          this.logger.error("Email already exists for another user", {
+            email: user.email,
+          });
+          return {
+            success: false,
+            message: `Email ${user.email} is already taken by another user`,
+            data: null,
+          };
+        }
+      }
+
+      // 5. Update user
       const updatedUser = UserEntity.update(user);
       await this.userRepository.update(id, {
         name: updatedUser.name,
@@ -87,6 +107,7 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
         id: existingUser.id,
       });
 
+      // 6. Return updated user
       const out = await this.userRepository.findById(id);
       this.logger.info("User updated successfully", out);
       if (!out) {
@@ -98,6 +119,7 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
         };
       }
 
+      // 7. Success
       return {
         success: true,
         message: UserAppEnum.userUpdatedSuccessfully,
