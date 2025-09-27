@@ -22,8 +22,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import { deleteRoleAction } from "@/controller/_actions/role/delete";
 import { listRolesAction, Role } from "@/_actions/roles/read-all-role.action";
+import { DeleteRoleAction } from "@/_actions/roles/delete-role.action";
 
 export default function RolesPage() {
   const [roles, setRoles] = React.useState<Role[] | null>(null);
@@ -80,7 +80,7 @@ export default function RolesPage() {
     const yes = window.confirm("Remove this role? This cannot be undone.");
     if (!yes) return;
     try {
-      await deleteRoleAction(id);
+      await DeleteRoleAction(id);
       // Re-query with current search
       const data = await listRolesAction(q);
       setRoles(data);

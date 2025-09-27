@@ -1,5 +1,6 @@
 import { nextAdapter } from "@/http/adapters/next-adapter.http";
 import { createRoleComposer } from "@/infrastructure/services/composers/roles/create-role-composer.infra.service";
+import { deleteRoleComposer } from "@/infrastructure/services/composers/roles/delete-role-composer.infra.service";
 import { readAllRoleComposer } from "@/infrastructure/services/composers/roles/read-all-role-composer.infra.service";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,5 +20,14 @@ export async function GET(req: NextRequest) {
     isTokenRequired: true,
   });
   console.log("API: Role getting response:", adapter);
+  return NextResponse.json(adapter.body, { status: adapter.statusCode });
+}
+
+export async function DELETE(req: NextRequest) {
+  console.log("API: Deleting role request...", req);
+  const adapter = await nextAdapter(req, deleteRoleComposer(), {
+    isTokenRequired: true,
+  });
+  console.log("API: Role deleting response:", adapter);
   return NextResponse.json(adapter.body, { status: adapter.statusCode });
 }
