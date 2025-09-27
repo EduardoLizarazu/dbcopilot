@@ -25,13 +25,15 @@ import type { RoleOption } from "@/controller/_actions/user/roles";
 import type { UserProfile } from "@/controller/_actions/user/get";
 import { updateUserAction } from "@/controller/_actions/user/update";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { TUserOutputRequestDto } from "@/core/application/dtos/user.app.dto";
+import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
 
 export default function UserEditClient({
   initialUser,
   roles,
 }: {
-  initialUser: UserProfile;
-  roles: RoleOption[];
+  initialUser: TUserOutputRequestDto;
+  roles: TRoleOutRequestDto[];
 }) {
   const router = useRouter();
 
@@ -39,7 +41,7 @@ export default function UserEditClient({
   const [name, setName] = React.useState(initialUser.name);
   const [lastname, setLastname] = React.useState(initialUser.lastname);
   const [selectedRoleIds, setSelectedRoleIds] = React.useState<string[]>(
-    initialUser.roleIds ?? []
+    initialUser.roles ?? []
   );
 
   // ✅ new state for optional password

@@ -100,8 +100,6 @@ export class ReadRoleByIdController implements IController {
         httpRequest.params
       );
 
-      const body = httpRequest.body;
-
       // ==== BUSINESS LOGIC USE CASES ====
       const useCase = await this.readByIdRoleUseCase.execute(
         httpRequest.params.id

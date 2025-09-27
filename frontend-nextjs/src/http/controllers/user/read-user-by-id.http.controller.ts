@@ -86,23 +86,23 @@ export class ReadUserByIdController implements IController {
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      //   ==== INPUT BODY ====
-      if (!httpRequest.body) {
+      //   ==== INPUT PARAMS ====
+      if (!httpRequest.params || !httpRequest.params.id) {
         this.logger.error(
-          "[ReadUserByIdController] No body provided",
+          "[ReadByIdRoleController] No id parameter provided",
           httpRequest
         );
-        const error = this.httpErrors.error_400("No body provided");
+        const error = this.httpErrors.error_400("No id parameter provided");
         return new HttpResponse(error.statusCode, error.body);
       }
 
       this.logger.info(
-        "[ReadUserByIdController] Received body:",
-        httpRequest.body
+        "[ReadByIdRoleController] Received params:",
+        httpRequest.params
       );
-
-      const body = httpRequest.body;
-      const user = await this.readUserByIdUseCase.execute(body.id);
+      const user = await this.readUserByIdUseCase.execute(
+        httpRequest.params.id
+      );
 
       if (!user.success) {
         this.logger.error(
@@ -119,8 +119,8 @@ export class ReadUserByIdController implements IController {
       );
 
       const response = this.httpSuccess.success_200({
-        message: "User retrieved successfully",
-        data: user,
+        message: user.message,
+        data: user.data,
       });
       return new HttpResponse(response.statusCode, response.body);
     } catch (err) {
