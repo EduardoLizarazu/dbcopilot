@@ -79,7 +79,6 @@ export function SingleChat(
     setSubmitting(true);
 
     try {
-      // const response = await CreatePrompt({ prompt });
       const response = await CreateNlqQaAction({ question: prompt });
 
       const hasError = response.data === null;
