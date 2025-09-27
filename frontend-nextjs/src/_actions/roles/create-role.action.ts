@@ -25,21 +25,3 @@ export async function CreateRoleAction(input: CreateRoleInput) {
 
   return roleData;
 }
-
-export async function ReadAllRolesAction() {
-  console.log("Reading all roles...");
-  const rolesRes = await fetch(`${domain}/api/roles`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${await readTokenFromCookie()}`,
-    },
-  });
-  console.log("Response:", rolesRes);
-  if (!rolesRes.ok) {
-    throw new Error(`Failed to fetch roles: ${rolesRes.statusText}`);
-  }
-  const rolesData = await rolesRes.json();
-  console.log("Fetched roles:", rolesData);
-  return rolesData;
-}
