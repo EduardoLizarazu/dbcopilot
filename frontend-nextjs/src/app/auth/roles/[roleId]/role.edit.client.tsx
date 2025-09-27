@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { updateRoleAction } from "@/controller/_actions/role/update";
 import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
+import { UpdateRoleAction } from "@/_actions/roles/update.actiont";
 
 export default function EditRoleClient({
   initialRole,
@@ -36,12 +37,12 @@ export default function EditRoleClient({
     setSuccess(null);
     setLoading(true);
     try {
-      const res = await updateRoleAction({
-        roleId: initialRole.id,
+      const res = await UpdateRoleAction({
+        id: initialRole.id,
         name,
         description,
       });
-      if (res.ok) {
+      if (res.data) {
         setSuccess("Role updated successfully. Redirecting to list…");
         setTimeout(() => router.replace("/auth/roles"), 800);
       }
