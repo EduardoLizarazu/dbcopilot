@@ -1,9 +1,13 @@
 "use server";
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
 import { CreateRoleInput } from "@/controller/_actions/role/create";
+import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
+import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
-export async function CreateRoleAction(input: CreateRoleInput) {
+export async function CreateRoleAction(
+  input: CreateRoleInput
+): Promise<TResOutContent<TRoleOutRequestDto[]>> {
   console.log("Creating role (test)...", input);
 
   const roleRes = await fetch(`${domain}/api/roles`, {

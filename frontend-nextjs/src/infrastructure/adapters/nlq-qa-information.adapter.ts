@@ -14,9 +14,21 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
   async extractSchemaBased(
     tables: string[]
   ): Promise<TNlqQaInformationSchemaExtractionDto> {
+    let queryRunner = null;
+    let dataSource = null;
     try {
-      const dataSource = this.oracleProvider.dataSource;
-      const result = await dataSource.query(`
+      dataSource = this.oracleProvider.dataSource;
+      await dataSource.initialize();
+      // check if dataSource is initialized
+      if (!dataSource.isInitialized) {
+        this.logger.error(
+          "[NlqQaInformationAdapter] DataSource is not initialized on extract query"
+        );
+        throw new Error("DataSource is not initialized on extract query");
+      }
+
+      queryRunner = dataSource.createQueryRunner();
+      const result = await queryRunner.query(`
         SELECT
     ac.owner                               AS table_schema,
     ac.table_name,
@@ -100,25 +112,49 @@ ORDER BY
         
         `);
       this.logger.info("[NlqQaInformationInfraRepository] Schema extracted", {
-        result,
+        length: result.length,
       });
       return result;
     } catch (error) {
       this.logger.error("Error extracting schema", error);
-      throw error;
+      throw new Error(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (queryRunner) await queryRunner.release();
+      if (dataSource) await dataSource.destroy();
     }
   }
   async executeQuery(
     query: string,
     dateParams?: { start: Date; end: Date }
   ): Promise<TNlqInformationData> {
+    let queryRunner = null;
+    let dataSource = null;
+
     try {
-      const dataSource = this.oracleProvider.dataSource;
-      const result = await dataSource.query(query);
-      return result;
+      dataSource = this.oracleProvider.dataSource;
+      await dataSource.initialize();
+      // check if dataSource is initialized
+      if (!dataSource.isInitialized) {
+        this.logger.error(
+          "[NlqQaInformationAdapter] DataSource is not initialized on extract query"
+        );
+        throw new Error("DataSource is not initialized on extract query");
+      }
+
+      queryRunner = dataSource.createQueryRunner();
+
+      this.logger.info("[NlqQaInformationAdapter] Executing query", { query });
+
+      const result = await queryRunner.query(query);
+      return {
+        data: result,
+      };
     } catch (error) {
       this.logger.error("Error executing query", error);
-      throw error;
+      throw new Error(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (queryRunner) await queryRunner.release();
+      if (dataSource) await dataSource.destroy();
     }
   }
 }

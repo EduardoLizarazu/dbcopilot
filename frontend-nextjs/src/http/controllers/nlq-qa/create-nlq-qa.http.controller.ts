@@ -65,7 +65,7 @@ export class CreateNlqQaController implements IController {
       //   5. Check roles permissions
       const { hasAuth } = await this.accessRepo.hasRoles({
         ctxRoleNames: roleNames.roleNames,
-        requiredRoleNames: [ROLE.ANALYST, ROLE.ADMIN],
+        requiredRoleNames: [],
       });
       if (!hasAuth) {
         this.logger.error("[CreateNlqQaController] User is not authorized");
@@ -85,18 +85,6 @@ export class CreateNlqQaController implements IController {
         question: string;
       };
 
-      //   2. Check required params
-      const bodyParams = Object.keys(body);
-      const requiredParams = ["question"];
-      for (const param of requiredParams) {
-        if (!bodyParams.includes(param)) {
-          this.logger.error(`[CreateNlqQaController] Missing param: ${param}`);
-          const error = this.httpErrors.error_400(`Missing param: ${param}`);
-          return new HttpResponse(error.statusCode, error.body);
-        }
-      }
-      this.logger.info("[CreateNlqQaController] Body params:", bodyParams);
-
       // ==== BUSINESS LOGIC USE CASES ====
       const useCase = await this.createNlqQaUseCase.execute({
         question: body.question,
@@ -115,7 +103,7 @@ export class CreateNlqQaController implements IController {
 
       // ==== OUTPUT RESPONSE ====
       const success = this.httpSuccess.success_201({
-        message: "NLQ QA created successfully",
+        message: useCase.message,
         data: useCase.data,
       });
       return new HttpResponse(success.statusCode, success.body);

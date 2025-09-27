@@ -20,6 +20,7 @@ import { CreatePrompt } from "@/controller/_actions/chat/create-prompt";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
 import { searchWithQuery } from "@/controller/_actions/nlq/vbd/find-by-prompt";
+import { CreateNlqQaAction } from "@/_actions/nlq-qa/create.action";
 
 interface Props {
   previousConversation?: {
@@ -78,25 +79,17 @@ export function SingleChat(
     setSubmitting(true);
 
     try {
-      const response = await CreatePrompt({ prompt });
+      // const response = await CreatePrompt({ prompt });
+      const response = await CreateNlqQaAction({ question: prompt });
 
-      const hasError =
-        Boolean(response?.error) &&
-        typeof response.error === "string" &&
-        response.error.trim().length > 0;
-
+      const hasError = response.data === null;
       if (hasError) {
-        setResult({ data: [], error: response.error });
-        setFeedback({
-          isActive: true,
-          message: response.error ?? "Unknown error",
-          severity: "error",
-        });
+        setResult({ data: [], error: response.message ?? "Unknown error" });
         return;
       }
 
-      setResult({ data: response.results || [], error: null });
-      setPromptId(response.id_prompt ?? null);
+      setResult({ data: response.data.results || [], error: null });
+      setPromptId(response.data.id ?? null);
 
       setFeedback({
         isActive: true,
@@ -104,12 +97,7 @@ export function SingleChat(
         severity: "success",
       });
     } catch (error) {
-      setResult({ data: [], error: "Failed to connect to the API" });
-      setFeedback({
-        isActive: true,
-        message: "Network error occurred",
-        severity: "error",
-      });
+      setResult({ data: [], error: `Error: ${error}` });
     } finally {
       setSubmitting(false);
       setIsResetHf(false);

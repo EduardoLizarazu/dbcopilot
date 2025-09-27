@@ -37,4 +37,9 @@ export const nlqQaInRequestSchema = nlqQaSchema.pick({
 
 export type TNlqQaInRequestDto = z.infer<typeof nlqQaInRequestSchema>;
 
-export type TNlqQaOutRequestDto = z.infer<typeof nlqQaSchema>;
+export const nlqQaOutRequestSchema = nlqQaSchema.extend({
+  // Add any additional fields for output if necessary results?: Record<string, unknown>[];
+  results: z.array(z.record(z.unknown())).optional(),
+});
+
+export type TNlqQaOutRequestDto = z.infer<typeof nlqQaOutRequestSchema>;

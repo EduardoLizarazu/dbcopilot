@@ -10,6 +10,7 @@ import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.i
 import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
 import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
 import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
+import { info } from "console";
 export interface ICreateNlqQaUseCase {
   execute(data: TNlqQaInRequestDto): Promise<TResponseDto<TNlqQaOutRequestDto>>;
 }
@@ -172,17 +173,18 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       }
 
       // 6.a Execute query
+      let informationData = { data: [] };
       try {
-        const informationData = await this.nlqQaInformationPort.executeQuery(
+        informationData = await this.nlqQaInformationPort.executeQuery(
           query.query
         );
         this.logger.info(
-          `[CreateNlqQaUseCase]: Executed query, received data: ${informationData.data.length} rows`
+          `[CreateNlqQaUseCase]: Executed query, received data: ${informationData.data ? informationData.data.length : 0} rows`
         );
       } catch (error) {
         this.logger.error(
           `[CreateNlqQaUseCase]: Error executing query: ${query.query}`,
-          { error }
+          { error: error instanceof Error ? error.message : String(error) }
         );
         // 6.b Error handling of query execution
         await this.nlqQaErrorRepository.create({
@@ -232,7 +234,10 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         };
       }
       return {
-        data: newNlqQa,
+        data: {
+          ...newNlqQa,
+          results: informationData.data || [],
+        },
         success: true,
         message: "NLQ QA created successfully",
       };
