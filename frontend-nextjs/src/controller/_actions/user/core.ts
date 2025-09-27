@@ -11,7 +11,7 @@ export type UserRow = {
 };
 
 async function loadRolesMap(): Promise<Record<string, string>> {
-  const snap = await adminDb.collection("roles").limit(2000).get();
+  const snap = await adminDb.collection("nlq_roles").limit(2000).get();
   const map: Record<string, string> = {};
   snap.forEach((d) => {
     const r = d.data() as any;
@@ -22,7 +22,7 @@ async function loadRolesMap(): Promise<Record<string, string>> {
 
 export async function listUsersCore(q?: string): Promise<UserRow[]> {
   const [usersSnap, rolesMap] = await Promise.all([
-    adminDb.collection("users").limit(2000).get(),
+    adminDb.collection("nlq_users").limit(2000).get(),
     loadRolesMap(),
   ]);
 
