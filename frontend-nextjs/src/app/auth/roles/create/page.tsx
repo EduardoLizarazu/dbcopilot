@@ -12,7 +12,7 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import { CreateRoleAction } from "@/_actions/roles/create-role.action";
+import { CreateRoleAction } from "@/_actions/roles/create.action";
 
 export default function CreateRolePage() {
   const router = useRouter();

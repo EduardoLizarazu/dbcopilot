@@ -22,8 +22,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import { listRolesAction, Role } from "@/_actions/roles/read-all-role.action";
-import { DeleteRoleAction } from "@/_actions/roles/delete-role.action";
+import { listRolesAction, Role } from "@/_actions/roles/read-all.action";
+import { DeleteRoleAction } from "@/_actions/roles/delete.action";
 
 export default function RolesPage() {
   const [roles, setRoles] = React.useState<Role[] | null>(null);
