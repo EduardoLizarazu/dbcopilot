@@ -30,14 +30,19 @@ export async function nextAdapter(
   apiRoute: IController,
   opts?: { isTokenRequired: boolean }
 ): Promise<IHttpResponse> {
-  const body = await request.json().catch(() => null);
-  console.log("[next adapter] Parsed body:", body);
+  let body = null;
 
-  if (!body) {
-    return {
-      statusCode: 400,
-      body: { success: "false", message: "Invalid JSON body" },
-    };
+  // Parse body only for non-GET requests
+  if (request.method !== "GET") {
+    body = await request.json().catch(() => null);
+    console.log("[next adapter] Parsed body:", body);
+
+    if (!body) {
+      return {
+        statusCode: 400,
+        body: { success: "false", message: "Invalid JSON body" },
+      };
+    }
   }
 
   // request.headers to plain object
@@ -80,9 +85,9 @@ export async function nextAdapter(
     auth: auth?.uid ? { uid: auth.uid } : null,
     // params: id ? { id } : {},
   });
-  console.log("next adapter: Created HttpRequest:", httpRequest);
+  console.log("[next adapter] Created HttpRequest:", httpRequest);
 
   const httpResponse: IHttpResponse = await apiRoute.handle(httpRequest);
-  console.log("next adapter: Controller response:", httpResponse);
+  console.log("[next adapter] Controller response:", httpResponse);
   return httpResponse;
 }
