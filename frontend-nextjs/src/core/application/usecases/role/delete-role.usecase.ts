@@ -41,6 +41,10 @@ export class DeleteRoleUseCaseRepo implements IDeleteRoleUseCase {
 
       // 3. Check if any user is assigned to this role
       const usersWithRole = await this.userRepo.findByRoleId(id);
+      this.logger.info(
+        "[DeleteRoleUseCase]: Users with this role:",
+        usersWithRole
+      );
       if (usersWithRole && usersWithRole.length > 0) {
         this.logger.warn(
           "[DeleteRoleUseCase]: Users are still assigned to this role:",

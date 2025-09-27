@@ -30,9 +30,29 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
     user: TUpdateUserDto
   ): Promise<TResponseDto<TUserOutputRequestDto | null>> {
     try {
+      let userAux = null;
+      if (!user.password) {
+        userAux = {
+          name: user.name,
+          lastname: user.lastname,
+          email: user.email,
+          roles: user.roles,
+        };
+      } else {
+        userAux = {
+          name: user.name,
+          lastname: user.lastname,
+          email: user.email,
+          roles: user.roles,
+          password: user.password,
+        };
+      }
+
       // 1. Validation
       this.logger.info("Validating user data", user);
-      const userValidation = await updateUserSchema.safeParseAsync(user);
+      const userValidation = await updateUserSchema.safeParseAsync({
+        ...userAux,
+      });
       if (!userValidation.success) {
         this.logger.error(
           "User validation failed",

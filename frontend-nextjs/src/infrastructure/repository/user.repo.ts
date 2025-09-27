@@ -218,20 +218,27 @@ export class UserRepository implements IUserRepository {
         "[UserInfraRepository] Finding users by role ID:",
         roleId
       );
-      // Remember that roleId is a list of roleIds in the user document
-      const db = this.firebaseClient.getDb();
-      const userQuery = query(
-        collection(db, this.firebaseAdmin.coll.NLQ_USERS),
-        where("roleIds", "array-contains", roleId)
-      );
-      const userSnapshot = await getDocs(userQuery);
-      if (userSnapshot.empty) {
+
+      // Use Firebase Admin SDK to query users by role ID
+      const db = this.firebaseAdmin.db;
+      const userQuery = await db
+        .collection(this.firebaseAdmin.coll.NLQ_USERS)
+        .where("roles", "array-contains", roleId)
+        .get();
+
+      if (userQuery.empty) {
+        this.logger.info(
+          "[UserInfraRepository] No users found for role ID:",
+          roleId
+        );
         return [];
       }
+
       const users: TUserOutputRequestDto[] = [];
-      userSnapshot.forEach((doc) => {
+      userQuery.forEach((doc) => {
         users.push({ id: doc.id, ...doc.data() } as TUserOutputRequestDto);
       });
+
       this.logger.info("[UserInfraRepository] Users found by role ID:", users);
       return users;
     } catch (error) {
