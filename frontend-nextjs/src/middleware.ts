@@ -9,40 +9,40 @@ const PUBLIC_PATHS = [
 ];
 
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  // const { pathname } = req.nextUrl;
 
-  if (pathname === "/api/roles") {
-    console.log("API middleware: Creating role...", req);
-    return NextResponse.next();
-  }
-  if (pathname === "/api/roles/create") {
-    console.log("API middleware: Creating role...", req);
-    return NextResponse.next();
-  }
-  if (pathname === "/api/roles/66K7ZTrxdukoVDItHMpC") {
-    console.log("API middleware: Reading role by ID...", req);
-    return NextResponse.next();
-  }
+  // if (pathname === "/api/roles") {
+  //   console.log("API middleware: Creating role...", req);
+  //   return NextResponse.next();
+  // }
+  // if (pathname === "/api/roles/create") {
+  //   console.log("API middleware: Creating role...", req);
+  //   return NextResponse.next();
+  // }
+  // if (pathname === "/api/roles/66K7ZTrxdukoVDItHMpC") {
+  //   console.log("API middleware: Reading role by ID...", req);
+  //   return NextResponse.next();
+  // }
 
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  // const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
-  const token = req.cookies.get("fb_id_token")?.value;
+  // const token = req.cookies.get("fb_id_token")?.value;
 
-  // If visiting login and already authed → redirect home
-  if (isPublic && pathname === "/login" && token) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
+  // // If visiting login and already authed → redirect home
+  // if (isPublic && pathname === "/login" && token) {
+  //   const url = req.nextUrl.clone();
+  //   url.pathname = "/";
+  //   return NextResponse.redirect(url);
+  // }
 
-  // If a non-public route and no token → redirect to /login
-  if (!isPublic && !token) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/login";
-    // preserve original path as ?redirect=
-    url.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(url);
-  }
+  // // If a non-public route and no token → redirect to /login
+  // if (!isPublic && !token) {
+  //   const url = req.nextUrl.clone();
+  //   url.pathname = "/login";
+  //   // preserve original path as ?redirect=
+  //   url.searchParams.set("redirect", pathname);
+  //   return NextResponse.redirect(url);
+  // }
 
   return NextResponse.next();
 }

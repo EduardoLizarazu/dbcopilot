@@ -1,7 +1,7 @@
-import { listRolesForUserForm } from "@/controller/_actions/user/roles";
 import UsersCreateClient from "./users.create.client";
+import { ReadAllRolesAction } from "@/_actions/roles/read-all.action";
 
 export default async function UsersCreatePage() {
-  const roles = await listRolesForUserForm(); // SSR: ensures first paint has data
-  return <UsersCreateClient roles={roles} />;
+  const roles = await ReadAllRolesAction(); // SSR: ensures first paint has data
+  return <UsersCreateClient roles={roles.data} />;
 }

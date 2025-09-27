@@ -20,9 +20,14 @@ import {
   Checkbox,
 } from "@mui/material";
 import { createUserAction } from "@/controller/_actions/user/create";
-import type { RoleOption } from "@/controller/_actions/user/roles";
+import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
+import { CreateUserAction } from "@/_actions/users/create.action";
 
-export default function UsersCreateClient({ roles }: { roles: RoleOption[] }) {
+export default function UsersCreateClient({
+  roles,
+}: {
+  roles: TRoleOutRequestDto[];
+}) {
   const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [name, setName] = React.useState("");
@@ -46,14 +51,14 @@ export default function UsersCreateClient({ roles }: { roles: RoleOption[] }) {
     setSuccess(null);
     setLoading(true);
     try {
-      const res = await createUserAction({
+      const res = await CreateUserAction({
         email,
         name,
         lastname,
         password,
-        roleIds: selectedRoleIds,
+        roles: selectedRoleIds,
       });
-      if (res.ok) {
+      if (res.data) {
         setSuccess("User created successfully. Redirecting to list…");
         setTimeout(() => router.replace("/auth/users"), 800);
       }

@@ -3,7 +3,9 @@
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
 import { domain } from "@/utils/constants";
 
-export async function ReadAllRolesAction() {
+export async function ReadAllRolesAction(): Promise<
+  TResOutContent<TRoleOutRequestDto[]>
+> {
   console.log("Reading all roles...");
   const rolesRes = await fetch(`${domain}/api/roles`, {
     method: "GET",
@@ -22,6 +24,8 @@ export async function ReadAllRolesAction() {
 }
 
 import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";
+import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
+import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
 
 export type Role = {
   id: string;

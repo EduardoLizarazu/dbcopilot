@@ -30,6 +30,7 @@ export class UserRepository implements IUserRepository {
   async create(data: TCreateUserDto): Promise<string> {
     try {
       this.logger.info("[UserRepository] Creating user with data:", data);
+
       // Create user auth in Firebase Auth
       const userRecord = await this.firebaseAdmin.auth.createUser({
         email: data.email,
@@ -41,9 +42,18 @@ export class UserRepository implements IUserRepository {
         userRecord.uid
       );
 
-      const db = this.firebaseClient.getDb();
-      const userCollection = collection(db, this.firebaseAdmin.coll.NLQ_USERS);
-      const userRef = doc(userCollection, userRecord.uid);
+      // Create user in Firestore with the same UID
+      const db = this.firebaseAdmin.db;
+      const userRef = db
+        .collection(this.firebaseAdmin.coll.NLQ_USERS)
+        .doc(userRecord.uid);
+      await userRef.set({ ...data });
+
+      this.logger.info(
+        "[UserRepository] User created in Firestore with UID:",
+        userRecord.uid
+      );
+
       return userRecord.uid;
     } catch (error) {
       this.logger.error("[UserRepository] Error creating user:", error);
