@@ -11,6 +11,7 @@ import {
   DialogActions,
   Button,
   TextField,
+  CircularProgress,
 } from "@mui/material";
 import ThumbUpAlt from "@mui/icons-material/ThumbUpAlt";
 import ThumbDownAlt from "@mui/icons-material/ThumbDownAlt";
@@ -29,6 +30,7 @@ export function ChatFeedbackBtn({
   const [explanation, setExplanation] = React.useState("");
   const [activeThumb, setActiveThumb] = React.useState<0 | 1 | null>(null); // 0 = down, 1 = up, null = none
   const [feedbackId, setFeedbackId] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState<0 | 1 | null>(null); // Tracks which thumb is loading
 
   React.useEffect(() => {
     if (isReset) {
@@ -36,12 +38,15 @@ export function ChatFeedbackBtn({
       setOpen(false);
       setActiveThumb(null);
       setFeedbackId(null);
+      setLoading(null);
     }
   }, [isReset]);
 
   const toggleThumb = async (type: 0 | 1) => {
     try {
       if (!promptId) throw new Error("Prompt ID is missing.");
+
+      setLoading(type); // Set loading state for the pressed thumb
 
       if (activeThumb === type) {
         // Deactivate if the same thumb is clicked again
@@ -60,6 +65,7 @@ export function ChatFeedbackBtn({
         });
         setFeedbackId(null);
         console.log("Feedback cleared on server");
+        setLoading(null); // Clear loading state
         return;
       }
 
@@ -85,30 +91,46 @@ export function ChatFeedbackBtn({
         severity: "error",
         message: e?.message ?? "Failed to save feedback",
       });
+    } finally {
+      setLoading(null); // Clear loading state
     }
   };
 
   return (
     <div style={{ marginTop: 8 }}>
       <Tooltip title="Looks good">
-        <IconButton
-          onClick={() => toggleThumb(1)}
-          aria-label="thumb up"
-          color={activeThumb === 1 ? "primary" : "default"}
-        >
-          <ThumbUpAlt fontSize="small" />
-        </IconButton>
+        <span>
+          <IconButton
+            onClick={() => toggleThumb(1)}
+            aria-label="thumb up"
+            color={activeThumb === 1 ? "primary" : "default"}
+            disabled={loading !== null} // Disable if any thumb is loading
+          >
+            {loading === 1 ? (
+              <CircularProgress size={20} />
+            ) : (
+              <ThumbUpAlt fontSize="small" />
+            )}
+          </IconButton>
+        </span>
       </Tooltip>
       <Tooltip title="Something’s wrong">
-        <IconButton
-          onClick={() => {
-            if (activeThumb !== 0) setOpen(true);
-          }}
-          aria-label="thumb down"
-          color={activeThumb === 0 ? "primary" : "default"}
-        >
-          <ThumbDownAlt fontSize="small" />
-        </IconButton>
+        <span>
+          <IconButton
+            onClick={() => {
+              if (activeThumb !== 0) setOpen(true);
+            }}
+            aria-label="thumb down"
+            color={activeThumb === 0 ? "primary" : "default"}
+            disabled={loading !== null} // Disable if any thumb is loading
+          >
+            {loading === 0 ? (
+              <CircularProgress size={20} />
+            ) : (
+              <ThumbDownAlt fontSize="small" />
+            )}
+          </IconButton>
+        </span>
       </Tooltip>
 
       <Dialog
@@ -138,7 +160,7 @@ export function ChatFeedbackBtn({
               setOpen(false);
               setExplanation("");
             }}
-            disabled={!explanation.trim()}
+            disabled={!explanation.trim() || loading !== null} // Disable if loading
           >
             Submit
           </Button>
