@@ -9,8 +9,8 @@ export interface IReadNlqQaErrorByIdUseCase {
 
 export class ReadNlqQaErrorByIdUseCase implements IReadNlqQaErrorByIdUseCase {
   constructor(
-    private readonly nlqQaErrorRepository: INlqQaErrorRepository,
-    private readonly loggerProvider: ILogger
+    private readonly loggerProvider: ILogger,
+    private readonly nlqQaErrorRepository: INlqQaErrorRepository
   ) {}
   async execute(id: string): Promise<TResponseDto<TNlqQaErrorOutRequestDto>> {
     try {
