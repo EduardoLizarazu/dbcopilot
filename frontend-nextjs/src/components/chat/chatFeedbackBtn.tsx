@@ -64,6 +64,7 @@ export function ChatFeedbackBtn({
           comment: null,
         });
         setFeedbackId(null);
+        setExplanation("");
         console.log("Feedback cleared on server");
         setLoading(null); // Clear loading state
         return;
@@ -71,6 +72,13 @@ export function ChatFeedbackBtn({
 
       // Activate the clicked thumb
       setActiveThumb(type);
+      console.log("Submitting feedback:", {
+        feedbackId: feedbackId,
+        nlqQaId: promptId,
+        isGood: type === 1,
+        comment: explanation,
+      });
+
       const res = await ManageFeedbackAction({
         feedbackId: feedbackId,
         nlqQaId: promptId,
@@ -117,8 +125,14 @@ export function ChatFeedbackBtn({
       <Tooltip title="Something’s wrong">
         <span>
           <IconButton
-            onClick={() => {
-              if (activeThumb !== 0) setOpen(true);
+            onClick={async () => {
+              if (activeThumb === 0) {
+                // If ThumbDownAlt is active, deactivate it first
+                await toggleThumb(0);
+              } else if (!loading) {
+                // Open the dialog only if not active and not loading
+                setOpen(true);
+              }
             }}
             aria-label="thumb down"
             color={activeThumb === 0 ? "primary" : "default"}

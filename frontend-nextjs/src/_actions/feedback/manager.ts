@@ -17,6 +17,8 @@ export async function ManageFeedbackAction(params: {
   comment: string | null;
 }): Promise<{ id: string | null }> {
   try {
+    console.log("ManageFeedbackAction called with params:", params);
+
     // Update feedback
     if (
       params.feedbackId !== null &&
