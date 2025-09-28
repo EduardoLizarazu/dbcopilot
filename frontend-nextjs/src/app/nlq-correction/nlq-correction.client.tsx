@@ -64,9 +64,36 @@ export default function NlqCorrectionsClient({
   };
 
   const filteredRows = rows.filter((r) => {
-    if (kind === "feedback") return r.byFeedback;
-    if (kind === "error") return r.byError;
-    return true; // Show all rows if kind is "all"
+    const from = tqFrom ? new Date(tqFrom) : null;
+    const to = tqTo ? new Date(tqTo) : null;
+
+    const feedbackTime = r.byFeedback
+      ? new Date(
+          r.byFeedback.timeQuestion._seconds * 1000 +
+            r.byFeedback.timeQuestion._nanoseconds / 1e6
+        )
+      : null;
+
+    const errorTime = r.byError
+      ? new Date(
+          r.byError.createdAt._seconds * 1000 +
+            r.byError.createdAt._nanoseconds / 1e6
+        )
+      : null;
+
+    const isWithinRange = (time) => {
+      if (!time) return false;
+      if (from && time < from) return false;
+      if (to && time > to) return false;
+      return true;
+    };
+
+    if (kind === "feedback") return r.byFeedback && isWithinRange(feedbackTime);
+    if (kind === "error") return r.byError && isWithinRange(errorTime);
+    return (
+      (r.byFeedback && isWithinRange(feedbackTime)) ||
+      (r.byError && isWithinRange(errorTime))
+    );
   });
 
   return (
