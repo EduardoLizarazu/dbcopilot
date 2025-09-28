@@ -73,12 +73,12 @@ export default function NlqCorrectionsClient({
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
           <TextField
-            label="User email contains"
+            label="Search..."
             size="small"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
-          <TextField
+          {/* <TextField
             label="time_question from"
             size="small"
             type="datetime-local"
@@ -93,7 +93,7 @@ export default function NlqCorrectionsClient({
             value={tqTo}
             onChange={(e) => setTqTo(e.target.value)}
             InputLabelProps={{ shrink: true }}
-          />
+          /> */}
 
           <FormControl size="small" sx={{ minWidth: 180 }}>
             <InputLabel id="kind-label">Show</InputLabel>
@@ -104,8 +104,8 @@ export default function NlqCorrectionsClient({
               onChange={(e) => setKind(e.target.value as any)}
             >
               <MenuItem value="all">All</MenuItem>
-              <MenuItem value="feedback">Has feedback</MenuItem>
-              <MenuItem value="error">Has execution error</MenuItem>
+              <MenuItem value="feedback">Feedback</MenuItem>
+              <MenuItem value="error">Error</MenuItem>
             </Select>
           </FormControl>
         </Stack>
@@ -122,6 +122,7 @@ export default function NlqCorrectionsClient({
               setTqFrom("");
               setTqTo("");
               setKind("all");
+              setSearch("");
               fetchRows();
             }}
           >
@@ -143,10 +144,6 @@ export default function NlqCorrectionsClient({
                 <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                {/* <TableCell sx={{ fontWeight: 700 }}>SQL</TableCell> */}
-                {/* <TableCell sx={{ fontWeight: 700 }}>Feedback</TableCell> */}
-                {/* <TableCell sx={{ fontWeight: 700 }}>Feedback message</TableCell> */}
-                {/* <TableCell sx={{ fontWeight: 700 }}>Execution error</TableCell> */}
                 <TableCell sx={{ fontWeight: 700 }}>time_question</TableCell>
                 <TableCell align="right" sx={{ fontWeight: 700 }}>
                   Actions
@@ -229,8 +226,17 @@ export default function NlqCorrectionsClient({
                                 ).toISOString()
                               : undefined
                             : r.byError.createdAt &&
-                                !isNaN(new Date(r.byError.createdAt).getTime())
-                              ? new Date(r.byError.createdAt).toISOString()
+                                r.byError.createdAt._seconds &&
+                                !isNaN(
+                                  new Date(
+                                    r.byError.createdAt._seconds * 1000 +
+                                      r.byError.createdAt._nanoseconds / 1e6
+                                  ).getTime()
+                                )
+                              ? new Date(
+                                  r.byError.createdAt._seconds * 1000 +
+                                    r.byError.createdAt._nanoseconds / 1e6
+                                ).toISOString()
                               : undefined
                         }
                       />

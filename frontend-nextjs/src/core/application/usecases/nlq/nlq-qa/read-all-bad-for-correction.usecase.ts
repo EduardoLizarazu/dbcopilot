@@ -85,19 +85,17 @@ export class ReadAllBadForCorrectionUseCase
         { nlqBadWithFbAndUser: nlqBadWithFbAndUser.length }
       );
 
-      //   ==== JOIN NLQ BAD WITH ERRORS BY NLQBAD.id AND USERS BY NLQBAD.createdBy ====
+      //   ==== JOIN ERRORS AND USERS by error.createdBy=user.id ====
       //  You must join them in a single object without nesting them.
-      const nlqBadWithErrorAndUser: TByError[] = nlqBad
-        .map((nlq) => {
-          const error = nlqErrors.find((e) => e.id === nlq.id);
-          const user = users.find((u) => u.id === nlq.createdBy);
+      const nlqBadWithErrorAndUser: TByError[] = nlqErrors
+        .map((error) => {
+          const user = users.find((u) => u.id === error.createdBy);
           return {
-            ...nlq,
-            error: error || null,
+            ...error,
             user: user || null,
           };
         })
-        .filter((nlq) => nlq.error && nlq.user);
+        .filter((item) => item.user);
 
       this.logger.info(
         "ReadAllBadForCorrectionUseCase: Successfully joined bad NLQ QAs with error and user",
