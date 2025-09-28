@@ -25,20 +25,19 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import {
-  listNlqCorrectionsAction,
-  type NlqCorrectionItem,
-} from "@/controller/_actions/nlq/list-correction";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
+import { TReadNlqQaBadOutRequestDto } from "@/core/application/usecases/nlq/nlq-qa/read-all-bad-for-correction.usecase";
+import { ReadAllNlqQaBadAction } from "@/_actions/nlq-qa-correction/read-all.action";
 
 export default function NlqCorrectionsClient({
   initialRows,
 }: {
-  initialRows: NlqCorrectionItem[];
+  initialRows: TReadNlqQaBadOutRequestDto[];
 }) {
   const { setFeedback } = useFeedbackContext();
-  const [rows, setRows] = React.useState<NlqCorrectionItem[]>(initialRows);
+  const [rows, setRows] =
+    React.useState<TReadNlqQaBadOutRequestDto[]>(initialRows);
   const [loading, setLoading] = React.useState(false);
 
   // Filters
@@ -46,18 +45,13 @@ export default function NlqCorrectionsClient({
   const [tqFrom, setTqFrom] = React.useState("");
   const [tqTo, setTqTo] = React.useState("");
   const [kind, setKind] = React.useState<"all" | "feedback" | "error">("all");
+  const [search, setSearch] = React.useState(""); // just to trigger search on Enter
 
   const fetchRows = async () => {
     setLoading(true);
     try {
-      const data = await listNlqCorrectionsAction({
-        emailContains: email || undefined,
-        tqFrom: tqFrom || undefined,
-        tqTo: tqTo || undefined,
-        kind,
-        limit: 200,
-      });
-      setRows(data);
+      const data = await ReadAllNlqQaBadAction(search);
+      setRows(data.data || []);
     } catch (e: any) {
       setFeedback({
         isActive: true,
@@ -148,10 +142,11 @@ export default function NlqCorrectionsClient({
               <TableRow>
                 <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>SQL</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Feedback</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Feedback message</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Execution error</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
+                {/* <TableCell sx={{ fontWeight: 700 }}>SQL</TableCell> */}
+                {/* <TableCell sx={{ fontWeight: 700 }}>Feedback</TableCell> */}
+                {/* <TableCell sx={{ fontWeight: 700 }}>Feedback message</TableCell> */}
+                {/* <TableCell sx={{ fontWeight: 700 }}>Execution error</TableCell> */}
                 <TableCell sx={{ fontWeight: 700 }}>time_question</TableCell>
                 <TableCell align="right" sx={{ fontWeight: 700 }}>
                   Actions
@@ -171,8 +166,15 @@ export default function NlqCorrectionsClient({
                 </TableRow>
               ) : (
                 rows.map((r) => (
-                  <TableRow key={r.id} hover>
-                    <TableCell>{r.email || "—"}</TableCell>
+                  <TableRow
+                    key={r.byFeedback ? r.byFeedback.id : r.byError.id}
+                    hover
+                  >
+                    <TableCell>
+                      {r.byFeedback
+                        ? r.byFeedback.user.email || "—"
+                        : r.byError.user.email || "—"}
+                    </TableCell>
                     <TableCell sx={{ maxWidth: 360 }}>
                       <Box
                         sx={{
@@ -181,10 +183,12 @@ export default function NlqCorrectionsClient({
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {r.question || "—"}
+                        {r.byFeedback
+                          ? r.byFeedback.question || "—"
+                          : r.byError.question || "—"}
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 420 }}>
+                    <TableCell sx={{ maxWidth: 360 }}>
                       <Box
                         sx={{
                           overflow: "hidden",
@@ -192,50 +196,50 @@ export default function NlqCorrectionsClient({
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {r.sql_executed || "—"}
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      {r.user_feedback_id ? (
-                        r.feedback_type === 1 ? (
-                          <Chip size="small" color="success" label="good" />
-                        ) : r.feedback_type === 0 ? (
-                          <Chip size="small" color="error" label="bad" />
+                        {r.byFeedback ? (
+                          r.byFeedback.isGood ? (
+                            <Chip
+                              label="Feedback"
+                              color="success"
+                              size="small"
+                            />
+                          ) : (
+                            <Chip label="Feedback" color="error" size="small" />
+                          )
                         ) : (
-                          <Chip size="small" label="unknown" />
-                        )
-                      ) : (
-                        "-"
-                      )}
-                    </TableCell>
-                    <TableCell sx={{ maxWidth: 360 }}>
-                      <Box
-                        sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {r.user_feedback_id
-                          ? r.feedback_explanation || "-"
-                          : "-"}
+                          <Chip label="Error" color="error" size="small" />
+                        )}
                       </Box>
                     </TableCell>
                     <TableCell>
-                      {r.error_id ? (
-                        <Chip size="small" color="warning" label={r.error_id} />
-                      ) : (
-                        "-"
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <LocalTime iso={r.time_question} />
+                      <LocalTime
+                        iso={
+                          r.byFeedback
+                            ? r.byFeedback.timeQuestion &&
+                              r.byFeedback.timeQuestion._seconds &&
+                              !isNaN(
+                                new Date(
+                                  r.byFeedback.timeQuestion._seconds * 1000 +
+                                    r.byFeedback.timeQuestion._nanoseconds / 1e6
+                                ).getTime()
+                              )
+                              ? new Date(
+                                  r.byFeedback.timeQuestion._seconds * 1000 +
+                                    r.byFeedback.timeQuestion._nanoseconds / 1e6
+                                ).toISOString()
+                              : undefined
+                            : r.byError.createdAt &&
+                                !isNaN(new Date(r.byError.createdAt).getTime())
+                              ? new Date(r.byError.createdAt).toISOString()
+                              : undefined
+                        }
+                      />
                     </TableCell>
                     <TableCell align="right">
                       <Tooltip title="Edit correction">
                         <IconButton
                           component={Link}
-                          href={`/nlq-correction/${r.id}`}
+                          href={`/nlq-correction/${r.byFeedback ? r.byFeedback.id : r.byError.id}`}
                           size="small"
                           aria-label="edit"
                         >
