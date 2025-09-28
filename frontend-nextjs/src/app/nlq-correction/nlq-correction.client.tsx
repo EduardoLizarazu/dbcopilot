@@ -63,6 +63,12 @@ export default function NlqCorrectionsClient({
     }
   };
 
+  const filteredRows = rows.filter((r) => {
+    if (kind === "feedback") return r.byFeedback;
+    if (kind === "error") return r.byError;
+    return true; // Show all rows if kind is "all"
+  });
+
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
@@ -78,7 +84,7 @@ export default function NlqCorrectionsClient({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          {/* <TextField
+          <TextField
             label="time_question from"
             size="small"
             type="datetime-local"
@@ -93,7 +99,7 @@ export default function NlqCorrectionsClient({
             value={tqTo}
             onChange={(e) => setTqTo(e.target.value)}
             InputLabelProps={{ shrink: true }}
-          /> */}
+          />
 
           <FormControl size="small" sx={{ minWidth: 180 }}>
             <InputLabel id="kind-label">Show</InputLabel>
@@ -151,7 +157,7 @@ export default function NlqCorrectionsClient({
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.length === 0 ? (
+              {filteredRows.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
@@ -162,7 +168,7 @@ export default function NlqCorrectionsClient({
                   </TableCell>
                 </TableRow>
               ) : (
-                rows.map((r) => (
+                filteredRows.map((r) => (
                   <TableRow
                     key={r.byFeedback ? r.byFeedback.id : r.byError.id}
                     hover
