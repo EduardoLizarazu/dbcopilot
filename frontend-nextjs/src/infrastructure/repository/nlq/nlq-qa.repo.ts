@@ -139,6 +139,7 @@ export class NlqQaAppRepository implements INlqQaRepository {
         id: doc.id,
         ...doc.data(),
       })) as TNlqQaFeedbackOutRequestDto[];
+      const feedbackData = feedbacksData.length > 0 ? feedbacksData[0] : null; // Feedback can be null
 
       // Find the user who created the NLQ Qa By Id createdBy
       const userDoc = await this.fbAdminProvider.db
@@ -164,9 +165,9 @@ export class NlqQaAppRepository implements INlqQaRepository {
 
       return {
         ...nlqData,
-        feedback: feedbacksData.length > 0 ? feedbacksData[0] : null,
+        feedback: feedbackData, // Feedback can now be null
         user: userData, // User can now be null
-        error: errorData,
+        error: errorData, // Error can now be null
       };
     } catch (error) {
       this.logger.error("[NlqQaAppRepository] Error finding NLQ QA by ID", {
