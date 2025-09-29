@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { TNlqQaFeedbackOutRequestDto } from "./nlq-qa-feedback.app.dto";
 import { TUserOutputRequestDto } from "../user.app.dto";
+import { TNlqQaErrorOutRequestDto } from "./nlq-qa-error.app.dto";
 
 export const nlqQaSchema = z.object({
   id: z.string(),
@@ -49,6 +50,7 @@ export const nlqQaOutRequestSchema = nlqQaSchema.extend({
 export type TNlqQaOutRequestDto = z.infer<typeof nlqQaOutRequestSchema>;
 
 export type TNlqQaWitFeedbackOutRequestDto = TNlqQaOutRequestDto & {
-  feedback: TNlqQaFeedbackOutRequestDto[];
+  feedback: TNlqQaFeedbackOutRequestDto | null;
   user: TUserOutputRequestDto;
+  error: TNlqQaErrorOutRequestDto | null;
 };

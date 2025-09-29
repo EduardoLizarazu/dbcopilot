@@ -1,3 +1,4 @@
+import { TNlqQaErrorOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa-error.app.dto";
 import { TNlqQaFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
 import {
   TCreateNlqQaDto,
@@ -20,11 +21,20 @@ export class NlqQaAppRepository implements INlqQaRepository {
   ): Promise<TNlqQaWitFeedbackOutRequestDto> {
     try {
       // Find the NLQ QA by Id
-      const nlq = await this.fbAdminProvider.db
+      const nlqDoc = await this.fbAdminProvider.db
         .collection(this.fbAdminProvider.coll.NLQ_QA)
         .doc(id)
         .get();
-      const nlqData = { id: nlq.id, ...nlq.data() } as TNlqQaOutRequestDto;
+
+      if (!nlqDoc.exists) {
+        this.logger.warn("[NlqQaAppRepository] NLQ QA not found", { id });
+        throw new Error("NLQ QA not found");
+      }
+
+      const nlqData = {
+        id: nlqDoc.id,
+        ...nlqDoc.data(),
+      } as TNlqQaOutRequestDto;
 
       // Find the feedback related to the NLQ QA by feedbackId
       const feedbackSnapshot = await this.fbAdminProvider.db
@@ -41,12 +51,34 @@ export class NlqQaAppRepository implements INlqQaRepository {
         .collection(this.fbAdminProvider.coll.NLQ_USERS)
         .doc(nlqData.createdBy)
         .get();
+
+      if (!userDoc.exists) {
+        this.logger.warn("[NlqQaAppRepository] User not found", {
+          createdBy: nlqData.createdBy,
+        });
+        throw new Error("User not found");
+      }
+
       const userData = {
         id: userDoc.id,
         ...userDoc.data(),
       } as TUserOutputRequestDto;
 
-      return { ...nlqData, feedback: feedbacksData, user: userData };
+      // Find error related to the NLQ QA by nlqErrorId
+      const errorDoc = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_ERRORS)
+        .doc(nlqData.nlqErrorId)
+        .get();
+      const errorData = errorDoc.exists
+        ? ({ id: errorDoc.id, ...errorDoc.data() } as TNlqQaErrorOutRequestDto)
+        : null;
+
+      return {
+        ...nlqData,
+        feedback: feedbacksData.length > 0 ? feedbacksData[0] : null,
+        user: userData,
+        error: errorData,
+      };
     } catch (error) {
       this.logger.error("[NlqQaAppRepository] Error finding NLQ QA by ID", {
         error,

@@ -6,7 +6,6 @@ import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.i
 
 export type TNlqQaFbOrErrorByIdOutRequestDto = {
   nlqFeedback: TNlqQaWitFeedbackOutRequestDto;
-  nlqError: unknown;
 };
 
 export interface IReadNlqQaFbOrErrorByIdUseCase {
@@ -18,8 +17,7 @@ export class ReadNlqQaFbOrErrorByIdUseCase
 {
   constructor(
     private readonly logger: ILogger,
-    private readonly nlqQaRepo: INlqQaRepository,
-    private readonly errorRepo: INlqQaErrorRepository
+    private readonly nlqQaRepo: INlqQaRepository
   ) {}
   async execute(
     id: string
@@ -36,9 +34,6 @@ export class ReadNlqQaFbOrErrorByIdUseCase
 
       // 2. Find NLQ QA with user and feedback.
       const nlqFeedback = await this.nlqQaRepo.findByIdWithUserAndFeedback(id);
-
-      // 3. Find NLQ QA Error by NLQ QA Id
-      const nlqError = await this.errorRepo.findByNlqQaId(id);
     } catch (error) {
       this.logger.error(
         "[ReadNlqQaFbOrErrorByIdUseCase] Error fetching NLQ QA feedback",
