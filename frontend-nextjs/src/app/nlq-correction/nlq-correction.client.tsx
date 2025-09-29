@@ -278,7 +278,7 @@ export default function NlqCorrectionsClient({
                       <Tooltip title="Edit correction">
                         <IconButton
                           component={Link}
-                          href={`/nlq-correction/${r.byFeedback ? r.byFeedback.id : r.byError.id}`}
+                          href={`/nlq-correction/${r.byFeedback ? r.byFeedback.feedback.id : r.byError.id}`}
                           size="small"
                           aria-label="edit"
                         >

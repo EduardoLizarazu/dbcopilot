@@ -1,8 +1,11 @@
+import { TNlqQaFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
 import {
   TCreateNlqQaDto,
   TNlqQaOutRequestDto,
+  TNlqQaWitFeedbackOutRequestDto,
   TUpdateNlqQaDto,
 } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
+import { TUserOutputRequestDto } from "@/core/application/dtos/user.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.inter";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
@@ -12,6 +15,45 @@ export class NlqQaAppRepository implements INlqQaRepository {
     private readonly logger: ILogger,
     private readonly fbAdminProvider: FirebaseAdminProvider
   ) {}
+  async findByIdWithUserAndFeedback(
+    id: string
+  ): Promise<TNlqQaWitFeedbackOutRequestDto> {
+    try {
+      // Find the NLQ QA by Id
+      const nlq = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
+        .doc(id)
+        .get();
+      const nlqData = { id: nlq.id, ...nlq.data() } as TNlqQaOutRequestDto;
+
+      // Find the feedback related to the NLQ QA by feedbackId
+      const feedbackSnapshot = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_FEEDBACKS)
+        .where("nlqQaId", "==", nlqData.id)
+        .get();
+      const feedbacksData = feedbackSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as TNlqQaFeedbackOutRequestDto[];
+
+      // Find the user who created the NLQ Qa By Id createdBy
+      const userDoc = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_USERS)
+        .doc(nlqData.createdBy)
+        .get();
+      const userData = {
+        id: userDoc.id,
+        ...userDoc.data(),
+      } as TUserOutputRequestDto;
+
+      return { ...nlqData, feedback: feedbacksData, user: userData };
+    } catch (error) {
+      this.logger.error("[NlqQaAppRepository] Error finding NLQ QA by ID", {
+        error,
+      });
+      throw new Error("Error finding NLQ QA by ID");
+    }
+  }
 
   async create(data: TCreateNlqQaDto): Promise<string> {
     try {
