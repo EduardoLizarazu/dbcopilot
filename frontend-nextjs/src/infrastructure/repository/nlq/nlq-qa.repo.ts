@@ -116,95 +116,82 @@ export class NlqQaAppRepository implements INlqQaRepository {
   ): Promise<TNlqQaWitFeedbackOutRequestDto> {
     try {
       this.logger.info("[NlqQaAppRepository] Finding NLQ QA by ID", { id });
+
       // Find the NLQ QA by Id
-      const nlqDoc = await this.fbAdminProvider.db
+      const nlqData = await this.fbAdminProvider.db
         .collection(this.fbAdminProvider.coll.NLQ_QA)
         .doc(id)
-        .get();
-
-      this.logger.info("[NlqQaAppRepository] NLQ QA document fetched", {
-        id,
-        exists: nlqDoc.exists,
-      });
-
-      if (!nlqDoc.exists) {
-        this.logger.warn("[NlqQaAppRepository] NLQ QA not found", { id });
-        throw new Error("NLQ QA not found");
-      }
-
-      const nlqData = {
-        id: nlqDoc.id,
-        ...nlqDoc.data(),
-      } as TNlqQaOutRequestDto;
-
-      this.logger.info("[NlqQaAppRepository] Fetched NLQ QA by ID", { id });
+        .get()
+        .then((doc) => {
+          if (!doc.exists) {
+            this.logger.warn("[NlqQaAppRepository] NLQ QA not found", { id });
+            throw new Error("NLQ QA not found");
+          }
+          this.logger.info("[NlqQaAppRepository] NLQ QA document fetched", {
+            id,
+            exists: doc.exists,
+          });
+          return { id: doc.id, ...doc.data() } as TNlqQaOutRequestDto;
+        });
 
       // Find the feedback related to the NLQ QA by feedbackId
-      const feedbackSnapshot = await this.fbAdminProvider.db
+      const feedbackData = await this.fbAdminProvider.db
         .collection(this.fbAdminProvider.coll.NLQ_FEEDBACKS)
         .where("nlqQaId", "==", nlqData.id)
-        .get();
-
-      this.logger.info("[NlqQaAppRepository] Fetched feedback for NLQ QA", {
-        nlqQaId: nlqData.id || "-",
-        countFeedback: feedbackSnapshot.size || 0,
-      });
-
-      const feedbacksData = feedbackSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as TNlqQaFeedbackOutRequestDto[];
-
-      this.logger.info("[NlqQaAppRepository] Mapped feedback data", {
-        nlqQaId: nlqData.id || "-",
-        countMappedFeedback: feedbacksData.length || 0,
-      });
-
-      const feedbackData = feedbacksData.length > 0 ? feedbacksData[0] : null; // Feedback can be null
+        .get()
+        .then((snapshot) => {
+          this.logger.info("[NlqQaAppRepository] Fetched feedback for NLQ QA", {
+            nlqQaId: nlqData.id || "-",
+            countFeedback: snapshot.size || 0,
+          });
+          const feedbacks = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as TNlqQaFeedbackOutRequestDto[];
+          return feedbacks.length > 0 ? feedbacks[0] : null;
+        });
 
       // Find the user who created the NLQ Qa By Id createdBy
-      const userDoc = await this.fbAdminProvider.db
-        .collection(this.fbAdminProvider.coll.NLQ_USERS)
-        .doc(nlqData.createdBy)
-        .get();
-      this.logger.info("[NlqQaAppRepository] Fetched user for NLQ QA", {
-        nlqQaId: nlqData.id || "-",
-        userId: nlqData.createdBy || "-",
-        userExists: userDoc.exists || false,
-      });
-      const userData = userDoc.exists
-        ? {
-            id: userDoc.id,
-            ...userDoc.data(),
-          }
-        : null; // Return null if the user does not exist
-
-      this.logger.info("[NlqQaAppRepository] Mapped user data", {
-        nlqQaId: nlqData.id,
-        userId: nlqData.createdBy,
-        hasUserData: !!userData,
-      });
-
-      // Find error related to the NLQ QA by nlqErrorId
-      const errorDoc = await this.fbAdminProvider.db
-        .collection(this.fbAdminProvider.coll.NLQ_ERRORS)
-        .doc(nlqData.nlqErrorId)
-        .get();
-      this.logger.info("[NlqQaAppRepository] Fetched error for NLQ QA", {
-        nlqQaId: nlqData.id || "-",
-        nlqErrorId: nlqData.nlqErrorId || "-",
-        errorExists: errorDoc.exists || false,
-      });
-
-      const errorData = errorDoc.exists
-        ? ({ id: errorDoc.id, ...errorDoc.data() } as TNlqQaErrorOutRequestDto)
+      const userData = nlqData.createdBy
+        ? await this.fbAdminProvider.db
+            .collection(this.fbAdminProvider.coll.NLQ_USERS)
+            .doc(nlqData.createdBy)
+            .get()
+            .then((doc) => {
+              this.logger.info("[NlqQaAppRepository] Fetched user for NLQ QA", {
+                nlqQaId: nlqData.id || "-",
+                userId: nlqData.createdBy || "-",
+                userExists: doc.exists || false,
+              });
+              return doc.exists
+                ? {
+                    id: doc.id,
+                    ...doc.data(),
+                  }
+                : null;
+            })
         : null;
 
-      this.logger.info("[NlqQaAppRepository] Mapped error data", {
-        nlqQaId: nlqData.id,
-        nlqErrorId: nlqData.nlqErrorId,
-        hasErrorData: !!errorData,
-      });
+      // Find error related to the NLQ QA by nlqErrorId
+      const errorData = nlqData.nlqErrorId
+        ? await this.fbAdminProvider.db
+            .collection(this.fbAdminProvider.coll.NLQ_ERRORS)
+            .doc(nlqData.nlqErrorId)
+            .get()
+            .then((doc) => {
+              this.logger.info(
+                "[NlqQaAppRepository] Fetched error for NLQ QA",
+                {
+                  nlqQaId: nlqData.id || "-",
+                  nlqErrorId: nlqData.nlqErrorId || "-",
+                  errorExists: doc.exists || false,
+                }
+              );
+              return doc.exists
+                ? ({ id: doc.id, ...doc.data() } as TNlqQaErrorOutRequestDto)
+                : null;
+            })
+        : null;
 
       return {
         ...nlqData,
