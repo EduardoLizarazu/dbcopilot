@@ -2,7 +2,7 @@ import { nextAdapter } from "@/http/adapters/next-adapter.http";
 import { ReadNlqQaFbOrErrorByIdComposer } from "@/infrastructure/services/composers/nlq-qa-correction/read-nlq-fb-or-error-by-id.infra.service";
 import { NextRequest } from "next/server";
 
-// read all
+// read by id
 export async function GET(req: NextRequest) {
   console.log("API: NLQ request...", req);
   const adapter = await nextAdapter(req, ReadNlqQaFbOrErrorByIdComposer(), {
