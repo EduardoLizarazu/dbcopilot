@@ -27,17 +27,17 @@ import EditIcon from "@mui/icons-material/Edit";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
-import { TReadNlqQaBadOutRequestDto } from "@/core/application/usecases/nlq/nlq-qa/read-all-bad-for-correction.usecase";
 import { ReadAllNlqQaBadAction } from "@/_actions/nlq-qa-correction/read-all.action";
+import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 
 export default function NlqCorrectionsClient({
   initialRows,
 }: {
-  initialRows: TReadNlqQaBadOutRequestDto[];
+  initialRows: TNlqQaWitFeedbackOutRequestDto[];
 }) {
   const { setFeedback } = useFeedbackContext();
   const [rows, setRows] =
-    React.useState<TReadNlqQaBadOutRequestDto[]>(initialRows);
+    React.useState<TNlqQaWitFeedbackOutRequestDto[]>(initialRows);
   const [loading, setLoading] = React.useState(false);
 
   // Filters
