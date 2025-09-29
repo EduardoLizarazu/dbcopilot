@@ -67,17 +67,17 @@ export default function NlqCorrectionsClient({
     const from = tqFrom ? new Date(tqFrom) : null;
     const to = tqTo ? new Date(tqTo) : null;
 
-    const feedbackTime = r.byFeedback
+    const feedbackTime = r.feedback
       ? new Date(
-          r.byFeedback.timeQuestion._seconds * 1000 +
-            r.byFeedback.timeQuestion._nanoseconds / 1e6
+          r.feedback.updatedAt._seconds * 1000 +
+            r.feedback.updatedAt._nanoseconds / 1e6
         )
       : null;
 
-    const errorTime = r.byError
+    const errorTime = r.error
       ? new Date(
-          r.byError.createdAt._seconds * 1000 +
-            r.byError.createdAt._nanoseconds / 1e6
+          r.error.createdAt._seconds * 1000 +
+            r.error.createdAt._nanoseconds / 1e6
         )
       : null;
 
@@ -88,11 +88,11 @@ export default function NlqCorrectionsClient({
       return true;
     };
 
-    if (kind === "feedback") return r.byFeedback && isWithinRange(feedbackTime);
-    if (kind === "error") return r.byError && isWithinRange(errorTime);
+    if (kind === "feedback") return r.feedback && isWithinRange(feedbackTime);
+    if (kind === "error") return r.error && isWithinRange(errorTime);
     return (
-      (r.byFeedback && isWithinRange(feedbackTime)) ||
-      (r.byError && isWithinRange(errorTime))
+      (r.feedback && isWithinRange(feedbackTime)) ||
+      (r.error && isWithinRange(errorTime))
     );
   });
 
@@ -196,15 +196,8 @@ export default function NlqCorrectionsClient({
                 </TableRow>
               ) : (
                 filteredRows.map((r) => (
-                  <TableRow
-                    key={r.byFeedback ? r.byFeedback.id : r.byError.id}
-                    hover
-                  >
-                    <TableCell>
-                      {r.byFeedback
-                        ? r.byFeedback.user.email || "—"
-                        : r.byError.user.email || "—"}
-                    </TableCell>
+                  <TableRow key={r.feedback ? r.feedback.id : r.error.id} hover>
+                    <TableCell>{r.user.email || "—"}</TableCell>
                     <TableCell sx={{ maxWidth: 360 }}>
                       <Box
                         sx={{
@@ -213,9 +206,7 @@ export default function NlqCorrectionsClient({
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {r.byFeedback
-                          ? r.byFeedback.question || "—"
-                          : r.byError.question || "—"}
+                        {r.question || "—"}
                       </Box>
                     </TableCell>
                     <TableCell sx={{ maxWidth: 360 }}>
@@ -226,8 +217,8 @@ export default function NlqCorrectionsClient({
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {r.byFeedback ? (
-                          r.byFeedback.isGood ? (
+                        {r.feedback ? (
+                          r.feedback.isGood ? (
                             <Chip
                               label="Feedback"
                               color="success"
@@ -244,31 +235,15 @@ export default function NlqCorrectionsClient({
                     <TableCell>
                       <LocalTime
                         iso={
-                          r.byFeedback
-                            ? r.byFeedback.timeQuestion &&
-                              r.byFeedback.timeQuestion._seconds &&
-                              !isNaN(
-                                new Date(
-                                  r.byFeedback.timeQuestion._seconds * 1000 +
-                                    r.byFeedback.timeQuestion._nanoseconds / 1e6
-                                ).getTime()
-                              )
+                          r.feedback
+                            ? new Date(
+                                r.feedback.updatedAt._seconds * 1000 +
+                                  r.feedback.updatedAt._nanoseconds / 1e6
+                              ).toISOString()
+                            : r.error && r.error.createdAt
                               ? new Date(
-                                  r.byFeedback.timeQuestion._seconds * 1000 +
-                                    r.byFeedback.timeQuestion._nanoseconds / 1e6
-                                ).toISOString()
-                              : undefined
-                            : r.byError.createdAt &&
-                                r.byError.createdAt._seconds &&
-                                !isNaN(
-                                  new Date(
-                                    r.byError.createdAt._seconds * 1000 +
-                                      r.byError.createdAt._nanoseconds / 1e6
-                                  ).getTime()
-                                )
-                              ? new Date(
-                                  r.byError.createdAt._seconds * 1000 +
-                                    r.byError.createdAt._nanoseconds / 1e6
+                                  r.error.createdAt._seconds * 1000 +
+                                    r.error.createdAt._nanoseconds / 1e6
                                 ).toISOString()
                               : undefined
                         }
@@ -278,7 +253,7 @@ export default function NlqCorrectionsClient({
                       <Tooltip title="Edit correction">
                         <IconButton
                           component={Link}
-                          href={`/nlq-correction/${r.byFeedback ? r.byFeedback.feedback.id : r.byError.id}`}
+                          href={`/nlq-correction/${r.id}`}
                           size="small"
                           aria-label="edit"
                         >
