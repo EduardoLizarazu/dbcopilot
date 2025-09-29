@@ -197,7 +197,7 @@ export default function NlqCorrectionsClient({
               ) : (
                 filteredRows.map((r) => (
                   <TableRow key={r.feedback ? r.feedback.id : r.error.id} hover>
-                    <TableCell>{r.user.email || "—"}</TableCell>
+                    <TableCell>{r.user?.email || "—"}</TableCell>
                     <TableCell sx={{ maxWidth: 360 }}>
                       <Box
                         sx={{
