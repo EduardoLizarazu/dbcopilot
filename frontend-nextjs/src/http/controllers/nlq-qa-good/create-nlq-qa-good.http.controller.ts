@@ -9,7 +9,10 @@ import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
-import { TCreateNlqQaGoodDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import {
+  TCreateNlqQaGoodDto,
+  TNlqQaGoodInRequestDto,
+} from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { ROLE } from "@/http/utils/role.enum";
 
@@ -24,7 +27,7 @@ export class CreateNlqQaGoodController implements IController {
   ) {}
 
   async handle(
-    httpRequest: IHttpRequest<TCreateNlqQaGoodDto>
+    httpRequest: IHttpRequest<TNlqQaGoodInRequestDto>
   ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
@@ -94,6 +97,7 @@ export class CreateNlqQaGoodController implements IController {
       const useCase = await this.createNlqQaGoodUseCase.execute({
         ...body,
         createdBy: decoded.uid,
+        originId: body.originId || "",
       });
       this.logger.info(
         "[CreateNlqQaGoodController] UseCase executed successfully",

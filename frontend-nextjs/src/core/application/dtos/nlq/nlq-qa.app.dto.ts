@@ -16,6 +16,7 @@ export const nlqQaSchema = z.object({
   knowledgeSourceUsedId: z.array(z.string()),
   createdBy: z.string(),
   nlqErrorId: z.string(),
+  nlqQaGoodId: z.string().default(""),
 
   updatedBy: z.string(),
   createdAt: z.date(),

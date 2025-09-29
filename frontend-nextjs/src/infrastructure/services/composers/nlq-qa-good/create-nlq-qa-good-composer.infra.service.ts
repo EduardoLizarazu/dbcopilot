@@ -10,6 +10,7 @@ import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winsto
 import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { NlqQaGoodRepository } from "@/infrastructure/repository/nlq/nlq-qa-good.repo";
+import { NlqQaAppRepository } from "@/infrastructure/repository/nlq/nlq-qa.repo";
 
 export function createNlqQaGoodComposer(): IController {
   // PROVIDERS
@@ -19,6 +20,7 @@ export function createNlqQaGoodComposer(): IController {
   const pineconeProvider = new PineconeProvider();
 
   // REPOSITORIES
+  const nlqQaRepo = new NlqQaAppRepository(loggerProvider, firebaseAdmin);
   const nlqQaGoodRepo = new NlqQaGoodRepository(loggerProvider, firebaseAdmin);
 
   // Others utils
@@ -47,6 +49,7 @@ export function createNlqQaGoodComposer(): IController {
   // USE CASES
   const useCase = new CreateNlqQaGoodUseCase(
     loggerProvider,
+    nlqQaRepo,
     nlqQaGoodRepo,
     nlqQaTopologyAdapter,
     nlqQaKnowledgeAdapter

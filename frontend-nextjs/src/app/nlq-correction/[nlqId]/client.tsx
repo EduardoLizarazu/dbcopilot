@@ -23,6 +23,7 @@ import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { NlqQaInfoExecQuery } from "@/_actions/nlq-qa-info/execute-query.action";
+import { CreateNlqQaGoodAction } from "@/_actions/nlq-qa-correction/create.action";
 
 export default function NlqCorrectionClient({
   initial,
@@ -76,9 +77,14 @@ export default function NlqCorrectionClient({
     setSaveError(null);
     setSaveOk(null);
     try {
-      const res = await saveNlqCorrectionAction({
-        nlq_id: initial.id,
-        corrected_sql: newSql,
+      // const res = await saveNlqCorrectionAction({
+      //   nlq_id: initial.id,
+      //   corrected_sql: newSql,
+      // });
+      const res = await CreateNlqQaGoodAction({
+        originId: initial.id,
+        question: initial.question,
+        query: newSql,
       });
       setSaveOk("Everything was OK — correction saved and NLQ marked as good.");
       setFeedback({

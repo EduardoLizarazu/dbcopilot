@@ -10,6 +10,7 @@ import { ILogger } from "../../../interfaces/ilog.app.inter";
 import { INlqQaGoodRepository } from "../../../interfaces/nlq/nlq-qa-good.app.inter";
 import { INlqQaTopologyGenerationPort } from "@/core/application/ports/nlq-qa-topology-generation.port";
 import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
+import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.inter";
 
 export interface ICreateNlqQaGoodUseCase {
   execute(
@@ -20,6 +21,7 @@ export interface ICreateNlqQaGoodUseCase {
 export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
   constructor(
     private readonly logger: ILogger,
+    private readonly nlqQaRepo: INlqQaRepository,
     private readonly nlqQaGoodRepository: INlqQaGoodRepository,
     private readonly topologyGenPort: INlqQaTopologyGenerationPort,
     private readonly knowledgePort: INlqQaKnowledgePort
@@ -43,7 +45,10 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
           data: null,
         };
       }
-
+      this.logger.info(
+        "[CreateNlqQaGoodUseCase] Input data validated successfully",
+        dateValidate.data
+      );
       // 2. GENERATION STEPS
 
       // 2.1 Generate detail question.
@@ -52,10 +57,20 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         query: data.query,
       });
 
+      this.logger.info(
+        "[CreateNlqQaGoodUseCase] Generated detail question:",
+        detailQuestion
+      );
+
       // 2.2 Generate tableColumns ["[TABLE].[COLUMN]"] .
       const { tablesColumns } = await this.topologyGenPort.genTablesColumns({
         query: data.query,
       });
+
+      this.logger.info(
+        "[CreateNlqQaGoodUseCase] Generated tablesColumns:",
+        tablesColumns
+      );
 
       // 2.3 Generate Semantic Fields
       const { semanticFields } = await this.topologyGenPort.genSemanticFields({
@@ -63,11 +78,21 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         query: data.query,
       });
 
+      this.logger.info(
+        "[CreateNlqQaGoodUseCase] Generated semanticFields:",
+        semanticFields
+      );
+
       // 2.4 Generate Semantic Tables.
       const { semanticTables } = await this.topologyGenPort.genSemanticTables({
         question: detailQuestion,
         query: data.query,
       });
+
+      this.logger.info(
+        "[CreateNlqQaGoodUseCase] Generated semanticTables:",
+        semanticTables
+      );
 
       // 2.5 Generate Semantic Flags
       const { flags } = await this.topologyGenPort.genFlags({
@@ -75,11 +100,18 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         query: data.query,
       });
 
+      this.logger.info("[CreateNlqQaGoodUseCase] Generated flags:", flags);
+
       // 2.6 Generate thinking process
       const { think } = await this.topologyGenPort.genThinkProcess({
         question: detailQuestion,
         query: data.query,
       });
+
+      this.logger.info(
+        "[CreateNlqQaGoodUseCase] Generated thinking process:",
+        think
+      );
 
       // 3. Create NLQ QA Good
       const nlqQaGoodId = await this.nlqQaGoodRepository.create({
@@ -129,6 +161,18 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
           data: null,
         };
       }
+      this.logger.info(
+        "[CreateNlqQaGoodUseCase] Created NLQ QA Good found:",
+        result
+      );
+
+      // 6. Update the nlq qa
+      await this.nlqQaRepo.update(data.originId, {
+        isGood: true,
+        nlqQaGoodId: nlqQaGoodId,
+        updatedAt: new Date(),
+        updatedBy: data.createdBy,
+      });
 
       // Return success response
       return {
