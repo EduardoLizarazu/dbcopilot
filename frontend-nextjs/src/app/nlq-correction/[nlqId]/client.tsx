@@ -99,83 +99,90 @@ export default function NlqCorrectionClient({
         Correct NLQ
       </Typography>
 
-      {/* Details */}
-      <Paper className="p-4" elevation={1}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <Stack spacing={1}>
-              <Typography variant="subtitle2" color="text.secondary">
-                NLQ ID
-              </Typography>
-              <Typography>{initial.id}</Typography>
+      {/* NLQ Details */}
+      <Paper className="p-4" elevation={1} sx={{ mb: 2 }}>
+        <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+          NLQ Details
+        </Typography>
+        <Stack spacing={1}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Question
+          </Typography>
+          <Typography>{initial.question || "—"}</Typography>
 
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                User email
-              </Typography>
-              <Typography>{initial.user?.email || "—"}</Typography>
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>
+            Time Asked
+          </Typography>
+          <Typography>
+            {/* <LocalTime iso={initial.timeQuestion || undefined} /> */}
+          </Typography>
 
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                Time asked
-              </Typography>
-              {/* <LocalTime iso={initial.time_question || undefined} /> */}
-
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                Execution error
-              </Typography>
-              <Typography>
-                {initial.error?.id ? initial.error.id : "-"}
-              </Typography>
-            </Stack>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Stack spacing={1}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Question
-              </Typography>
-              <Typography sx={{ wordBreak: "break-word" }}>
-                {initial.question || "—"}
-              </Typography>
-
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                Feedback
-              </Typography>
-              {initial.feedback?.id ? (
-                <Stack direction="row" spacing={1} alignItems="center">
-                  {initial.feedback?.isGood === true ? (
-                    <Chip size="small" color="success" label="good" />
-                  ) : initial.feedback?.isGood === false ? (
-                    <Chip size="small" color="error" label="bad" />
-                  ) : (
-                    <Chip size="small" label="unknown" />
-                  )}
-                  <Typography sx={{ ml: 1 }}>
-                    {initial.feedback?.comment || "-"}
-                  </Typography>
-                </Stack>
-              ) : (
-                <Typography>-</Typography>
-              )}
-            </Stack>
-          </Grid>
-        </Grid>
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>
+            User Email
+          </Typography>
+          <Typography>{initial.user?.email || "—"}</Typography>
+        </Stack>
       </Paper>
+
+      {/* Feedback Details */}
+      {initial.feedback && (
+        <Paper className="p-4" elevation={1} sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+            Feedback
+          </Typography>
+          <Stack spacing={1}>
+            <Typography variant="subtitle2" color="text.secondary">
+              Feedback Status
+            </Typography>
+            <Chip
+              size="small"
+              color={
+                initial.feedback.isGood
+                  ? "success"
+                  : initial.feedback.isGood === false
+                    ? "error"
+                    : "default"
+              }
+              label={
+                initial.feedback.isGood
+                  ? "Positive"
+                  : initial.feedback.isGood === false
+                    ? "Negative"
+                    : "Unknown"
+              }
+              sx={{ maxWidth: 120, width: "fit-content" }}
+            />
+
+            {initial.feedback.comment && (
+              <>
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{ mt: 2 }}
+                >
+                  Comment
+                </Typography>
+                <Typography>{initial.feedback.comment}</Typography>
+              </>
+            )}
+          </Stack>
+        </Paper>
+      )}
+
+      {/* Error Details */}
+      {initial.error && (
+        <Paper className="p-4" elevation={1} sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+            Error Details
+          </Typography>
+          <Stack spacing={1}>
+            <Typography variant="subtitle2" color="text.secondary">
+              Execution Error Message
+            </Typography>
+            <Typography>{initial.error.errorMessage || "—"}</Typography>
+          </Stack>
+        </Paper>
+      )}
 
       <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
         <Button variant="text" onClick={() => router.push("/nlq-correction")}>
