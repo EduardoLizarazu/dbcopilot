@@ -22,7 +22,9 @@ export class ReadAllNlqQaFbOrErrorController implements IController {
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
-  async handle(httpRequest: IHttpRequest<null>): Promise<IHttpResponse> {
+  async handle(
+    httpRequest: IHttpRequest<{ query: string }>
+  ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====q
       this.logger.info(
@@ -84,9 +86,20 @@ export class ReadAllNlqQaFbOrErrorController implements IController {
         );
         return new HttpResponse(error.statusCode, error.body);
       }
+      //   ==== INPUT BODY ====
+      //   1. Check body
+      this.logger.info("[CreateNlqQaController] Body:", httpRequest.body);
+      if (!httpRequest.body) {
+        this.logger.error("[CreateNlqQaController] No body provided");
+        const error = this.httpErrors.error_400("No body provided");
+        return new HttpResponse(error.statusCode, error.body);
+      }
+      const body = httpRequest.body;
 
       // ==== BUSINESS LOGIC USE CASES ====
-      const useCase = await this.readAllNlqQaFbOrErrorUseCase.execute();
+      const useCase = await this.readAllNlqQaFbOrErrorUseCase.execute(
+        body.query || ""
+      );
 
       if (!useCase.success) {
         this.logger.error(
