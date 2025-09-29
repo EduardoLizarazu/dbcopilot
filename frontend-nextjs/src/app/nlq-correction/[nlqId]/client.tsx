@@ -85,6 +85,7 @@ export default function NlqCorrectionClient({
         originId: initial.id,
         question: initial.question,
         query: newSql,
+        questionBy: initial.user?.id || "",
       });
       setSaveOk("Everything was OK — correction saved and NLQ marked as good.");
       setFeedback({

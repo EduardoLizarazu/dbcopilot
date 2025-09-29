@@ -20,6 +20,7 @@ export async function CreateNlqQaGoodAction(
         originId: input.originId,
         question: input.question,
         query: input.query,
+        questionBy: input.questionBy,
       }),
       headers: {
         "Content-Type": "application/json",
