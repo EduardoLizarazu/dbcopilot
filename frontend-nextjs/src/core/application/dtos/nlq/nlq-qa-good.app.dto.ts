@@ -4,7 +4,7 @@ export const nlqQaGoodSchema = z.object({
   id: z.string(),
   question: z.string().min(2),
   query: z.string().min(2),
-  originId: z.string().min(2), // FK to nlqQaError or nlqQaFeedback
+  originId: z.string().min(2), // FK to nlqQa
 
   // VDB
   knowledgeSourceId: z.string().min(2), // VDB - Same as this.id

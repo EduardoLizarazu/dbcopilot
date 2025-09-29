@@ -16,6 +16,74 @@ export class NlqQaAppRepository implements INlqQaRepository {
     private readonly logger: ILogger,
     private readonly fbAdminProvider: FirebaseAdminProvider
   ) {}
+  async findAllWithUserAndFeedback(): Promise<
+    TNlqQaWitFeedbackOutRequestDto[]
+  > {
+    try {
+      // Fetch all NLQ QAs
+      const nlqSnapshot = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
+        .get();
+      const nlqQas: TNlqQaOutRequestDto[] = [];
+      nlqSnapshot.forEach((doc) => {
+        nlqQas.push({ id: doc.id, ...doc.data() } as TNlqQaOutRequestDto);
+      });
+
+      // Find feedback (feedbackId), error (nlqErrorId), user (createdBy) for each NLQ QA
+      const results: TNlqQaWitFeedbackOutRequestDto[] = [];
+      for (const nlqData of nlqQas) {
+        // Find the feedback related to the NLQ QA by feedbackId
+        const feedbackSnapshot = await this.fbAdminProvider.db
+          .collection(this.fbAdminProvider.coll.NLQ_FEEDBACKS)
+          .where("nlqQaId", "==", nlqData.id)
+          .get();
+        const feedbacksData = feedbackSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as TNlqQaFeedbackOutRequestDto[];
+        // Find the user who created the NLQ Qa By Id createdBy
+        const userDoc = await this.fbAdminProvider.db
+          .collection(this.fbAdminProvider.coll.NLQ_USERS)
+          .doc(nlqData.createdBy)
+          .get();
+        const userData = userDoc.exists
+          ? {
+              id: userDoc.id,
+              ...userDoc.data(),
+            }
+          : null; // Return null if the user does not exist
+
+        // Find error related to the NLQ QA by nlqErrorId
+        const errorDoc = await this.fbAdminProvider.db
+          .collection(this.fbAdminProvider.coll.NLQ_ERRORS)
+          .doc(nlqData.nlqErrorId)
+          .get();
+        const errorData = errorDoc.exists
+          ? ({
+              id: errorDoc.id,
+              ...errorDoc.data(),
+            } as TNlqQaErrorOutRequestDto)
+          : null;
+
+        results.push({
+          ...nlqData,
+          feedback: feedbacksData.length > 0 ? feedbacksData[0] : null,
+          user: userData, // User can now be null
+          error: errorData,
+        });
+      }
+
+      return results;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaAppRepository] Error fetching all NLQ QA feedback",
+        {
+          error,
+        }
+      );
+      throw new Error("Error fetching all NLQ QA feedback");
+    }
+  }
   async findByIdWithUserAndFeedback(
     id: string
   ): Promise<TNlqQaWitFeedbackOutRequestDto> {
@@ -52,17 +120,12 @@ export class NlqQaAppRepository implements INlqQaRepository {
         .doc(nlqData.createdBy)
         .get();
 
-      if (!userDoc.exists) {
-        this.logger.warn("[NlqQaAppRepository] User not found", {
-          createdBy: nlqData.createdBy,
-        });
-        throw new Error("User not found");
-      }
-
-      const userData = {
-        id: userDoc.id,
-        ...userDoc.data(),
-      } as TUserOutputRequestDto;
+      const userData = userDoc.exists
+        ? {
+            id: userDoc.id,
+            ...userDoc.data(),
+          }
+        : null; // Return null if the user does not exist
 
       // Find error related to the NLQ QA by nlqErrorId
       const errorDoc = await this.fbAdminProvider.db
@@ -76,7 +139,7 @@ export class NlqQaAppRepository implements INlqQaRepository {
       return {
         ...nlqData,
         feedback: feedbacksData.length > 0 ? feedbacksData[0] : null,
-        user: userData,
+        user: userData, // User can now be null
         error: errorData,
       };
     } catch (error) {

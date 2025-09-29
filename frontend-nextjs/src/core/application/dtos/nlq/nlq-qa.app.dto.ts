@@ -51,6 +51,6 @@ export type TNlqQaOutRequestDto = z.infer<typeof nlqQaOutRequestSchema>;
 
 export type TNlqQaWitFeedbackOutRequestDto = TNlqQaOutRequestDto & {
   feedback: TNlqQaFeedbackOutRequestDto | null;
-  user: TUserOutputRequestDto;
+  user: TUserOutputRequestDto | null;
   error: TNlqQaErrorOutRequestDto | null;
 };

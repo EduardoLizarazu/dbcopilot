@@ -15,5 +15,6 @@ export interface INlqQaRepository
   findByIdWithUserAndFeedback(
     id: string
   ): Promise<TNlqQaWitFeedbackOutRequestDto>;
+  findAllWithUserAndFeedback(): Promise<TNlqQaWitFeedbackOutRequestDto[]>;
   softDeleteById(id: string): Promise<void>;
 }
