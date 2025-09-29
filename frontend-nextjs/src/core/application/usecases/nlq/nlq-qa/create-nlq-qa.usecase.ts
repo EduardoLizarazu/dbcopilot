@@ -126,7 +126,8 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           this.logger.error(
             `[CreateNlqQaUseCase]: SQL query is not safe: ${query.query}`
           );
-          await this.nlqQaErrorRepository.create({
+
+          const nlqErrorId = await this.nlqQaErrorRepository.create({
             question: data.question,
             errorMessage: "Generated SQL query is not safe",
             query: query.query,
@@ -134,6 +135,27 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
             createdBy: data.createdBy,
             createdAt: new Date(),
           });
+
+          this.logger.info(
+            `[CreateNlqQaUseCase]: Created NLQ QA Error with id: ${nlqErrorId}`
+          );
+
+          await this.nlqQaRepository.create({
+            question: data.question,
+            query: query.query,
+            isGood: false,
+            timeQuestion: new Date(),
+            timeQuery: new Date(),
+            knowledgeSourceUsedId: similarQuestionsId,
+            userDeleted: false,
+            feedbackId: "",
+            nlqErrorId: nlqErrorId,
+            createdBy: data.createdBy,
+            updatedBy: data.createdBy,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+
           return {
             data: null,
             success: false,
@@ -187,7 +209,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           { error: error instanceof Error ? error.message : String(error) }
         );
         // 6.b Error handling of query execution
-        await this.nlqQaErrorRepository.create({
+        const nlqErrorId = await this.nlqQaErrorRepository.create({
           question: data.question,
           errorMessage: error instanceof Error ? error.message : String(error),
           query: query.query,
@@ -195,6 +217,27 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           createdBy: data.createdBy,
           createdAt: new Date(),
         });
+
+        this.logger.info(
+          `[CreateNlqQaUseCase]: Created NLQ QA Error with id: ${nlqErrorId}`
+        );
+
+        await this.nlqQaRepository.create({
+          question: data.question,
+          query: query.query,
+          isGood: false,
+          timeQuestion: new Date(),
+          timeQuery: new Date(),
+          knowledgeSourceUsedId: similarQuestionsId,
+          userDeleted: false,
+          feedbackId: "",
+          nlqErrorId: nlqErrorId,
+          createdBy: data.createdBy,
+          updatedBy: data.createdBy,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
         return {
           data: null,
           success: false,

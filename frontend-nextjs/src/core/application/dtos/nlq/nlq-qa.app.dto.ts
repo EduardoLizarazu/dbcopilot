@@ -9,11 +9,13 @@ export const nlqQaSchema = z.object({
   isGood: z.boolean().default(true),
   timeQuestion: z.date(),
   timeQuery: z.date(),
-  knowledgeSourceUsedId: z.array(z.string()),
   userDeleted: z.boolean().default(false),
 
   feedbackId: z.string(),
+  knowledgeSourceUsedId: z.array(z.string()),
   createdBy: z.string(),
+  nlqErrorId: z.string(),
+
   updatedBy: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
