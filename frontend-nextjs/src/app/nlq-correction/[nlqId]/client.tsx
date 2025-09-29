@@ -22,6 +22,7 @@ import { saveNlqCorrectionAction } from "@/controller/_actions/nlq/save-correcti
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
+import { NlqQaInfoExecQuery } from "@/_actions/nlq-qa-info/execute-query.action";
 
 export default function NlqCorrectionClient({
   initial,
@@ -48,8 +49,8 @@ export default function NlqCorrectionClient({
     setRunError(null);
     setPrevRows(null);
     try {
-      const r = await runSqlAction(prevSql);
-      setPrevRows(r.rows || []);
+      const r = await NlqQaInfoExecQuery(prevSql);
+      setPrevRows(r.data || []);
     } catch (e: any) {
       setRunError(e?.message ?? "Failed to run previous SQL");
     } finally {
@@ -62,8 +63,8 @@ export default function NlqCorrectionClient({
     setRunError(null);
     setNewRows(null);
     try {
-      const r = await runSqlAction(newSql);
-      setNewRows(r.rows || []);
+      const r = await NlqQaInfoExecQuery(newSql);
+      setNewRows(r.data || []);
     } catch (e: any) {
       setRunError(e?.message ?? "Failed to run corrected SQL");
     } finally {
