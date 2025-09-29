@@ -5,11 +5,11 @@ import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
-export async function ReadAllNlqQaBadAction(): Promise<
-  TResOutContent<TNlqQaWitFeedbackOutRequestDto[]>
-> {
-  console.log("Reading all NLQ...");
-  const nlqRes = await fetch(`${domain}/api/nlq-correction`, {
+export async function ReadNlqQaBadByIdAction(
+  id: string
+): Promise<TResOutContent<TNlqQaWitFeedbackOutRequestDto>> {
+  console.log("Reading NLQ by ID...");
+  const nlqRes = await fetch(`${domain}/api/nlq-correction/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

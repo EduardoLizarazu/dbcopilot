@@ -19,19 +19,19 @@ import { LocalTime } from "@/components/shared/LocalTime";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { runSqlAction } from "@/controller/_actions/nlq/run-sql";
 import { saveNlqCorrectionAction } from "@/controller/_actions/nlq/save-correction";
-import type { NlqDetail } from "@/controller/_actions/nlq/get-details";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
+import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 
 export default function NlqCorrectionClient({
   initial,
 }: {
-  initial: NlqDetail;
+  initial: TNlqQaWitFeedbackOutRequestDto;
 }) {
   const router = useRouter();
   const { setFeedback } = useFeedbackContext();
 
-  const [prevSql, setPrevSql] = React.useState(initial.sql_executed || "");
+  const [prevSql, setPrevSql] = React.useState(initial.query || "");
   const [newSql, setNewSql] = React.useState("");
 
   const [prevRows, setPrevRows] = React.useState<any[] | null>(null);
@@ -116,7 +116,7 @@ export default function NlqCorrectionClient({
               >
                 User email
               </Typography>
-              <Typography>{initial.email || "—"}</Typography>
+              <Typography>{initial.user?.email || "—"}</Typography>
 
               <Typography
                 variant="subtitle2"
@@ -125,7 +125,7 @@ export default function NlqCorrectionClient({
               >
                 Time asked
               </Typography>
-              <LocalTime iso={initial.time_question || undefined} />
+              {/* <LocalTime iso={initial.time_question || undefined} /> */}
 
               <Typography
                 variant="subtitle2"
@@ -135,7 +135,7 @@ export default function NlqCorrectionClient({
                 Execution error
               </Typography>
               <Typography>
-                {initial.error_id ? initial.error_id : "-"}
+                {initial.error?.id ? initial.error.id : "-"}
               </Typography>
             </Stack>
           </Grid>
@@ -158,15 +158,15 @@ export default function NlqCorrectionClient({
               </Typography>
               {initial.feedback?.id ? (
                 <Stack direction="row" spacing={1} alignItems="center">
-                  {initial.feedback.type === 1 ? (
+                  {initial.feedback?.isGood === true ? (
                     <Chip size="small" color="success" label="good" />
-                  ) : initial.feedback.type === 0 ? (
+                  ) : initial.feedback?.isGood === false ? (
                     <Chip size="small" color="error" label="bad" />
                   ) : (
                     <Chip size="small" label="unknown" />
                   )}
                   <Typography sx={{ ml: 1 }}>
-                    {initial.feedback.explanation || "-"}
+                    {initial.feedback?.comment || "-"}
                   </Typography>
                 </Stack>
               ) : (
