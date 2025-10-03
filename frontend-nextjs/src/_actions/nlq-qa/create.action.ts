@@ -25,7 +25,12 @@ export async function CreateNlqQaAction(
   console.log("Response:", nlqQaRes);
 
   if (!nlqQaRes.ok) {
-    throw new Error(`Failed to create NLQ QA: ${nlqQaRes.statusText}`);
+    console.error("Failed to create NLQ QA:", nlqQaRes.statusText);
+    const errorData = await nlqQaRes.json();
+    console.error("Error details:", errorData);
+    throw new Error(
+      `Failed to create NLQ QA: ${errorData.message || nlqQaRes.statusText}`
+    );
   }
 
   const nlqQaData = await nlqQaRes.json();
