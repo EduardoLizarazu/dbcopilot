@@ -5,6 +5,7 @@ import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provi
 import { NlqQaKnowledgeAdapter } from "./nlq-qa-knowledge.adapter";
 import { WinstonLoggerProvider } from "../providers/logging/winstom-logger.infra.provider";
 import { TCreateNlqQaKnowledgeDto } from "@/core/application/dtos/nlq/nlq-qa-knowledge.app.dto";
+import { NlqQaKnowledgeBuilder } from "@/test/test-utils/builders/nlq-qa-knowledge.builder";
 
 describe("NlqQaKnowledgeAdapter (integration)", () => {
   const logger: ILogger = new WinstonLoggerProvider();
@@ -14,20 +15,25 @@ describe("NlqQaKnowledgeAdapter (integration)", () => {
   const makeSut = () =>
     new NlqQaKnowledgeAdapter(logger, pineconeProvider, openaiProvider);
 
+  const createdIds: string[] = [];
+
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    // Clean up the Pinecone database after each test
+    for (const id of createdIds) {
+      await pineconeProvider.getIndex().deleteOne(id);
+    }
+    createdIds.length = 0; // Clear the array
   });
 
   it("create -> generates embedding and uploads to Pinecone; returns id", async () => {
     const sut = makeSut();
 
-    const dto: TCreateNlqQaKnowledgeDto = {
-      id: "k1",
-      nlqQaGoodId: "g1",
-      question: "How many orders?",
-      query: "SELECT COUNT(*) FROM orders",
-      tablesColumns: ["orders.id"],
-    };
+    const dto = NlqQaKnowledgeBuilder.makeCreate({ id: "k1" });
+    createdIds.push(dto.id);
 
     const id = await sut.create(dto);
 
@@ -37,21 +43,35 @@ describe("NlqQaKnowledgeAdapter (integration)", () => {
   it("update -> re-embedding and upserts to the same id", async () => {
     const sut = makeSut();
 
-    await sut.update("k1", {
-      nlqQaGoodId: "g2",
-      question: "New Q",
-      query: "SELECT 1",
-      tablesColumns: ["x.y"],
-    } as TCreateNlqQaKnowledgeDto);
+    const createDto = NlqQaKnowledgeBuilder.makeCreate({ id: "k1" });
+    createdIds.push(createDto.id);
+
+    await sut.create(createDto);
+
+    const updateDto = NlqQaKnowledgeBuilder.makeUpdate({
+      question: "Updated question",
+    });
+
+    await sut.update("k1", updateDto);
   });
 
   it("delete -> calls deleteOne on the index", async () => {
     const sut = makeSut();
+
+    const dto = NlqQaKnowledgeBuilder.makeCreate({ id: "k1" });
+    createdIds.push(dto.id);
+
+    await sut.create(dto);
     await sut.delete("k1");
   });
 
   it("findByQuestion -> generates embedding, queries, maps matches to DTO", async () => {
     const sut = makeSut();
+
+    const dto = NlqQaKnowledgeBuilder.makeCreate({ id: "k1" });
+    createdIds.push(dto.id);
+
+    await sut.create(dto);
 
     const out = await sut.findByQuestion("orders last month?");
     expect(out).toBeDefined();
@@ -59,6 +79,11 @@ describe("NlqQaKnowledgeAdapter (integration)", () => {
 
   it("findById -> maps record.metadata to DTO; null if not found", async () => {
     const sut = makeSut();
+
+    const dto = NlqQaKnowledgeBuilder.makeCreate({ id: "k1" });
+    createdIds.push(dto.id);
+
+    await sut.create(dto);
 
     const r1 = await sut.findById("k1");
     expect(r1).toBeDefined();

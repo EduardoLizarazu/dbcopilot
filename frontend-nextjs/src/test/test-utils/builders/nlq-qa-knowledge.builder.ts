@@ -21,7 +21,7 @@ export class NlqQaKnowledgeBuilder {
       query:
         "SELECT COUNT(*) FROM invoices WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)",
       tablesColumns: ["invoices.id", "invoices.created_at"],
-      values: defaultVector(16), // opcional
+      // values: defaultVector(16), // opcional
       score: 0.92,
       ...overrides,
     };
@@ -38,7 +38,7 @@ export class NlqQaKnowledgeBuilder {
       query:
         "SELECT COUNT(*) FROM invoices WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)",
       tablesColumns: ["invoices.id", "invoices.created_at"],
-      values: defaultVector(16),
+      // values: defaultVector(16),
       ...overrides,
     };
   }
@@ -53,7 +53,7 @@ export class NlqQaKnowledgeBuilder {
       question: "Updated question",
       query: "SELECT * FROM invoices",
       tablesColumns: ["invoices.id"],
-      values: defaultVector(16),
+      // values: defaultVector(16),
       ...overrides,
     };
   }
@@ -84,7 +84,7 @@ export class NlqQaKnowledgeBuilder {
       this.makeOut({
         id: `kn-${i + 1}`,
         nlqQaGoodId: `good-${i + 1}`,
-        score: +(0.8 + i * 0.05).toFixed(2),
+        // score: +(0.8 + i * 0.05).toFixed(2),
         ...itemOverrides,
       })
     );
