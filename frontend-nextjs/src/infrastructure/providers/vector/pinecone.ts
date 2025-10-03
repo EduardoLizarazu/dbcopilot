@@ -7,6 +7,11 @@ export class PineconeProvider {
   private _indexName: string;
 
   constructor() {
+    if (!process.env.PINECONE_API_KEY || !process.env.PINECONE_INDEX) {
+      throw new Error(
+        "Pinecone API key or index name is not defined in environment variables."
+      );
+    }
     this._client = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
     this._indexName = process.env.PINECONE_INDEX!;
   }

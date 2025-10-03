@@ -21,9 +21,11 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
       const embedding = await this.openaiProvider.generateEmbedding(
         data.question
       );
-
+      this.logger.info("Generated embedding for question", { embedding });
+      if (!embedding || embedding.length === 0) {
+        throw new Error("Failed to generate embedding for the question");
+      }
       // Now, I can upload the data to Pinecone
-
       await this.pineconeProvider.upload({
         id: data.id,
         embedding,
@@ -37,7 +39,11 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
 
       return data.id;
     } catch (error) {
-      this.logger.error("Error creating NLQ QA knowledge", { error });
+      this.logger.error("Error creating NLQ QA knowledge", {
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : null,
+        rawError: error,
+      });
       throw new Error("Error creating NLQ QA knowledge");
     }
   }
@@ -60,7 +66,11 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
         },
       ]);
     } catch (error) {
-      this.logger.error("Error updating NLQ QA knowledge", { error });
+      this.logger.error("Error updating NLQ QA knowledge", {
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : null,
+        rawError: error,
+      });
       throw new Error("Error updating NLQ QA knowledge");
     }
   }
@@ -111,7 +121,9 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
       return results;
     } catch (error) {
       this.logger.error("Error finding NLQ QA knowledge by question", {
-        error,
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : null,
+        rawError: error,
       });
       throw new Error("Error finding NLQ QA knowledge by question");
     }
@@ -127,7 +139,11 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
     } catch (error) {
       this.logger.error(
         "[NlqQaKnowledgeAdapter] Error finding NLQ QA knowledge by ID",
-        { error }
+        {
+          message: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : null,
+          rawError: error,
+        }
       );
       throw new Error("Error finding NLQ QA knowledge by ID");
     }
@@ -139,7 +155,11 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
     } catch (error) {
       this.logger.error(
         "[NlqQaKnowledgeAdapter] Error finding all NLQ QA knowledge",
-        { error }
+        {
+          message: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : null,
+          rawError: error,
+        }
       );
       throw new Error("Error finding all NLQ QA knowledge");
     }
