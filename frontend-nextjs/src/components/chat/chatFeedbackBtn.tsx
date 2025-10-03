@@ -17,6 +17,7 @@ import ThumbUpAlt from "@mui/icons-material/ThumbUpAlt";
 import ThumbDownAlt from "@mui/icons-material/ThumbDownAlt";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { ManageFeedbackAction } from "@/_actions/feedback/manager";
+import { ToggleFeedbackAction } from "@/_actions/feedback/toggle.action";
 
 export function ChatFeedbackBtn({
   promptId,
@@ -44,6 +45,8 @@ export function ChatFeedbackBtn({
 
   const toggleThumb = async (type: 0 | 1) => {
     try {
+      console.log("Toggle thumb clicked:", type);
+
       if (!promptId) throw new Error("Prompt ID is missing.");
 
       setLoading(type); // Set loading state for the pressed thumb
@@ -57,7 +60,7 @@ export function ChatFeedbackBtn({
           message: "Feedback cleared.",
         });
         // Clear feedback on the server
-        await ManageFeedbackAction({
+        await ToggleFeedbackAction({
           feedbackId: feedbackId,
           nlqQaId: promptId,
           isGood: null,
@@ -79,14 +82,14 @@ export function ChatFeedbackBtn({
         comment: explanation,
       });
 
-      const res = await ManageFeedbackAction({
+      const res = await ToggleFeedbackAction({
         feedbackId: feedbackId,
         nlqQaId: promptId,
         isGood: type === 1,
         comment: explanation,
       });
       console.log("Feedback response:", res);
-      setFeedbackId(res.id);
+      setFeedbackId(res.data.id);
 
       setFeedback({
         isActive: true,

@@ -26,7 +26,12 @@ export class CreateNlqQaFeedbackUseCase implements ICreateNlqQaFeedbackUseCase {
     try {
       // 1. Validate data
       const validateNlqQaFeedback =
-        await createNlqQaFeedbackSchema.safeParseAsync(data);
+        await createNlqQaFeedbackSchema.safeParseAsync({
+          ...data,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          updatedBy: data.createdBy,
+        });
       if (!validateNlqQaFeedback.success) {
         this.logger.error(
           `[CreateNlqQaFeedbackUseCase] Invalid data: ${JSON.stringify(

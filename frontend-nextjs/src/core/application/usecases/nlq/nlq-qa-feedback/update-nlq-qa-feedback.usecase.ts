@@ -37,7 +37,10 @@ export class UpdateNlqQaFeedbackUseCase implements IUpdateNlqQaFeedbackUseCase {
           data: null,
         };
       }
-      const validateData = await updateNlqQaFeedbackSchema.safeParseAsync(data);
+      const validateData = await updateNlqQaFeedbackSchema.safeParseAsync({
+        ...data,
+        updatedAt: new Date(),
+      });
       if (!validateData.success) {
         this.logger.error(
           `[UpdateNlqQaFeedbackUseCase] Invalid data: ${JSON.stringify(

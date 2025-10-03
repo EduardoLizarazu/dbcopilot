@@ -46,6 +46,8 @@ export class ToggleNlqQaFeedbackOrchestrator
         //   1.2 If isGood is not null, update the feedback
         if (data.isGood !== null) {
           return await this.updateFbUseCase.execute(data.feedbackId, {
+            id: data.feedbackId,
+            nlqQaId: data.nlqQaId,
             isGood: data.isGood,
             comment: data.comment,
             updatedBy: data.userId,
