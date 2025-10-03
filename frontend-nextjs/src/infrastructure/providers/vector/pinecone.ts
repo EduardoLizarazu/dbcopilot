@@ -14,6 +14,8 @@ export class PineconeProvider {
     }
     this._client = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
     this._indexName = process.env.PINECONE_INDEX!;
+
+    (async () => await this.ensureIndexExists())();
   }
 
   get client() {
@@ -31,13 +33,38 @@ export class PineconeProvider {
   getClient() {
     return this.client;
   }
+
+  async ensureIndexExists() {
+    const existingIndexes = await this.client.listIndexes();
+    if (
+      !existingIndexes.indexes.map((idx) => idx.name).includes(this.indexName)
+    ) {
+      console.log(
+        `Pinecone index "${this.indexName}" does not exist. Creating...`
+      );
+
+      await this.client.createIndex({
+        name: this.indexName,
+        dimension: 1536,
+        metric: "cosine",
+        spec: {
+          serverless: {
+            cloud: "aws",
+            region: "us-east-1",
+          },
+        },
+      });
+    }
+  }
+
   // Uploads a vector to Pinecone
   async upload(data: {
     id: string;
     embedding: number[];
     metadata: Record<string, any>;
   }) {
-    return this.getIndex().upsert([
+    const index = await this.getIndex(); // Await the asynchronous getIndex method
+    return index.upsert([
       {
         id: data.id,
         values: data.embedding,

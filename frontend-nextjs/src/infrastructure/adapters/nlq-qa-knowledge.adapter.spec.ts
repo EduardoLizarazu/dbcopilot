@@ -8,7 +8,6 @@ import { TCreateNlqQaKnowledgeDto } from "@/core/application/dtos/nlq/nlq-qa-kno
 
 describe("NlqQaKnowledgeAdapter (integration)", () => {
   const logger: ILogger = new WinstonLoggerProvider();
-
   const pineconeProvider = new PineconeProvider(); // Use the real PineconeProvider
   const openaiProvider = new OpenAIProvider(); // Use the real OpenAIProvider
 

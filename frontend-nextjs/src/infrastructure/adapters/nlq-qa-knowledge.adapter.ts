@@ -21,8 +21,9 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
       const embedding = await this.openaiProvider.generateEmbedding(
         data.question
       );
-      this.logger.info("Generated embedding for question", { embedding });
+      this.logger.info("Generated embedding for question");
       if (!embedding || embedding.length === 0) {
+        this.logger.error("Failed to generate embedding for the question");
         throw new Error("Failed to generate embedding for the question");
       }
       // Now, I can upload the data to Pinecone
