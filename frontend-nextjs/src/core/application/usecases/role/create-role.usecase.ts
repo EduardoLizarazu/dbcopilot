@@ -26,7 +26,7 @@ export class CreateRoleUseCase implements ICreateRoleUseCase {
       this.logger.info("[CreateRoleUseCase] Executing with data:", data);
 
       // 1. Validation
-      const roleValidation = createRoleSchema.safeParse(data);
+      const roleValidation = createRoleSchema.safeParse({ ...data });
       if (!roleValidation.success) {
         this.logger.error(
           "[CreateRoleUseCase] Validation failed:",
