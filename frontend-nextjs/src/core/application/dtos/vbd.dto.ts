@@ -20,11 +20,14 @@ export const updateVbdSchema = VbdSchema.omit({
 
 export type TUpdateVbdDto = z.infer<typeof updateVbdSchema>;
 
-export const vbdInRequestSchema = VbdSchema.partial().pick({
-  id: true,
-  name: true,
-  createdBy: true,
-});
+export const vbdInRequestSchema = VbdSchema.partial()
+  .pick({
+    id: true,
+    name: true,
+  })
+  .extend({
+    actorId: z.string().min(2),
+  });
 export type TVbdInRequestDto = z.infer<typeof vbdInRequestSchema>;
 
 export type TVbdOutRequestDto = z.infer<typeof VbdSchema>;

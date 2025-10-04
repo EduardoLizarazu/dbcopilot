@@ -8,7 +8,17 @@ import {
 } from "../../dtos/vbd.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IVbdSplitterRepository } from "../../interfaces/vbd-splitter.inter";
-import { INlqQaKnowledgePort } from "../../ports/nlq-qa-knowledge.app.inter";
+
+/**
+ * UseCase for creating a VBD Splitter:
+ * 1. Validate input data
+ * 2. Check if the name is unique (case-insensitive)
+ * 3. Prepare data for creation
+ * 4. Validate creation DTO
+ * 5. Call repository to create VBD splitter
+ * 6. Retrieve the created splitter details
+ * 7. Return success response
+ */
 
 export interface ICreateVbdSplitterUseCase {
   execute(data: TVbdInRequestDto): Promise<TResponseDto<TVbdOutRequestDto>>;
@@ -37,14 +47,30 @@ export class CreateVbdSplitterUseCase implements ICreateVbdSplitterUseCase {
         };
       }
 
+      //   2. Check if the name is unique
+      const isNameUnique = await this.vbdSplitterRepo.findByName(
+        data.name.trim().toLowerCase()
+      );
+      if (isNameUnique) {
+        this.logger.error(
+          `[CreateVbdSplitterUseCase] VBD Splitter name must be unique: ${data.name}`
+        );
+        return {
+          success: false,
+          message: "VBD Splitter name must be unique",
+          data: null,
+        };
+      }
+
+      //   3. Prepare data for creation
       const dto: TCreateVbdDto = {
-        ...data,
         name: data.name.trim().toLowerCase(),
-        updatedBy: data.createdBy,
+        createdBy: data.actorId,
+        updatedBy: data.actorId,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-
+      //   4. Validate creation DTO
       const validCreationData = await createVbdSchema.safeParseAsync(dto);
       if (!validCreationData.success) {
         this.logger.error(
@@ -58,14 +84,14 @@ export class CreateVbdSplitterUseCase implements ICreateVbdSplitterUseCase {
         };
       }
 
-      // 2. Call repository to create VBD splitter
+      // 5. Call repository to create VBD splitter
       const createdSplitterId = await this.vbdSplitterRepo.create(dto);
       this.logger.info(
         `[CreateVbdSplitterUseCase] VBD splitter created successfully`,
         createdSplitterId
       );
 
-      //   3. Retrieve the created splitter details
+      //   6. Retrieve the created splitter details
       const createdSplitter =
         await this.vbdSplitterRepo.findById(createdSplitterId);
       if (!createdSplitter) {
@@ -84,7 +110,7 @@ export class CreateVbdSplitterUseCase implements ICreateVbdSplitterUseCase {
         `[CreateVbdSplitterUseCase] Created VBD splitter details retrieved successfully`,
         createdSplitter
       );
-
+      //   7. Return success response
       return {
         success: true,
         message: "VBD splitter created successfully",
@@ -97,7 +123,11 @@ export class CreateVbdSplitterUseCase implements ICreateVbdSplitterUseCase {
         message: errorMessage,
       });
 
-      throw new Error(`Error creating VBD splitter: ${errorMessage}`);
+      return {
+        success: false,
+        message: `Error creating VBD splitter: ${errorMessage}`,
+        data: null,
+      };
     }
   }
 }

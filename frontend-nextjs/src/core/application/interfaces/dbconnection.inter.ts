@@ -5,9 +5,11 @@ import {
 } from "../dtos/dbconnection.dto";
 import { IGenericMutationRepository } from "./generic.app.inter";
 
-export interface IVbdSplitterRepository
+export interface IDbConnectionRepository
   extends IGenericMutationRepository<
     TCreateDbConnectionDto,
     TUpdateDbConnectionDto,
     TDbConnectionOutRequestDto
-  > {}
+  > {
+  findByName(name: string): Promise<TDbConnectionOutRequestDto | null>;
+}

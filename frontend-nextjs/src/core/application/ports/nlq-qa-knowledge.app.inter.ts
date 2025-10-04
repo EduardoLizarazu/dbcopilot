@@ -12,4 +12,5 @@ export interface INlqQaKnowledgePort
     TNlqQaKnowledgeOutRequestDto
   > {
   findByQuestion(question: string): Promise<TNlqQaKnowledgeOutRequestDto[]>;
+  updateNamespace(prevName: string, newName: string): Promise<void>;
 }
