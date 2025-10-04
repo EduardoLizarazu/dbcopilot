@@ -80,13 +80,20 @@ export default function NlqCorrectionsClient({
       : null;
 
     const isWithinRange = (time) => {
-      if (!time) return false;
+      if (!time) return true; // Include rows with null timeQuestion
       if (from && time < from) return false;
       if (to && time > to) return false;
       return true;
     };
 
-    return isWithinRange(timeQuestion);
+    const matchesType = () => {
+      if (kind === "feedback") return !!r.feedback; // Ensure feedback is truthy
+      if (kind === "error") return !!r.error; // Ensure error is truthy
+      if (kind === "all") return true;
+      return false;
+    };
+
+    return matchesType() && isWithinRange(timeQuestion);
   });
 
   return (
@@ -210,8 +217,8 @@ export default function NlqCorrectionsClient({
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {r.feedback ? (
-                          r.feedback.isGood ? (
+                        {!!r.feedback &&
+                          (r.feedback.isGood ? (
                             <Chip
                               label="Feedback"
                               color="success"
@@ -219,10 +226,10 @@ export default function NlqCorrectionsClient({
                             />
                           ) : (
                             <Chip label="Feedback" color="error" size="small" />
-                          )
-                        ) : (
+                          ))}
+                        {!!r.error ? (
                           <Chip label="Error" color="error" size="small" />
-                        )}
+                        ) : null}
                       </Box>
                     </TableCell>
                     <TableCell>
