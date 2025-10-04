@@ -29,6 +29,7 @@ import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { ReadAllNlqQaBadAction } from "@/_actions/nlq-qa-correction/read-all.action";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
+import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
 
 export default function NlqCorrectionsClient({
   initialRows,
@@ -67,41 +68,14 @@ export default function NlqCorrectionsClient({
     const from = tqFrom ? new Date(tqFrom) : null;
     const to = tqTo ? new Date(tqTo) : null;
 
-    const feedbackTime = r.feedback
+    const timeQuestion = r.timeQuestion
       ? new Date(
-          (
-            r.feedback.updatedAt as unknown as {
+          convertFbDateToISO(
+            r.timeQuestion as unknown as {
               _seconds: number;
               _nanoseconds: number;
             }
-          )._seconds *
-            1000 +
-            (
-              r.feedback.updatedAt as unknown as {
-                _seconds: number;
-                _nanoseconds: number;
-              }
-            )._nanoseconds /
-              1e6
-        )
-      : null;
-
-    const errorTime = r.error
-      ? new Date(
-          (
-            r.error.createdAt as unknown as {
-              _seconds: number;
-              _nanoseconds: number;
-            }
-          )._seconds *
-            1000 +
-            (
-              r.error.createdAt as unknown as {
-                _seconds: number;
-                _nanoseconds: number;
-              }
-            )._nanoseconds /
-              1e6
+          ) || ""
         )
       : null;
 
@@ -112,12 +86,7 @@ export default function NlqCorrectionsClient({
       return true;
     };
 
-    if (kind === "feedback") return r.feedback && isWithinRange(feedbackTime);
-    if (kind === "error") return r.error && isWithinRange(errorTime);
-    return (
-      (r.feedback && isWithinRange(feedbackTime)) ||
-      (r.error && isWithinRange(errorTime))
-    );
+    return isWithinRange(timeQuestion);
   });
 
   return (
@@ -220,7 +189,7 @@ export default function NlqCorrectionsClient({
                 </TableRow>
               ) : (
                 filteredRows.map((r) => (
-                  <TableRow key={r.feedback ? r.feedback.id : r.error.id} hover>
+                  <TableRow key={r.id} hover>
                     <TableCell>{r.user?.email || "—"}</TableCell>
                     <TableCell sx={{ maxWidth: 360 }}>
                       <Box
@@ -259,15 +228,10 @@ export default function NlqCorrectionsClient({
                     <TableCell>
                       <LocalTime
                         fb_date={
-                          r.feedback
-                            ? (r.feedback.updatedAt as unknown as {
-                                _seconds: number;
-                                _nanoseconds: number;
-                              })
-                            : (r.error.createdAt as unknown as {
-                                _seconds: number;
-                                _nanoseconds: number;
-                              })
+                          r.timeQuestion as unknown as {
+                            _seconds: number;
+                            _nanoseconds: number;
+                          }
                         }
                       />
                     </TableCell>
