@@ -19,7 +19,14 @@ export async function ReadUserByIdAction(
   console.log("Response:", userRes);
 
   if (!userRes.ok) {
-    throw new Error(`Failed to read user: ${userRes.statusText}`);
+    const errorData = await userRes.json();
+    console.error(
+      "Error reading user:",
+      errorData.message || userRes.statusText
+    );
+    throw new Error(
+      `Failed to read user: ${errorData.message || userRes.statusText}`
+    );
   }
 
   const userData = await userRes.json();

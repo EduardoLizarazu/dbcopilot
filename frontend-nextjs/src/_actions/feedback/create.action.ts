@@ -27,7 +27,14 @@ export async function CreateFeedbackAction(
   console.log("Response:", feedbackRes);
 
   if (!feedbackRes.ok) {
-    throw new Error(`Failed to create role: ${feedbackRes.statusText}`);
+    const errorData = await feedbackRes.json();
+    console.error(
+      "Error creating feedback:",
+      errorData.message || feedbackRes.statusText
+    );
+    throw new Error(
+      `Failed to create feedback: ${errorData.message || feedbackRes.statusText}`
+    );
   }
 
   const userData = await feedbackRes.json();

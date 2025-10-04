@@ -22,7 +22,14 @@ export async function NlqQaInfoExecQuery(
     const infoData = await nlqQaInformationAdapter.executeQuery(query);
     return infoData;
   } catch (error) {
-    loggerProvider.error("Error executing query:", error);
-    throw new Error("Error executing query");
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : typeof error === "string"
+          ? error
+          : JSON.stringify(error);
+
+    loggerProvider.error("Error executing query:", errorMessage);
+    throw new Error(`Error executing query: ${errorMessage}`);
   }
 }

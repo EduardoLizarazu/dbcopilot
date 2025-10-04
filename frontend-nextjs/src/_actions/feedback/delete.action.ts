@@ -16,6 +16,13 @@ export async function DeleteFeedbackAction(id: string): Promise<void> {
   console.log("Response:", feedbackRes);
 
   if (!feedbackRes.ok) {
-    throw new Error(`Failed to delete feedback: ${feedbackRes.statusText}`);
+    const errorData = await feedbackRes.json();
+    console.error(
+      "Error deleting feedback:",
+      errorData.message || feedbackRes.statusText
+    );
+    throw new Error(
+      `Failed to delete feedback: ${errorData.message || feedbackRes.statusText}`
+    );
   }
 }

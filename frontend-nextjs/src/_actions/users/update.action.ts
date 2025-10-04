@@ -23,7 +23,14 @@ export async function UpdateUserAction(
   console.log("Response:", userRes);
 
   if (!userRes.ok) {
-    throw new Error(`Failed to update user: ${userRes.statusText}`);
+    const errorData = await userRes.json();
+    console.error(
+      "Error updating user:",
+      errorData.message || userRes.statusText
+    );
+    throw new Error(
+      `Failed to update user: ${errorData.message || userRes.statusText}`
+    );
   }
 
   const userData = await userRes.json();
