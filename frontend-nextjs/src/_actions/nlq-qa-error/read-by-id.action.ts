@@ -19,7 +19,14 @@ export async function ReadNlqQaErrorByIdAction(
   console.log("Response:", nlqQaErrorRes);
 
   if (!nlqQaErrorRes.ok) {
-    throw new Error(`Failed to read NLQ QA Error: ${nlqQaErrorRes.statusText}`);
+    const errorData = await nlqQaErrorRes.json();
+    console.error(
+      "Error reading NLQ QA Error:",
+      errorData.message || nlqQaErrorRes.statusText
+    );
+    throw new Error(
+      `Failed to read NLQ QA Error: ${errorData.message || nlqQaErrorRes.statusText}`
+    );
   }
 
   const nlqQaErrorData = await nlqQaErrorRes.json();

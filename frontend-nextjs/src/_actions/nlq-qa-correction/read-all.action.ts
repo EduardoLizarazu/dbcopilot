@@ -19,7 +19,14 @@ export async function ReadAllNlqQaBadAction(
   });
   console.log("Response:", nlqRes);
   if (!nlqRes.ok) {
-    throw new Error(`Failed to fetch NLQ: ${nlqRes.statusText}`);
+    const errorData = await nlqRes.json();
+    console.error(
+      "Error fetching NLQ:",
+      errorData.message || nlqRes.statusText
+    );
+    throw new Error(
+      `Failed to fetch NLQ: ${errorData.message || nlqRes.statusText}`
+    );
   }
   const nlqData = await nlqRes.json();
   console.log("Fetched NLQ:", nlqData);
