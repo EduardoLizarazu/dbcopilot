@@ -69,15 +69,39 @@ export default function NlqCorrectionsClient({
 
     const feedbackTime = r.feedback
       ? new Date(
-          r.feedback.updatedAt._seconds * 1000 +
-            r.feedback.updatedAt._nanoseconds / 1e6
+          (
+            r.feedback.updatedAt as unknown as {
+              _seconds: number;
+              _nanoseconds: number;
+            }
+          )._seconds *
+            1000 +
+            (
+              r.feedback.updatedAt as unknown as {
+                _seconds: number;
+                _nanoseconds: number;
+              }
+            )._nanoseconds /
+              1e6
         )
       : null;
 
     const errorTime = r.error
       ? new Date(
-          r.error.createdAt._seconds * 1000 +
-            r.error.createdAt._nanoseconds / 1e6
+          (
+            r.error.createdAt as unknown as {
+              _seconds: number;
+              _nanoseconds: number;
+            }
+          )._seconds *
+            1000 +
+            (
+              r.error.createdAt as unknown as {
+                _seconds: number;
+                _nanoseconds: number;
+              }
+            )._nanoseconds /
+              1e6
         )
       : null;
 
@@ -234,18 +258,16 @@ export default function NlqCorrectionsClient({
                     </TableCell>
                     <TableCell>
                       <LocalTime
-                        iso={
+                        fb_date={
                           r.feedback
-                            ? new Date(
-                                r.feedback.updatedAt._seconds * 1000 +
-                                  r.feedback.updatedAt._nanoseconds / 1e6
-                              ).toISOString()
-                            : r.error && r.error.createdAt
-                              ? new Date(
-                                  r.error.createdAt._seconds * 1000 +
-                                    r.error.createdAt._nanoseconds / 1e6
-                                ).toISOString()
-                              : undefined
+                            ? (r.feedback.updatedAt as unknown as {
+                                _seconds: number;
+                                _nanoseconds: number;
+                              })
+                            : (r.error.createdAt as unknown as {
+                                _seconds: number;
+                                _nanoseconds: number;
+                              })
                         }
                       />
                     </TableCell>
