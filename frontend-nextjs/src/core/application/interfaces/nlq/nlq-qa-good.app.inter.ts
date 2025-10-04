@@ -1,6 +1,7 @@
 import {
   TCreateNlqQaGoodDto,
   TNlqQaGoodOutRequestDto,
+  TNlqQaGoodOutWithUserRequestDto,
   TUpdateNlqQaGoodDto,
 } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { IGenericMutationRepository } from "@/core/application/interfaces/generic.app.inter";
@@ -11,6 +12,7 @@ export interface INlqQaGoodRepository
     TUpdateNlqQaGoodDto,
     TNlqQaGoodOutRequestDto
   > {
+  findAllWithUser(): Promise<TNlqQaGoodOutWithUserRequestDto[]>;
   findByUserId(uid: string): Promise<TNlqQaGoodOutRequestDto[]>;
   switchSoftDelete(id: string): Promise<void>;
 }

@@ -23,6 +23,8 @@ export class NlqQaErrorRepository implements INlqQaErrorRepository {
           ...data,
         });
 
+      await docRef.update({ id: docRef.id });
+
       this.logger.info(
         `[NlqQaErrorRepository] NLQ QA Error created with ID: ${docRef.id}`
       );

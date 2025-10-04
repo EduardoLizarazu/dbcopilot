@@ -69,6 +69,13 @@ export type TNlqQaGoodInRequestDto = z.infer<typeof nlqQaGoodInRequestSchema>;
 
 export type TNlqQaGoodOutRequestDto = z.infer<typeof nlqQaGoodSchema>;
 
+export type TNlqQaGoodOutWithUserRequestDto = TNlqQaGoodOutRequestDto & {
+  user: {
+    id: string;
+    email: string;
+  };
+};
+
 /**
  * NLQ QA Good is that any sql that has been marked as:
  * - Good feedback from the analyst

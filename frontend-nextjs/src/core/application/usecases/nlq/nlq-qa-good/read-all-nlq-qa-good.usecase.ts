@@ -18,6 +18,14 @@ export class ReadAllNlqQaGoodUseCase implements IReadAllNlqQaGoodUseCase {
     try {
       // 1. Find all NLQ QA Good
       const result = await this.nlqQaGoodRepository.findAll();
+      this.logger.info(
+        `[ReadAllNlqQaGoodUseCase] Found ${result.length} NLQ QA Good entries`
+      );
+      // new Date(
+      //   r.feedback.updatedAt._seconds * 1000 +
+      //     r.feedback.updatedAt._nanoseconds / 1e6
+      // ).toISOString();
+
       return {
         success: true,
         data: result,

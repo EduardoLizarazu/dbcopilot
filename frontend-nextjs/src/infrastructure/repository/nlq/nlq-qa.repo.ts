@@ -211,7 +211,11 @@ export class NlqQaAppRepository implements INlqQaRepository {
     try {
       const docRef = await this.fbAdminProvider.db
         .collection(this.fbAdminProvider.coll.NLQ_QA)
-        .add({ ...data });
+        .add({ ...data, id: "" }); // Temporarily set id as empty
+
+      // Update the document with its generated ID
+      await docRef.update({ id: docRef.id });
+
       return docRef.id;
     } catch (error) {
       this.logger.error("[NlqQaAppRepository] Error creating NLQ QA", {

@@ -1,6 +1,7 @@
 import {
   TCreateNlqQaGoodDto,
   TNlqQaGoodOutRequestDto,
+  TNlqQaGoodOutWithUserRequestDto,
   TUpdateNlqQaGoodDto,
 } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
@@ -12,6 +13,7 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
     private readonly logger: ILogger,
     private readonly fbAdminProvider: FirebaseAdminProvider
   ) {}
+
   async switchSoftDelete(id: string): Promise<void> {
     try {
       const record = await this.findById(id); // Ensure the record exists
@@ -37,6 +39,11 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
       const goodDocRef = await this.fbAdminProvider.db
         .collection(this.fbAdminProvider.coll.NLQ_GOODS)
         .add(data);
+
+      const createdId = goodDocRef.id;
+      // Update the document with its generated ID
+      await goodDocRef.update({ id: createdId });
+
       this.logger.info("[NlqQaGoodRepository] Created NLQ QA Good:", {
         id: goodDocRef.id,
         ...data,
@@ -136,6 +143,19 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
         error
       );
       throw new Error("Error finding all NLQ QA Goods");
+    }
+  }
+  async findAllWithUser(): Promise<TNlqQaGoodOutWithUserRequestDto[]> {
+    try {
+      // First, get all nlq_goods and with the question by attach the user email
+
+      return goodsWithUser;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaGoodRepository] Error finding all NLQ QA Goods with user",
+        error
+      );
+      throw new Error("Error finding all NLQ QA Goods with user");
     }
   }
 }

@@ -19,6 +19,10 @@ export class RoleRepository implements IRoleRepository {
       const roleDocRef = await db
         .collection(this.fbAdminProvider.coll.NLQ_ROLES)
         .add(data);
+
+      // Update the document with its generated ID
+      await roleDocRef.update({ id: roleDocRef.id });
+
       this.logger.info("RoleInfraRepository: Created role:", {
         id: roleDocRef.id,
         ...data,

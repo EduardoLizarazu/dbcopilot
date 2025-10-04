@@ -18,6 +18,9 @@ export class NlqQaFeedbackRepository implements INlqQaFeedbackRepository {
       const feedbackDocRef = await this.firebaseAdmin.db
         .collection(this.firebaseAdmin.coll.NLQ_FEEDBACKS)
         .add(data);
+
+      await feedbackDocRef.update({ id: feedbackDocRef.id });
+
       this.logger.info("NlqQaFeedbackRepository: Created NLQ QA Feedback:", {
         id: feedbackDocRef.id,
         ...data,
