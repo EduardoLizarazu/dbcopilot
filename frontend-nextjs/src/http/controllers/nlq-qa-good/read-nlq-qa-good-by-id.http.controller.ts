@@ -22,9 +22,7 @@ export class ReadNlqQaGoodByIdController implements IController {
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
-  async handle(
-    httpRequest: IHttpRequest<{ id: string }>
-  ): Promise<IHttpResponse> {
+  async handle(httpRequest: IHttpRequest<null>): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info(
@@ -81,18 +79,25 @@ export class ReadNlqQaGoodByIdController implements IController {
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      //   ==== INPUT BODY ====
-      //   1. Check body
-      this.logger.info("[ReadNlqQaGoodByIdController] Body:", httpRequest.body);
-      if (!httpRequest.body) {
-        this.logger.error("[ReadNlqQaGoodByIdController] No body provided");
-        const error = this.httpErrors.error_400("No body provided");
+      //   ==== INPUT PARAMS ====
+      if (!httpRequest.params || !httpRequest.params.id) {
+        this.logger.error(
+          "[ReadByIdRoleController] No id parameter provided",
+          httpRequest
+        );
+        const error = this.httpErrors.error_400("No id parameter provided");
         return new HttpResponse(error.statusCode, error.body);
       }
-      const body = httpRequest.body;
+
+      this.logger.info(
+        "[ReadByIdRoleController] Received params:",
+        httpRequest.params
+      );
 
       // ==== BUSINESS LOGIC USE CASES ====
-      const useCase = await this.readNlqQaGoodByIdUseCase.execute(body.id);
+      const useCase = await this.readNlqQaGoodByIdUseCase.execute(
+        httpRequest.params.id
+      );
       this.logger.info(
         "[ReadNlqQaGoodByIdController] UseCase executed successfully",
         useCase

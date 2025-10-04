@@ -185,4 +185,32 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
       throw new Error("Error finding all NLQ QA Goods with user");
     }
   }
+  async findWithUserById(
+    id: string
+  ): Promise<TNlqQaGoodOutWithUserRequestDto | null> {
+    try {
+      const doc = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_GOODS)
+        .doc(id)
+        .get();
+      if (!doc.exists) {
+        return null;
+      }
+      const data = { id: doc.id, ...doc.data() } as TNlqQaGoodOutRequestDto;
+      const user = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_USERS)
+        .doc(data.questionBy)
+        .get();
+      return {
+        ...data,
+        user: user.exists ? { id: user.id, email: user.data().email } : null,
+      };
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaGoodRepository] Error finding NLQ QA Good with user by ID",
+        error
+      );
+      throw new Error("Error finding NLQ QA Good with user by ID");
+    }
+  }
 }

@@ -17,22 +17,22 @@ import {
 import { useRouter } from "next/navigation";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
-import type { NlqGoodDetail } from "@/controller/_actions/nlq/get-good-detail";
 import { runSqlAction } from "@/controller/_actions/nlq/run-sql";
 import { updateNlqAdminAction } from "@/controller/_actions/nlq/update-admin";
 import { useFeedbackContext } from "@/contexts/feedback.context";
+import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 
 export default function NlqGoodEditClient({
   initial,
 }: {
-  initial: NlqGoodDetail;
+  initial: TNlqQaGoodOutWithUserRequestDto;
 }) {
   const router = useRouter();
   const { setFeedback } = useFeedbackContext();
 
   // Editable fields
   const [question, setQuestion] = React.useState(initial.question || "");
-  const [sql, setSql] = React.useState(initial.sql_executed || "");
+  const [sql, setSql] = React.useState(initial.query || "");
 
   // Run state
   const [running, setRunning] = React.useState(false);
@@ -103,128 +103,25 @@ export default function NlqGoodEditClient({
           <Grid item xs={12} md={6}>
             <Stack spacing={1}>
               <Typography variant="subtitle2" color="text.secondary">
-                NLQ ID
+                NLQ Good ID: {initial.id}
               </Typography>
-              <Typography>{initial.id}</Typography>
 
               <Typography
                 variant="subtitle2"
                 color="text.secondary"
                 sx={{ mt: 2 }}
               >
-                User email
+                User email: {initial.user?.email || "—"}
               </Typography>
-              <Typography>{initial.email || "—"}</Typography>
 
               <Typography
                 variant="subtitle2"
                 color="text.secondary"
                 sx={{ mt: 2 }}
               >
-                Admin creation
+                Is on vector database:{" "}
+                {initial.isOnKnowledgeSource ? "Yes" : "No"}
               </Typography>
-              <Chip
-                size="small"
-                label={initial.admin_creation ? "true" : "false"}
-                color={initial.admin_creation ? "success" : "default"}
-              />
-
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                User deletion
-              </Typography>
-              <Chip
-                size="small"
-                label={initial.user_deletion ? "true" : "false"}
-                color={initial.user_deletion ? "warning" : "default"}
-              />
-
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                VBD link
-              </Typography>
-              <Typography>{initial.nlq_vbd_id || "—"}</Typography>
-
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                Error
-              </Typography>
-              <Typography>
-                {initial.error?.id
-                  ? `${initial.error.id} — ${initial.error.message || ""}`
-                  : "—"}
-              </Typography>
-            </Stack>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Stack spacing={1}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Feedback
-              </Typography>
-              {initial.feedback?.id ? (
-                <>
-                  <Chip
-                    size="small"
-                    label={
-                      initial.feedback.type === 1
-                        ? "good"
-                        : initial.feedback.type === 0
-                          ? "bad"
-                          : "unknown"
-                    }
-                    color={
-                      initial.feedback.type === 1
-                        ? "success"
-                        : initial.feedback.type === 0
-                          ? "error"
-                          : "default"
-                    }
-                    sx={{ mr: 1 }}
-                  />
-                  <Typography sx={{ mt: 1 }}>
-                    {initial.feedback.explanation || "—"}
-                  </Typography>
-                </>
-              ) : (
-                <Typography>—</Typography>
-              )}
-
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                Time asked
-              </Typography>
-              <LocalTime iso={initial.time_question || undefined} />
-
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                Time result
-              </Typography>
-              <LocalTime iso={initial.time_result || undefined} />
-
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                Deleted at
-              </Typography>
-              <LocalTime iso={initial.time_deleted || undefined} />
             </Stack>
           </Grid>
         </Grid>
@@ -240,6 +137,9 @@ export default function NlqGoodEditClient({
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             fullWidth
+            multiline
+            minRows={2}
+            placeholder="Question..."
           />
           <TextField
             label="SQL"

@@ -1,10 +1,10 @@
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "../../../interfaces/ilog.app.inter";
 import { INlqQaGoodRepository } from "../../../interfaces/nlq/nlq-qa-good.app.inter";
-import { TNlqQaGoodOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 
 export interface IReadNlqQaGoodByIdUseCase {
-  execute(id: string): Promise<TResponseDto<TNlqQaGoodOutRequestDto>>;
+  execute(id: string): Promise<TResponseDto<TNlqQaGoodOutWithUserRequestDto>>;
 }
 
 export class ReadNlqQaGoodByIdUseCase implements IReadNlqQaGoodByIdUseCase {
@@ -13,7 +13,9 @@ export class ReadNlqQaGoodByIdUseCase implements IReadNlqQaGoodByIdUseCase {
     private readonly nlqQaGoodRepository: INlqQaGoodRepository
   ) {}
 
-  async execute(id: string): Promise<TResponseDto<TNlqQaGoodOutRequestDto>> {
+  async execute(
+    id: string
+  ): Promise<TResponseDto<TNlqQaGoodOutWithUserRequestDto>> {
     try {
       // 1. Validate
       if (!id) {
@@ -26,7 +28,7 @@ export class ReadNlqQaGoodByIdUseCase implements IReadNlqQaGoodByIdUseCase {
       }
 
       // 2. Find NLQ QA Good by ID
-      const result = await this.nlqQaGoodRepository.findById(id);
+      const result = await this.nlqQaGoodRepository.findWithUserById(id);
       if (!result) {
         this.logger.error(
           `[ReadNlqQaGoodByIdUseCase] NLQ QA Good not found for ID: ${id}`

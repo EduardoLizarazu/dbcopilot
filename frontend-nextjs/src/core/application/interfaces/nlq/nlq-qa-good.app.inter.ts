@@ -13,6 +13,7 @@ export interface INlqQaGoodRepository
     TNlqQaGoodOutRequestDto
   > {
   findAllWithUser(): Promise<TNlqQaGoodOutWithUserRequestDto[]>;
+  findWithUserById(id: string): Promise<TNlqQaGoodOutWithUserRequestDto | null>;
   findByUserId(uid: string): Promise<TNlqQaGoodOutRequestDto[]>;
   switchSoftDelete(id: string): Promise<void>;
 }
