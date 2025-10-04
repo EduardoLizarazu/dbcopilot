@@ -22,14 +22,12 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
-import UploadIcon from "@mui/icons-material/Upload";
 import CloudOffIcon from "@mui/icons-material/CloudOff";
 import CloudDoneIcon from "@mui/icons-material/CloudDone";
 import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
