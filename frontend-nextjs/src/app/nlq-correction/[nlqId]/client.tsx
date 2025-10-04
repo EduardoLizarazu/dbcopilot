@@ -17,8 +17,6 @@ import {
 } from "@mui/material";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
-import { runSqlAction } from "@/controller/_actions/nlq/run-sql";
-import { saveNlqCorrectionAction } from "@/controller/_actions/nlq/save-correction";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";

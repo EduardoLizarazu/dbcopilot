@@ -21,6 +21,7 @@ import { runSqlAction } from "@/controller/_actions/nlq/run-sql";
 import { updateNlqAdminAction } from "@/controller/_actions/nlq/update-admin";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import { NlqQaInfoExecQuery } from "@/_actions/nlq-qa-info/execute-query.action";
 
 export default function NlqGoodEditClient({
   initial,
@@ -50,8 +51,8 @@ export default function NlqGoodEditClient({
     setRanOk(false);
     setRows(null);
     try {
-      const r = await runSqlAction(sql);
-      setRows(r.rows || []);
+      const r = await NlqQaInfoExecQuery(sql);
+      setRows(r.data || []);
       setRanOk(true);
       setFeedback({
         isActive: true,
@@ -94,7 +95,7 @@ export default function NlqGoodEditClient({
   return (
     <Box className="max-w-6xl mx-auto px-4 py-6">
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        Edit NLQ
+        Edit NLQ Good
       </Typography>
 
       {/* Detail panel */}
@@ -102,24 +103,16 @@ export default function NlqGoodEditClient({
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <Stack spacing={1}>
-              <Typography variant="subtitle2" color="text.secondary">
-                NLQ Good ID: {initial.id}
+              <Typography variant="subtitle2" color="text">
+                <strong>NLQ Good ID:</strong> {initial.id}
               </Typography>
 
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                User email: {initial.user?.email || "—"}
+              <Typography variant="subtitle2" color="text" sx={{ mt: 2 }}>
+                <strong>User email:</strong> {initial.user?.email || "—"}
               </Typography>
 
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mt: 2 }}
-              >
-                Is on vector database:{" "}
+              <Typography variant="subtitle2" color="text" sx={{ mt: 2 }}>
+                <strong>Is on vector database:</strong>{" "}
                 {initial.isOnKnowledgeSource ? "Yes" : "No"}
               </Typography>
             </Stack>
