@@ -147,9 +147,36 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
   }
   async findAllWithUser(): Promise<TNlqQaGoodOutWithUserRequestDto[]> {
     try {
-      // First, get all nlq_goods and with the question by attach the user email
+      // 1. Get all users
+      const usersSnapshot = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_USERS)
+        .get();
+      const usersMap: Record<string, { id: string; email: string }> = {};
+      usersSnapshot.forEach((doc) => {
+        const data = doc.data() as { email: string };
+        usersMap[doc.id] = { id: doc.id, email: data.email };
+      });
 
-      return goodsWithUser;
+      // 2. Get all goods and attach the user info based on the field nlq_goods.questionBy
+      const goodsSnapshot = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_GOODS)
+        .get();
+
+      // 3. Merge data
+      const results: TNlqQaGoodOutWithUserRequestDto[] = [];
+      goodsSnapshot.forEach((doc) =>
+        results.push({
+          id: doc.id,
+          ...(doc.data() as TNlqQaGoodOutRequestDto),
+          user: usersMap[
+            (doc.data() as TNlqQaGoodOutRequestDto).questionBy
+          ] || {
+            id: "",
+            email: "",
+          },
+        })
+      );
+      return results;
     } catch (error) {
       this.logger.error(
         "[NlqQaGoodRepository] Error finding all NLQ QA Goods with user",

@@ -1,10 +1,10 @@
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
-import { TNlqQaGoodOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function ReadAllNlqQaGoodAction(): Promise<
-  TResOutContent<TNlqQaGoodOutRequestDto[]>
+  TResOutContent<TNlqQaGoodOutWithUserRequestDto[]>
 > {
   console.log("Reading all roles...");
   const nlqQaGoodRes = await fetch(`${domain}/api/nlq-qa-good`, {

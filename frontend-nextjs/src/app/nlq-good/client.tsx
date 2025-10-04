@@ -36,14 +36,17 @@ import { LocalTime } from "@/components/shared/LocalTime";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
+import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import { ReadAllNlqQaGoodAction } from "@/_actions/nlq-qa-good/read-all.action";
 
 export default function NlqGoodClient({
   initialRows,
 }: {
-  initialRows: NlqGoodItem[];
+  initialRows: TNlqQaGoodOutWithUserRequestDto[];
 }) {
   const { setFeedback } = useFeedbackContext();
-  const [rows, setRows] = React.useState<NlqGoodItem[]>(initialRows);
+  const [rows, setRows] =
+    React.useState<TNlqQaGoodOutWithUserRequestDto[]>(initialRows);
   const [loading, setLoading] = React.useState(false);
 
   // Filters & ordering for VBD createdAt
@@ -58,8 +61,8 @@ export default function NlqGoodClient({
   const refresh = async () => {
     setLoading(true);
     try {
-      const data = await listNlqGoodAction(300);
-      setRows(data);
+      const data = await ReadAllNlqQaGoodAction();
+      setRows(data.data || []);
     } catch (e: any) {
       setFeedback({
         isActive: true,
@@ -142,8 +145,8 @@ export default function NlqGoodClient({
 
     let arr = rows.filter((r) => {
       if (!from && !to) return true;
-      if (!r.uploaded || !r.vbd_created_at) return false;
-      const d = new Date(r.vbd_created_at);
+      if (!r.isOnKnowledgeSource || !r.createdAt) return false;
+      const d = new Date(r.createdAt);
       if (isNaN(d.getTime())) return false;
       if (from && d < from) return false;
       if (to && d > to) return false;
@@ -151,8 +154,8 @@ export default function NlqGoodClient({
     });
 
     arr.sort((a, b) => {
-      const ad = a.vbd_created_at ? new Date(a.vbd_created_at).getTime() : 0;
-      const bd = b.vbd_created_at ? new Date(b.vbd_created_at).getTime() : 0;
+      const ad = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bd = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return sortDir === "desc" ? bd - ad : ad - bd;
     });
 
@@ -255,7 +258,7 @@ export default function NlqGoodClient({
                   const isDeleting = deleteBusy.has(r.id);
                   return (
                     <TableRow key={r.id} hover>
-                      <TableCell>{r.email || "—"}</TableCell>
+                      <TableCell>{r.user.email || "—"}</TableCell>
                       <TableCell sx={{ maxWidth: 480 }}>
                         <Box
                           sx={{
@@ -268,21 +271,17 @@ export default function NlqGoodClient({
                         </Box>
                       </TableCell>
                       <TableCell>
-                        {r.uploaded ? (
+                        {r.isOnKnowledgeSource ? (
                           <Chip size="small" color="success" label="true" />
                         ) : (
                           <Chip size="small" variant="outlined" label="false" />
                         )}
                       </TableCell>
                       <TableCell>
-                        {r.vbd_created_at ? (
-                          <LocalTime iso={r.vbd_created_at} />
-                        ) : (
-                          "—"
-                        )}
+                        {r.createdAt ? <LocalTime iso={r.createdAt} /> : "—"}
                       </TableCell>
                       <TableCell align="right">
-                        {r.uploaded ? (
+                        {r.isOnKnowledgeSource ? (
                           <>
                             <Tooltip title="Edit NLQ">
                               <IconButton
