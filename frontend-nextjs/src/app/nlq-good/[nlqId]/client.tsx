@@ -22,6 +22,7 @@ import { updateNlqAdminAction } from "@/controller/_actions/nlq/update-admin";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { NlqQaInfoExecQuery } from "@/_actions/nlq-qa-info/execute-query.action";
+import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 
 export default function NlqGoodEditClient({
   initial,
@@ -72,7 +73,13 @@ export default function NlqGoodEditClient({
     if (!ranOk || saving) return; // must run successfully first
     setSaving(true);
     try {
-      await updateNlqAdminAction({ nlqId: initial.id, question, sql });
+      // await updateNlqAdminAction({ nlqId: initial.id, question, sql });
+      await UpdateNlqQaGoodAction({
+        id: initial.id,
+        question,
+        query: sql,
+        isOnKnowledgeSource: initial.isOnKnowledgeSource,
+      });
       setFeedback({
         isActive: true,
         severity: "success",
