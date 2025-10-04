@@ -16,7 +16,14 @@ export async function ReadAllRolesAction(): Promise<
   });
   console.log("Response:", rolesRes);
   if (!rolesRes.ok) {
-    throw new Error(`Failed to fetch roles: ${rolesRes.statusText}`);
+    const errorData = await rolesRes.json();
+    console.error(
+      "Error fetching roles:",
+      errorData.message || rolesRes.statusText
+    );
+    throw new Error(
+      `Failed to fetch roles: ${errorData.message || rolesRes.statusText}`
+    );
   }
   const rolesData = await rolesRes.json();
   console.log("Fetched roles:", rolesData);

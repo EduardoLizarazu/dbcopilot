@@ -16,6 +16,13 @@ export async function DeleteRoleAction(id: string): Promise<void> {
   console.log("Response:", roleRes);
 
   if (!roleRes.ok) {
-    throw new Error(`Failed to delete role: ${roleRes.statusText}`);
+    const errorData = await roleRes.json();
+    console.error(
+      "Error deleting role:",
+      errorData.message || roleRes.statusText
+    );
+    throw new Error(
+      `Failed to delete role: ${errorData.message || roleRes.statusText}`
+    );
   }
 }

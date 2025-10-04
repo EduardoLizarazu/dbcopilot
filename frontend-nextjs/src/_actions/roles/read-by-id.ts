@@ -19,7 +19,14 @@ export async function ReadRoleByIdAction(
   console.log("Response:", roleRes);
 
   if (!roleRes.ok) {
-    throw new Error(`Failed to read role: ${roleRes.statusText}`);
+    const errorData = await roleRes.json();
+    console.error(
+      "Error reading role:",
+      errorData.message || roleRes.statusText
+    );
+    throw new Error(
+      `Failed to read role: ${errorData.message || roleRes.statusText}`
+    );
   }
 
   const roleData = await roleRes.json();
