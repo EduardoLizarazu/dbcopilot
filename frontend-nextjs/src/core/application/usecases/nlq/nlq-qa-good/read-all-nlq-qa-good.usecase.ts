@@ -31,10 +31,18 @@ export class ReadAllNlqQaGoodUseCase implements IReadAllNlqQaGoodUseCase {
         message: "NLQ QA Good retrieved successfully",
       };
     } catch (error) {
-      this.logger.error("[ReadAllNlqQaGoodUseCase] Error:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : JSON.stringify(error);
+
+      this.logger.error("[ReadAllNlqQaGoodUseCase] Error:", errorMessage);
+
       return {
         success: false,
-        message: "Error NLQ QA Good",
+        message: `Error retrieving NLQ QA Good: ${errorMessage}`,
         data: null,
       };
     }

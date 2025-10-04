@@ -18,6 +18,8 @@ import { useFeedbackContext } from "@/contexts/feedback.context";
 import { runSqlAction } from "@/controller/_actions/nlq/run-sql";
 import { createNlqAdminAction } from "@/controller/_actions/nlq/create-admin";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
+import { CreateNlqQaGoodAction } from "@/_actions/nlq-qa-good/create.action";
+import { NlqQaInfoExecQuery } from "@/_actions/nlq-qa-info/execute-query.action";
 
 export default function CreateNlqClient() {
   const router = useRouter();
@@ -42,8 +44,8 @@ export default function CreateNlqClient() {
     setRanOk(false);
     setRows(null);
     try {
-      const r = await runSqlAction(sql);
-      setRows(r.rows || []);
+      const r = await NlqQaInfoExecQuery(sql);
+      setRows(r.data || []);
       setRanOk(true);
       setFeedback({
         isActive: true,
@@ -63,7 +65,10 @@ export default function CreateNlqClient() {
     if (disabledSave) return;
     setSaving(true);
     try {
-      await createNlqAdminAction({ question, sql });
+      await CreateNlqQaGoodAction({
+        question: question.trim(),
+        query: sql.trim(),
+      });
       setFeedback({
         isActive: true,
         severity: "success",
@@ -96,15 +101,19 @@ export default function CreateNlqClient() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             fullWidth
+            placeholder="Write a question…"
+            autoFocus
+            multiline
+            minRows={2}
           />
           <TextField
-            label="SQL"
+            label="Query (SQL)"
             value={sql}
             onChange={(e) => setSql(e.target.value)}
             fullWidth
             multiline
             minRows={6}
-            placeholder="Write a SELECT query…"
+            placeholder="Write a query…"
           />
 
           <Stack direction="row" spacing={1}>

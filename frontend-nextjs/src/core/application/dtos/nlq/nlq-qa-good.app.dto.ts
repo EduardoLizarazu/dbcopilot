@@ -4,7 +4,7 @@ export const nlqQaGoodSchema = z.object({
   id: z.string(),
   question: z.string().min(2),
   query: z.string().min(2),
-  originId: z.string().min(2), // FK to nlqQa
+  originId: z.string(), // FK to nlqQa
 
   // VDB
   knowledgeSourceId: z.string().min(2), // VDB - Same as this.id
@@ -58,7 +58,7 @@ export const updateNlqQaGoodSchema = nlqQaGoodSchema.partial().omit({
 
 export type TUpdateNlqQaGoodDto = z.infer<typeof updateNlqQaGoodSchema>;
 
-export const nlqQaGoodInRequestSchema = nlqQaGoodSchema.pick({
+export const nlqQaGoodInRequestSchema = nlqQaGoodSchema.partial().pick({
   question: true,
   query: true,
   originId: true,

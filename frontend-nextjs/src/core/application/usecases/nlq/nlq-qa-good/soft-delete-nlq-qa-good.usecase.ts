@@ -75,13 +75,21 @@ export class SoftDeleteNlqQaGoodUseCase implements ISoftDeleteNlqQaGoodUseCase {
         data: null,
       };
     } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : JSON.stringify(error);
+
       this.logger.error(
-        "[SoftDeleteNlqQaGoodUseCase] Error executing soft delete",
-        error
+        "[SoftDeleteNlqQaGoodUseCase] Error executing soft delete:",
+        errorMessage
       );
+
       return {
         success: false,
-        message: (error as Error).message || "Error executing soft delete",
+        message: `Error executing soft delete: ${errorMessage}`,
         data: null,
       };
     }

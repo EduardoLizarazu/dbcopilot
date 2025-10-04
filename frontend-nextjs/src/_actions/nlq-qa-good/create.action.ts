@@ -16,12 +16,7 @@ export async function CreateNlqQaGoodAction(
     `${domain}/api/nlq-correction/${input.originId}`,
     {
       method: "POST",
-      body: JSON.stringify({
-        originId: input.originId,
-        question: input.question,
-        query: input.query,
-        questionBy: input.questionBy,
-      }),
+      body: JSON.stringify({ ...input }),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${await readTokenFromCookie()}`,

@@ -122,11 +122,19 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
         success: true,
       };
     } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : JSON.stringify(error);
+
       this.logger.error(
-        `[UpdateNlqQaGoodUseCase] Failed to update NLQ QA Good with ID: ${id}`,
-        error
+        `[UpdateNlqQaGoodUseCase] Failed to update NLQ QA Good with ID: ${id}:`,
+        errorMessage
       );
-      throw new Error("Failed to update NLQ QA Good");
+
+      throw new Error(`Failed to update NLQ QA Good: ${errorMessage}`);
     }
   }
 }

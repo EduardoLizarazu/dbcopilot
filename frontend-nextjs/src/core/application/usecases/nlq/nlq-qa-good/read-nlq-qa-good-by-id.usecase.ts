@@ -47,13 +47,21 @@ export class ReadNlqQaGoodByIdUseCase implements IReadNlqQaGoodByIdUseCase {
         message: "NLQ QA Good retrieved successfully",
       };
     } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : JSON.stringify(error);
+
       this.logger.error(
-        "[ReadNlqQaGoodByIdUseCase] Error retrieving NLQ QA Good",
-        error
+        "[ReadNlqQaGoodByIdUseCase] Error retrieving NLQ QA Good:",
+        errorMessage
       );
+
       return {
         success: false,
-        message: "Error retrieving NLQ QA Good",
+        message: `Error retrieving NLQ QA Good: ${errorMessage}`,
         data: null,
       };
     }

@@ -116,6 +116,8 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
       // 3. Create NLQ QA Good
       const nlqQaGoodId = await this.nlqQaGoodRepository.create({
         ...dateValidate.data,
+        originId: data.originId || "",
+        questionBy: data.questionBy || "",
         detailQuestion,
         tablesColumns,
         semanticFields,
@@ -181,13 +183,21 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         message: "NLQ QA Good created successfully",
       };
     } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : JSON.stringify(error);
+
       this.logger.error(
-        "[CreateNlqQaGoodUseCase] Error creating NLQ QA Good",
-        error
+        "[CreateNlqQaGoodUseCase] Error creating NLQ QA Good:",
+        errorMessage
       );
+
       return {
         success: false,
-        message: "Error creating NLQ QA Good",
+        message: `Error creating NLQ QA Good: ${errorMessage}`,
         data: null,
       };
     }
