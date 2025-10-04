@@ -168,13 +168,15 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         result
       );
 
-      // 6. Update the nlq qa
-      await this.nlqQaRepo.update(data.originId, {
-        isGood: true,
-        nlqQaGoodId: nlqQaGoodId,
-        updatedAt: new Date(),
-        updatedBy: data.createdBy,
-      });
+      // 6. Update the nlq qa, if originId exists
+      if (data.originId) {
+        await this.nlqQaRepo.update(data.originId, {
+          isGood: true,
+          nlqQaGoodId: nlqQaGoodId,
+          updatedAt: new Date(),
+          updatedBy: data.createdBy,
+        });
+      }
 
       // Return success response
       return {
