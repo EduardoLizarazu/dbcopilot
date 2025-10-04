@@ -25,10 +25,6 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import {
-  listNlqGoodAction,
-  type NlqGoodItem,
-} from "@/controller/_actions/nlq/list-good";
 import { deleteNlqVbdAction } from "@/controller/_actions/nlq/delete-vbd";
 import { uploadNlqToVbdAction } from "@/controller/_actions/nlq/upload-vbd";
 import { useFeedbackContext } from "@/contexts/feedback.context";
