@@ -15,8 +15,6 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useFeedbackContext } from "@/contexts/feedback.context";
-import { runSqlAction } from "@/controller/_actions/nlq/run-sql";
-import { createNlqAdminAction } from "@/controller/_actions/nlq/create-admin";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { CreateNlqQaGoodAction } from "@/_actions/nlq-qa-good/create.action";
 import { NlqQaInfoExecQuery } from "@/_actions/nlq-qa-info/execute-query.action";
