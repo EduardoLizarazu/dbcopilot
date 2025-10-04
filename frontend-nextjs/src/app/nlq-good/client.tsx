@@ -33,6 +33,7 @@ import CloudDoneIcon from "@mui/icons-material/CloudDone";
 import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { ReadAllNlqQaGoodAction } from "@/_actions/nlq-qa-good/read-all.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
+import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
 
 export default function NlqGoodClient({
   initialRows,
@@ -143,7 +144,18 @@ export default function NlqGoodClient({
     let arr = rows.filter((r) => {
       if (!from && !to) return true;
       if (!r.isOnKnowledgeSource || !r.createdAt) return false;
-      const d = new Date(r.createdAt);
+
+      // Convert Firestore date to ISO string
+      const isoDate = convertFbDateToISO(
+        r.createdAt as unknown as {
+          _seconds: number;
+          _nanoseconds: number;
+        }
+      );
+
+      if (!isoDate) return false;
+
+      const d = new Date(isoDate);
       if (isNaN(d.getTime())) return false;
       if (from && d < from) return false;
       if (to && d > to) return false;
@@ -151,9 +163,23 @@ export default function NlqGoodClient({
     });
 
     arr.sort((a, b) => {
-      const ad = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bd = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return sortDir === "desc" ? bd - ad : ad - bd;
+      const ad = convertFbDateToISO(
+        a.createdAt as unknown as {
+          _seconds: number;
+          _nanoseconds: number;
+        }
+      );
+      const bd = convertFbDateToISO(
+        b.createdAt as unknown as {
+          _seconds: number;
+          _nanoseconds: number;
+        }
+      );
+
+      const adTime = ad ? new Date(ad).getTime() : 0;
+      const bdTime = bd ? new Date(bd).getTime() : 0;
+
+      return sortDir === "desc" ? bdTime - adTime : adTime - bdTime;
     });
 
     return arr;
