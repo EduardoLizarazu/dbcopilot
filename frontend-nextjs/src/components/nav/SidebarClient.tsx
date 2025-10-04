@@ -24,6 +24,8 @@ import LogoutButton from "@/components/nav/LogoutButton";
 import HistoryIcon from "@mui/icons-material/History";
 import RuleIcon from "@mui/icons-material/Rule";
 import PolylineIcon from "@mui/icons-material/Polyline";
+import CableIcon from "@mui/icons-material/Cable";
+import ListIcon from "@mui/icons-material/List";
 
 const DRAWER_WIDTH = 280;
 
@@ -98,7 +100,13 @@ export default function SidebarClient({
             icon={<RuleIcon />}
             label="NLQ Correction"
           />
-          <NavItem href="/nlq-good" icon={<PolylineIcon />} label="NLQ VBD" />
+          <NavItem href="/nlq-good" icon={<PolylineIcon />} label="NLQ Good" />
+          <NavItem
+            href="/db-connection"
+            icon={<CableIcon />}
+            label="DB Connection"
+          />
+          <NavItem href="/vbd-index" icon={<ListIcon />} label="VBD Index" />
         </>
       </List>
       <Box sx={{ mt: "auto", p: 2 }}>
