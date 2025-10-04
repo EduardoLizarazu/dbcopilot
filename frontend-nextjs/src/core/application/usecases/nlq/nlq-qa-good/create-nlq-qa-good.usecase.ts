@@ -123,7 +123,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         flags,
         think,
         knowledgeSourceId: "",
-        isOnKnowledgeSource: false,
+        isOnKnowledgeSource: true,
         updatedBy: data.createdBy,
         createdAt: new Date(),
         updatedAt: new Date(),
