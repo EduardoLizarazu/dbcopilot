@@ -84,25 +84,25 @@ export class DeleteRoleController implements IController {
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      //   ==== INPUT BODY ====
-      if (!httpRequest.body) {
+      //   ==== INPUT PARAMS ====
+      if (!httpRequest.params || !httpRequest.params.id) {
         this.logger.error(
-          "[DeleteRoleController] No body provided",
+          "[ReadByIdRoleController] No id parameter provided",
           httpRequest
         );
-        const error = this.httpErrors.error_400("No body provided");
+        const error = this.httpErrors.error_400("No id parameter provided");
         return new HttpResponse(error.statusCode, error.body);
       }
 
       this.logger.info(
-        "[DeleteRoleController] Received body:",
-        httpRequest.body
+        "[ReadByIdRoleController] Received params:",
+        httpRequest.params
       );
 
-      const body = httpRequest.body;
-
       // ==== BUSINESS LOGIC USE CASES ====
-      const useCase = await this.deleteRoleUseCase.execute(body.id);
+      const useCase = await this.deleteRoleUseCase.execute(
+        httpRequest.params.id
+      );
 
       if (!useCase.success) {
         this.logger.error("[DeleteRoleController] Error deleting role: ", {

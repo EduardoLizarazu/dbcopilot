@@ -5,9 +5,8 @@ import { domain } from "@/utils/constants";
 export async function DeleteRoleAction(id: string): Promise<void> {
   console.log("Deleting role (test)...", id);
 
-  const roleRes = await fetch(`${domain}/api/roles/`, {
+  const roleRes = await fetch(`${domain}/api/roles/${id}`, {
     method: "DELETE",
-    body: JSON.stringify({ id }),
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${await readTokenFromCookie()}`,
