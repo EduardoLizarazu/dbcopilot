@@ -1,3 +1,4 @@
+"use server";
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
 import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
@@ -6,7 +7,7 @@ import { domain } from "@/utils/constants";
 export async function ReadAllNlqQaGoodAction(): Promise<
   TResOutContent<TNlqQaGoodOutWithUserRequestDto[]>
 > {
-  console.log("Reading all roles...");
+  console.log("Reading all NLQ QA Good entries...");
   const nlqQaGoodRes = await fetch(`${domain}/api/nlq-qa-good`, {
     method: "GET",
     headers: {
@@ -14,15 +15,18 @@ export async function ReadAllNlqQaGoodAction(): Promise<
       Authorization: `Bearer ${await readTokenFromCookie()}`,
     },
   });
-  console.log("Response:", nlqQaGoodRes);
+  console.log("Response status:", nlqQaGoodRes.status);
   if (!nlqQaGoodRes.ok) {
-    const errorDate = await nlqQaGoodRes.json();
-    console.error("Error fetching roles:", errorDate);
+    const errorData = await nlqQaGoodRes.json();
+    console.error(
+      "Error fetching NLQ QA Good entries:",
+      errorData || nlqQaGoodRes.statusText
+    );
     throw new Error(
-      `Failed to fetch roles: ${errorDate.message || nlqQaGoodRes.statusText}`
+      `Failed to fetch NLQ QA Good entries: ${errorData.message || "Unknown error occurred"}`
     );
   }
   const nlqQaGoodData = await nlqQaGoodRes.json();
-  console.log("Fetched roles:", nlqQaGoodData);
+  console.log("Fetched NLQ QA Good entries:", nlqQaGoodData);
   return nlqQaGoodData;
 }

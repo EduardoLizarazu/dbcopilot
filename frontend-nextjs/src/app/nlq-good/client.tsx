@@ -278,7 +278,20 @@ export default function NlqGoodClient({
                         )}
                       </TableCell>
                       <TableCell>
-                        {r.createdAt ? <LocalTime iso={r.createdAt} /> : "—"}
+                        {r.createdAt ? (
+                          <LocalTime
+                            fb_date={
+                              r.createdAt
+                                ? (r.createdAt as unknown as {
+                                    _seconds: number;
+                                    _nanoseconds: number;
+                                  })
+                                : undefined
+                            }
+                          />
+                        ) : (
+                          "—"
+                        )}
                       </TableCell>
                       <TableCell align="right">
                         {r.isOnKnowledgeSource ? (

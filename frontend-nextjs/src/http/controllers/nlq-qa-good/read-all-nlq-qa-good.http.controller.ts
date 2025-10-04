@@ -79,16 +79,6 @@ export class ReadAllNlqQaGoodController implements IController {
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      //   ==== INPUT BODY ====
-      //   1. Check body
-      this.logger.info("[ReadAllNlqQaGoodController] Body:", httpRequest.body);
-      if (!httpRequest.body) {
-        this.logger.error("[ReadAllNlqQaGoodController] No body provided");
-        const error = this.httpErrors.error_400("No body provided");
-        return new HttpResponse(error.statusCode, error.body);
-      }
-      const body = httpRequest.body;
-
       // ==== BUSINESS LOGIC USE CASES ====
       const useCase = await this.readAllNlqQaGoodUseCase.execute();
       this.logger.info(
