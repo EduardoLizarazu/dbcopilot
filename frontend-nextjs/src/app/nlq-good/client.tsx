@@ -23,15 +23,15 @@ import {
   MenuItem,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { deleteNlqVbdAction } from "@/controller/_actions/nlq/delete-vbd";
-import { uploadNlqToVbdAction } from "@/controller/_actions/nlq/upload-vbd";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
+import UploadIcon from "@mui/icons-material/Upload";
+import CloudOffIcon from "@mui/icons-material/CloudOff";
+import CloudDoneIcon from "@mui/icons-material/CloudDone";
 import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { ReadAllNlqQaGoodAction } from "@/_actions/nlq-qa-good/read-all.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
@@ -323,7 +323,7 @@ export default function NlqGoodClient({
                                   {isDeleting ? (
                                     <CircularProgress size={16} />
                                   ) : (
-                                    <DeleteIcon fontSize="small" />
+                                    <CloudDoneIcon fontSize="small" />
                                   )}
                                 </IconButton>
                               </span>
@@ -347,7 +347,7 @@ export default function NlqGoodClient({
                                 {isUploading ? (
                                   <CircularProgress size={16} />
                                 ) : (
-                                  <CloudUploadIcon fontSize="small" />
+                                  <CloudOffIcon fontSize="small" />
                                 )}
                               </IconButton>
                             </span>
