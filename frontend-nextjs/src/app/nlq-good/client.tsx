@@ -293,19 +293,19 @@ export default function NlqGoodClient({
                         )}
                       </TableCell>
                       <TableCell align="right">
+                        <Tooltip title="Edit NLQ">
+                          <IconButton
+                            component={Link}
+                            href={`/nlq-good/${r.id}`}
+                            size="small"
+                            aria-label="edit"
+                            sx={{ ml: 0.5 }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                         {r.isOnKnowledgeSource ? (
                           <>
-                            <Tooltip title="Edit NLQ">
-                              <IconButton
-                                component={Link}
-                                href={`/nlq-good/${r.id}`}
-                                size="small"
-                                aria-label="edit"
-                                sx={{ ml: 0.5 }}
-                              >
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
                             <Tooltip
                               title={
                                 isDeleting
