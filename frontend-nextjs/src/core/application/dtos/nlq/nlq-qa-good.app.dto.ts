@@ -51,7 +51,7 @@ export const nlqQaGoodSchema = z.object({
 export const createNlqQaGoodSchema = nlqQaGoodSchema.omit({ id: true });
 export type TCreateNlqQaGoodDto = z.infer<typeof createNlqQaGoodSchema>;
 
-export const updateNlqQaGoodSchema = nlqQaGoodSchema.omit({
+export const updateNlqQaGoodSchema = nlqQaGoodSchema.partial().omit({
   createdAt: true,
   createdBy: true,
 });

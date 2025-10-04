@@ -34,6 +34,7 @@ import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
 import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { ReadAllNlqQaGoodAction } from "@/_actions/nlq-qa-good/read-all.action";
+import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 
 export default function NlqGoodClient({
   initialRows,
@@ -90,10 +91,9 @@ export default function NlqGoodClient({
   const onUpload = async (nlqId: string) => {
     markUploading(nlqId, true);
     try {
-      await uploadNlqToVbdAction({
-        nlqId,
-        general_query: "",
-        general_question: "",
+      await UpdateNlqQaGoodAction({
+        id: nlqId,
+        isOnKnowledgeSource: true,
       });
       setFeedback({
         isActive: true,
@@ -116,7 +116,10 @@ export default function NlqGoodClient({
   const onDelete = async (nlqId: string) => {
     markDeleting(nlqId, true);
     try {
-      await deleteNlqVbdAction(nlqId);
+      await UpdateNlqQaGoodAction({
+        id: nlqId,
+        isOnKnowledgeSource: false,
+      });
       setFeedback({
         isActive: true,
         severity: "success",

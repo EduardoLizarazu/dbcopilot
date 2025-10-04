@@ -80,13 +80,21 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
         // If isOnKnowledgeSource is true, ensure it's in the knowledge base
         await this.knowledgePort.delete(id); // Remove existing entry if any
         await this.knowledgePort.create({
-          question: data.question,
-          query: data.query,
-          nlqQaGoodId: id,
-          id: id,
-          tablesColumns: data.tablesColumns,
+          id: id || existingNlqQaGood.id,
+          nlqQaGoodId: id || existingNlqQaGood.id,
+          question: data.question || existingNlqQaGood.question,
+          query: data.query || existingNlqQaGood.query,
+          tablesColumns: data.tablesColumns || existingNlqQaGood.tablesColumns,
         });
+        data.knowledgeSourceId =
+          data.knowledgeSourceId || existingNlqQaGood.knowledgeSourceId; // Retain existing if not provided
         data.isOnKnowledgeSource = true; // Ensure it's true
+      }
+
+      if (!data.isOnKnowledgeSource) {
+        await this.knowledgePort.delete(id);
+        data.knowledgeSourceId = "";
+        data.isOnKnowledgeSource = false;
       }
 
       // 2. Update NLQ QA Good
