@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TVbdOutRequestDto } from "./vbd.dto";
 
 export const dbConnectionSchema = z.object({
   id: z.string().min(2).max(100),
@@ -54,3 +55,7 @@ export type TDbConnectionInRequestDto = z.infer<
 >;
 
 export type TDbConnectionOutRequestDto = z.infer<typeof dbConnectionSchema>;
+
+export type TDbConnectionOutRequestDtoWithVbd = TDbConnectionOutRequestDto & {
+  vbd_splitter: TVbdOutRequestDto;
+};

@@ -1,6 +1,7 @@
 import {
   TCreateDbConnectionDto,
   TDbConnectionOutRequestDto,
+  TDbConnectionOutRequestDtoWithVbd,
   TUpdateDbConnectionDto,
 } from "../dtos/dbconnection.dto";
 import { IGenericMutationRepository } from "./generic.app.inter";
@@ -15,4 +16,8 @@ export interface IDbConnectionRepository
   findByFields(
     data: Partial<TCreateDbConnectionDto>
   ): Promise<TDbConnectionOutRequestDto | null>;
+  findAllWithVbd(): Promise<TDbConnectionOutRequestDtoWithVbd[]>;
+  findWithVbdById(
+    id: string
+  ): Promise<TDbConnectionOutRequestDtoWithVbd | null>;
 }
