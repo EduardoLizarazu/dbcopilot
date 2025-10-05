@@ -12,4 +12,7 @@ export interface IDbConnectionRepository
     TDbConnectionOutRequestDto
   > {
   findByName(name: string): Promise<TDbConnectionOutRequestDto | null>;
+  findByFields(
+    data: Partial<TCreateDbConnectionDto>
+  ): Promise<TDbConnectionOutRequestDto | null>;
 }
