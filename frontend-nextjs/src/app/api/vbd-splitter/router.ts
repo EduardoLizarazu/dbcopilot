@@ -1,14 +1,14 @@
 import { nextAdapter } from "@/http/adapters/next-adapter.http";
-import { createNlqQaComposer } from "@/infrastructure/services/composers/nlq/create-nlq-qa-composer.infra.service";
-import { readAllNlqQaComposer } from "@/infrastructure/services/composers/nlq/read-all-nlq-qa-composer.infra.service";
+import { CreateVbdSplitterComposer } from "@/infrastructure/services/composers/vbd-splitter/create-vbd-splitter-composer.infra.service";
+import { ReadAllVbdSplitterComposer } from "@/infrastructure/services/composers/vbd-splitter/read-all-vbd-splitter-composer.infra.service";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
-  console.log("API: NLQ request...", req);
-  const adapter = await nextAdapter(req, createNlqQaComposer(), {
+  console.log("API: VBD Splitter creation request received", req);
+  const adapter = await nextAdapter(req, CreateVbdSplitterComposer(), {
     isTokenRequired: true,
   });
-  console.log("API: NLQ response:", adapter);
+  console.log("API: VBD Splitter creation response", adapter);
   return new Response(JSON.stringify(adapter.body), {
     status: adapter.statusCode,
     headers: { "Content-Type": "application/json" },
@@ -16,11 +16,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  console.log("API: NLQ request...", req);
-  const adapter = await nextAdapter(req, readAllNlqQaComposer(), {
+  console.log("API: VBD Splitter retrieval request received", req);
+  const adapter = await nextAdapter(req, ReadAllVbdSplitterComposer(), {
     isTokenRequired: true,
   });
-  console.log("API: NLQ response:", adapter);
+  console.log("API: VBD Splitter retrieval response", adapter);
   return new Response(JSON.stringify(adapter.body), {
     status: adapter.statusCode,
     headers: { "Content-Type": "application/json" },
