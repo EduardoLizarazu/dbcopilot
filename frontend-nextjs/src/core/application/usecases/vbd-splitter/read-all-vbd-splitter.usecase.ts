@@ -3,13 +3,11 @@ import { TVbdOutRequestDto } from "../../dtos/vbd.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IVbdSplitterRepository } from "../../interfaces/vbd-splitter.inter";
 
-export interface IReadAllBadForCorrectionUseCase {
+export interface IReadAllVbdSplitterUseCase {
   execute(): Promise<TResponseDto<TVbdOutRequestDto[]>>;
 }
 
-export class ReadAllVbdSplitterUseCase
-  implements IReadAllBadForCorrectionUseCase
-{
+export class ReadAllVbdSplitterUseCase implements IReadAllVbdSplitterUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly vbdSplitterRepo: IVbdSplitterRepository
