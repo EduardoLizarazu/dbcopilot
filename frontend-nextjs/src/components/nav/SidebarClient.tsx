@@ -106,7 +106,11 @@ export default function SidebarClient({
             icon={<CableIcon />}
             label="DB Connection"
           />
-          <NavItem href="/vbd-index" icon={<ListIcon />} label="VBD Index" />
+          <NavItem
+            href="/vbd-splitter"
+            icon={<ListIcon />}
+            label="VBD Splitter"
+          />
         </>
       </List>
       <Box sx={{ mt: "auto", p: 2 }}>

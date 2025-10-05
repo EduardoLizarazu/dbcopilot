@@ -21,7 +21,7 @@ import Link from "next/link";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
 
-export default function VbdIndexClient({
+export default function VbdSplitterClient({
   initialRows,
 }: {
   initialRows: TVbdOutRequestDto[];

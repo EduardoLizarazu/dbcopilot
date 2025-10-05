@@ -1,8 +1,7 @@
 import { ReadAllVbdSplitterAction } from "@/_actions/vbd-splitter/read-all.action";
-import VbdIndexClient from "./client";
+import VbdSplitterClient from "./client";
 
-export default async function VbdIndexPage() {
+export default async function VbdSplitterPage() {
   const initial = await ReadAllVbdSplitterAction();
-  console.log("VbdIndexPage: Initial data fetched", initial);
-  return <VbdIndexClient initialRows={initial.data} />;
+  return <VbdSplitterClient initialRows={initial.data} />;
 }
