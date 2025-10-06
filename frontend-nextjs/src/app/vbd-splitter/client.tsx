@@ -20,6 +20,9 @@ import {
 import Link from "next/link";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { IconButton, Tooltip } from "@mui/material";
 
 export default function VbdSplitterClient({
   initialRows,
@@ -136,30 +139,33 @@ export default function VbdSplitterClient({
                       </TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={1}>
-                          <Button
-                            component={Link}
-                            href={`/vbd-splitter/${row.id}`}
-                            variant="outlined"
-                            size="small"
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            color="error"
-                            size="small"
-                            onClick={() => {
-                              if (
-                                confirm(
-                                  "Are you sure you want to delete this item?"
-                                )
-                              ) {
-                                // Add delete logic here
-                              }
-                            }}
-                          >
-                            Delete
-                          </Button>
+                          <Tooltip title="Edit">
+                            <IconButton
+                              component={Link}
+                              href={`/vbd-splitter/${row.id}`}
+                              aria-label="Edit VBD Splitter"
+                              size="small"
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <IconButton
+                              aria-label="Delete VBD Splitter"
+                              size="small"
+                              onClick={() => {
+                                if (
+                                  confirm(
+                                    "Are you sure you want to delete this item?"
+                                  )
+                                ) {
+                                  // Add delete logic here
+                                }
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
                         </Stack>
                       </TableCell>
                     </TableRow>
