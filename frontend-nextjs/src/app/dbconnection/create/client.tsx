@@ -237,11 +237,6 @@ export default function DbConnectionClient({
               inputProps={{ maxLength: 5 }}
               fullWidth
             />
-            {error && (
-              <Typography color="error" variant="body2">
-                {error}
-              </Typography>
-            )}
 
             <TextField
               label="Database"
