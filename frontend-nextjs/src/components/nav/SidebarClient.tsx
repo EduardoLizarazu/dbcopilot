@@ -102,7 +102,7 @@ export default function SidebarClient({
           />
           <NavItem href="/nlq-good" icon={<PolylineIcon />} label="NLQ Good" />
           <NavItem
-            href="/db-connection"
+            href="/dbconnection"
             icon={<CableIcon />}
             label="DB Connection"
           />
