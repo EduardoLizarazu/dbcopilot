@@ -96,7 +96,7 @@ export class CreateDbConnectionController implements IController {
 
       // ==== BUSINESS LOGIC USE CASES ====
       const useCase = await this.createDbConnectionUseCase.execute({
-        name: body.name,
+        ...body,
         actorId: decoded.uid,
       });
 

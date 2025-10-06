@@ -63,15 +63,15 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
       const existingConnection = await this.dbConnectionRepo.findByFields(
         inputValidate.data
       );
-      if (!existingConnection) {
+      if (existingConnection) {
         this.logger.warn(
-          `[CreateDbConnectionUseCase] DB connection does not exist: ${JSON.stringify(
+          `[CreateDbConnectionUseCase] DB connection already exists: ${JSON.stringify(
             existingConnection
           )}`
         );
         return {
           success: false,
-          message: `DB connection does not exist`,
+          message: `DB connection already exists based on the fields of connection`,
           data: null,
         };
       }
@@ -93,6 +93,8 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
 
       //   4. Prepare data for creation
       const createDto: TCreateDbConnectionDto = {
+        name: inputValidate.data.name,
+        description: inputValidate.data.description,
         type: inputValidate.data.type,
         host: inputValidate.data.host,
         port: inputValidate.data.port,
@@ -100,7 +102,10 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
         username: inputValidate.data.username,
         password: inputValidate.data.password,
         createdBy: inputValidate.data.actorId,
+        updatedBy: inputValidate.data.actorId,
         id_vbd_splitter: inputValidate.data.id_vbd_splitter,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
       const createDataValid =
         await createDbConnectionSchema.safeParseAsync(createDto);
