@@ -92,9 +92,7 @@ export default function DbConnectionClient({
       }
       setSchemaSuccess(true);
     } catch (error) {
-      console.error("Error running DB Connection:", {
-        error: error.message,
-      });
+      console.warn("Error running DB Connection:", error.message);
       setError(`Failed to run DB Connection: ${error.message}`);
       setSchemaSuccess(false);
     } finally {

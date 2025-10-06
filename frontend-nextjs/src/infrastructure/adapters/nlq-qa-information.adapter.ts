@@ -24,7 +24,7 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
         "[NlqQaInformationAdapter] Extracting schema from connection",
         { connection }
       );
-      dataSource = this.typeOrmProvider.createDataSource({
+      dataSource = await this.typeOrmProvider.createDataSource({
         type: connection.type,
         host: connection.host,
         port: connection.port,
@@ -33,16 +33,13 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
         database: connection.database,
         sid: connection.sid,
       });
-
+      await dataSource.initialize();
       // check if dataSource is initialized
       if (!dataSource.isInitialized) {
         this.logger.error(
-          "[NlqQaInformationAdapter] DataSource is not initialized on extract schema from connection",
-          { connection }
+          "[NlqQaInformationAdapter] DataSource is not initialized on extract query"
         );
-        throw new Error(
-          "DataSource is not initialized on extract schema from connection"
-        );
+        throw new Error("DataSource is not initialized on extract query");
       }
 
       queryRunner = dataSource.createQueryRunner();

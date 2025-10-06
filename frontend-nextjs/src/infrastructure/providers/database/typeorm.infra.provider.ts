@@ -48,28 +48,25 @@ export class TypeOrmProvider {
       migrations: [], // No migrations
       subscribers: [], // No subscribers
     };
-    this._dataSource = new DataSource(this.config);
-    await this._dataSource.initialize();
-    console.log("Data Source has been initialized!");
-    return this._dataSource;
+    return await new DataSource(this.config);
   }
 
   async isConnected(): Promise<boolean> {
-    return this._dataSource.isInitialized;
+    return this.dataSource.isInitialized;
   }
 
   async initialize() {
-    if (!this._dataSource) {
-      this._dataSource = new DataSource(this.config);
+    if (!this.dataSource) {
+      this.dataSource = new DataSource(this.config);
     }
-    await this._dataSource.initialize();
+    await this.dataSource.initialize();
     console.log("Data Source has been initialized!");
   }
 
   async close() {
-    if (this._dataSource) {
-      await this._dataSource.destroy();
-      this._dataSource = null;
+    if (this.dataSource) {
+      await this.dataSource.destroy();
+      this.dataSource = null;
       console.log("Data Source has been closed!");
     }
   }
