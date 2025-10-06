@@ -214,11 +214,19 @@ export default function DbConnectionClient({
                 const portValue = e.target.value;
                 if (/^\d*$/.test(portValue)) {
                   setDbConn({ ...dbConn, port: parseInt(portValue) });
+                  setError(null); // Clear error if valid
+                } else {
+                  setError("Port must be a valid number.");
                 }
               }}
               inputProps={{ maxLength: 5 }}
               fullWidth
             />
+            {error && (
+              <Typography color="error" variant="body2">
+                {error}
+              </Typography>
+            )}
 
             <TextField
               label="Database"
