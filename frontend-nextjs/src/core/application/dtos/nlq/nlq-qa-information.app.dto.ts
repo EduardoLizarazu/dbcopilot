@@ -41,7 +41,7 @@ export type TNlqInformationData = {
   data: Record<string, unknown>[]; // Adjust the type based on your data structure
 };
 
-export const TNlqInfoConn = z.object({
+export const connDto = z.object({
   type: z.enum(["mysql", "postgres", "mssql", "oracle"]),
   host: z.string().min(1, "Host is required"),
   port: z.number().min(1, "Port is required"),
@@ -51,4 +51,4 @@ export const TNlqInfoConn = z.object({
   sid: z.string().optional(),
   schema_query: z.string().optional(),
 });
-export type TNlqInfoConnDto = z.infer<typeof TNlqInfoConn>;
+export type TNlqInfoConnDto = z.infer<typeof connDto>;

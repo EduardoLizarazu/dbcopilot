@@ -1,4 +1,5 @@
 import {
+  connDto,
   TNlqInfoConnDto,
   TNlqInformationData,
 } from "../../dtos/nlq/nlq-qa-information.app.dto";
@@ -27,8 +28,23 @@ export class ExtractSchemaDbConnectionUseCase
         "Executing ExtractSchemaDbConnectionUseCase",
         connection
       );
-      const result =
-        await this.infoRepo.extractSchemaFromConnection(connection);
+
+      const validConn = await connDto.safeParseAsync(connection);
+      if (!validConn.success) {
+        this.logger.warn(
+          "[ExtractSchemaDbConnectionUseCase] Invalid connection data",
+          validConn.error.errors
+        );
+        return {
+          success: false,
+          data: null,
+          message: "Invalid connection data",
+        };
+      }
+
+      const result = await this.infoRepo.extractSchemaFromConnection(
+        validConn.data
+      );
 
       if (!result) {
         this.logger.warn(

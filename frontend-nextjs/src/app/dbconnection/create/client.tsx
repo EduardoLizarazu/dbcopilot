@@ -47,8 +47,11 @@ export default function DbConnectionClient({
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [isUpdate, setIsUpdate] = React.useState(!!initial);
-  const [rows, setRows] = React.useState<TNlqInformationData | null>(null);
+  const [rows, setRows] = React.useState<TNlqInformationData | null>({
+    data: null,
+  });
   const [schemaSuccess, setSchemaSuccess] = React.useState<boolean>(false);
+  const [schemaLoading, setSchemaLoading] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     (async () => {
@@ -65,9 +68,9 @@ export default function DbConnectionClient({
   }, []);
 
   const onRun = async () => {
-    setLoading(true);
     setError(null);
     setRows(null);
+    setSchemaLoading(true);
     try {
       const res = await ExtractSchemaAction({
         type: ["mysql", "postgres", "mssql", "oracle"].includes(
@@ -75,13 +78,13 @@ export default function DbConnectionClient({
         )
           ? (dbConn?.type as "mysql" | "postgres" | "mssql" | "oracle")
           : "mysql",
-        host: dbConn?.host || "",
+        host: dbConn?.host.trim() || "",
         port: dbConn?.port || 0,
-        database: dbConn?.database || "",
-        username: dbConn?.username || "",
-        password: dbConn?.password || "",
-        sid: dbConn?.sid || null,
-        schema_query: dbConn?.schema_query || "",
+        database: dbConn?.database.trim() || "",
+        username: dbConn?.username.trim() || "",
+        password: dbConn?.password.trim() || "",
+        sid: dbConn?.sid.trim() || null,
+        schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
       });
       console.log("DB Connection run:", res);
       if (res) {
@@ -92,10 +95,10 @@ export default function DbConnectionClient({
       console.error("Error running DB Connection:", {
         error: error.message,
       });
-      setError("Failed to run DB Connection.");
+      setError(`Failed to run DB Connection: ${error.message}`);
       setSchemaSuccess(false);
     } finally {
-      setLoading(false);
+      setSchemaLoading(false);
     }
   };
 
@@ -317,20 +320,32 @@ export default function DbConnectionClient({
               inputProps={{ maxLength: 100 }}
               fullWidth
             />
+            <TextField
+              label="Query Extractor"
+              value={dbConn?.schema_query || ""}
+              required
+              onChange={(e) =>
+                setDbConn({ ...dbConn, schema_query: e.target.value })
+              }
+              inputProps={{ maxLength: 100 }}
+              fullWidth
+              multiline
+              minRows={3}
+            />
 
             <Box display="flex" gap={1} sx={{ mt: 1 }}>
               <Button
                 variant="outlined"
                 onClick={onRun}
-                disabled={loading || !dbConn?.schema_query.trim()}
+                disabled={schemaLoading || !dbConn?.schema_query}
               >
-                {loading ? <CircularProgress size={18} /> : "Run"}
+                {schemaLoading ? <CircularProgress size={18} /> : "Run"}
               </Button>
 
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading || (rows.data === null && !schemaSuccess)}
+                disabled={loading || !schemaSuccess}
                 sx={{ textTransform: "none" }}
               >
                 {loading ? (
@@ -358,7 +373,7 @@ export default function DbConnectionClient({
           <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
             <CircularProgress />
           </Box>
-        ) : rows ? (
+        ) : rows?.data ? (
           <Box sx={{ mt: 2 }}>
             <ChatResultTable data={rows.data} />
           </Box>
