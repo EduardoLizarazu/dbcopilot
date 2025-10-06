@@ -24,12 +24,45 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
         "[NlqQaInformationAdapter] Extracting schema from connection",
         { connection }
       );
+      dataSource = this.typeOrmProvider.createDataSource({
+        type: connection.type,
+        host: connection.host,
+        port: connection.port,
+        username: connection.username,
+        password: connection.password,
+        database: connection.database,
+        sid: connection.sid,
+      });
+
+      // check if dataSource is initialized
+      if (!dataSource.isInitialized) {
+        this.logger.error(
+          "[NlqQaInformationAdapter] DataSource is not initialized on extract schema from connection",
+          { connection }
+        );
+        throw new Error(
+          "DataSource is not initialized on extract schema from connection"
+        );
+      }
+
+      queryRunner = dataSource.createQueryRunner();
+
+      const result = await queryRunner.query(connection.schema_query || "");
+
+      this.logger.info(
+        "[NlqQaInformationAdapter] Schema extracted from connection",
+        { length: result.length, connection }
+      );
+      return result;
     } catch (error) {
       this.logger.error("Error extracting schema from connection", {
         error: error instanceof Error ? error.message : String(error),
         connection,
       });
       throw new Error(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (queryRunner) await queryRunner.release();
+      if (dataSource) await dataSource.destroy();
     }
   }
   async executeQueryFromConnection(
@@ -37,7 +70,47 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
     query: string,
     dateParams?: { start: Date; end: Date }
   ): Promise<TNlqInformationData> {
-    throw new Error("Method not implemented.");
+    let queryRunner = null;
+    let dataSource = null;
+    try {
+      this.logger.info(
+        "[NlqQaInformationAdapter] Executing query from connection",
+        { connection, query }
+      );
+      dataSource = this.typeOrmProvider.createDataSource({
+        type: connection.type,
+        host: connection.host,
+        port: connection.port,
+        username: connection.username,
+        password: connection.password,
+        database: connection.database,
+        sid: connection.sid,
+      });
+
+      // check if dataSource is initialized
+      if (!dataSource.isInitialized) {
+        this.logger.error(
+          "[NlqQaInformationAdapter] DataSource is not initialized on execute query from connection",
+          { connection, query }
+        );
+        throw new Error(
+          "DataSource is not initialized on execute query from connection"
+        );
+      }
+
+      queryRunner = dataSource.createQueryRunner();
+
+      const result = await queryRunner.query(query);
+
+      this.logger.info(
+        "[NlqQaInformationAdapter] Query executed from connection",
+        { connection, query, result }
+      );
+      return { data: result };
+    } catch (error) {
+      this.logger.error("Error executing query from connection", error.message);
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
   }
   async extractSchemaBased(
     tables: string[]

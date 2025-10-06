@@ -42,11 +42,13 @@ export type TNlqInformationData = {
 };
 
 export const TNlqInfoConn = z.object({
+  type: z.enum(["mysql", "postgres", "mssql", "oracle"]),
   host: z.string().min(1, "Host is required"),
   port: z.number().min(1, "Port is required"),
   database: z.string().min(1, "Database is required"),
-  user: z.string().min(1, "User is required"),
+  username: z.string().min(1, "User is required"),
   password: z.string().min(1, "Password is required"),
   sid: z.string().optional(),
+  schema_query: z.string().optional(),
 });
 export type TNlqInfoConnDto = z.infer<typeof TNlqInfoConn>;
