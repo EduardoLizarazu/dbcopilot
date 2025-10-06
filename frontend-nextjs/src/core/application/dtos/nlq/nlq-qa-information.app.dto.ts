@@ -40,3 +40,13 @@ export type TNlqQaInformationSchemaExtractionDto = z.infer<
 export type TNlqInformationData = {
   data: Record<string, unknown>[]; // Adjust the type based on your data structure
 };
+
+export const TNlqInfoConn = z.object({
+  host: z.string().min(1, "Host is required"),
+  port: z.number().min(1, "Port is required"),
+  database: z.string().min(1, "Database is required"),
+  user: z.string().min(1, "User is required"),
+  password: z.string().min(1, "Password is required"),
+  sid: z.string().optional(),
+});
+export type TNlqInfoConnDto = z.infer<typeof TNlqInfoConn>;
