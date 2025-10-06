@@ -2,7 +2,7 @@ import { TResponseDto } from "../../dtos/utils/response.app.dto";
 import { IDbConnectionRepository } from "../../interfaces/dbconnection.inter";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 
-export interface TDeleteDbConnectionUseCase {
+export interface IDeleteDbConnectionUseCase {
   execute(id: string): Promise<TResponseDto<null>>;
 }
 
@@ -15,7 +15,7 @@ export interface TDeleteDbConnectionUseCase {
  * n. Return response
  */
 
-export class DeleteDbConnectionUseCase implements TDeleteDbConnectionUseCase {
+export class DeleteDbConnectionUseCase implements IDeleteDbConnectionUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly dbConnectionRepo: IDbConnectionRepository

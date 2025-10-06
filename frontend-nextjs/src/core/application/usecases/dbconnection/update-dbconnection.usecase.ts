@@ -10,7 +10,7 @@ import { IDbConnectionRepository } from "../../interfaces/dbconnection.inter";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IVbdSplitterRepository } from "../../interfaces/vbd-splitter.inter";
 
-export interface TUpdateDbConnectionUseCase {
+export interface IUpdateDbConnectionUseCase {
   execute(
     id: string,
     data: TDbConnectionInRequestDto
@@ -28,7 +28,7 @@ export interface TUpdateDbConnectionUseCase {
  * 7. Return response
  */
 
-export class UpdateDbConnectionUseCase implements TUpdateDbConnectionUseCase {
+export class UpdateDbConnectionUseCase implements IUpdateDbConnectionUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly dbConnectionRepo: IDbConnectionRepository,
