@@ -23,7 +23,7 @@ export default function VbdSplitterClient({
 }) {
   const router = useRouter();
 
-  const [name, setName] = React.useState("");
+  const [name, setName] = React.useState(initial ? initial.name : "");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
