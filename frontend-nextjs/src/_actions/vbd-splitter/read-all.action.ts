@@ -21,12 +21,14 @@ export async function ReadAllVbdSplitterAction(): Promise<
   console.log("[ReadAllVbdSplitterAction] API Response received", vbdRes);
 
   if (!vbdRes.ok) {
-    // const errorData = await vbdRes.json();
+    const errorData = await vbdRes.json();
     console.error(
       "[ReadAllVbdSplitterAction] Error during retrieval of VBD Splitters:",
-      vbdRes.statusText
+      errorData || vbdRes.statusText
     );
-    throw new Error(`Failed to retrieve VBD Splitters: ${vbdRes.statusText}`);
+    throw new Error(
+      `Failed to retrieve VBD Splitters: ${errorData || vbdRes.statusText}`
+    );
   }
 
   const vbdData = await vbdRes.json();
