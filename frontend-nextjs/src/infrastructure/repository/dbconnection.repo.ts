@@ -127,11 +127,15 @@ export class DbConnectionRepository implements IDbConnectionRepository {
     TDbConnectionOutRequestDtoWithVbAndUser[]
   > {
     try {
-      this.logger.info("Finding all DB Connections with VBD");
+      this.logger.info(
+        "[DbConnectionRepository] Finding all DB Connections with VBD"
+      );
       // 1. Get all db connections
       const db = await this.findAll();
       if (db.length === 0) {
-        this.logger.info("No DB Connections found with VBD");
+        this.logger.info(
+          "[DbConnectionRepository] No DB Connections found with VBD"
+        );
         return [];
       }
 
@@ -171,12 +175,16 @@ export class DbConnectionRepository implements IDbConnectionRepository {
           user,
         });
       }
+      return results;
     } catch (error) {
       const errorMessage =
         error.errorMessage || error.message || JSON.stringify(error);
-      this.logger.error("Failed to find all DB Connections with VBD:", {
-        error: errorMessage,
-      });
+      this.logger.error(
+        "[DbConnectionRepository] Failed to find all DB Connections with VBD:",
+        {
+          error: errorMessage,
+        }
+      );
       throw new Error(
         `Failed to find all DB Connections with VBD: ${errorMessage}`
       );

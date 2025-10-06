@@ -20,6 +20,10 @@ export class ReadAllDbConnectionWithVbdUseCase
   > {
     try {
       const dbConnections = await this.dbConnRepo.findAllWithVbdAndUser();
+      this.logger.info(
+        "[ReadAllDbConnectionWithVbdUseCase] DB connections fetched successfully",
+        dbConnections
+      );
       return {
         success: true,
         data: dbConnections,

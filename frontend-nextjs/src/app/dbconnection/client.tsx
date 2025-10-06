@@ -31,8 +31,9 @@ export default function DbConnectionClient({
 }: {
   initialData: TDbConnectionOutRequestDtoWithVbAndUser[];
 }) {
-  const [rows, setRows] =
-    useState<TDbConnectionOutRequestDtoWithVbAndUser[]>(initialData);
+  const [rows, setRows] = useState<TDbConnectionOutRequestDtoWithVbAndUser[]>(
+    initialData || []
+  );
   const [loading, setLoading] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");

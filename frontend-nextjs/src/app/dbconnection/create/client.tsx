@@ -105,7 +105,8 @@ export default function DbConnectionClient({
       const res = await UpdateDbConnectionAction(initial!.id, {
         id: initial!.id,
         name: dbConn?.name.toLowerCase().trim() || "",
-        description: dbConn?.description.toLowerCase().trim() || "",
+        description:
+          dbConn?.description.toLowerCase().trimStart().trimEnd() || "",
         type: dbConn?.type || "mysql",
         host: dbConn?.host.trim() || "",
         port: dbConn?.port || 0,
