@@ -107,6 +107,8 @@ export class UpdateDbConnectionUseCase implements IUpdateDbConnectionUseCase {
         username: validInput.data.username || existingConnection.username,
         password: validInput.data.password || existingConnection.password,
         sid: validInput.data.sid || existingConnection.sid,
+        schema_query:
+          validInput.data.schema_query || existingConnection.schema_query,
         id_vbd_splitter:
           validInput.data.id_vbd_splitter || existingConnection.id_vbd_splitter,
         updatedAt: new Date(),

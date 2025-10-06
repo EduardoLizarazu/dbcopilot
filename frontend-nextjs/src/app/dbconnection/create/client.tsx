@@ -125,6 +125,7 @@ export default function DbConnectionClient({
         username: dbConn?.username || "",
         password: dbConn?.password || "",
         sid: dbConn?.sid || "",
+        schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
         id_vbd_splitter: vbdSplitterId,
       });
       console.log("DB Connection created:", res);
@@ -155,6 +156,7 @@ export default function DbConnectionClient({
         username: dbConn?.username.trim() || "",
         password: dbConn?.password.trim() || "",
         sid: dbConn?.sid.trim() || "",
+        schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
         id_vbd_splitter: vbdSplitterId,
       });
       console.log("DB Connection updated:", res);
