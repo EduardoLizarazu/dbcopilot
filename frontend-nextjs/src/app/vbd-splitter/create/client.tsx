@@ -28,7 +28,8 @@ export default function CreateVbdSplitterClient() {
     setSuccess(null);
     setLoading(true);
     try {
-      const res = await CreateVbdSplitterAction({ name });
+      const formattedName = formatName(name); // Apply formatting to the name
+      const res = await CreateVbdSplitterAction({ name: formattedName });
       console.log("VBD Splitter created:", res);
 
       if (res) {
