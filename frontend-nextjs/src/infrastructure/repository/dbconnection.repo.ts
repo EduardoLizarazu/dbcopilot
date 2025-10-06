@@ -127,17 +127,48 @@ export class DbConnectionRepository implements IDbConnectionRepository {
     try {
       this.logger.info("Finding all DB Connections with VBD");
       // 1. Get all db connections
-      const db = this.firebaseAdmin.db;
-      const dbConnDocs = await db
-        .collection(this.firebaseAdmin.coll.DB_CONNECTIONS)
-        .get();
-
-      if (dbConnDocs.empty) {
-        this.logger.info("No DB Connections found");
+      const db = await this.findAll();
+      if (db.length === 0) {
+        this.logger.info("No DB Connections found with VBD");
         return [];
       }
 
-      const dbConnection;
+      // 2. For each db connection, get associated VBD Splitter and User (if any)
+      const results: TDbConnectionOutRequestDtoWithVbd[] = [];
+      for (const dbConn of db) {
+        let vbd: TVbdOutRequestDto | null = null;
+        if (dbConn.id_vbd_splitter) {
+          const vbdDoc = await this.firebaseAdmin.db
+            .collection(this.firebaseAdmin.coll.VBD_SPLITTERS)
+            .doc(dbConn.id_vbd_splitter)
+            .get();
+          if (vbdDoc.exists) {
+            vbd = {
+              id: vbdDoc.id,
+              ...vbdDoc.data(),
+            } as TVbdOutRequestDto;
+          }
+        }
+
+        let user: { id: string; email: string } | null = null;
+        if (dbConn.createdBy) {
+          const userDoc = await this.firebaseAdmin.db
+            .collection(this.firebaseAdmin.coll.NLQ_USERS)
+            .doc(dbConn.createdBy)
+            .get();
+          if (userDoc.exists) {
+            user = {
+              id: userDoc.id,
+              email: userDoc.data().email,
+            };
+          }
+        }
+        results.push({
+          ...dbConn,
+          vbd_splitter: vbd,
+          user,
+        });
+      }
     } catch (error) {
       const errorMessage =
         error.errorMessage || error.message || JSON.stringify(error);
