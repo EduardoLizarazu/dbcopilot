@@ -126,60 +126,18 @@ export class DbConnectionRepository implements IDbConnectionRepository {
   async findAllWithVbd(): Promise<TDbConnectionOutRequestDtoWithVbd[]> {
     try {
       this.logger.info("Finding all DB Connections with VBD");
-
       // 1. Get all db connections
-      const dbSnapshot = await this.firebaseAdmin.db
+      const db = this.firebaseAdmin.db;
+      const dbConnDocs = await db
         .collection(this.firebaseAdmin.coll.DB_CONNECTIONS)
         .get();
-      const dbConnections: TDbConnectionOutRequestDtoWithVbd[] = [];
 
-      dbSnapshot.forEach((doc) => {
-        const data = doc.data() as TDbConnectionOutRequestDto;
-        dbConnections.push({
-          id: doc.id,
-          ...data,
-          vbd_splitter: undefined,
-        });
-      });
-
-      this.logger.info(`Found ${dbConnections.length} DB Connections`, {
-        dbConnections,
-      });
-
-      // 2. For each db connection, get associated VBD Splitter on id_vbd_splitter
-
-      const vbdIds = dbConnections
-        .map((dbConn) => dbConn.id_vbd_splitter)
-        .filter((id): id is string => !!id);
-
-      this.logger.info(`Fetching VBD Splitters for IDs: ${vbdIds}`, { vbdIds });
-
-      const vbdMap: Record<string, TVbdOutRequestDto> = {};
-
-      if (vbdIds.length > 0) {
-        const vbdSnapshot = await this.firebaseAdmin.db
-          .collection(this.firebaseAdmin.coll.VBD_SPLITTERS)
-          .where("id", "in", vbdIds)
-          .get();
-
-        vbdSnapshot.forEach((doc) => {
-          const data = doc.data() as TVbdOutRequestDto;
-          vbdMap[doc.id] = data;
-        });
+      if (dbConnDocs.empty) {
+        this.logger.info("No DB Connections found");
+        return [];
       }
-      this.logger.info(`Fetched ${Object.keys(vbdMap).length} VBD Splitters`, {
-        vbdMap,
-      });
-      // 3. Combine data adding vbd_splitter fields containing vbd_splitter info
-      dbConnections.forEach((dbConn) => {
-        dbConn.vbd_splitter = vbdMap[dbConn.id_vbd_splitter];
-      });
 
-      this.logger.info("Combined DB Connections with VBD Splitters", {
-        dbConnections,
-      });
-
-      return dbConnections;
+      const dbConnection;
     } catch (error) {
       const errorMessage =
         error.errorMessage || error.message || JSON.stringify(error);
@@ -196,35 +154,48 @@ export class DbConnectionRepository implements IDbConnectionRepository {
   ): Promise<TDbConnectionOutRequestDtoWithVbd | null> {
     try {
       // 1. Get DB connection by ID
-      const dbConnDoc = this.firebaseAdmin.db
-        .collection(this.firebaseAdmin.coll.DB_CONNECTIONS)
-        .doc(id);
-      const dbConnData = await dbConnDoc.get();
-      if (!dbConnData.exists) {
+      const dbConn = await this.findById(id);
+      if (!dbConn) {
+        this.logger.info("No DB Connection found with VBD by ID:", { id });
         return null;
       }
-
-      // 2. Get associated VBD Splitter on id_vbd_splitter
-      const dbConn = {
-        id: dbConnData.id,
-        ...dbConnData.data(),
-        vbd_splitter: undefined,
-      } as TDbConnectionOutRequestDtoWithVbd;
-
+      // 2. Get associated VBD Splitter with dbConn.id_vbd_splitter
+      const db = this.firebaseAdmin.db;
+      let vbd: TVbdOutRequestDto | null = null;
       if (dbConn.id_vbd_splitter) {
-        const vbdDoc = this.firebaseAdmin.db
+        const vbdDoc = await db
           .collection(this.firebaseAdmin.coll.VBD_SPLITTERS)
-          .doc(dbConn.id_vbd_splitter);
-        const vbdData = await vbdDoc.get();
-        if (vbdData.exists) {
-          dbConn.vbd_splitter = {
-            id: vbdData.id,
-            ...vbdData.data(),
+          .doc(dbConn.id_vbd_splitter)
+          .get();
+        if (vbdDoc.exists) {
+          vbd = {
+            id: vbdDoc.id,
+            ...vbdDoc.data(),
           } as TVbdOutRequestDto;
         }
       }
 
-      return dbConn;
+      // 3. Get associated User with dbConn.createdBy
+      let user: { id: string; email: string } | null = null;
+      if (dbConn.createdBy) {
+        const userDoc = await db
+          .collection(this.firebaseAdmin.coll.NLQ_USERS)
+          .doc(dbConn.createdBy)
+          .get();
+        if (userDoc.exists) {
+          user = {
+            id: userDoc.id,
+            email: userDoc.data().email,
+          };
+        }
+      }
+      const dbConnWithVbd: TDbConnectionOutRequestDtoWithVbd = {
+        ...dbConn,
+        vbd_splitter: vbd,
+        user,
+      };
+
+      return dbConnWithVbd;
     } catch (error) {
       const errorMessage =
         error.errorMessage || error.message || JSON.stringify(error);

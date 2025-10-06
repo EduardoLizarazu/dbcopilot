@@ -57,5 +57,6 @@ export type TDbConnectionInRequestDto = z.infer<
 export type TDbConnectionOutRequestDto = z.infer<typeof dbConnectionSchema>;
 
 export type TDbConnectionOutRequestDtoWithVbd = TDbConnectionOutRequestDto & {
-  vbd_splitter: TVbdOutRequestDto;
+  vbd_splitter: TVbdOutRequestDto | null;
+  user: { id: string; email: string } | null;
 };
