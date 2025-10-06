@@ -325,10 +325,10 @@ export default function DbConnectionClient({
               onChange={(e) =>
                 setDbConn({ ...dbConn, schema_query: e.target.value })
               }
-              inputProps={{ maxLength: 100 }}
               fullWidth
               multiline
               minRows={3}
+              helperText="The SQL query used to extract the database schema."
             />
 
             <Box display="flex" gap={1} sx={{ mt: 1 }}>
