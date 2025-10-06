@@ -23,6 +23,9 @@ import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton, Tooltip } from "@mui/material";
+import { DeleteVbdSplitterAction } from "@/_actions/vbd-splitter/delete.action";
+import { ReadAllVbdSplitterAction } from "@/_actions/vbd-splitter/read-all.action";
+import { useFeedbackContext } from "@/contexts/feedback.context";
 
 export default function VbdSplitterClient({
   initialRows,
@@ -34,6 +37,24 @@ export default function VbdSplitterClient({
   const [nameFilter, setNameFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const { setFeedback } = useFeedbackContext();
+
+  const refresh = async () => {
+    setLoading(true);
+    try {
+      const data = await ReadAllVbdSplitterAction();
+      setRows(data.data || []);
+    } catch (error) {
+      console.error("Error fetching VBD Splitters:", error);
+      setFeedback({
+        message: "Error fetching VBD Splitters",
+        severity: "error",
+        isActive: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredRows = rows.filter((row) => {
     const from = dateFrom ? new Date(dateFrom) : null;
@@ -56,6 +77,28 @@ export default function VbdSplitterClient({
 
     return matchesName && isWithinRange(createdAt);
   });
+
+  const onDelete = async (id: string) => {
+    setLoading(true);
+    try {
+      await DeleteVbdSplitterAction(id);
+      setFeedback({
+        message: "VBD Splitter deleted successfully",
+        severity: "success",
+        isActive: true,
+      });
+      await refresh();
+    } catch (error) {
+      console.error("Error deleting VBD Splitter:", error);
+      setFeedback({
+        message: "Error deleting VBD Splitter",
+        severity: "error",
+        isActive: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
@@ -133,7 +176,7 @@ export default function VbdSplitterClient({
                   filteredRows.map((row) => (
                     <TableRow key={row.id} hover>
                       <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.createdBy}</TableCell>
+                      <TableCell>{row.id}</TableCell>
                       <TableCell>
                         <LocalTime fb_date={row.createdAt as any} />
                       </TableCell>
@@ -159,7 +202,7 @@ export default function VbdSplitterClient({
                                     "Are you sure you want to delete this item?"
                                   )
                                 ) {
-                                  // Add delete logic here
+                                  onDelete(row.id);
                                 }
                               }}
                             >
