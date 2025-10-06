@@ -1,4 +1,5 @@
 import { nextAdapter } from "@/http/adapters/next-adapter.http";
+import { DeleteVbdSplitterComposer } from "@/infrastructure/services/composers/vbd-splitter/delete-vbd-splitter-composer.infra.service";
 import { ReadAllVbdSplitterComposer } from "@/infrastructure/services/composers/vbd-splitter/read-all-vbd-splitter-composer.infra.service";
 import { ReadVbdSplitterByIdComposer } from "@/infrastructure/services/composers/vbd-splitter/read-vbd-splitter-by-id-composer.infra.service";
 import { UpdateVbdSplitterComposer } from "@/infrastructure/services/composers/vbd-splitter/update-vbd-splitter-composer.infra.service";
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest) {
 // DELETE BY ID
 export async function DELETE(req: NextRequest) {
   console.log("API: VBD Splitter delete by ID request received", req);
-  const adapter = await nextAdapter(req, ReadAllVbdSplitterComposer(), {
+  const adapter = await nextAdapter(req, DeleteVbdSplitterComposer(), {
     isTokenRequired: true,
   });
   console.log("API: VBD Splitter delete by ID response", adapter);

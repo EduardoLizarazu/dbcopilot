@@ -17,11 +17,11 @@ import { INlqQaKnowledgePort } from "../../ports/nlq-qa-knowledge.app.inter";
  * 7. Return success response
  */
 
-export interface DeleteVbdSplitterUseCase {
+export interface IDeleteVbdSplitterUseCase {
   execute(id: string): Promise<TResponseDto<void>>;
 }
 
-export class DeleteVbdSplitterService implements DeleteVbdSplitterUseCase {
+export class DeleteVbdSplitterUseCase implements IDeleteVbdSplitterUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly vbdSplitterRepo: IVbdSplitterRepository,
