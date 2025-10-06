@@ -33,10 +33,10 @@ export default function DbConnectionClient({
     []
   );
 
-  const [name, setName] = React.useState(initial ? initial.name : "");
-  const [description, setDescription] = React.useState(
-    initial ? initial.description || "" : ""
-  );
+  const [dbConn, setDbConn] =
+    React.useState<TDbConnectionOutRequestDtoWithVbAndUser | null>(
+      initial || null
+    );
   const [vbdSplitterId, setVbdSplitterId] = React.useState(
     initial ? initial.id_vbd_splitter || "" : ""
   );
@@ -126,20 +126,25 @@ export default function DbConnectionClient({
             {success && <Alert severity="success">{success}</Alert>}
 
             <TextField
-              label="Name"
-              value={name}
+              label="Connection name"
+              value={dbConn?.name || ""}
               required
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setDbConn({ ...dbConn, name: e.target.value })}
               inputProps={{ maxLength: 100 }}
               fullWidth
             />
 
             <TextField
               label="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={dbConn?.description || ""}
+              required
+              onChange={(e) =>
+                setDbConn({ ...dbConn, description: e.target.value })
+              }
               inputProps={{ maxLength: 255 }}
               fullWidth
+              multiline
+              minRows={3}
             />
 
             <FormControl fullWidth>
@@ -165,6 +170,91 @@ export default function DbConnectionClient({
                 )}
               </Select>
             </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel id="db-type-label">Type</InputLabel>
+              <Select
+                labelId="db-type-label"
+                value={dbConn?.type || ""}
+                required
+                onChange={(e) =>
+                  setDbConn({
+                    ...dbConn,
+                    type: e.target.value as
+                      | "mysql"
+                      | "postgres"
+                      | "mssql"
+                      | "oracle"
+                      | "mongodb",
+                  })
+                }
+              >
+                <MenuItem value="mysql">MySQL</MenuItem>
+                <MenuItem value="postgres">Postgres</MenuItem>
+                <MenuItem value="mssql">MSSQL</MenuItem>
+                <MenuItem value="oracle">Oracle</MenuItem>
+                <MenuItem value="mongodb">MongoDB</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Host"
+              value={dbConn?.host || ""}
+              required
+              onChange={(e) => setDbConn({ ...dbConn, host: e.target.value })}
+              inputProps={{ maxLength: 100 }}
+              fullWidth
+            />
+
+            <TextField
+              label="Port"
+              value={dbConn?.port || ""}
+              required
+              onChange={(e) => setDbConn({ ...dbConn, port: e.target.value })}
+              inputProps={{ maxLength: 100 }}
+              fullWidth
+            />
+
+            <TextField
+              label="Database"
+              value={dbConn?.database || ""}
+              required
+              onChange={(e) =>
+                setDbConn({ ...dbConn, database: e.target.value })
+              }
+              inputProps={{ maxLength: 100 }}
+              fullWidth
+            />
+
+            <TextField
+              label="Username"
+              value={dbConn?.username || ""}
+              required
+              onChange={(e) =>
+                setDbConn({ ...dbConn, username: e.target.value })
+              }
+              inputProps={{ maxLength: 100 }}
+              fullWidth
+            />
+            <TextField
+              label="Password"
+              type="password"
+              value={dbConn?.password || ""}
+              required
+              onChange={(e) =>
+                setDbConn({ ...dbConn, password: e.target.value })
+              }
+              inputProps={{ maxLength: 100 }}
+              fullWidth
+            />
+            <TextField
+              label="SID (Oracle only)"
+              value={dbConn?.sid || ""}
+              required
+              onChange={(e) => setDbConn({ ...dbConn, sid: e.target.value })}
+              inputProps={{ maxLength: 100 }}
+              fullWidth
+            />
 
             <Box display="flex" gap={1} sx={{ mt: 1 }}>
               <Button
