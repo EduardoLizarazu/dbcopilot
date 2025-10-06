@@ -101,6 +101,7 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
         database: inputValidate.data.database,
         username: inputValidate.data.username,
         password: inputValidate.data.password,
+        sid: inputValidate.data.sid,
         createdBy: inputValidate.data.actorId,
         updatedBy: inputValidate.data.actorId,
         id_vbd_splitter: inputValidate.data.id_vbd_splitter,

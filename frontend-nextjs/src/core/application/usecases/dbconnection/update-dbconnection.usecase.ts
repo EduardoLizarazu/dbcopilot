@@ -96,6 +96,10 @@ export class UpdateDbConnectionUseCase implements IUpdateDbConnectionUseCase {
 
       //   4. Prepare data for update
       const updateDto: TUpdateDbConnectionDto = {
+        id: existingConnection.id,
+        name: validInput.data.name || existingConnection.name,
+        description:
+          validInput.data.description || existingConnection.description,
         type: validInput.data.type || existingConnection.type,
         host: validInput.data.host || existingConnection.host,
         port: validInput.data.port || existingConnection.port,

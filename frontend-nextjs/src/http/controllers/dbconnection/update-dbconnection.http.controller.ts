@@ -107,6 +107,7 @@ export class UpdateDbConnectionController implements IController {
       // ==== BUSINESS LOGIC USE CASES ====
       const useCase = await this.updateDbConnectionUseCase.execute(params.id, {
         ...body,
+        actorId: decoded.uid,
       });
 
       if (!useCase.success) {
