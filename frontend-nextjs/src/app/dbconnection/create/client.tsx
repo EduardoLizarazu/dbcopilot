@@ -20,15 +20,18 @@ import { CreateDbConnectionAction } from "@/_actions/dbconnection/create.action"
 import { UpdateDbConnectionAction } from "@/_actions/dbconnection/update.action";
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { TVbdOutRequestDto } from "@/core/application/dtos/vbd.dto";
+import { ReadAllVbdSplitterAction } from "@/_actions/vbd-splitter/read-all.action";
 
 export default function DbConnectionClient({
   initial,
-  vbdSplitters,
 }: {
   initial?: TDbConnectionOutRequestDtoWithVbAndUser;
-  vbdSplitters: TVbdOutRequestDto[];
 }) {
   const router = useRouter();
+
+  const [vbdSplitters, setVbdSplitters] = React.useState<TVbdOutRequestDto[]>(
+    []
+  );
 
   const [name, setName] = React.useState(initial ? initial.name : "");
   const [description, setDescription] = React.useState(
@@ -41,6 +44,20 @@ export default function DbConnectionClient({
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [isUpdate, setIsUpdate] = React.useState(!!initial);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const vbd_splitter_data = await ReadAllVbdSplitterAction();
+        setVbdSplitters(vbd_splitter_data.data);
+      } catch (error) {
+        console.error("Error fetching VBD Splitters:", {
+          error: error.message,
+        });
+        setError("Failed to fetch VBD Splitters.");
+      }
+    })();
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,11 +152,17 @@ export default function DbConnectionClient({
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                {vbdSplitters.map((splitter) => (
-                  <MenuItem key={splitter.id} value={splitter.id}>
-                    {splitter.name}
+                {vbdSplitters && vbdSplitters.length > 0 ? (
+                  vbdSplitters.map((splitter) => (
+                    <MenuItem key={splitter.id} value={splitter.id}>
+                      {splitter.name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>
+                    <em>Loading...</em>
                   </MenuItem>
-                ))}
+                )}
               </Select>
             </FormControl>
 
