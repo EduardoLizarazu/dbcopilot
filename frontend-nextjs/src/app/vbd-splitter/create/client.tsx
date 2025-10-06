@@ -43,6 +43,11 @@ export default function CreateVbdSplitterClient() {
     }
   };
 
+  // Add a function to format the name
+  const formatName = (input: string) => {
+    return input.toLowerCase().trim().replace(/\s+/g, "_");
+  };
+
   return (
     <Box className="max-w-2xl mx-auto">
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
@@ -63,6 +68,11 @@ export default function CreateVbdSplitterClient() {
               inputProps={{ maxLength: 100 }}
               fullWidth
             />
+
+            {/* Display the formatted name below the input */}
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+              Saved as: <strong>{formatName(name)}</strong>
+            </Typography>
 
             <Box display="flex" gap={1} sx={{ mt: 1 }}>
               <Button
