@@ -104,15 +104,15 @@ export default function DbConnectionClient({
     try {
       const res = await UpdateDbConnectionAction(initial!.id, {
         id: initial!.id,
-        name: dbConn?.name || "",
-        description: dbConn?.description || "",
+        name: dbConn?.name.toLowerCase().trim() || "",
+        description: dbConn?.description.toLowerCase().trim() || "",
         type: dbConn?.type || "mysql",
-        host: dbConn?.host || "",
+        host: dbConn?.host.trim() || "",
         port: dbConn?.port || 0,
-        database: dbConn?.database || "",
-        username: dbConn?.username || "",
-        password: dbConn?.password || "",
-        sid: dbConn?.sid || "",
+        database: dbConn?.database.trim() || "",
+        username: dbConn?.username.trim() || "",
+        password: dbConn?.password.trim() || "",
+        sid: dbConn?.sid.trim() || "",
         id_vbd_splitter: vbdSplitterId,
       });
       console.log("DB Connection updated:", res);
