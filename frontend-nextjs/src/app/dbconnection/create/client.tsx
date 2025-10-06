@@ -18,14 +18,14 @@ import {
 import Link from "next/link";
 import { CreateDbConnectionAction } from "@/_actions/dbconnection/create.action";
 import { UpdateDbConnectionAction } from "@/_actions/dbconnection/update.action";
-import { TDbConnectionOutRequestDto } from "@/core/application/dtos/dbconnection.dto";
+import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { TVbdOutRequestDto } from "@/core/application/dtos/vbd.dto";
 
 export default function DbConnectionClient({
   initial,
   vbdSplitters,
 }: {
-  initial?: TDbConnectionOutRequestDto;
+  initial?: TDbConnectionOutRequestDtoWithVbAndUser;
   vbdSplitters: TVbdOutRequestDto[];
 }) {
   const router = useRouter();

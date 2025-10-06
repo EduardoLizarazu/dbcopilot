@@ -11,8 +11,8 @@ export default async function EditDbConnectionPage({
   const vbd_splitter_data = await ReadAllVbdSplitterAction();
   return (
     <UpdateDbConnectionClient
-      initialData={initialData?.data}
-      vbd_splitter={vbd_splitter_data.data}
+      initial={initialData?.data}
+      vbdSplitters={vbd_splitter_data.data}
     />
   );
 }
