@@ -15,7 +15,7 @@ import Link from "next/link";
 import { CreateVbdSplitterAction } from "@/_actions/vbd-splitter/create.action";
 import { TVbdOutRequestDto } from "@/core/application/dtos/vbd.dto";
 
-export default function CreateVbdSplitterClient({
+export default function VbdSplitterClient({
   initial,
 }: {
   initial?: TVbdOutRequestDto;
