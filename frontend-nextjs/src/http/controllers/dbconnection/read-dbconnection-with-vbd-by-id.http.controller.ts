@@ -11,7 +11,7 @@ import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { IReadDbConnectionWithVbdByIdUseCase } from "@/core/application/usecases/dbconnection/read-dbconnection-with-vbd-by-id.usecase";
 
-export class DeleteDbConnectionController implements IController {
+export class ReadDbConnectionWithVbdByIdController implements IController {
   constructor(
     private readonly logger: ILogger,
     private readonly readDbConnectionWithVbdByIdUseCase: IReadDbConnectionWithVbdByIdUseCase,

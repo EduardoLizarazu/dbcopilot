@@ -11,7 +11,7 @@ import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { IReadAllDbConnectionWithVbdUseCase } from "@/core/application/usecases/dbconnection/read-all-dbconnection-with-vbd.usecase";
 
-export class ReadAllDbConnectionController implements IController {
+export class ReadAllDbConnectionWithVbdController implements IController {
   constructor(
     private readonly logger: ILogger,
     private readonly readAllDbConnectionWithVbdUseCase: IReadAllDbConnectionWithVbdUseCase,
@@ -25,33 +25,36 @@ export class ReadAllDbConnectionController implements IController {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info(
-        "[ReadAllDbConnectionController] handling request",
+        "[ReadAllDbConnectionWithVbdController] handling request",
         httpRequest
       );
 
       //   ==== INPUT HEADERS ====
       //   1. Check headers
       const headers = httpRequest.header as Record<string, string>;
-      this.logger.info("[ReadAllDbConnectionController] Headers:", headers);
+      this.logger.info(
+        "[ReadAllDbConnectionWithVbdController] Headers:",
+        headers
+      );
       //   2. Check authorization
       const authHeader =
         headers["Authorization"] || headers["authorization"] || "";
       if (!authHeader.startsWith("Bearer ")) {
         this.logger.error(
-          "[ReadAllDbConnectionController] No token provided",
+          "[ReadAllDbConnectionWithVbdController] No token provided",
           httpRequest
         );
         const error = this.httpErrors.error_400("Error reading DB Connections");
         return new HttpResponse(error.statusCode, error.body);
       }
       const token = authHeader.replace("Bearer ", "");
-      this.logger.info("[ReadAllDbConnectionController] Token:", token);
+      this.logger.info("[ReadAllDbConnectionWithVbdController] Token:", token);
 
       //   3. Decode token
       const decoded = await this.decodeTokenAdapter.decodeToken(token);
       if (!decoded) {
         this.logger.error(
-          "[ReadAllDbConnectionController] Invalid token",
+          "[ReadAllDbConnectionWithVbdController] Invalid token",
           httpRequest
         );
         const error = this.httpErrors.error_401("Invalid token");
@@ -62,7 +65,7 @@ export class ReadAllDbConnectionController implements IController {
         decoded.uid
       );
       this.logger.info(
-        "[ReadAllDbConnectionController] User roles names:",
+        "[ReadAllDbConnectionWithVbdController] User roles names:",
         roleNames.roleNames
       );
       //   5. Check roles permissions
@@ -72,7 +75,7 @@ export class ReadAllDbConnectionController implements IController {
       });
       if (!hasAuth) {
         this.logger.error(
-          "[ReadAllDbConnectionController] User is not authorized"
+          "[ReadAllDbConnectionWithVbdController] User is not authorized"
         );
         const error = this.httpErrors.error_401("User is not authorized");
         return new HttpResponse(error.statusCode, error.body);
@@ -83,7 +86,7 @@ export class ReadAllDbConnectionController implements IController {
 
       if (!useCase.success) {
         this.logger.error(
-          "[ReadAllDbConnectionController] Error reading DB Connections",
+          "[ReadAllDbConnectionWithVbdController] Error reading DB Connections",
           {
             ...useCase,
           }
