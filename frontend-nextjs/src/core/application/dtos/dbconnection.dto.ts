@@ -16,6 +16,8 @@ export const dbConnectionSchema = z.object({
   password: z.string().min(1).max(255),
   sid: z.string().optional(), // oracle
 
+  schema_query: z.string().min(2),
+
   createdBy: z.string().min(2).max(100),
   updatedBy: z.string().min(2).max(100),
   createdAt: z.date(),
@@ -45,6 +47,7 @@ export const dbConnectionInRequestSchema = dbConnectionSchema
     database: true,
     username: true,
     sid: true,
+    schema_query: true,
   })
   .extend({
     actorId: z.string().min(2).max(100),

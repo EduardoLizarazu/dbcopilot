@@ -21,6 +21,9 @@ import { UpdateDbConnectionAction } from "@/_actions/dbconnection/update.action"
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { TVbdOutRequestDto } from "@/core/application/dtos/vbd.dto";
 import { ReadAllVbdSplitterAction } from "@/_actions/vbd-splitter/read-all.action";
+import { ChatResultTable } from "@/components/chat/result/chatResultTable";
+import { TNlqInformationData } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
+import { ExtractSchemaAction } from "@/_actions/dbconnection/extrac-schema.action";
 
 export default function DbConnectionClient({
   initial,
@@ -44,6 +47,8 @@ export default function DbConnectionClient({
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [isUpdate, setIsUpdate] = React.useState(!!initial);
+  const [rows, setRows] = React.useState<TNlqInformationData | null>(null);
+  const [schemaSuccess, setSchemaSuccess] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     (async () => {
@@ -58,6 +63,41 @@ export default function DbConnectionClient({
       }
     })();
   }, []);
+
+  const onRun = async () => {
+    setLoading(true);
+    setError(null);
+    setRows(null);
+    try {
+      const res = await ExtractSchemaAction({
+        type: ["mysql", "postgres", "mssql", "oracle"].includes(
+          dbConn?.type as string
+        )
+          ? (dbConn?.type as "mysql" | "postgres" | "mssql" | "oracle")
+          : "mysql",
+        host: dbConn?.host || "",
+        port: dbConn?.port || 0,
+        database: dbConn?.database || "",
+        username: dbConn?.username || "",
+        password: dbConn?.password || "",
+        sid: dbConn?.sid || null,
+        schema_query: dbConn?.schema_query || "",
+      });
+      console.log("DB Connection run:", res);
+      if (res) {
+        setRows(res.data || null);
+      }
+      setSchemaSuccess(true);
+    } catch (error) {
+      console.error("Error running DB Connection:", {
+        error: error.message,
+      });
+      setError("Failed to run DB Connection.");
+      setSchemaSuccess(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,8 +240,7 @@ export default function DbConnectionClient({
                       | "mysql"
                       | "postgres"
                       | "mssql"
-                      | "oracle"
-                      | "mongodb",
+                      | "oracle",
                   })
                 }
               >
@@ -209,7 +248,6 @@ export default function DbConnectionClient({
                 <MenuItem value="postgres">Postgres</MenuItem>
                 <MenuItem value="mssql">MSSQL</MenuItem>
                 <MenuItem value="oracle">Oracle</MenuItem>
-                <MenuItem value="mongodb">MongoDB</MenuItem>
               </Select>
             </FormControl>
 
@@ -282,9 +320,17 @@ export default function DbConnectionClient({
 
             <Box display="flex" gap={1} sx={{ mt: 1 }}>
               <Button
+                variant="outlined"
+                onClick={onRun}
+                disabled={loading || !dbConn?.schema_query.trim()}
+              >
+                {loading ? <CircularProgress size={18} /> : "Run"}
+              </Button>
+
+              <Button
                 type="submit"
                 variant="contained"
-                disabled={loading}
+                disabled={loading || (rows.data === null && !schemaSuccess)}
                 sx={{ textTransform: "none" }}
               >
                 {loading ? (
@@ -308,6 +354,15 @@ export default function DbConnectionClient({
             </Box>
           </Box>
         </form>
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+            <CircularProgress />
+          </Box>
+        ) : rows ? (
+          <Box sx={{ mt: 2 }}>
+            <ChatResultTable data={rows.data} />
+          </Box>
+        ) : null}
       </Paper>
     </Box>
   );
