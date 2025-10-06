@@ -5,11 +5,11 @@ import { NextRequest } from "next/server";
 
 // EDIT
 export async function POST(req: NextRequest) {
-  console.log("API: VBD Splitter creation request received", req);
+  console.log("API: VBD Splitter update request received", req);
   const adapter = await nextAdapter(req, CreateVbdSplitterComposer(), {
     isTokenRequired: true,
   });
-  console.log("API: VBD Splitter creation response", adapter);
+  console.log("API: VBD Splitter update response", adapter);
   return new Response(JSON.stringify(adapter.body), {
     status: adapter.statusCode,
     headers: { "Content-Type": "application/json" },
@@ -18,11 +18,24 @@ export async function POST(req: NextRequest) {
 
 // GET BY ID
 export async function GET(req: NextRequest) {
-  console.log("API: VBD Splitter retrieval request received", req);
+  console.log("API: VBD Splitter fetch by ID request received", req);
   const adapter = await nextAdapter(req, ReadAllVbdSplitterComposer(), {
     isTokenRequired: true,
   });
-  console.log("API: VBD Splitter retrieval response", adapter);
+  console.log("API: VBD Splitter fetch by ID response", adapter);
+  return new Response(JSON.stringify(adapter.body), {
+    status: adapter.statusCode,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+// DELETE BY ID
+export async function DELETE(req: NextRequest) {
+  console.log("API: VBD Splitter delete by ID request received", req);
+  const adapter = await nextAdapter(req, ReadAllVbdSplitterComposer(), {
+    isTokenRequired: true,
+  });
+  console.log("API: VBD Splitter delete by ID response", adapter);
   return new Response(JSON.stringify(adapter.body), {
     status: adapter.statusCode,
     headers: { "Content-Type": "application/json" },
