@@ -13,14 +13,23 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { CreateVbdSplitterAction } from "@/_actions/vbd-splitter/create.action";
+import { TVbdOutRequestDto } from "@/core/application/dtos/vbd.dto";
 
-export default function CreateVbdSplitterClient() {
+export default function CreateVbdSplitterClient({
+  initial,
+}: {
+  initial?: TVbdOutRequestDto;
+}) {
   const router = useRouter();
 
   const [name, setName] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
+
+  if (initial) {
+    setName(initial.name);
+  }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
