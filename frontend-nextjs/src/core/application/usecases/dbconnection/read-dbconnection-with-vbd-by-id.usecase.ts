@@ -1,10 +1,12 @@
-import { TDbConnectionOutRequestDtoWithVbd } from "../../dtos/dbconnection.dto";
+import { TDbConnectionOutRequestDtoWithVbAndUser } from "../../dtos/dbconnection.dto";
 import { TResponseDto } from "../../dtos/utils/response.app.dto";
 import { IDbConnectionRepository } from "../../interfaces/dbconnection.inter";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 
 export interface TReadDbConnectionWithVbdByIdUseCase {
-  execute(id: string): Promise<TResponseDto<TDbConnectionOutRequestDtoWithVbd>>;
+  execute(
+    id: string
+  ): Promise<TResponseDto<TDbConnectionOutRequestDtoWithVbAndUser>>;
 }
 
 export class ReadDbConnectionWithVbdByIdUseCase
@@ -17,9 +19,9 @@ export class ReadDbConnectionWithVbdByIdUseCase
 
   async execute(
     id: string
-  ): Promise<TResponseDto<TDbConnectionOutRequestDtoWithVbd>> {
+  ): Promise<TResponseDto<TDbConnectionOutRequestDtoWithVbAndUser>> {
     try {
-      const dbConnection = await this.dbConnRepo.findWithVbdById(id);
+      const dbConnection = await this.dbConnRepo.findWithVbdAndUserById(id);
       if (!dbConnection) {
         return {
           success: false,

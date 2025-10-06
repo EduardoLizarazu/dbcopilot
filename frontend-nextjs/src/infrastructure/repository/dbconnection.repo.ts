@@ -4,7 +4,7 @@ import { IDbConnectionRepository } from "@/core/application/interfaces/dbconnect
 import {
   TDbConnectionOutRequestDto,
   TCreateDbConnectionDto,
-  TDbConnectionOutRequestDtoWithVbd,
+  TDbConnectionOutRequestDtoWithVbAndUser,
   TUpdateDbConnectionDto,
 } from "@/core/application/dtos/dbconnection.dto";
 import { TVbdOutRequestDto } from "@/core/application/dtos/vbd.dto";
@@ -123,7 +123,9 @@ export class DbConnectionRepository implements IDbConnectionRepository {
       );
     }
   }
-  async findAllWithVbd(): Promise<TDbConnectionOutRequestDtoWithVbd[]> {
+  async findAllWithVbdAndUser(): Promise<
+    TDbConnectionOutRequestDtoWithVbAndUser[]
+  > {
     try {
       this.logger.info("Finding all DB Connections with VBD");
       // 1. Get all db connections
@@ -134,7 +136,7 @@ export class DbConnectionRepository implements IDbConnectionRepository {
       }
 
       // 2. For each db connection, get associated VBD Splitter and User (if any)
-      const results: TDbConnectionOutRequestDtoWithVbd[] = [];
+      const results: TDbConnectionOutRequestDtoWithVbAndUser[] = [];
       for (const dbConn of db) {
         let vbd: TVbdOutRequestDto | null = null;
         if (dbConn.id_vbd_splitter) {
@@ -180,9 +182,9 @@ export class DbConnectionRepository implements IDbConnectionRepository {
       );
     }
   }
-  async findWithVbdById(
+  async findWithVbdAndUserById(
     id: string
-  ): Promise<TDbConnectionOutRequestDtoWithVbd | null> {
+  ): Promise<TDbConnectionOutRequestDtoWithVbAndUser | null> {
     try {
       // 1. Get DB connection by ID
       const dbConn = await this.findById(id);
@@ -220,7 +222,7 @@ export class DbConnectionRepository implements IDbConnectionRepository {
           };
         }
       }
-      const dbConnWithVbd: TDbConnectionOutRequestDtoWithVbd = {
+      const dbConnWithVbd: TDbConnectionOutRequestDtoWithVbAndUser = {
         ...dbConn,
         vbd_splitter: vbd,
         user,
