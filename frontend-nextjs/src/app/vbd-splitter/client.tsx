@@ -86,6 +86,16 @@ export default function VbdSplitterClient({
             InputLabelProps={{ shrink: true }}
           />
         </Stack>
+        <Box sx={{ mt: 2 }}>
+          <Button
+            component={Link}
+            href="/vbd-splitter/create"
+            variant="contained"
+            sx={{ textTransform: "none" }}
+          >
+            Create VBD Splitter
+          </Button>
+        </Box>
       </Paper>
 
       {/* Table */}
@@ -160,17 +170,6 @@ export default function VbdSplitterClient({
           </TableContainer>
         )}
       </Paper>
-
-      <Box sx={{ mt: 2 }}>
-        <Button
-          component={Link}
-          href="/vbd-splitter/create"
-          variant="contained"
-          sx={{ textTransform: "none" }}
-        >
-          Create VBD Splitter
-        </Button>
-      </Box>
     </Box>
   );
 }
