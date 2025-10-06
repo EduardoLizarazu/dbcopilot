@@ -210,8 +210,13 @@ export default function DbConnectionClient({
               label="Port"
               value={dbConn?.port || ""}
               required
-              onChange={(e) => setDbConn({ ...dbConn, port: e.target.value })}
-              inputProps={{ maxLength: 100 }}
+              onChange={(e) => {
+                const portValue = e.target.value;
+                if (/^\d*$/.test(portValue)) {
+                  setDbConn({ ...dbConn, port: parseInt(portValue) });
+                }
+              }}
+              inputProps={{ maxLength: 5 }}
               fullWidth
             />
 
