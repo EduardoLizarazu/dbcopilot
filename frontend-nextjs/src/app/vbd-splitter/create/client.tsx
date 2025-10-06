@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { CreateVbdSplitterAction } from "@/_actions/vbd-splitter/create.action";
 import { TVbdOutRequestDto } from "@/core/application/dtos/vbd.dto";
+import { UpdateVbdSplitterAction } from "@/_actions/vbd-splitter/update.action";
 
 export default function VbdSplitterClient({
   initial,
@@ -26,12 +27,26 @@ export default function VbdSplitterClient({
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
+  const [isUpdate, setIsUpdate] = React.useState(false);
 
   if (initial) {
     setName(initial.name);
+    setIsUpdate(true);
   }
 
   const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+    if (isUpdate) {
+      await onUpdate(e);
+    } else {
+      await onCreate(e);
+    }
+  };
+
+  const onCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
@@ -48,6 +63,31 @@ export default function VbdSplitterClient({
       }
     } catch (err: any) {
       setError(err?.message ?? "Failed to create VBD Splitter.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+    try {
+      const formattedName = formatName(name); // Apply formatting to the name
+      // Assuming UpdateVbdSplitterAction is imported and available
+      const res = await UpdateVbdSplitterAction(initial!.id, {
+        name: formattedName,
+      });
+      if (res) {
+        setSuccess("VBD Splitter updated successfully. Redirecting to list…");
+        // short delay so user sees feedback, then go back to list
+        setTimeout(() => router.replace("/vbd-splitter"), 800);
+      }
+
+      console.log("VBD Splitter updated:", res);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to update VBD Splitter.");
     } finally {
       setLoading(false);
     }
@@ -91,7 +131,13 @@ export default function VbdSplitterClient({
                 disabled={loading}
                 sx={{ textTransform: "none" }}
               >
-                {loading ? <CircularProgress size={22} /> : "Create"}
+                {loading ? (
+                  <CircularProgress size={22} />
+                ) : isUpdate ? (
+                  "Update"
+                ) : (
+                  "Create"
+                )}
               </Button>
 
               <Button
