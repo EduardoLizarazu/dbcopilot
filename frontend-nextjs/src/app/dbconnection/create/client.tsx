@@ -75,8 +75,15 @@ export default function DbConnectionClient({
     e.preventDefault();
     try {
       const res = await CreateDbConnectionAction({
-        name,
-        description,
+        name: dbConn?.name || "",
+        description: dbConn?.description || "",
+        type: dbConn?.type || "mysql",
+        host: dbConn?.host || "",
+        port: dbConn?.port || 0,
+        database: dbConn?.database || "",
+        username: dbConn?.username || "",
+        password: dbConn?.password || "",
+        sid: dbConn?.sid || "",
         id_vbd_splitter: vbdSplitterId,
       });
       console.log("DB Connection created:", res);
@@ -96,8 +103,16 @@ export default function DbConnectionClient({
     e.preventDefault();
     try {
       const res = await UpdateDbConnectionAction(initial!.id, {
-        name,
-        description,
+        id: initial!.id,
+        name: dbConn?.name || "",
+        description: dbConn?.description || "",
+        type: dbConn?.type || "mysql",
+        host: dbConn?.host || "",
+        port: dbConn?.port || 0,
+        database: dbConn?.database || "",
+        username: dbConn?.username || "",
+        password: dbConn?.password || "",
+        sid: dbConn?.sid || "",
         id_vbd_splitter: vbdSplitterId,
       });
       console.log("DB Connection updated:", res);
