@@ -1,11 +1,11 @@
 "use server";
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
-import { TDbConnectionOutRequestDto } from "@/core/application/dtos/dbconnection.dto";
+import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function ReadAllDbConnectionAction(): Promise<
-  TResOutContent<TDbConnectionOutRequestDto[]>
+  TResOutContent<TDbConnectionOutRequestDtoWithVbAndUser[]>
 > {
   console.log(
     "[ReadAllDbConnectionAction] Initiating DB Connections retrieval"

@@ -20,7 +20,7 @@ import {
 import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { TDbConnectionOutRequestDto } from "@/core/application/dtos/dbconnection.dto";
+import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { DeleteDbConnectionAction } from "@/_actions/dbconnection/delete.action";
@@ -28,9 +28,10 @@ import { DeleteDbConnectionAction } from "@/_actions/dbconnection/delete.action"
 export default function DbConnectionClient({
   initialData,
 }: {
-  initialData: TDbConnectionOutRequestDto[];
+  initialData: TDbConnectionOutRequestDtoWithVbAndUser[];
 }) {
-  const [rows, setRows] = useState<TDbConnectionOutRequestDto[]>(initialData);
+  const [rows, setRows] =
+    useState<TDbConnectionOutRequestDtoWithVbAndUser[]>(initialData);
   const [loading, setLoading] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
