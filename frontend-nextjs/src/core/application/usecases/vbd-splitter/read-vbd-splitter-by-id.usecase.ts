@@ -7,7 +7,7 @@ export interface IReadVbdSplitterByIdUseCase {
   execute(id: string): Promise<TResponseDto<TVbdOutRequestDto>>;
 }
 
-export class ReadVbdSplitterUseCase implements IReadVbdSplitterByIdUseCase {
+export class ReadVbdSplitterByIdUseCase implements IReadVbdSplitterByIdUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly vbdSplitterRepo: IVbdSplitterRepository

@@ -10,19 +10,22 @@ import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { ROLE } from "@/http/utils/role.enum";
-import { IReadVbdSplitterByIdUseCase } from "@/core/application/usecases/vbd-splitter/read-vbd-splitter-by-id.usecase";
+import { IUpdateVbdSplitterUseCase } from "@/core/application/usecases/vbd-splitter/update-vbd-splitter.usecase";
+import { TVbdInRequestDto } from "@/core/application/dtos/vbd.dto";
 
-export class ReadVbdSplitterByIdController implements IController {
+export class UpdateVbdSplitterController implements IController {
   constructor(
     private readonly logger: ILogger,
-    private readonly readVbdSplitterByIdUseCase: IReadVbdSplitterByIdUseCase,
+    private readonly updateVbdSplitterUseCase: IUpdateVbdSplitterUseCase,
     private readonly decodeTokenAdapter: IDecodeTokenPort,
     private readonly accessRepo: IAuthorizationRepository,
     private httpErrors: IHttpErrors = new HttpErrors(),
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
-  async handle(httpRequest: IHttpRequest<null>): Promise<IHttpResponse> {
+  async handle(
+    httpRequest: IHttpRequest<TVbdInRequestDto>
+  ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info(
@@ -96,9 +99,20 @@ export class ReadVbdSplitterByIdController implements IController {
         httpRequest.params
       );
 
+      //   ==== INPUT BODY ====
+      if (!httpRequest.body) {
+        this.logger.error(
+          "[ReadVbdSplitterByIdController] No body provided",
+          httpRequest
+        );
+        const error = this.httpErrors.error_400("No body provided");
+        return new HttpResponse(error.statusCode, error.body);
+      }
+
       // ==== BUSINESS LOGIC USE CASES ====
-      const useCase = await this.readVbdSplitterByIdUseCase.execute(
-        httpRequest.params.id
+      const useCase = await this.updateVbdSplitterUseCase.execute(
+        httpRequest.params.id,
+        httpRequest.body
       );
       this.logger.info(
         "[ReadVbdSplitterByIdController] UseCase executed successfully",
