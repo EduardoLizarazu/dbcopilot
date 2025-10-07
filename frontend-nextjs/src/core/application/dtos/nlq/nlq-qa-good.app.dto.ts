@@ -5,6 +5,7 @@ export const nlqQaGoodSchema = z.object({
   question: z.string().min(2),
   query: z.string().min(2),
   originId: z.string(), // FK to nlqQa
+  dbConnectionId: z.string().min(2),
 
   // VDB
   knowledgeSourceId: z.string().min(2), // VDB - Same as this.id
@@ -64,6 +65,7 @@ export const nlqQaGoodInRequestSchema = nlqQaGoodSchema.partial().pick({
   originId: true,
   questionBy: true,
   createdBy: true,
+  dbConnectionId: true,
 });
 export type TNlqQaGoodInRequestDto = z.infer<typeof nlqQaGoodInRequestSchema>;
 

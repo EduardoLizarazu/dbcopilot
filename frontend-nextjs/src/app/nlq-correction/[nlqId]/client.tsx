@@ -85,15 +85,12 @@ export default function NlqCorrectionClient({
     setSaveError(null);
     setSaveOk(null);
     try {
-      // const res = await saveNlqCorrectionAction({
-      //   nlq_id: initial.id,
-      //   corrected_sql: newSql,
-      // });
       const res = await CreateNlqQaGoodAction({
         originId: initial.id,
         question: initial.question,
         query: newSql,
         questionBy: initial.user?.id || "",
+        dbConnectionId: initial.dbConnection?.id || "",
       });
       setSaveOk("Everything was OK — correction saved and NLQ marked as good.");
       setFeedback({

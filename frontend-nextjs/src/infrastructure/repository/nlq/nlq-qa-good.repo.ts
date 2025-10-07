@@ -27,7 +27,7 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
     } catch (error) {
       this.logger.error(
         "[NlqQaGoodRepository] Error soft deleting NLQ QA Good",
-        error
+        error.message
       );
       throw new Error("Error soft deleting NLQ QA Good");
     }
@@ -52,9 +52,9 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
     } catch (error) {
       this.logger.error(
         "[NlqQaGoodRepository] Error creating NLQ QA Good",
-        error
+        error.message
       );
-      throw new Error("Error creating NLQ QA Good");
+      throw new Error("Error creating NLQ QA Good: " + error.message);
     }
   }
   async update(id: string, data: TUpdateNlqQaGoodDto): Promise<void> {
@@ -69,7 +69,7 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
     } catch (error) {
       this.logger.error(
         "[NlqQaGoodRepository] Error updating NLQ QA Good",
-        error
+        error.message
       );
       throw new Error("Error updating NLQ QA Good");
     }

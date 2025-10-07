@@ -216,7 +216,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
 
       return {
         success: false,
-        message: `Error creating NLQ QA Good: ${errorMessage}`,
+        message: `Error creating NLQ QA Good: ${errorMessage || error.message}`,
         data: null,
       };
     }
