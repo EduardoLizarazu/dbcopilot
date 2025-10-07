@@ -1,6 +1,5 @@
 import { nextAdapter } from "@/http/adapters/next-adapter.http";
 import { ReadAllNlqQaFbOrErrorComposer } from "@/infrastructure/services/composers/nlq-qa-correction/read-all-nlq-fb-or-error-composer.infra.service";
-import { ReadAllBadNlqQaComposer } from "@/infrastructure/services/composers/nlq/read-all-bad-nlq-composer.infra.service";
 import { NextRequest } from "next/server";
 
 // read all by query
