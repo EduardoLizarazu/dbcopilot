@@ -10,6 +10,7 @@ import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.i
 import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
 import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
 import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
+import { IDbConnectionRepository } from "@/core/application/interfaces/dbconnection.inter";
 
 /**
  * Create NLQ QA Use Case:
@@ -37,6 +38,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
     private readonly logger: ILogger,
     private readonly nlqQaRepository: INlqQaRepository,
     private readonly nlqQaKnowledgePort: INlqQaKnowledgePort,
+    private readonly dbConnRepo: IDbConnectionRepository,
     private readonly nlqQaInformationPort: INlqQaInformationPort,
     private readonly nlqQaGenerationPort: INlqQaQueryGenerationPort,
     private readonly nlqQaErrorRepository: INlqQaErrorRepository
@@ -50,7 +52,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         data,
       });
 
-      // ==== VALIDATE ====
+      // 1. Validate input data
       const nlqQaValidationAsync =
         await nlqQaInRequestSchema.safeParseAsync(data);
       if (!nlqQaValidationAsync.success) {
@@ -65,23 +67,70 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         };
       }
 
-      // ==== BUSINESS LOGIC USE CASES ====
-      // 1. Search similar questions
-      const similarQuestions = await this.nlqQaKnowledgePort.findByQuestion(
-        data.question
+      // 2. Extract db connection with "vbd_splitter" and "schema_query"
+      const dbConn = await this.dbConnRepo.findWithVbdAndUserById(
+        data.dbConnectionId
       );
+      if (!dbConn) {
+        this.logger.error(
+          `[CreateNlqQaUseCase]: DB Connection not found or VBD Splitter not configured: ${data.dbConnectionId}`
+        );
+        return {
+          data: null,
+          success: false,
+          message: "DB Connection not found or VBD Splitter not configured",
+        };
+      }
+
+      if (!dbConn.schema_query || dbConn.schema_query.trim() === "") {
+        this.logger.error(
+          `[CreateNlqQaUseCase]: DB Connection schema_query is empty: ${data.dbConnectionId}`
+        );
+        return {
+          data: null,
+          success: false,
+          message: "DB Connection schema_query is empty",
+        };
+      }
+
+      if (!dbConn.vbd_splitter || !dbConn.vbd_splitter.name) {
+        this.logger.error(
+          `[CreateNlqQaUseCase]: DB Connection VBD Splitter is not configured: ${data.dbConnectionId}`
+        );
+        return {
+          data: null,
+          success: false,
+          message: "DB Connection VBD Splitter is not configured",
+        };
+      }
+
+      // 3. Search similar questions from knowledge base with "vbd_splitter"
+      const similarQuestions = await this.nlqQaKnowledgePort.findByQuestion({
+        namespace: dbConn.vbd_splitter.name,
+        question: data.question,
+      });
       this.logger.info(
         `[CreateNlqQaUseCase]: Found ${similarQuestions.length} similar questions`
       );
       const similarQuestionsId = similarQuestions.map((q) => q.id);
 
-      // 2. Extract schema based on database
-      const schema = await this.nlqQaInformationPort.extractSchemaBased([]);
+      // 4. Extract schema based on database with "schema_query"
+      const schema =
+        await this.nlqQaInformationPort.extractSchemaFromConnection({
+          type: dbConn.type,
+          host: dbConn.host,
+          port: dbConn.port,
+          database: dbConn.database,
+          username: dbConn.username,
+          password: dbConn.password,
+          sid: dbConn.sid,
+          schema_query: dbConn.schema_query,
+        });
       this.logger.info(
         `[CreateNlqQaUseCase]: Extracted schema with ${schema.length} tables`
       );
 
-      // 3. Create prompt template
+      // 5. Create prompt template to generate SQL query
       const prompt =
         await this.nlqQaGenerationPort.createPromptTemplateToGenerateQuery({
           question: data.question,
@@ -100,7 +149,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         };
       }
 
-      // 5. Generate SQL query from prompt template
+      // 6. Generate SQL query from prompt template
       const answer = await this.nlqQaGenerationPort.queryGeneration(
         prompt.promptTemplate
       );
@@ -116,7 +165,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         };
       }
 
-      // 5.a Extract SQL query
+      // 6.a Extract SQL query
       const query =
         await this.nlqQaGenerationPort.extractQueryFromGenerationResponse(
           answer.answer
@@ -124,7 +173,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       this.logger.info(
         `[CreateNlqQaUseCase]: Extracted SQL query: ${query.query}`
       );
-      // 5.a.1 Validate SQL query
+      //  6.a.1 Validate SQL query
       if (query.query) {
         const isSafeQuery = await this.nlqQaGenerationPort.safeQuery(
           query.query
@@ -182,7 +231,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         }
       }
 
-      // 5.b Extract suggestions
+      // 6.b Extract suggestions
       let suggestion = null;
       if (!query.query) {
         this.logger.info(
@@ -212,7 +261,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         };
       }
 
-      // 6.a Execute query
+      // 7.a Execute query
       let informationData = { data: [] };
       try {
         informationData = await this.nlqQaInformationPort.executeQuery(
@@ -226,7 +275,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           `[CreateNlqQaUseCase]: Error executing query: ${query.query}`,
           { error: error instanceof Error ? error.message : String(error) }
         );
-        // 6.b Error handling of query execution
+        //  7.b Error handling of query execution
         const nlqErrorId = await this.nlqQaErrorRepository.create({
           question: data.question,
           errorMessage: error instanceof Error ? error.message : String(error),
@@ -264,7 +313,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         };
       }
 
-      // 7. Create NLQ QA entry
+      // 8. Create NLQ QA entry
       const newNlqQaId = await this.nlqQaRepository.create({
         question: data.question,
         query: query.query,
@@ -297,6 +346,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           message: "NLQ QA not found after create",
         };
       }
+      // 9. Return response
       return {
         data: {
           ...newNlqQa,

@@ -95,19 +95,26 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
       throw new Error("Error deleting NLQ QA knowledge");
     }
   }
-  async findByQuestion(
-    question: string
-  ): Promise<TNlqQaKnowledgeOutRequestDto[]> {
+  async findByQuestion({
+    namespace,
+    question,
+  }: {
+    namespace: string;
+    question: string;
+  }): Promise<TNlqQaKnowledgeOutRequestDto[]> {
     try {
       // First, generate the embedding for the question
       const embedding = await this.openaiProvider.generateEmbedding(question);
 
       // Now, query Pinecone for similar questions
-      const { matches } = await this.pineconeProvider.getIndex().query({
-        vector: embedding,
-        topK: 5,
-        includeMetadata: true,
-      });
+      const { matches } = await this.pineconeProvider
+        .getIndex()
+        .namespace(namespace)
+        .query({
+          vector: embedding,
+          topK: 5,
+          includeMetadata: true,
+        });
 
       // Map the results to TNlqQaKnowledgeOutRequestDto
       const results: TNlqQaKnowledgeOutRequestDto[] = (matches || []).map(

@@ -17,6 +17,7 @@ export const nlqQaSchema = z.object({
   createdBy: z.string(),
   nlqErrorId: z.string(),
   nlqQaGoodId: z.string().default(""),
+  dbConnectionId: z.string().min(2),
 
   updatedBy: z.string(),
   createdAt: z.date(),
@@ -39,6 +40,7 @@ export type TUpdateNlqQaDto = z.infer<typeof updateNlqQaSchema>;
 export const nlqQaInRequestSchema = nlqQaSchema.pick({
   question: true,
   createdBy: true,
+  dbConnectionId: true,
 });
 
 export type TNlqQaInRequestDto = z.infer<typeof nlqQaInRequestSchema>;

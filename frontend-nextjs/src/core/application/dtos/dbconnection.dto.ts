@@ -8,7 +8,7 @@ export const dbConnectionSchema = z.object({
   name: z.string().min(2).max(100),
   description: z.string().min(0).max(255).optional(),
 
-  type: z.enum(["mysql", "postgres", "mssql", "oracle", "mongodb"]),
+  type: z.enum(["mysql", "postgres", "mssql", "oracle"]),
   host: z.string().min(1).max(255),
   port: z.number().min(1).max(65535),
   database: z.string().min(1).max(255),
