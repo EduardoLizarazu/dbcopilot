@@ -7,10 +7,12 @@ import { NlqQaInformationAdapter } from "@/infrastructure/adapters/nlq-qa-inform
 import { NlqQaKnowledgeAdapter } from "@/infrastructure/adapters/nlq-qa-knowledge.adapter";
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
 import { OracleProvider } from "@/infrastructure/providers/database/oracle.infra.provider";
+import { TypeOrmProvider } from "@/infrastructure/providers/database/typeorm.infra.provider";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
+import { DbConnectionRepository } from "@/infrastructure/repository/dbconnection.repo";
 import { NlqQaErrorRepository } from "@/infrastructure/repository/nlq/nlq-qa-error.repo";
 import { NlqQaAppRepository } from "@/infrastructure/repository/nlq/nlq-qa.repo";
 
@@ -21,6 +23,7 @@ export function createNlqQaComposer(): IController {
   const openAiProvider = new OpenAIProvider();
   const pineconeProvider = new PineconeProvider();
   const oracleProvider = new OracleProvider();
+  const typeOrmProvider = new TypeOrmProvider();
 
   // Repositories
   const nlqQaRepository = new NlqQaAppRepository(loggerProvider, firebaseAdmin);
@@ -31,7 +34,8 @@ export function createNlqQaComposer(): IController {
   );
   const nlqQaInformationAdapter = new NlqQaInformationAdapter(
     loggerProvider,
-    oracleProvider
+    oracleProvider,
+    typeOrmProvider
   );
   const nlqQaGenerationAdapter = new NlqQaGenerationAdapter(
     loggerProvider,
@@ -41,6 +45,9 @@ export function createNlqQaComposer(): IController {
     loggerProvider,
     firebaseAdmin
   );
+
+  const connRepo = new DbConnectionRepository(loggerProvider, firebaseAdmin);
+
   // Other repositories
   const decodeTokenAdapter = new DecodeTokenAdapter(
     loggerProvider,
@@ -56,6 +63,7 @@ export function createNlqQaComposer(): IController {
     loggerProvider,
     nlqQaRepository,
     nlqQaKnowledgeAdapter,
+    connRepo,
     nlqQaInformationAdapter,
     nlqQaGenerationAdapter,
     nlqQaErrorRepository

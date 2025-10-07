@@ -11,6 +11,7 @@ import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
 import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
 import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
 import { ROLE } from "@/http/utils/role.enum";
+import { TNlqQaInRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 
 export class CreateNlqQaController implements IController {
   constructor(
@@ -23,7 +24,7 @@ export class CreateNlqQaController implements IController {
   ) {}
 
   async handle(
-    httpRequest: IHttpRequest<{ question: string }>
+    httpRequest: IHttpRequest<TNlqQaInRequestDto>
   ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
@@ -81,13 +82,11 @@ export class CreateNlqQaController implements IController {
         const error = this.httpErrors.error_400("No body provided");
         return new HttpResponse(error.statusCode, error.body);
       }
-      const body = httpRequest.body as {
-        question: string;
-      };
+      const body = httpRequest.body;
 
       // ==== BUSINESS LOGIC USE CASES ====
       const useCase = await this.createNlqQaUseCase.execute({
-        question: body.question,
+        ...body,
         createdBy: decoded.uid,
       });
 
