@@ -84,6 +84,8 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
         sid: connection.sid,
       });
 
+      await dataSource.initialize();
+
       // check if dataSource is initialized
       if (!dataSource.isInitialized) {
         this.logger.error(

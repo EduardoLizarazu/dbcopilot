@@ -10,7 +10,24 @@ import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.i
 import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
 import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
 import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
-import { info } from "console";
+
+/**
+ * Create NLQ QA Use Case:
+ * 1. Validate input data
+ * 2. Extract db connection with "vbd_splitter" and "schema_query"
+ * 3. Search similar questions from knowledge base with "vbd_splitter"
+ * 4. Extract schema based on database with "schema_query"
+ * 5. Create prompt template to generate SQL query
+ * 6. Generate SQL query from prompt template
+ * 6.a Extract SQL query
+ * 6.a.1 Validate SQL query
+ * 6.b Extract suggestions
+ * 7.a Execute query
+ * 7.b Error handling of query execution
+ * 8. Create NLQ QA entry
+ * 9. Return response
+ */
+
 export interface ICreateNlqQaUseCase {
   execute(data: TNlqQaInRequestDto): Promise<TResponseDto<TNlqQaOutRequestDto>>;
 }
