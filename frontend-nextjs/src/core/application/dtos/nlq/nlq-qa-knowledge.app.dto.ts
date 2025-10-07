@@ -4,6 +4,7 @@ const nlqQaKnowledgeSchema = z.object({
   id: z.string(),
   nlqQaGoodId: z.string().min(2),
   question: z.string().min(2),
+  namespace: z.string().min(2),
   query: z.string().min(2),
   tablesColumns: z.array(z.string().min(1)).min(1), // ["[TABLE].[COLUMN]"]
   values: z.array(z.number()).min(1).optional(), // Embedding vector

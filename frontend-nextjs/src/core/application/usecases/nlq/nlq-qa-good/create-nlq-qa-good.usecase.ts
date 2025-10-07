@@ -11,6 +11,7 @@ import { INlqQaGoodRepository } from "../../../interfaces/nlq/nlq-qa-good.app.in
 import { INlqQaTopologyGenerationPort } from "@/core/application/ports/nlq-qa-topology-generation.port";
 import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
 import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.inter";
+import { IDbConnectionRepository } from "@/core/application/interfaces/dbconnection.inter";
 
 export interface ICreateNlqQaGoodUseCase {
   execute(
@@ -21,18 +22,19 @@ export interface ICreateNlqQaGoodUseCase {
 /**
  * Use case for creating a new NLQ QA Good entry:
  * 1. Validates the input data.
- * 2. Generation steps using topology generation port.
- * 2.1 Generate detail question.
- * 2.2 Generate tableColumns ["[TABLE].[COLUMN]"].
- * 2.3 Generate Semantic Fields.
- * 2.4 Generate Semantic Tables.
- * 2.5 Generate Semantic Flags.
- * 2.6 Generate thinking process.
- * 3. Creates the NLQ QA Good entry in the repository.
- * 4. Adds the entry to the knowledge source if it doesn't already exist.
- * 5. Searches the created record to return.
- * 6. If an originId is provided, updates the corresponding NLQ QA entry to mark it as "good".
- * 7. Returns the created NLQ QA Good entry or an error message if any step fails.
+ * 2. Ensure dbConnection exists
+ * 3. Generation steps using topology generation port.
+ * 3.1 Generate detail question.
+ * 3.2 Generate tableColumns ["[TABLE].[COLUMN]"].
+ * 3.3 Generate Semantic Fields.
+ * 3.4 Generate Semantic Tables.
+ * 3.5 Generate Semantic Flags.
+ * 3.6 Generate thinking process.
+ * 4. Creates the NLQ QA Good entry in the repository.
+ * 5. Adds the entry to the knowledge source if it doesn't already exist.
+ * 6. Searches the created record to return.
+ * 7. If an originId is provided, updates the corresponding NLQ QA entry to mark it as "good".
+ * 8. Returns the created NLQ QA Good entry or an error message if any step fails.
  */
 
 export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
@@ -40,6 +42,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
     private readonly logger: ILogger,
     private readonly nlqQaRepo: INlqQaRepository,
     private readonly nlqQaGoodRepository: INlqQaGoodRepository,
+    private readonly dbConnRepo: IDbConnectionRepository,
     private readonly topologyGenPort: INlqQaTopologyGenerationPort,
     private readonly knowledgePort: INlqQaKnowledgePort
   ) {}
@@ -66,6 +69,32 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         "[CreateNlqQaGoodUseCase] Input data validated successfully",
         dateValidate.data
       );
+
+      // 2. Ensure dbConnection exists
+      const dbConnWithVbdAndUser = await this.dbConnRepo.findWithVbdAndUserById(
+        data.dbConnectionId
+      );
+      if (!dbConnWithVbdAndUser) {
+        this.logger.error(
+          "[CreateNlqQaGoodUseCase] Database connection not found"
+        );
+        return {
+          success: false,
+          message: "Database connection not found",
+          data: null,
+        };
+      }
+      if (!dbConnWithVbdAndUser.vbd_splitter?.name) {
+        this.logger.error(
+          "[CreateNlqQaGoodUseCase] not found for the connection with vbd splitter"
+        );
+        return {
+          success: false,
+          message: "not found for the connection with vbd splitter",
+          data: null,
+        };
+      }
+
       // 2. Generation steps using topology generation port.
 
       // 2.1 Generate detail question.
@@ -166,6 +195,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         nlqQaGoodId: nlqQaGoodId,
         id: nlqQaGoodId,
         tablesColumns: tablesColumns,
+        namespace: dbConnWithVbdAndUser.vbd_splitter.name,
       });
 
       // 5. Search the created record to return

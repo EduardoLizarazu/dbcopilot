@@ -39,16 +39,19 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
         throw new Error("Failed to generate embedding for the question");
       }
       // Now, I can upload the data to Pinecone
-      await this.pineconeProvider.upload({
-        id: data.id,
-        embedding,
-        metadata: {
-          question: data.question,
-          answer: data.query,
-          tablesColumns: data.tablesColumns,
-          nlqQaGoodId: data.nlqQaGoodId,
+      const index = this.pineconeProvider.getIndex();
+      await index.namespace(data.namespace).upsert([
+        {
+          id: data.id,
+          values: embedding,
+          metadata: {
+            question: data.question,
+            answer: data.query,
+            tablesColumns: data.tablesColumns,
+            nlqQaGoodId: data.nlqQaGoodId,
+          },
         },
-      });
+      ]);
 
       return data.id;
     } catch (error) {

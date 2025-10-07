@@ -9,6 +9,7 @@ import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/fireb
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
+import { DbConnectionRepository } from "@/infrastructure/repository/dbconnection.repo";
 import { NlqQaGoodRepository } from "@/infrastructure/repository/nlq/nlq-qa-good.repo";
 import { NlqQaAppRepository } from "@/infrastructure/repository/nlq/nlq-qa.repo";
 
@@ -22,6 +23,7 @@ export function createNlqQaGoodComposer(): IController {
   // REPOSITORIES
   const nlqQaRepo = new NlqQaAppRepository(loggerProvider, firebaseAdmin);
   const nlqQaGoodRepo = new NlqQaGoodRepository(loggerProvider, firebaseAdmin);
+  const dbConnRepo = new DbConnectionRepository(loggerProvider, firebaseAdmin);
 
   // Others utils
   const decodeTokenAdapter = new DecodeTokenAdapter(
@@ -51,6 +53,7 @@ export function createNlqQaGoodComposer(): IController {
     loggerProvider,
     nlqQaRepo,
     nlqQaGoodRepo,
+    dbConnRepo,
     nlqQaTopologyAdapter,
     nlqQaKnowledgeAdapter
   );
