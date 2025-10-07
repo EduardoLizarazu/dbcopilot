@@ -23,7 +23,7 @@ import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
-import { NlqQaInfoExecQuery } from "@/_actions/nlq-qa-info/execute-query.action";
+import { InfoExtractorAction } from "@/_actions/nlq-qa-info/execute-query.action";
 import { CreateNlqQaGoodAction } from "@/_actions/nlq-qa-correction/create.action";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
@@ -52,8 +52,11 @@ export default function NlqCorrectionClient({
     setRunError(null);
     setPrevRows(null);
     try {
-      const r = await NlqQaInfoExecQuery(prevSql);
-      setPrevRows(r.data || []);
+      const r = await InfoExtractorAction({
+        query: prevSql,
+        connId: initial.dbConnection?.id || "",
+      });
+      setPrevRows(r.data.data || []);
     } catch (e: any) {
       setRunError(e?.message ?? "Failed to run previous SQL");
     } finally {
@@ -66,8 +69,11 @@ export default function NlqCorrectionClient({
     setRunError(null);
     setNewRows(null);
     try {
-      const r = await NlqQaInfoExecQuery(newSql);
-      setNewRows(r.data || []);
+      const r = await InfoExtractorAction({
+        query: newSql,
+        connId: initial.dbConnection?.id || "",
+      });
+      setNewRows(r.data.data || []);
     } catch (e: any) {
       setRunError(e?.message ?? "Failed to run corrected SQL");
     } finally {
