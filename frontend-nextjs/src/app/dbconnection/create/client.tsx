@@ -83,7 +83,7 @@ export default function DbConnectionClient({
         database: dbConn?.database.trim() || "",
         username: dbConn?.username.trim() || "",
         password: dbConn?.password.trim() || "",
-        sid: dbConn?.sid.trim() || null,
+        sid: dbConn?.sid || null,
         schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
       });
       console.log("DB Connection run:", res);

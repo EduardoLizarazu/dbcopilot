@@ -14,7 +14,7 @@ export const dbConnectionSchema = z.object({
   database: z.string().min(1).max(255),
   username: z.string().min(1).max(255),
   password: z.string().min(1).max(255),
-  sid: z.string().optional(), // oracle
+  sid: z.string().optional().nullable(), // oracle
 
   schema_query: z.string().min(2),
 

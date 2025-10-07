@@ -48,7 +48,7 @@ export const connDto = z.object({
   database: z.string().min(1, "Database is required"),
   username: z.string().min(1, "User is required"),
   password: z.string().min(1, "Password is required"),
-  sid: z.string().optional(),
+  sid: z.string().optional().nullable(),
   schema_query: z.string().optional(),
 });
 export type TNlqInfoConnDto = z.infer<typeof connDto>;
