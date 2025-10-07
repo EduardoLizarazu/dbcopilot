@@ -12,6 +12,10 @@ import {
   CircularProgress,
   Alert,
   Divider,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useFeedbackContext } from "@/contexts/feedback.context";
@@ -19,6 +23,8 @@ import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { CreateNlqQaGoodAction } from "@/_actions/nlq-qa-good/create.action";
 import { InfoExtractorAction } from "@/_actions/nlq-qa-info/execute-query.action";
 import { TNlqQaGoodOutWithUserAndConnRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
+import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
 
 export default function NlqClient({
   initial,
@@ -32,6 +38,11 @@ export default function NlqClient({
       initial || null
     );
 
+  const [dbConn, setDbConn] = React.useState<
+    TDbConnectionOutRequestDtoWithVbAndUser[]
+  >([]);
+  const [dbConnId, setDbConnId] = React.useState<string | null>(null);
+
   const { setFeedback } = useFeedbackContext();
 
   const [running, setRunning] = React.useState(false);
@@ -42,6 +53,21 @@ export default function NlqClient({
   const [saving, setSaving] = React.useState(false);
   const disabledRun = !nlq?.question.trim() || !nlq?.query.trim();
   const disabledSave = !ranOk || saving;
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const dbConnData = await ReadAllDbConnectionAction();
+        setDbConn(dbConnData.data || []);
+      } catch (error) {
+        setFeedback({
+          isActive: true,
+          message: `Error: ${error.message}`,
+          severity: "error",
+        });
+      }
+    })();
+  }, []);
 
   const onRun = async () => {
     if (disabledRun) return;
@@ -72,8 +98,8 @@ export default function NlqClient({
     setSaving(true);
     try {
       await CreateNlqQaGoodAction({
-        question: question.trim(),
-        query: sql.trim(),
+        question: nlq?.question?.trim() || "",
+        query: nlq?.query?.trim() || "",
       });
       setFeedback({
         isActive: true,
@@ -99,6 +125,32 @@ export default function NlqClient({
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
         Create NLQ (Admin)
       </Typography>
+      {/* DB Connections */}
+      <FormControl fullWidth>
+        <InputLabel id="db-connection-label">DB Connection</InputLabel>
+        <Select
+          labelId="db-connection-label"
+          value={dbConnId || ""} // Ensure value defaults to an empty string
+          onChange={(e) => setDbConnId(e.target.value)}
+        >
+          <MenuItem value="">
+            <em>None</em>
+          </MenuItem>
+          {dbConn && dbConn.length > 0 ? (
+            dbConn.map((dbConnection) => (
+              <MenuItem key={dbConnection.id} value={dbConnection.id}>
+                {dbConnection.name}
+              </MenuItem>
+            ))
+          ) : (
+            <MenuItem disabled>
+              <em>Loading...</em>
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl>
+
+      <Divider sx={{ my: 2 }} />
 
       <Paper className="p-4" elevation={1}>
         <Stack spacing={2}>
