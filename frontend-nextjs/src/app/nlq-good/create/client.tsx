@@ -16,6 +16,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Switch,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useFeedbackContext } from "@/contexts/feedback.context";
@@ -160,6 +161,18 @@ export default function NlqClient({
             </Select>
           </FormControl>
           {/* On Knowledge source */}
+          <FormControl fullWidth>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography>On Knowledge Source:</Typography>
+              <Switch
+                checked={!!nlq?.isOnKnowledgeSource}
+                onChange={(e) =>
+                  setNlq({ ...nlq, isOnKnowledgeSource: e.target.checked })
+                }
+                inputProps={{ "aria-label": "On Knowledge Source" }}
+              />
+            </Stack>
+          </FormControl>
         </Stack>
       </Paper>
 
