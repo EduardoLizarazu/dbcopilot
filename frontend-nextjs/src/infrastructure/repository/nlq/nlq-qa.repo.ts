@@ -1,12 +1,13 @@
+import { TDbConnectionOutRequestDto } from "@/core/application/dtos/dbconnection.dto";
 import { TNlqQaErrorOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa-error.app.dto";
 import { TNlqQaFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
+import { TNlqQaGoodOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import {
   TCreateNlqQaDto,
   TNlqQaOutRequestDto,
   TNlqQaWitFeedbackOutRequestDto,
   TUpdateNlqQaDto,
 } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
-import { TUserOutputRequestDto } from "@/core/application/dtos/user.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.inter";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
@@ -95,11 +96,64 @@ export class NlqQaAppRepository implements INlqQaRepository {
           errorExists: !!errorData,
         });
 
+        // Find dbConnection related to the NLQ QA by dbConnectionId
+        const dbConnectionData = nlqData.dbConnectionId
+          ? await this.fbAdminProvider.db
+              .collection(this.fbAdminProvider.coll.DB_CONNECTIONS)
+              .doc(nlqData.dbConnectionId)
+              .get()
+              .then((doc) =>
+                doc.exists
+                  ? {
+                      id: doc.id,
+                      ...doc.data(),
+                    }
+                  : null
+              )
+          : null;
+
+        this.logger.info(
+          "[NlqQaAppRepository] Fetched dbConnection for NLQ QA",
+          {
+            nlqQaId: nlqData.id || "-",
+            dbConnectionId: nlqData.dbConnectionId || "-",
+            dbConnectionExists: !!dbConnectionData,
+          }
+        );
+
+        // Find nlqQaGood by NlqQa knowledgeSourceUsedId list
+        // you have to find all nlqQaGood that is on the knowledgeSourceUsedId list
+        // Therefore, you need to iterate over the knowledgeSourceUsedId list and fetch each nlqQaGood
+        const nlqQaGoodData = await Promise.all(
+          nlqData.knowledgeSourceUsedId.map((knowledgeSourceId) =>
+            this.fbAdminProvider.db
+              .collection(this.fbAdminProvider.coll.NLQ_GOODS)
+              .where("id", "==", knowledgeSourceId)
+              .get()
+              .then((snapshot) => {
+                this.logger.info(
+                  "[NlqQaAppRepository] Fetched nlqQaGood for NLQ QA",
+                  {
+                    nlqQaId: nlqData.id || "-",
+                    knowledgeSourceId: knowledgeSourceId || "-",
+                    countNlqQaGood: snapshot.size || 0,
+                  }
+                );
+                return snapshot.docs.map((doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                })) as TNlqQaGoodOutRequestDto;
+              })
+          )
+        );
+
         results.push({
           ...nlqData,
           feedback: feedbacksData.length > 0 ? feedbacksData[0] : null,
           user: userData, // User can now be null
           error: errorData,
+          dbConnection: dbConnectionData,
+          nlqQaGoodUsed: nlqQaGoodData,
         });
       }
 
@@ -193,11 +247,60 @@ export class NlqQaAppRepository implements INlqQaRepository {
             })
         : null;
 
+      // Find dbConnection related to the NLQ QA by dbConnectionId
+      const dbConnectionData = nlqData.dbConnectionId
+        ? await this.fbAdminProvider.db
+            .collection(this.fbAdminProvider.coll.DB_CONNECTIONS)
+            .doc(nlqData.dbConnectionId)
+            .get()
+            .then((doc) => {
+              this.logger.info(
+                "[NlqQaAppRepository] Fetched dbConnection for NLQ QA",
+                {
+                  nlqQaId: nlqData.id || "-",
+                  dbConnectionId: nlqData.dbConnectionId || "-",
+                  dbConnectionExists: doc.exists || false,
+                }
+              );
+              return doc.exists
+                ? ({ id: doc.id, ...doc.data() } as TDbConnectionOutRequestDto)
+                : null;
+            })
+        : null;
+
+      // Find nlqQaGood by NlqQa knowledgeSourceUsedId list
+      // you have to find all nlqQaGood that is on the knowledgeSourceUsedId list
+      // Therefore, you need to iterate over the knowledgeSourceUsedId list and fetch each nlqQaGood
+
+      const nlqQaGoodData = await Promise.all(
+        nlqData.knowledgeSourceUsedId.map((knowledgeSourceId) =>
+          this.fbAdminProvider.db
+            .collection(this.fbAdminProvider.coll.NLQ_GOODS)
+            .where("id", "==", knowledgeSourceId)
+            .get()
+            .then((snapshot) => {
+              this.logger.info(
+                "[NlqQaAppRepository] Fetched nlqQaGood for NLQ QA",
+                {
+                  nlqQaId: nlqData.id || "-",
+                  countNlqQaGood: snapshot.size || 0,
+                }
+              );
+              return snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              })) as TNlqQaGoodOutRequestDto;
+            })
+        )
+      );
+
       return {
         ...nlqData,
         feedback: feedbackData, // Feedback can now be null
         user: userData, // User can now be null
         error: errorData, // Error can now be null
+        dbConnection: dbConnectionData, // DB Connection can now be null
+        nlqQaGoodUsed: nlqQaGoodData, // NlqQaGood can now be null
       };
     } catch (error) {
       this.logger.error("[NlqQaAppRepository] Error finding NLQ QA by ID", {

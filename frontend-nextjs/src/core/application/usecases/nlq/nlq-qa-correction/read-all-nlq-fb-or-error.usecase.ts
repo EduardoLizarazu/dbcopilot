@@ -38,44 +38,10 @@ export class ReadAllNlqQaFbOrErrorUseCase
         { count: nlqQaUserFbErrorBad.length }
       );
 
-      // 3. Filter by query on the fields: question, user.name, user.email, feedback.comment, error.message
-      let filteredResults = nlqQaUserFbErrorBad;
-      if (query) {
-        const lowerQuery = query.toLowerCase();
-        filteredResults = nlqQaUserFbErrorBad.filter((nlq) => {
-          const questionMatch = nlq.question
-            ? nlq.question.toLowerCase().includes(lowerQuery)
-            : false;
-          const userNameMatch = nlq.user?.name
-            ? nlq.user.name.toLowerCase().includes(lowerQuery)
-            : false;
-          const userEmailMatch = nlq.user?.email
-            ? nlq.user.email.toLowerCase().includes(lowerQuery)
-            : false;
-          const feedbackCommentMatch = nlq.feedback?.comment
-            ? nlq.feedback.comment.toLowerCase().includes(lowerQuery)
-            : false;
-          const errorMessageMatch = nlq.error?.errorMessage
-            ? nlq.error.errorMessage.toLowerCase().includes(lowerQuery)
-            : false;
-          return (
-            questionMatch ||
-            userNameMatch ||
-            userEmailMatch ||
-            feedbackCommentMatch ||
-            errorMessageMatch
-          );
-        });
-        this.logger.info(
-          "[ReadAllNlqQaFbOrErrorUseCase] Successfully filtered NLQ QA feedback by query",
-          { query, count: filteredResults.length }
-        );
-      }
-
       // 4. Return the filtered results
       return {
         success: true,
-        data: filteredResults,
+        data: nlqQaUserFbErrorBad,
         message: "Successfully fetched all NLQ QA feedback",
       };
     } catch (error) {
