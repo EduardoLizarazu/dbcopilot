@@ -42,7 +42,6 @@ export default function NlqClient({
   const [dbConn, setDbConn] = React.useState<
     TDbConnectionOutRequestDtoWithVbAndUser[]
   >([]);
-  const [dbConnId, setDbConnId] = React.useState<string | null>(null);
 
   const [feedback, setFeedback] = React.useState<{
     isActive: boolean;
@@ -83,7 +82,7 @@ export default function NlqClient({
     try {
       const r = await InfoExtractorAction({
         query: nlq?.query?.trim() || "",
-        connId: dbConnId || "",
+        connId: nlq?.dbConnectionId || "",
       });
       setRows(r.data.data || []);
       setRanOk(true);
@@ -141,8 +140,10 @@ export default function NlqClient({
             <InputLabel id="db-connection-label">DB Connection</InputLabel>
             <Select
               labelId="db-connection-label"
-              value={dbConnId || ""} // Ensure value defaults to an empty string
-              onChange={(e) => setDbConnId(e.target.value)}
+              value={nlq?.dbConnectionId || ""} // Ensure value defaults to an empty string
+              onChange={(e) =>
+                setNlq({ ...nlq, dbConnectionId: e.target.value })
+              }
             >
               <MenuItem value="">
                 <em>None</em>
