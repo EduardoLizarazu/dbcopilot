@@ -152,12 +152,12 @@ export default function NlqCorrectionClient({
       {/* Feedback Details */}
       {initial.feedback && (
         <Paper className="p-4" elevation={1} sx={{ mb: 2 }}>
-          <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+          <Typography variant="h6" fontWeight={700} gutterBottom>
             Feedback
           </Typography>
           <Stack spacing={1}>
-            <Typography variant="subtitle2" color="text.secondary">
-              Feedback Status
+            <Typography variant="body1" color="text">
+              <b>Feedback Status:</b>
             </Typography>
             <Chip
               size="small"
@@ -180,14 +180,9 @@ export default function NlqCorrectionClient({
 
             {initial.feedback.comment && (
               <>
-                <Typography
-                  variant="subtitle2"
-                  color="text.secondary"
-                  sx={{ mt: 2 }}
-                >
-                  Comment
+                <Typography variant="body1" color="text" sx={{ mt: 2 }}>
+                  <b>Comment:</b> {initial.feedback.comment}
                 </Typography>
-                <Typography>{initial.feedback.comment}</Typography>
               </>
             )}
           </Stack>
@@ -197,14 +192,13 @@ export default function NlqCorrectionClient({
       {/* Error Details */}
       {initial.error && (
         <Paper className="p-4" elevation={1} sx={{ mb: 2 }}>
-          <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+          <Typography variant="h6" fontWeight={700} gutterBottom>
             Error Details
           </Typography>
           <Stack spacing={1}>
-            <Typography variant="subtitle2" color="text.secondary">
-              Execution Error Message
+            <Typography variant="body1" color="text">
+              <b>Error Message:</b> {initial.error.errorMessage || "—"}
             </Typography>
-            <Typography>{initial.error.errorMessage || "—"}</Typography>
           </Stack>
         </Paper>
       )}
