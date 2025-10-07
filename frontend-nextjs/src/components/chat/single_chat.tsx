@@ -136,7 +136,7 @@ export function SingleChat(
             <InputLabel id="db-connection-label">DB Connection</InputLabel>
             <Select
               labelId="db-connection-label"
-              value={dbConnId}
+              value={dbConnId || ""} // Ensure value defaults to an empty string
               onChange={(e) => setDbConnId(e.target.value)}
             >
               <MenuItem value="">
