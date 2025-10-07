@@ -62,3 +62,12 @@ export const nlqInfoExtractorSchema = connDto
   });
 
 export type TNlqInfoExtractorDto = z.infer<typeof nlqInfoExtractorSchema>;
+
+export const nlqQaInfoExtractorInRequestSchema = z.object({
+  connId: z.string().min(1, "Connection ID is required"),
+  query: z.string().min(1, "Query is required"),
+});
+
+export type TNlqQaInfoExtractorInRequestDto = z.infer<
+  typeof nlqQaInfoExtractorInRequestSchema
+>;

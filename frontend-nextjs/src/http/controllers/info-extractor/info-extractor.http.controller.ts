@@ -10,7 +10,7 @@ import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { INlqQaInfoExtractorUseCase } from "@/core/application/usecases/info-extractor/info-extractor.usecase";
-import { TNlqInfoExtractorDto } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
+import { TNlqQaInfoExtractorInRequestDto } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
 
 export class InfoExtractorController implements IController {
   constructor(
@@ -23,7 +23,7 @@ export class InfoExtractorController implements IController {
   ) {}
 
   async handle(
-    httpRequest: IHttpRequest<TNlqInfoExtractorDto>
+    httpRequest: IHttpRequest<TNlqQaInfoExtractorInRequestDto>
   ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====

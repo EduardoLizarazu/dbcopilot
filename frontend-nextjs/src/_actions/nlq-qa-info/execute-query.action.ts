@@ -1,35 +1,43 @@
 "use server";
-import { TNlqInformationData } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
-import { NlqQaInformationAdapter } from "@/infrastructure/adapters/nlq-qa-information.adapter";
-import { OracleProvider } from "@/infrastructure/providers/database/oracle.infra.provider";
-import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
-import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
+import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
+import {
+  TNlqInformationData,
+  TNlqQaInfoExtractorInRequestDto,
+} from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
+import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
+import { domain } from "@/utils/constants";
 
-export async function NlqQaInfoExecQuery(
-  query: string
-): Promise<TNlqInformationData> {
-  // Providers
-  const loggerProvider = new WinstonLoggerProvider();
-  const oracleProvider = new OracleProvider();
+export async function InfoExtractorAction(
+  input: TNlqQaInfoExtractorInRequestDto
+): Promise<TResOutContent<TNlqInformationData>> {
+  console.log("[InfoExtractorAction] Initiating information extraction", input);
 
-  // Repositories
-  const nlqQaInformationAdapter = new NlqQaInformationAdapter(
-    loggerProvider,
-    oracleProvider
+  const dbConnectionRes = await fetch(`${domain}/api/info-extractor`, {
+    method: "POST",
+    body: JSON.stringify(input),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${await readTokenFromCookie()}`,
+    },
+  });
+  console.log("[InfoExtractorAction] API Response received", dbConnectionRes);
+
+  if (!dbConnectionRes.ok) {
+    const errorData = await dbConnectionRes.json();
+    console.error(
+      "[InfoExtractorAction] Error during information extraction:",
+      errorData.message || dbConnectionRes.statusText
+    );
+    throw new Error(
+      `Failed to extract information: ${errorData.message || dbConnectionRes.statusText}`
+    );
+  }
+
+  const dbConnectionData = await dbConnectionRes.json();
+  console.log(
+    "[InfoExtractorAction] Information extracted successfully",
+    dbConnectionData
   );
 
-  try {
-    const infoData = await nlqQaInformationAdapter.executeQuery(query);
-    return infoData;
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : typeof error === "string"
-          ? error
-          : JSON.stringify(error);
-
-    loggerProvider.error("Error executing query:", errorMessage);
-    throw new Error(`Error executing query: ${errorMessage}`);
-  }
+  return dbConnectionData;
 }
