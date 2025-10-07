@@ -43,7 +43,11 @@ export default function NlqClient({
   >([]);
   const [dbConnId, setDbConnId] = React.useState<string | null>(null);
 
-  const { setFeedback } = useFeedbackContext();
+  const [feedback, setFeedback] = React.useState<{
+    isActive: boolean;
+    message: string;
+    severity: "error" | "success" | "info" | "warning";
+  }>({ isActive: false, message: "", severity: "info" });
 
   const [running, setRunning] = React.useState(false);
   const [ranOk, setRanOk] = React.useState(false);
@@ -76,8 +80,11 @@ export default function NlqClient({
     setRanOk(false);
     setRows(null);
     try {
-      const r = await InfoExtractorAction(sql);
-      setRows(r.data || []);
+      const r = await InfoExtractorAction({
+        query: nlq?.query?.trim() || "",
+        connId: dbConnId || "",
+      });
+      setRows(r.data.data || []);
       setRanOk(true);
       setFeedback({
         isActive: true,
@@ -125,30 +132,36 @@ export default function NlqClient({
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
         Create NLQ (Admin)
       </Typography>
-      {/* DB Connections */}
-      <FormControl fullWidth>
-        <InputLabel id="db-connection-label">DB Connection</InputLabel>
-        <Select
-          labelId="db-connection-label"
-          value={dbConnId || ""} // Ensure value defaults to an empty string
-          onChange={(e) => setDbConnId(e.target.value)}
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          {dbConn && dbConn.length > 0 ? (
-            dbConn.map((dbConnection) => (
-              <MenuItem key={dbConnection.id} value={dbConnection.id}>
-                {dbConnection.name}
+
+      <Paper className="p-4" elevation={1}>
+        <Stack spacing={2}>
+          {/* DB Connections */}
+          <FormControl fullWidth>
+            <InputLabel id="db-connection-label">DB Connection</InputLabel>
+            <Select
+              labelId="db-connection-label"
+              value={dbConnId || ""} // Ensure value defaults to an empty string
+              onChange={(e) => setDbConnId(e.target.value)}
+            >
+              <MenuItem value="">
+                <em>None</em>
               </MenuItem>
-            ))
-          ) : (
-            <MenuItem disabled>
-              <em>Loading...</em>
-            </MenuItem>
-          )}
-        </Select>
-      </FormControl>
+              {dbConn && dbConn.length > 0 ? (
+                dbConn.map((dbConnection) => (
+                  <MenuItem key={dbConnection.id} value={dbConnection.id}>
+                    {dbConnection.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>
+                  <em>Loading...</em>
+                </MenuItem>
+              )}
+            </Select>
+          </FormControl>
+          {/* On Knowledge source */}
+        </Stack>
+      </Paper>
 
       <Divider sx={{ my: 2 }} />
 
