@@ -14,6 +14,9 @@ import {
   Divider,
   CircularProgress,
   Alert,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
@@ -22,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { NlqQaInfoExecQuery } from "@/_actions/nlq-qa-info/execute-query.action";
 import { CreateNlqQaGoodAction } from "@/_actions/nlq-qa-correction/create.action";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export default function NlqCorrectionClient({
   initial,
@@ -189,6 +193,46 @@ export default function NlqCorrectionClient({
           </Stack>
         </Paper>
       )}
+
+      {/* Nlq Good Used */}
+      <Paper className="p-4" elevation={1} sx={{ mb: 2 }}>
+        <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+          Nlq Good Used ({initial.nlqQaGoodUsed?.length || 0})
+        </Typography>
+        <Stack spacing={1}>
+          {initial.nlqQaGoodUsed && initial.nlqQaGoodUsed.length > 0 ? (
+            <Accordion>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography>Show/Hide Details</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {initial.nlqQaGoodUsed.map((item, index) => (
+                  <Box key={index} sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Question
+                    </Typography>
+                    <Typography>{item.question || "—"}</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      color="text.secondary"
+                      sx={{ mt: 1 }}
+                    >
+                      Query
+                    </Typography>
+                    <Typography>{item.query || "—"}</Typography>
+                  </Box>
+                ))}
+              </AccordionDetails>
+            </Accordion>
+          ) : (
+            <Typography>No NLQ Good Used</Typography>
+          )}
+        </Stack>
+      </Paper>
 
       <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
         <Button variant="text" onClick={() => router.push("/nlq-correction")}>
