@@ -8,6 +8,7 @@ import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
 import { OracleProvider } from "@/infrastructure/providers/database/oracle.infra.provider";
 import { TypeOrmProvider } from "../providers/database/typeorm.infra.provider";
+import { DataSource, QueryRunner } from "typeorm";
 
 export class NlqQaInformationAdapter implements INlqQaInformationPort {
   constructor(
@@ -18,8 +19,8 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
   async extractSchemaFromConnection(
     connection: TNlqInfoConnDto
   ): Promise<TNlqQaInformationSchemaExtractionDto> {
-    let queryRunner = null;
-    let dataSource = null;
+    let queryRunner: QueryRunner | null = null;
+    let dataSource: DataSource | null = null;
     try {
       this.logger.info(
         "[NlqQaInformationAdapter] Extracting schema from connection",
@@ -67,14 +68,14 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
     data: TNlqInfoExtractorDto,
     dateParams?: { start: Date; end: Date }
   ): Promise<TNlqInformationData> {
-    let queryRunner = null;
-    let dataSource = null;
+    let queryRunner: QueryRunner | null = null;
+    let dataSource: DataSource | null = null;
     try {
       this.logger.info(
         "[NlqQaInformationAdapter] Executing query from connection",
         { data, dateParams }
       );
-      dataSource = this.typeOrmProvider.createDataSource({
+      dataSource = await this.typeOrmProvider.createDataSource({
         type: data.type,
         host: data.host,
         port: data.port,
