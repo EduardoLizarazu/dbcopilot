@@ -1,7 +1,7 @@
 import {
   TCreateNlqQaGoodDto,
   TNlqQaGoodOutRequestDto,
-  TNlqQaGoodOutWithUserRequestDto,
+  TNlqQaGoodOutWithUserAndConnRequestDto,
   TUpdateNlqQaGoodDto,
 } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
@@ -145,38 +145,50 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
       throw new Error("Error finding all NLQ QA Goods");
     }
   }
-  async findAllWithUser(): Promise<TNlqQaGoodOutWithUserRequestDto[]> {
+  async findAllWithUserAndConn(): Promise<
+    TNlqQaGoodOutWithUserAndConnRequestDto[]
+  > {
     try {
-      // 1. Get all users
-      const usersSnapshot = await this.fbAdminProvider.db
-        .collection(this.fbAdminProvider.coll.NLQ_USERS)
-        .get();
-      const usersMap: Record<string, { id: string; email: string }> = {};
-      usersSnapshot.forEach((doc) => {
-        const data = doc.data() as { email: string };
-        usersMap[doc.id] = { id: doc.id, email: data.email };
-      });
-
-      // 2. Get all goods and attach the user info based on the field nlq_goods.questionBy
-      const goodsSnapshot = await this.fbAdminProvider.db
+      // 1. Fetch all nlq qa goods
+      const snapshot = await this.fbAdminProvider.db
         .collection(this.fbAdminProvider.coll.NLQ_GOODS)
         .get();
+      const goods: TNlqQaGoodOutWithUserAndConnRequestDto[] = [];
 
-      // 3. Merge data
-      const results: TNlqQaGoodOutWithUserRequestDto[] = [];
-      goodsSnapshot.forEach((doc) =>
-        results.push({
-          id: doc.id,
-          ...(doc.data() as TNlqQaGoodOutRequestDto),
-          user: usersMap[
-            (doc.data() as TNlqQaGoodOutRequestDto).questionBy
-          ] || {
-            id: "",
-            email: "",
-          },
-        })
-      );
-      return results;
+      // 2. Iterate and fetch user for each good based on createdBy and fetch connection with dbConnectionId
+      for (const doc of snapshot.docs) {
+        const data = { id: doc.id, ...doc.data() } as TNlqQaGoodOutRequestDto;
+        let user = null;
+        let connection = null;
+        if (data.questionBy) {
+          const userDoc = await this.fbAdminProvider.db
+            .collection(this.fbAdminProvider.coll.NLQ_USERS)
+            .doc(data.questionBy)
+            .get();
+          user = userDoc.exists
+            ? { id: userDoc.id, email: userDoc.data().email }
+            : null;
+        } else if (data.createdBy) {
+          const userDoc = await this.fbAdminProvider.db
+            .collection(this.fbAdminProvider.coll.NLQ_USERS)
+            .doc(data.createdBy)
+            .get();
+          user = userDoc.exists
+            ? { id: userDoc.id, email: userDoc.data().email }
+            : null;
+        }
+        if (data.dbConnectionId) {
+          const connDoc = await this.fbAdminProvider.db
+            .collection(this.fbAdminProvider.coll.DB_CONNECTIONS)
+            .doc(data.dbConnectionId)
+            .get();
+          connection = connDoc.exists
+            ? { id: connDoc.id, ...connDoc.data() }
+            : null;
+        }
+        goods.push({ ...data, user, dbConnection: connection });
+      }
+      return goods;
     } catch (error) {
       this.logger.error(
         "[NlqQaGoodRepository] Error finding all NLQ QA Goods with user",
@@ -185,26 +197,53 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
       throw new Error("Error finding all NLQ QA Goods with user");
     }
   }
-  async findWithUserById(
+  async findWithUserAndConnById(
     id: string
-  ): Promise<TNlqQaGoodOutWithUserRequestDto | null> {
+  ): Promise<TNlqQaGoodOutWithUserAndConnRequestDto | null> {
     try {
+      // 1. Fetch the nlq qa good by ID
       const doc = await this.fbAdminProvider.db
         .collection(this.fbAdminProvider.coll.NLQ_GOODS)
         .doc(id)
         .get();
+
       if (!doc.exists) {
         return null;
       }
+
       const data = { id: doc.id, ...doc.data() } as TNlqQaGoodOutRequestDto;
-      const user = await this.fbAdminProvider.db
-        .collection(this.fbAdminProvider.coll.NLQ_USERS)
-        .doc(data.questionBy)
-        .get();
-      return {
-        ...data,
-        user: user.exists ? { id: user.id, email: user.data().email } : null,
-      };
+
+      // 2. Fetch user based on createdBy and fetch connection with dbConnectionId
+      let user = null;
+      let connection = null;
+      if (data.questionBy) {
+        const userDoc = await this.fbAdminProvider.db
+          .collection(this.fbAdminProvider.coll.NLQ_USERS)
+          .doc(data.questionBy)
+          .get();
+        user = userDoc.exists
+          ? { id: userDoc.id, email: userDoc.data().email }
+          : null;
+      } else if (data.createdBy) {
+        const userDoc = await this.fbAdminProvider.db
+          .collection(this.fbAdminProvider.coll.NLQ_USERS)
+          .doc(data.createdBy)
+          .get();
+        user = userDoc.exists
+          ? { id: userDoc.id, email: userDoc.data().email }
+          : null;
+      }
+      if (data.dbConnectionId) {
+        const connDoc = await this.fbAdminProvider.db
+          .collection(this.fbAdminProvider.coll.DB_CONNECTIONS)
+          .doc(data.dbConnectionId)
+          .get();
+        connection = connDoc.exists
+          ? { id: connDoc.id, ...connDoc.data() }
+          : null;
+      }
+
+      return { ...data, user, dbConnection: connection };
     } catch (error) {
       this.logger.error(
         "[NlqQaGoodRepository] Error finding NLQ QA Good with user by ID",

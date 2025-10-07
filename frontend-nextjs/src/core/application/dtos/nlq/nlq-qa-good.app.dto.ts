@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TDbConnectionOutRequestDto } from "../dbconnection.dto";
 
 export const nlqQaGoodSchema = z.object({
   id: z.string(),
@@ -71,11 +72,12 @@ export type TNlqQaGoodInRequestDto = z.infer<typeof nlqQaGoodInRequestSchema>;
 
 export type TNlqQaGoodOutRequestDto = z.infer<typeof nlqQaGoodSchema>;
 
-export type TNlqQaGoodOutWithUserRequestDto = TNlqQaGoodOutRequestDto & {
+export type TNlqQaGoodOutWithUserAndConnRequestDto = TNlqQaGoodOutRequestDto & {
   user: {
     id: string;
     email: string;
   };
+  dbConnection: TDbConnectionOutRequestDto;
 };
 
 /**

@@ -30,7 +30,7 @@ import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
 import CloudOffIcon from "@mui/icons-material/CloudOff";
 import CloudDoneIcon from "@mui/icons-material/CloudDone";
-import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import { TNlqQaGoodOutWithUserAndConnRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { ReadAllNlqQaGoodAction } from "@/_actions/nlq-qa-good/read-all.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
@@ -38,11 +38,11 @@ import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
 export default function NlqGoodClient({
   initialRows,
 }: {
-  initialRows: TNlqQaGoodOutWithUserRequestDto[];
+  initialRows: TNlqQaGoodOutWithUserAndConnRequestDto[];
 }) {
   const { setFeedback } = useFeedbackContext();
   const [rows, setRows] =
-    React.useState<TNlqQaGoodOutWithUserRequestDto[]>(initialRows);
+    React.useState<TNlqQaGoodOutWithUserAndConnRequestDto[]>(initialRows);
   const [loading, setLoading] = React.useState(false);
 
   // Filters & ordering for VBD createdAt
@@ -188,7 +188,7 @@ export default function NlqGoodClient({
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        NLQ Uploaded (sql_is_good = true)
+        NLQ Goods
       </Typography>
 
       {/* Filters + Refresh */}
