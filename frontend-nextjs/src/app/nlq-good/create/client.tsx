@@ -17,14 +17,22 @@ import { useRouter } from "next/navigation";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { CreateNlqQaGoodAction } from "@/_actions/nlq-qa-good/create.action";
-import { NlqQaInfoExecQuery } from "@/_actions/nlq-qa-info/execute-query.action";
+import { InfoExtractorAction } from "@/_actions/nlq-qa-info/execute-query.action";
+import { TNlqQaGoodOutWithUserAndConnRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 
-export default function CreateNlqClient() {
+export default function NlqClient({
+  initial,
+}: {
+  initial?: TNlqQaGoodOutWithUserAndConnRequestDto;
+}) {
   const router = useRouter();
-  const { setFeedback } = useFeedbackContext();
 
-  const [question, setQuestion] = React.useState("");
-  const [sql, setSql] = React.useState("");
+  const [nlq, setNlq] =
+    React.useState<TNlqQaGoodOutWithUserAndConnRequestDto | null>(
+      initial || null
+    );
+
+  const { setFeedback } = useFeedbackContext();
 
   const [running, setRunning] = React.useState(false);
   const [ranOk, setRanOk] = React.useState(false);
@@ -32,7 +40,7 @@ export default function CreateNlqClient() {
   const [rows, setRows] = React.useState<any[] | null>(null);
 
   const [saving, setSaving] = React.useState(false);
-  const disabledRun = !question.trim() || !sql.trim();
+  const disabledRun = !nlq?.question.trim() || !nlq?.query.trim();
   const disabledSave = !ranOk || saving;
 
   const onRun = async () => {
@@ -42,7 +50,7 @@ export default function CreateNlqClient() {
     setRanOk(false);
     setRows(null);
     try {
-      const r = await NlqQaInfoExecQuery(sql);
+      const r = await InfoExtractorAction(sql);
       setRows(r.data || []);
       setRanOk(true);
       setFeedback({
@@ -96,8 +104,8 @@ export default function CreateNlqClient() {
         <Stack spacing={2}>
           <TextField
             label="Question"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+            value={nlq.question}
+            onChange={(e) => setNlq({ ...nlq, question: e.target.value })}
             fullWidth
             placeholder="Write a question…"
             autoFocus
@@ -106,8 +114,8 @@ export default function CreateNlqClient() {
           />
           <TextField
             label="Query (SQL)"
-            value={sql}
-            onChange={(e) => setSql(e.target.value)}
+            value={nlq.query}
+            onChange={(e) => setNlq({ ...nlq, query: e.target.value })}
             fullWidth
             multiline
             minRows={6}
