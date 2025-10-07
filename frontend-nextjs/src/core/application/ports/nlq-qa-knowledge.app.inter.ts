@@ -11,6 +11,12 @@ export interface INlqQaKnowledgePort
     TUpdateNlqQaKnowledgeDto,
     TNlqQaKnowledgeOutRequestDto
   > {
-  findByQuestion(question: string): Promise<TNlqQaKnowledgeOutRequestDto[]>;
+  findByQuestion({
+    namespace,
+    question,
+  }: {
+    namespace: string;
+    question: string;
+  }): Promise<TNlqQaKnowledgeOutRequestDto[]>;
   updateNamespace(prevName: string, newName: string): Promise<void>;
 }
