@@ -259,6 +259,9 @@ export default function NlqGoodClient({
                 <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Upload</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>VBD createdAt</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>
+                  Connection Status
+                </TableCell>
                 <TableCell align="right" sx={{ fontWeight: 700 }}>
                   Actions
                 </TableCell>
@@ -314,6 +317,36 @@ export default function NlqGoodClient({
                           />
                         ) : (
                           "—"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {r.dbConnection ? (
+                          r.dbConnection && r.dbConnection.id_vbd_splitter ? (
+                            <Chip
+                              size="small"
+                              color="success"
+                              label="Connected"
+                            />
+                          ) : r.dbConnection &&
+                            !r.dbConnection.id_vbd_splitter ? (
+                            <Chip
+                              size="small"
+                              color="warning"
+                              label="Not Splitter"
+                            />
+                          ) : (
+                            <Chip
+                              size="small"
+                              variant="outlined"
+                              label="Disconnected"
+                            />
+                          )
+                        ) : (
+                          <Chip
+                            size="small"
+                            color="error"
+                            label="Disconnected"
+                          />
                         )}
                       </TableCell>
                       <TableCell align="right">
