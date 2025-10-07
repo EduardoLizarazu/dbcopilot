@@ -111,26 +111,41 @@ export default function NlqCorrectionClient({
 
       {/* NLQ Details */}
       <Paper className="p-4" elevation={1} sx={{ mb: 2 }}>
-        <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+        <Typography variant="h6" fontWeight={700} gutterBottom>
           NLQ Details
         </Typography>
         <Stack spacing={1}>
-          <Typography variant="subtitle2" color="text.secondary">
-            Question
+          <Typography variant="body1" color="text">
+            <b>Question:</b> {initial.question || "—"}
           </Typography>
-          <Typography>{initial.question || "—"}</Typography>
+          <Typography variant="body1" color="text">
+            <b>Time Asked:</b>{" "}
+            {<LocalTime fb_date={initial.timeQuestion as any} />}
+          </Typography>
+          <Typography variant="body1" color="text">
+            <b>User Email:</b> {initial.user?.email || "—"}
+          </Typography>
+        </Stack>
+      </Paper>
 
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>
-            Time Asked
+      {/* Connection Details */}
+      <Paper className="p-4" elevation={1} sx={{ mb: 2 }}>
+        <Typography variant="h6" fontWeight={700} gutterBottom>
+          Connection Details
+        </Typography>
+        <Stack spacing={1}>
+          <Typography variant="body1" color="text">
+            <b>Name:</b> {initial.dbConnection?.name || "—"}
           </Typography>
-          <Typography>
-            {/* <LocalTime iso={initial.timeQuestion || undefined} /> */}
+          <Typography variant="body1" color="text">
+            <b>Description:</b> {initial.dbConnection?.description || "—"}
           </Typography>
-
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>
-            User Email
+          <Typography variant="body1" color="text">
+            <b>Type:</b> {initial.dbConnection?.type || "—"}
           </Typography>
-          <Typography>{initial.user?.email || "—"}</Typography>
+          <Typography variant="body1" color="text">
+            <b>Database:</b> {initial.dbConnection?.database || "—"}
+          </Typography>
         </Stack>
       </Paper>
 
