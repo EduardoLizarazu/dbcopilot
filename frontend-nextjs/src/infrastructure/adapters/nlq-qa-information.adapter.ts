@@ -2,6 +2,7 @@ import {
   TNlqQaInformationSchemaExtractionDto,
   TNlqInformationData,
   TNlqInfoConnDto,
+  TNlqInfoExtractorDto,
 } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
@@ -63,8 +64,7 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
     }
   }
   async executeQueryFromConnection(
-    connection: TNlqInfoConnDto,
-    query: string,
+    data: TNlqInfoExtractorDto,
     dateParams?: { start: Date; end: Date }
   ): Promise<TNlqInformationData> {
     let queryRunner = null;
@@ -72,16 +72,16 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
     try {
       this.logger.info(
         "[NlqQaInformationAdapter] Executing query from connection",
-        { connection, query }
+        { data, dateParams }
       );
       dataSource = this.typeOrmProvider.createDataSource({
-        type: connection.type,
-        host: connection.host,
-        port: connection.port,
-        username: connection.username,
-        password: connection.password,
-        database: connection.database,
-        sid: connection.sid,
+        type: data.type,
+        host: data.host,
+        port: data.port,
+        username: data.username,
+        password: data.password,
+        database: data.database,
+        sid: data.sid,
       });
 
       await dataSource.initialize();
@@ -90,7 +90,7 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
       if (!dataSource.isInitialized) {
         this.logger.error(
           "[NlqQaInformationAdapter] DataSource is not initialized on execute query from connection",
-          { connection, query }
+          { data }
         );
         throw new Error(
           "DataSource is not initialized on execute query from connection"
@@ -99,11 +99,11 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
 
       queryRunner = dataSource.createQueryRunner();
 
-      const result = await queryRunner.query(query);
+      const result = await queryRunner.query(data.query);
 
       this.logger.info(
         "[NlqQaInformationAdapter] Query executed from connection",
-        { connection, query, result }
+        { data, result }
       );
       return { data: result };
     } catch (error) {

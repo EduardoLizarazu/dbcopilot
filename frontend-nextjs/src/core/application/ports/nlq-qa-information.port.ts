@@ -1,5 +1,6 @@
 import {
   TNlqInfoConnDto,
+  TNlqInfoExtractorDto,
   TNlqInformationData,
   TNlqQaInformationSchemaExtractionDto,
 } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
@@ -16,8 +17,7 @@ export interface INlqQaInformationPort {
     dateParams?: { start: Date; end: Date }
   ): Promise<TNlqInformationData>;
   executeQueryFromConnection(
-    connection: TNlqInfoConnDto,
-    query: string,
+    data: TNlqInfoExtractorDto,
     dateParams?: { start: Date; end: Date }
   ): Promise<TNlqInformationData>;
 }

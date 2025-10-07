@@ -52,3 +52,13 @@ export const connDto = z.object({
   schema_query: z.string().optional(),
 });
 export type TNlqInfoConnDto = z.infer<typeof connDto>;
+
+export const nlqInfoExtractorSchema = connDto
+  .omit({
+    schema_query: true,
+  })
+  .extend({
+    query: z.string().min(1, "Query is required"),
+  });
+
+export type TNlqInfoExtractorDto = z.infer<typeof nlqInfoExtractorSchema>;
