@@ -1,21 +1,21 @@
 "use server";
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
 import {
-  TCreateNlqQaDto,
+  TNlqQaInRequestDto,
   TNlqQaOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function CreateNlqQaAction(
-  input: TCreateNlqQaDto
+  input: TNlqQaInRequestDto
 ): Promise<TResOutContent<TNlqQaOutRequestDto>> {
   console.log("Creating NLQ QA (test)...", input);
 
   const nlqQaRes = await fetch(`${domain}/api/nlq`, {
     method: "POST",
     body: JSON.stringify({
-      question: input.question,
+      ...input,
     }),
     headers: {
       "Content-Type": "application/json",
