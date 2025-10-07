@@ -8,18 +8,12 @@ import {
   TextField,
   Typography,
   Alert,
-  List,
-  ListItem,
 } from "@mui/material";
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
-// import { ChatFeedbackBtn } from "@/components/chat/prompt/chatFeedbackBtn";
 import { ChatFeedbackBtn } from "@/components/chat/chatFeedbackBtn";
-// import { CreatePrompt } from "@/controller/_actions/chat/command/create-prompt";
-import { CreatePrompt } from "@/controller/_actions/chat/create-prompt";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
-import { searchWithQuery } from "@/controller/_actions/nlq/vbd/find-by-prompt";
 import { CreateNlqQaAction } from "@/_actions/nlq-qa/create.action";
 
 interface Props {
@@ -49,28 +43,12 @@ export function SingleChat(
     data: Record<string, unknown>[];
   }>({ data: [], error: null });
 
-  // State of similar prompts reset
-  const [similarPrompts, setSimilarPrompts] = React.useState<unknown[]>([]);
-
   const [isResetHf, setIsResetHf] = React.useState<boolean>(false);
   const [submitting, setSubmitting] = React.useState<boolean>(false);
 
-  // const prevPromptRef = React.useRef(prompt);
   React.useEffect(() => {
-    // if (prevPromptRef.current === prompt) return;
-    (async () => {
-      // prevPromptRef.current = prompt;
-      if (prompt.length === 0) {
-        setSimilarPrompts([]);
-        return;
-      }
-      // const results = await searchWithQuery(prompt);
-      // const results_question = results.map((r) => r.metadata?.question);
-
-      // setSimilarPrompts(results_question);
-      // console.log(prevPromptRef.current, prompt);
-    })();
-  }, [prompt]);
+    (async () => {})();
+  }, []);
 
   // HANDLERS
   async function handleSubmitPrompt() {
@@ -127,31 +105,7 @@ export function SingleChat(
           >
             <Typography variant="h4">Chat with your database</Typography>
           </Stack>
-          {/* Similar Prompts [ "Give me pb7300", "question form admin test" ] */}
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Similar Questions:
-            </Typography>
-            {similarPrompts.length > 0 && (
-              <>
-                <List>
-                  {similarPrompts.map((sp, index) => (
-                    <ListItem
-                      // button effects with pointer cursor and hover
-                      sx={{
-                        cursor: "pointer",
-                        "&:hover": { backgroundColor: "lightgray" },
-                      }}
-                      key={index}
-                      onClick={() => setPrompt((sp as string) || "")}
-                    >
-                      {typeof sp === "string" ? sp : String(sp)}
-                    </ListItem>
-                  ))}
-                </List>
-              </>
-            )}
-          </Box>
+
           {/* Prompt */}
           <Box
             component="form"
