@@ -18,6 +18,23 @@ export interface ICreateNlqQaGoodUseCase {
   ): Promise<TResponseDto<TNlqQaGoodOutRequestDto>>;
 }
 
+/**
+ * Use case for creating a new NLQ QA Good entry:
+ * 1. Validates the input data.
+ * 2. Generation steps using topology generation port.
+ * 2.1 Generate detail question.
+ * 2.2 Generate tableColumns ["[TABLE].[COLUMN]"].
+ * 2.3 Generate Semantic Fields.
+ * 2.4 Generate Semantic Tables.
+ * 2.5 Generate Semantic Flags.
+ * 2.6 Generate thinking process.
+ * 3. Creates the NLQ QA Good entry in the repository.
+ * 4. Adds the entry to the knowledge source if it doesn't already exist.
+ * 5. Searches the created record to return.
+ * 6. If an originId is provided, updates the corresponding NLQ QA entry to mark it as "good".
+ * 7. Returns the created NLQ QA Good entry or an error message if any step fails.
+ */
+
 export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
   constructor(
     private readonly logger: ILogger,
@@ -49,7 +66,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         "[CreateNlqQaGoodUseCase] Input data validated successfully",
         dateValidate.data
       );
-      // 2. GENERATION STEPS
+      // 2. Generation steps using topology generation port.
 
       // 2.1 Generate detail question.
       const { detailQuestion } = await this.topologyGenPort.genDetailQuestion({
@@ -113,7 +130,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         think
       );
 
-      // 3. Create NLQ QA Good
+      // 3. Create the NLQ QA Good entry in the repository
       const nlqQaGoodId = await this.nlqQaGoodRepository.create({
         ...dateValidate.data,
         originId: data.originId || "",
@@ -142,7 +159,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         };
       }
 
-      // 4. Add to knowledge source if not exists
+      // 4. Adds the entry to the knowledge source if it doesn't already exist.
       const knowledgeSourceId = await this.knowledgePort.create({
         question: data.question,
         query: data.query,
@@ -168,7 +185,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         result
       );
 
-      // 6. Update the nlq qa, if originId exists
+      // 6. If an originId is provided, updates the corresponding NLQ QA entry to mark it as "good".
       if (data.originId) {
         await this.nlqQaRepo.update(data.originId, {
           isGood: true,
@@ -178,7 +195,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         });
       }
 
-      // Return success response
+      // 7. Return success response
       return {
         success: true,
         data: result,
