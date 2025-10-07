@@ -8,6 +8,10 @@ import {
   TextField,
   Typography,
   Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
@@ -15,6 +19,8 @@ import { ChatFeedbackBtn } from "@/components/chat/chatFeedbackBtn";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { useRouter } from "next/navigation";
 import { CreateNlqQaAction } from "@/_actions/nlq-qa/create.action";
+import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
+import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 
 interface Props {
   previousConversation?: {
@@ -29,6 +35,11 @@ export function SingleChat(
   { previousConversation = null }: Props = { previousConversation: null }
 ) {
   const router = useRouter();
+
+  const [dbConn, setDbConn] = React.useState<
+    TDbConnectionOutRequestDtoWithVbAndUser[]
+  >([]);
+  const [dbConnId, setDbConnId] = React.useState<string | null>(null);
 
   // CONTEXT
   const { setFeedback } = useFeedbackContext();
@@ -47,7 +58,18 @@ export function SingleChat(
   const [submitting, setSubmitting] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    (async () => {})();
+    (async () => {
+      try {
+        const dbConnData = await ReadAllDbConnectionAction();
+        setDbConn(dbConnData.data || []);
+      } catch (error) {
+        setFeedback({
+          isActive: true,
+          message: `Error: ${error.message}`,
+          severity: "error",
+        });
+      }
+    })();
   }, []);
 
   // HANDLERS
@@ -57,7 +79,10 @@ export function SingleChat(
     setSubmitting(true);
 
     try {
-      const response = await CreateNlqQaAction({ question: prompt });
+      const response = await CreateNlqQaAction({
+        question: prompt,
+        dbConnectionId: dbConnId,
+      });
 
       const hasError = response.data === null;
       if (hasError) {
@@ -105,6 +130,31 @@ export function SingleChat(
           >
             <Typography variant="h4">Chat with your database</Typography>
           </Stack>
+
+          {/* DB Connections */}
+          <FormControl fullWidth>
+            <InputLabel id="db-connection-label">DB Connection</InputLabel>
+            <Select
+              labelId="db-connection-label"
+              value={dbConnId}
+              onChange={(e) => setDbConnId(e.target.value)}
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {dbConn && dbConn.length > 0 ? (
+                dbConn.map((dbConnection) => (
+                  <MenuItem key={dbConnection.id} value={dbConnection.id}>
+                    {dbConnection.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>
+                  <em>Loading...</em>
+                </MenuItem>
+              )}
+            </Select>
+          </FormControl>
 
           {/* Prompt */}
           <Box
