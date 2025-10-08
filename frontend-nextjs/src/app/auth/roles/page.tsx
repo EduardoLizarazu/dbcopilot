@@ -22,11 +22,15 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import { listRolesAction, Role } from "@/_actions/roles/read-all.action";
+import {
+  listRolesAction,
+  ReadAllRolesAction,
+} from "@/_actions/roles/read-all.action";
 import { DeleteRoleAction } from "@/_actions/roles/delete.action";
+import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
 
 export default function RolesPage() {
-  const [roles, setRoles] = React.useState<Role[] | null>(null);
+  const [roles, setRoles] = React.useState<TRoleOutRequestDto[] | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [q, setQ] = React.useState("");
@@ -38,9 +42,9 @@ export default function RolesPage() {
       setLoading(true);
       setError(null);
       try {
-        const data = await listRolesAction("");
+        const data = await ReadAllRolesAction();
         if (!active) return;
-        setRoles(data);
+        setRoles(data.data);
         console.log(data);
       } catch (e: any) {
         if (!active) return;
@@ -56,25 +60,15 @@ export default function RolesPage() {
     };
   }, []);
 
-  // Debounced remote search (keeps logic server-side per your requirement)
-  React.useEffect(() => {
-    let stop = false;
-    const id = setTimeout(async () => {
-      if (stop) return;
-      try {
-        const data = await listRolesAction(q);
-        if (!stop) setRoles(data);
-      } catch (e: any) {
-        if (!stop) setError(e?.message ?? "Search failed.");
-      }
-    }, 300);
-    console.log("Searching roles for:", q);
-
-    return () => {
-      stop = true;
-      clearTimeout(id);
-    };
-  }, [q]);
+  // Filter roles based on the query
+  const filteredRoles = roles?.filter((role) => {
+    const query = q.toLowerCase();
+    return (
+      role.name.toLowerCase().includes(query) ||
+      (role.description && role.description.toLowerCase().includes(query)) ||
+      role.id.toLowerCase().includes(query)
+    );
+  });
 
   const onDelete = async (id: string) => {
     const yes = window.confirm("Remove this role? This cannot be undone.");
@@ -82,8 +76,8 @@ export default function RolesPage() {
     try {
       await DeleteRoleAction(id);
       // Re-query with current search
-      const data = await listRolesAction(q);
-      setRoles(data);
+      const data = await ReadAllRolesAction();
+      setRoles(data.data);
     } catch (e: any) {
       setError(e?.message ?? "Failed to remove role.");
     }
@@ -111,7 +105,7 @@ export default function RolesPage() {
           <SearchIcon fontSize="small" />
           <TextField
             size="small"
-            placeholder="Search by name..."
+            placeholder="Search by name, description, or ID..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
             fullWidth
@@ -130,7 +124,7 @@ export default function RolesPage() {
           </Typography>
         )}
 
-        {!loading && roles && roles.length === 0 && (
+        {!loading && filteredRoles && filteredRoles.length === 0 && (
           <Box className="text-center py-16">
             <Typography variant="h6" fontWeight={700} gutterBottom>
               No roles found
@@ -150,7 +144,7 @@ export default function RolesPage() {
           </Box>
         )}
 
-        {!loading && roles && roles.length > 0 && (
+        {!loading && filteredRoles && filteredRoles.length > 0 && (
           <TableContainer component={Paper} elevation={0}>
             <Table size="small" aria-label="roles table">
               <TableHead>
@@ -163,7 +157,7 @@ export default function RolesPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {roles.map((r) => (
+                {filteredRoles.map((r) => (
                   <TableRow key={r.id} hover>
                     <TableCell>{r.name}</TableCell>
                     <TableCell>{r.description || "—"}</TableCell>
