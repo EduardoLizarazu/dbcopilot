@@ -19,7 +19,6 @@ import {
   Switch,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useFeedbackContext } from "@/contexts/feedback.context";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { CreateNlqQaGoodAction } from "@/_actions/nlq-qa-good/create.action";
 import { InfoExtractorAction } from "@/_actions/nlq-qa-info/execute-query.action";
