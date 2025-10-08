@@ -27,19 +27,13 @@ export default function VbdSplitterClient({
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
-  const [isUpdate, setIsUpdate] = React.useState(false);
-
-  if (initial) {
-    setName(initial.name);
-    setIsUpdate(true);
-  }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
     setLoading(true);
-    if (isUpdate) {
+    if (initial) {
       await onUpdate(e);
     } else {
       await onCreate(e);
@@ -133,7 +127,7 @@ export default function VbdSplitterClient({
               >
                 {loading ? (
                   <CircularProgress size={22} />
-                ) : isUpdate ? (
+                ) : initial ? (
                   "Update"
                 ) : (
                   "Create"
