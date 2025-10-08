@@ -112,7 +112,10 @@ export class UpdateVbdSplitterController implements IController {
       // ==== BUSINESS LOGIC USE CASES ====
       const useCase = await this.updateVbdSplitterUseCase.execute(
         httpRequest.params.id,
-        httpRequest.body
+        {
+          ...httpRequest.body,
+          actorId: decoded.uid,
+        }
       );
       this.logger.info(
         "[ReadVbdSplitterByIdController] UseCase executed successfully",

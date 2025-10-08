@@ -16,7 +16,7 @@ export async function UpdateVbdSplitterAction(
     id
   );
 
-  const vbdSplitterRes = await fetch(`${domain}/api/vbd-splitters/${id}`, {
+  const vbdSplitterRes = await fetch(`${domain}/api/vbd-splitter/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

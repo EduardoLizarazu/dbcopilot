@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const VbdSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   name: z.string().min(2).max(100),
   createdBy: z.string().min(2).max(100),
   updatedBy: z.string().min(2).max(100),

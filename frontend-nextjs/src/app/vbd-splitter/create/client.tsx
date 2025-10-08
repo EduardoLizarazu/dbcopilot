@@ -71,6 +71,7 @@ export default function VbdSplitterClient({
       const formattedName = formatName(name); // Apply formatting to the name
       // Assuming UpdateVbdSplitterAction is imported and available
       const res = await UpdateVbdSplitterAction(initial!.id, {
+        id: initial!.id,
         name: formattedName,
       });
       if (res) {
@@ -95,7 +96,7 @@ export default function VbdSplitterClient({
   return (
     <Box className="max-w-2xl mx-auto">
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        Create VBD Splitter
+        {initial ? "Update" : "Create"} VBD Splitter
       </Typography>
 
       <Paper elevation={1} className="p-4 sm:p-6">

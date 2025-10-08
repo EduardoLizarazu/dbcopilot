@@ -44,6 +44,11 @@ export class UpdateVbdSplitterUseCase implements IUpdateVbdSplitterUseCase {
     data: TVbdInRequestDto
   ): Promise<TResponseDto<TVbdOutRequestDto>> {
     try {
+      this.logger.info(
+        `[UpdateVbdSplitterUseCase] Updating VBD Splitter with ID: ${id}`,
+        data
+      );
+
       // 1. Validate input data
       const validData = await vbdInRequestSchema.safeParseAsync(data);
       if (!validData.success) {
@@ -70,6 +75,11 @@ export class UpdateVbdSplitterUseCase implements IUpdateVbdSplitterUseCase {
         };
       }
 
+      this.logger.info(
+        `[UpdateVbdSplitterUseCase] Existing VBD Splitter found: ${existingVbd.name}`,
+        existingVbd
+      );
+
       //   3. Check if the name is the same as before
       if (existingVbd.name === data.name) {
         this.logger.info(
@@ -84,9 +94,9 @@ export class UpdateVbdSplitterUseCase implements IUpdateVbdSplitterUseCase {
 
       //   4. Check if the name is unique
       const isNameUnique = await this.vbdSplitterRepo.findByName(data.name);
-      if (!isNameUnique) {
+      if (isNameUnique && isNameUnique.name === data.name) {
         this.logger.error(
-          `[UpdateVbdSplitterUseCase] VBD Splitter name must be unique: ${data.name}`
+          `[UpdateVbdSplitterUseCase] VBD Splitter name must be unique: ${data.name} and ${existingVbd.name}`
         );
         return {
           success: false,
@@ -111,21 +121,27 @@ export class UpdateVbdSplitterUseCase implements IUpdateVbdSplitterUseCase {
         );
         return {
           success: false,
-          message: "Invalid VBD Splitter update data",
+          message:
+            "Invalid VBD Splitter update data " +
+            JSON.stringify(updateValidDate.error),
           data: null,
         };
       }
 
       //   === UPDATE NAMESPACE IN KNOWLEDGE SOURCE ===
-      // 7. Delete all knowledge entries under the old namespace
-      await this.knowledgePort.deleteAllBySplitter(existingVbd.name);
 
       // 8. Create new knowledge entries under the new namespace
       const nlqGoods = await this.nlqGoodRepo.findAllWithUserAndConn();
       const nlqGoodsToUpdate = nlqGoods.filter(
         (nlq) =>
-          nlq.dbConnection.id_vbd_splitter === existingVbd.id &&
-          nlq.isOnKnowledgeSource === true
+          nlq?.dbConnection &&
+          nlq?.dbConnection?.id_vbd_splitter &&
+          nlq?.dbConnection?.id_vbd_splitter === existingVbd.id &&
+          nlq?.isOnKnowledgeSource === true
+      );
+      this.logger.info(
+        `[UpdateVbdSplitterUseCase] Found ${nlqGoodsToUpdate.length} NLQ QA Good entries to update for VBD Splitter ID: ${existingVbd.id}`,
+        nlqGoodsToUpdate
       );
       for (const nlq of nlqGoodsToUpdate) {
         try {
@@ -162,6 +178,8 @@ export class UpdateVbdSplitterUseCase implements IUpdateVbdSplitterUseCase {
           data: null,
         };
       }
+      // 7. Delete all knowledge entries under the old namespace
+      await this.knowledgePort.deleteAllBySplitter(existingVbd.name);
 
       //   10. Return success response
       this.logger.info(
@@ -180,7 +198,7 @@ export class UpdateVbdSplitterUseCase implements IUpdateVbdSplitterUseCase {
       );
       return {
         success: false,
-        message: "Error updating VBD Splitter",
+        message: "Error updating VBD Splitter " + error.message,
         data: null,
       };
     }
