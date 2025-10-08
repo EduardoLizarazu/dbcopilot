@@ -16,6 +16,19 @@ export interface IUpdateNlqQaGoodUseCase {
   ): Promise<TResponseDto<TNlqQaGoodOutRequestDto>>;
 }
 
+/**
+ * Use case for updating an existing NLQ QA Good entry:
+ * 1. Validates the input data and ID.
+ * 2. Finds the existing NLQ QA Good entry by ID.
+ * 3. Ensures the associated database connection exists.
+ * 4. Handles knowledge base updates based on the isOnKnowledgeSource flag:
+ *  a. If false, removes the entry from the knowledge base.
+ * b. If true, deletes any existing entry and adds the updated entry to the knowledge base.
+ * 5. Updates the NLQ QA Good entry in the repository.
+ * 6. Retrieves the updated NLQ QA Good entry.
+ * 7. Returns the updated NLQ QA Good entry or an error message if any step fails.
+ */
+
 export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
   constructor(
     private readonly logger: ILogger,
@@ -69,7 +82,34 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
         };
       }
 
+      // 3. Ensure dbConnection exists if dbConnectionId is being updated
+      const dbConnWithVbdAndUser = await this.dbConnRepo.findWithVbdAndUserById(
+        data.dbConnectionId
+      );
+      if (!dbConnWithVbdAndUser) {
+        this.logger.error(
+          "[CreateNlqQaGoodUseCase] Database connection not found"
+        );
+        return {
+          success: false,
+          message: "Database connection not found",
+          data: null,
+        };
+      }
+      if (!dbConnWithVbdAndUser.vbd_splitter?.name) {
+        this.logger.error(
+          "[CreateNlqQaGoodUseCase] not found for the connection with vbd splitter"
+        );
+        return {
+          success: false,
+          message: "not found for the connection with vbd splitter",
+          data: null,
+        };
+      }
+
       // ==== KNOWLEDGE BASE SWITCHING LOGIC ====
+      // 4. Handle knowledge base update based on isOnKnowledgeSource flag
+      // 4.a. If isOnKnowledgeSource is false, remove from knowledge base
       if (!data.isOnKnowledgeSource) {
         // If isOnKnowledgeSource is false, remove from knowledge base
         await this.knowledgePort.delete(id);
@@ -77,33 +117,27 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
         data.knowledgeSourceId = ""; // Clear knowledgeSourceId
       }
 
-      // ==== UPDATE KNOWLEDGE BASED ON isOnKnowledgeSource ====
+      // 4.b. If isOnKnowledgeSource is true, delete existing and add in knowledge base
       if (data.isOnKnowledgeSource) {
-        // If isOnKnowledgeSource is true, ensure it's in the knowledge base
-        await this.knowledgePort.delete(id); // Remove existing entry if any
+        await this.knowledgePort.delete(id);
         await this.knowledgePort.create({
           id: id || existingNlqQaGood.id,
           nlqQaGoodId: id || existingNlqQaGood.id,
           question: data.question || existingNlqQaGood.question,
           query: data.query || existingNlqQaGood.query,
           tablesColumns: data.tablesColumns || existingNlqQaGood.tablesColumns,
+          namespace: dbConnWithVbdAndUser.vbd_splitter.name,
         });
         data.knowledgeSourceId =
-          data.knowledgeSourceId || existingNlqQaGood.knowledgeSourceId; // Retain existing if not provided
+          data.knowledgeSourceId || existingNlqQaGood.knowledgeSourceId;
         data.isOnKnowledgeSource = true; // Ensure it's true
       }
 
-      if (!data.isOnKnowledgeSource) {
-        await this.knowledgePort.delete(id);
-        data.knowledgeSourceId = "";
-        data.isOnKnowledgeSource = false;
-      }
-
-      // 2. Update NLQ QA Good
+      // 5. Update NLQ QA Good entry
       data.isDelete = false; // Ensure isDelete remains false on update
       await this.nlqQaGoodRepository.update(id, data);
 
-      // 3. Find updated NLQ QA Good
+      // 6. Find updated NLQ QA Good
       const updatedNlqQaGood = await this.nlqQaGoodRepository.findById(id);
       this.logger.info(
         `[UpdateNlqQaGoodUseCase] Successfully updated NLQ QA Good with ID: ${id}`,
@@ -117,7 +151,7 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
         };
       }
 
-      // 4. Return success response
+      // 7. Return success response
       return {
         data: updatedNlqQaGood,
         message: "NLQ QA Good updated successfully",
