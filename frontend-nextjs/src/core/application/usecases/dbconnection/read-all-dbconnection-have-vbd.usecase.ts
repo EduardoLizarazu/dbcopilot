@@ -17,14 +17,21 @@ export class ReadAllDbConnectionHaveVbdUseCase
 
   async execute(): Promise<TResponseDto<TDbConnectionOutRequestDtoWithVbd[]>> {
     try {
+      // 1. Fetch all DB connections that have VBD
       const dbConnections = await this.dbConnRepo.findAllHaveVbd();
       this.logger.info(
         "[ReadAllDbConnectionHaveVbdUseCase] DB connections fetched successfully",
         dbConnections
       );
+
+      // 3. Return the list of DB connections with VBD
+      const filteredDbConnections = dbConnections.filter(
+        (conn) => conn.vbd_splitter !== undefined || conn.vbd_splitter !== null
+      );
+
       return {
         success: true,
-        data: dbConnections,
+        data: filteredDbConnections,
         message: "DB connections fetched successfully",
       };
     } catch (error) {
