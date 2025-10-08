@@ -64,3 +64,7 @@ export type TDbConnectionOutRequestDtoWithVbAndUser =
     vbd_splitter: TVbdOutRequestDto | null;
     user: { id: string; email: string } | null;
   };
+
+export type TDbConnectionOutRequestDtoWithVbd = TDbConnectionOutRequestDto & {
+  vbd_splitter: TVbdOutRequestDto;
+};

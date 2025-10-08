@@ -1,6 +1,7 @@
 import {
   TCreateDbConnectionDto,
   TDbConnectionOutRequestDto,
+  TDbConnectionOutRequestDtoWithVbd,
   TDbConnectionOutRequestDtoWithVbAndUser,
   TUpdateDbConnectionDto,
 } from "../dtos/dbconnection.dto";
@@ -20,4 +21,8 @@ export interface IDbConnectionRepository
   findWithVbdAndUserById(
     id: string
   ): Promise<TDbConnectionOutRequestDtoWithVbAndUser | null>;
+  findAllHaveVbd(): Promise<TDbConnectionOutRequestDtoWithVbd[]>;
+  findHaveVbdById(
+    id: string
+  ): Promise<TDbConnectionOutRequestDtoWithVbd | null>;
 }

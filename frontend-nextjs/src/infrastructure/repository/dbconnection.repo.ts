@@ -6,6 +6,7 @@ import {
   TCreateDbConnectionDto,
   TDbConnectionOutRequestDtoWithVbAndUser,
   TUpdateDbConnectionDto,
+  TDbConnectionOutRequestDtoWithVbd,
 } from "@/core/application/dtos/dbconnection.dto";
 import { TVbdOutRequestDto } from "@/core/application/dtos/vbd.dto";
 
@@ -14,6 +15,7 @@ export class DbConnectionRepository implements IDbConnectionRepository {
     private readonly logger: ILogger,
     private firebaseAdmin: FirebaseAdminProvider
   ) {}
+
   async create(data: TCreateDbConnectionDto): Promise<string> {
     try {
       this.logger.info("Creating DB Connection:", { ...data });
@@ -313,6 +315,100 @@ export class DbConnectionRepository implements IDbConnectionRepository {
         error: errorMessage,
       });
       throw new Error(`Failed to find DB Connection by name: ${errorMessage}`);
+    }
+  }
+  async findAllHaveVbd(): Promise<TDbConnectionOutRequestDtoWithVbd[]> {
+    try {
+      this.logger.info(
+        "[DbConnectionRepository] Finding all DB Connections with VBD"
+      );
+      // 1. Get all db connections
+      const db = await this.findAll();
+      if (db.length === 0) {
+        this.logger.info(
+          "[DbConnectionRepository] No DB Connections found with VBD"
+        );
+        return [];
+      }
+
+      // 2. For each db connection, get associated VBD Splitter and User (if any)
+      const results: TDbConnectionOutRequestDtoWithVbd[] = [];
+      for (const dbConn of db) {
+        let vbd: TVbdOutRequestDto | null = null;
+        if (dbConn.id_vbd_splitter) {
+          const vbdDoc = await this.firebaseAdmin.db
+            .collection(this.firebaseAdmin.coll.VBD_SPLITTERS)
+            .doc(dbConn.id_vbd_splitter)
+            .get();
+          if (vbdDoc.exists) {
+            vbd = {
+              id: vbdDoc.id,
+              ...vbdDoc.data(),
+            } as TVbdOutRequestDto;
+            results.push({
+              ...dbConn,
+              vbd_splitter: vbd,
+            });
+          }
+        }
+      }
+      return results || [];
+    } catch (error) {
+      const errorMessage =
+        error.errorMessage || error.message || JSON.stringify(error);
+      this.logger.error(
+        "[DbConnectionRepository] Failed to find all DB Connections with VBD:",
+        {
+          error: errorMessage,
+        }
+      );
+      throw new Error(
+        `Failed to find all DB Connections with VBD: ${errorMessage}`
+      );
+    }
+  }
+  async findHaveVbdById(
+    id: string
+  ): Promise<TDbConnectionOutRequestDtoWithVbd | null> {
+    try {
+      // 1. Get DB connection by ID
+      const dbConn = await this.findById(id);
+      if (!dbConn) {
+        this.logger.info("No DB Connection found with VBD by ID:", { id });
+        return null;
+      }
+      // 2. Get associated VBD Splitter with dbConn.id_vbd_splitter
+      const db = this.firebaseAdmin.db;
+      let vbd: TVbdOutRequestDto | null = null;
+      let dbConnWithVbd: TDbConnectionOutRequestDtoWithVbd | null = null;
+      if (dbConn.id_vbd_splitter) {
+        const vbdDoc = await db
+          .collection(this.firebaseAdmin.coll.VBD_SPLITTERS)
+          .doc(dbConn.id_vbd_splitter)
+          .get();
+        if (vbdDoc.exists) {
+          vbd = {
+            id: vbdDoc.id,
+            ...vbdDoc.data(),
+          } as TVbdOutRequestDto;
+          dbConnWithVbd = {
+            ...dbConn,
+            vbd_splitter: vbd,
+          };
+          return dbConnWithVbd;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      const errorMessage =
+        error.errorMessage || error.message || JSON.stringify(error);
+      this.logger.error("Failed to find DB Connection with VBD by ID:", {
+        error: errorMessage,
+      });
+      throw new Error(
+        `Failed to find DB Connection with VBD by ID: ${errorMessage}`
+      );
     }
   }
 }
