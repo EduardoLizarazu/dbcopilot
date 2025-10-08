@@ -8,7 +8,6 @@ export async function DeleteRoleAction(id: string): Promise<void> {
   const roleRes = await fetch(`${domain}/api/roles/${id}`, {
     method: "DELETE",
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${await readTokenFromCookie()}`,
     },
   });
