@@ -2,14 +2,8 @@ import { z } from "zod";
 import { TNlqQaFeedbackOutRequestDto } from "./nlq-qa-feedback.app.dto";
 import { TUserOutputRequestDto } from "../user.app.dto";
 import { TNlqQaErrorOutRequestDto } from "./nlq-qa-error.app.dto";
-import {
-  TDbConnectionOutRequestDto,
-  TDbConnectionOutRequestDtoWithVbAndUser,
-} from "../dbconnection.dto";
-import {
-  TNlqQaGoodOutRequestDto,
-  TNlqQaGoodOutWithUserRequestDto,
-} from "./nlq-qa-good.app.dto";
+import { TDbConnectionOutRequestDto } from "../dbconnection.dto";
+import { TNlqQaGoodOutRequestDto } from "./nlq-qa-good.app.dto";
 
 export const nlqQaSchema = z.object({
   id: z.string(),
