@@ -11,7 +11,6 @@ export async function DeleteUserAction(
   const userRes = await fetch(`${domain}/api/users/${id}`, {
     method: "DELETE",
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${await readTokenFromCookie()}`,
     },
   });

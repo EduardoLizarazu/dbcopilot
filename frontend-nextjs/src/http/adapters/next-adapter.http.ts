@@ -33,7 +33,11 @@ export async function nextAdapter(
   let body = null;
 
   // Parse body only for non-GET requests
-  if (request.method !== "GET") {
+  if (
+    request.method !== "GET" &&
+    request.method !== "HEAD" &&
+    request.method !== "DELETE"
+  ) {
     body = await request.json().catch(() => null);
     console.log("[next adapter] Parsed body:", body);
 
