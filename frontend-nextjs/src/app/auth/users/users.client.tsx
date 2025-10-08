@@ -17,14 +17,15 @@ import {
   TableContainer,
   CircularProgress,
   Tooltip,
+  Alert,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import { deleteUserAction } from "@/controller/_actions/user/delete";
 import { TUserOutRequestWithRoles } from "@/core/application/dtos/user.app.dto";
 import { ReadAllUserAction } from "@/_actions/users/read-all.action";
+import { DeleteUserAction } from "@/_actions/users/delete.action";
 
 export default function UsersClient({
   initialUsers,
@@ -56,7 +57,7 @@ export default function UsersClient({
     const yes = window.confirm("Remove this user? This cannot be undone.");
     if (!yes) return;
     try {
-      await deleteUserAction(id);
+      await DeleteUserAction(id);
       const data = await ReadAllUserAction();
       setUsers(data.data || []);
     } catch (e: any) {
@@ -94,9 +95,9 @@ export default function UsersClient({
         </Box>
 
         {error && (
-          <Typography color="error" sx={{ mb: 2 }}>
+          <Alert color="error" sx={{ mb: 2 }}>
             {error}
-          </Typography>
+          </Alert>
         )}
 
         {loading && (

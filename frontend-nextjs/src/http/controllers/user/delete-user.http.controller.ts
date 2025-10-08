@@ -11,6 +11,7 @@ import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
 import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
 import { ROLE } from "@/http/utils/role.enum";
 import { IDeleteUserUseCase } from "@/core/application/usecases/user/delete-user.usecase";
+import { http } from "winston";
 
 export class DeleteUserController implements IController {
   constructor(
@@ -21,9 +22,7 @@ export class DeleteUserController implements IController {
     private httpErrors: IHttpErrors = new HttpErrors(),
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
-  async handle(
-    httpRequest: IHttpRequest<{ id: string }>
-  ): Promise<IHttpResponse> {
+  async handle(httpRequest: IHttpRequest<null>): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info("[DeleteUserController] Handling request", httpRequest);
@@ -83,23 +82,17 @@ export class DeleteUserController implements IController {
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      //   ==== INPUT BODY ====
-      if (!httpRequest.body) {
+      //   ==== PARAMS  ====
+      if (!httpRequest.params) {
         this.logger.error(
-          "[DeleteUserController] No body provided",
+          "[DeleteUserController] Missing request params",
           httpRequest
         );
-        const error = this.httpErrors.error_400("No body provided");
+        const error = this.httpErrors.error_400("Missing request params");
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      this.logger.info(
-        "[DeleteUserController] Received body:",
-        httpRequest.body
-      );
-
-      const body = httpRequest.body;
-      const user = await this.deleteUserUseCase.execute(body.id);
+      const user = await this.deleteUserUseCase.execute(httpRequest.params.id);
 
       if (!user.success) {
         this.logger.error("[DeleteUserController] User deletion failed:", user);
