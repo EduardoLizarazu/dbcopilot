@@ -7,6 +7,7 @@ import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaGoodRepository } from "@/core/application/interfaces/nlq/nlq-qa-good.app.inter";
 import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
+import { DbConnectionRepository } from "@/infrastructure/repository/dbconnection.repo";
 
 export interface IUpdateNlqQaGoodUseCase {
   execute(
@@ -19,6 +20,7 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly nlqQaGoodRepository: INlqQaGoodRepository,
+    private readonly dbConnRepo: DbConnectionRepository,
     private readonly knowledgePort: INlqQaKnowledgePort
   ) {}
   async execute(

@@ -25,6 +25,8 @@ import { InfoExtractorAction } from "@/_actions/nlq-qa-info/execute-query.action
 import { TNlqQaGoodOutWithUserAndConnRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
+import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
+import { set } from "zod";
 
 export default function NlqClient({
   initial,
@@ -106,6 +108,8 @@ export default function NlqClient({
       await CreateNlqQaGoodAction({
         question: nlq?.question?.trim() || "",
         query: nlq?.query?.trim() || "",
+        dbConnectionId: nlq?.dbConnectionId || "",
+        isOnKnowledgeSource: nlq?.isOnKnowledgeSource || false,
       });
       setFeedback({
         isActive: true,
@@ -124,7 +128,53 @@ export default function NlqClient({
     }
   };
 
+  const onUpdate = async () => {
+    if (disabledSave) return;
+    setSaving(true);
+    try {
+      await UpdateNlqQaGoodAction({
+        question: nlq?.question?.trim() || "",
+        query: nlq?.query?.trim() || "",
+        dbConnectionId: nlq?.dbConnectionId || "",
+        isOnKnowledgeSource: nlq?.isOnKnowledgeSource || false,
+      });
+      setFeedback({
+        isActive: true,
+        severity: "success",
+        message: "NLQ updated & uploaded.",
+      });
+      router.push("/nlq-good");
+    } catch (e: any) {
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: e?.message ?? "Update failed",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const onCancel = () => router.push("/nlq-good");
+
+  const onSubmit = async () => {
+    try {
+      if (!nlq) return;
+
+      if (initial) {
+        onUpdate();
+      } else {
+        // Create logic
+        await onSave();
+      }
+    } catch (error) {
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: `Error: ${error}`,
+      });
+    }
+  };
 
   return (
     <Box className="max-w-5xl mx-auto px-4 py-6">
@@ -216,7 +266,7 @@ export default function NlqClient({
             </Button>
             <Button
               variant="contained"
-              onClick={onSave}
+              onClick={onSubmit}
               disabled={disabledSave}
             >
               {saving ? <CircularProgress size={18} /> : "Save"}

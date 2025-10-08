@@ -1,7 +1,5 @@
 import {
-  createNlqQaGoodSchema,
   nlqQaGoodInRequestSchema,
-  TCreateNlqQaGoodDto,
   TNlqQaGoodInRequestDto,
   TNlqQaGoodOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
