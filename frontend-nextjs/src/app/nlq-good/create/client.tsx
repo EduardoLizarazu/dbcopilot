@@ -133,6 +133,12 @@ export default function NlqClient({
         Create NLQ (Admin)
       </Typography>
 
+      {feedback.isActive && (
+        <Alert sx={{ mb: 2 }} severity={feedback.severity}>
+          {feedback.message}
+        </Alert>
+      )}
+
       <Paper className="p-4" elevation={1}>
         <Stack spacing={2}>
           {/* DB Connections */}
