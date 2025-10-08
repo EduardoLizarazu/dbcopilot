@@ -87,11 +87,12 @@ export default function NlqGoodClient({
   };
 
   // UPLOAD: immediate, general_* = ""
-  const onUpload = async (nlqId: string) => {
+  const onUpload = async (nlqId: string, dbConnectionId: string) => {
     markUploading(nlqId, true);
     try {
       await UpdateNlqQaGoodAction({
         id: nlqId,
+        dbConnectionId: dbConnectionId,
         isOnKnowledgeSource: true,
       });
       setFeedback({
@@ -112,12 +113,13 @@ export default function NlqGoodClient({
   };
 
   // DELETE: immediate (no confirm)
-  const onDelete = async (nlqId: string) => {
+  const onDelete = async (nlqId: string, dbConnectionId: string) => {
     markDeleting(nlqId, true);
     try {
       await UpdateNlqQaGoodAction({
         id: nlqId,
         isOnKnowledgeSource: false,
+        dbConnectionId: dbConnectionId,
       });
       setFeedback({
         isActive: true,
@@ -372,7 +374,9 @@ export default function NlqGoodClient({
                             >
                               <span>
                                 <IconButton
-                                  onClick={() => onDelete(r.id)}
+                                  onClick={() =>
+                                    onDelete(r.id, r.dbConnectionId)
+                                  }
                                   size="small"
                                   aria-label="delete"
                                   disabled={isDeleting}
@@ -396,7 +400,7 @@ export default function NlqGoodClient({
                           >
                             <span>
                               <IconButton
-                                onClick={() => onUpload(r.id)}
+                                onClick={() => onUpload(r.id, r.dbConnectionId)}
                                 size="small"
                                 aria-label="upload"
                                 disabled={isUploading}
