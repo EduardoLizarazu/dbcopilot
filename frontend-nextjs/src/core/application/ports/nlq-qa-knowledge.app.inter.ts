@@ -18,6 +18,6 @@ export interface INlqQaKnowledgePort
     namespace: string;
     question: string;
   }): Promise<TNlqQaKnowledgeOutRequestDto[]>;
-  updateNamespace(prevName: string, newName: string): Promise<void>;
+  deleteAllBySplitter(splitterName: string): Promise<void>;
   deleteSplitter(id: string, splitter_name: string): Promise<void>;
 }

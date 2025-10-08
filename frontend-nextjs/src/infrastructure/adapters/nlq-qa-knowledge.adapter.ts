@@ -14,9 +14,9 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
     private readonly pineconeProvider: PineconeProvider,
     private readonly openaiProvider: OpenAIProvider
   ) {}
-  async updateNamespace(prevName: string, newName: string): Promise<void> {
+  async deleteAllBySplitter(splitterName: string): Promise<void> {
     try {
-      throw new Error("Method not implemented.");
+      await this.pineconeProvider.getIndex().deleteNamespace(splitterName);
     } catch (error) {
       this.logger.error("Error updating namespace", {
         message: error instanceof Error ? error.message : "Unknown error",

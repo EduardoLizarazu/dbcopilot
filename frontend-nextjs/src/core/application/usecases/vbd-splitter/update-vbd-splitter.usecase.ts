@@ -117,10 +117,33 @@ export class UpdateVbdSplitterUseCase implements IUpdateVbdSplitterUseCase {
       }
 
       //   === UPDATE NAMESPACE IN KNOWLEDGE SOURCE ===
-      // 7. Update namespace in knowledge source
-      const prevName = existingVbd.name;
-      const newName = updateDto.name;
-      await this.knowledgePort.updateNamespace(prevName, newName);
+      // 7. Delete all knowledge entries under the old namespace
+      await this.knowledgePort.deleteAllBySplitter(existingVbd.name);
+
+      // 8. Create new knowledge entries under the new namespace
+      const nlqGoods = await this.nlqGoodRepo.findAllWithUserAndConn();
+      const nlqGoodsToUpdate = nlqGoods.filter(
+        (nlq) =>
+          nlq.dbConnection.id_vbd_splitter === existingVbd.id &&
+          nlq.isOnKnowledgeSource === true
+      );
+      for (const nlq of nlqGoodsToUpdate) {
+        try {
+          await this.knowledgePort.create({
+            id: nlq.id,
+            nlqQaGoodId: nlq.id,
+            question: nlq.question,
+            query: nlq.query,
+            tablesColumns: nlq.tablesColumns,
+            namespace: data.name,
+          });
+        } catch (error) {
+          this.logger.error(
+            `[UpdateVbdSplitterUseCase] Error re-adding NLQ QA Good to knowledge source with ID: ${nlq.id}`,
+            error instanceof Error ? error.message : error
+          );
+        }
+      }
 
       //   === END UPDATE NAMESPACE IN KNOWLEDGE SOURCE ===
 
