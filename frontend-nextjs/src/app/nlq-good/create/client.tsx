@@ -26,7 +26,7 @@ import { TNlqQaGoodOutWithUserAndConnRequestDto } from "@/core/application/dtos/
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
-import { set } from "zod";
+import { create } from "axios";
 
 export default function NlqClient({
   initial,
@@ -37,7 +37,46 @@ export default function NlqClient({
 
   const [nlq, setNlq] =
     React.useState<TNlqQaGoodOutWithUserAndConnRequestDto | null>(
-      initial || null
+      initial || {
+        id: "",
+        question: "",
+        query: "",
+        originId: "",
+        dbConnectionId: "",
+        knowledgeSourceId: "",
+        isOnKnowledgeSource: false,
+        detailQuestion: "",
+        think: "",
+        tablesColumns: [],
+        semanticFields: [],
+        semanticTables: [],
+        flags: [],
+        isDelete: false,
+        questionBy: "",
+        createdBy: "",
+        updatedBy: "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: { id: "", email: "" },
+        dbConnection: {
+          id: "",
+          id_vbd_splitter: "",
+          name: "",
+          description: "",
+          type: "mysql",
+          host: "",
+          port: 0,
+          database: "",
+          username: "",
+          password: "",
+          sid: null,
+          schema_query: "",
+          createdBy: "",
+          updatedBy: "",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      }
     );
 
   const [dbConn, setDbConn] = React.useState<
@@ -106,8 +145,8 @@ export default function NlqClient({
     setSaving(true);
     try {
       await CreateNlqQaGoodAction({
-        question: nlq?.question?.trim() || "",
-        query: nlq?.query?.trim() || "",
+        question: nlq?.question?.trimStart().trimEnd().toLowerCase() || "",
+        query: nlq?.query?.trimStart().trimEnd().toLowerCase() || "",
         dbConnectionId: nlq?.dbConnectionId || "",
         isOnKnowledgeSource: nlq?.isOnKnowledgeSource || false,
       });
@@ -133,8 +172,9 @@ export default function NlqClient({
     setSaving(true);
     try {
       await UpdateNlqQaGoodAction({
-        question: nlq?.question?.trim() || "",
-        query: nlq?.query?.trim() || "",
+        id: nlq?.id || "",
+        question: nlq?.question?.trimStart().trimEnd().toLowerCase() || "",
+        query: nlq?.query?.trimStart().trimEnd().toLowerCase() || "",
         dbConnectionId: nlq?.dbConnectionId || "",
         isOnKnowledgeSource: nlq?.isOnKnowledgeSource || false,
       });
@@ -162,7 +202,7 @@ export default function NlqClient({
       if (!nlq) return;
 
       if (initial) {
-        onUpdate();
+        await onUpdate();
       } else {
         // Create logic
         await onSave();
@@ -171,7 +211,7 @@ export default function NlqClient({
       setFeedback({
         isActive: true,
         severity: "error",
-        message: `Error: ${error}`,
+        message: `Error: ${error.message || "Submission failed"}`,
       });
     }
   };
@@ -179,7 +219,7 @@ export default function NlqClient({
   return (
     <Box className="max-w-5xl mx-auto px-4 py-6">
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        Create NLQ (Admin)
+        {initial ? `Update ` : `Create `} NLQ (Admin)
       </Typography>
 
       {feedback.isActive && (
