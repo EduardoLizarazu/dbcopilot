@@ -54,15 +54,24 @@ export class UpdateRoleUseCaseRepo implements IUpdateRoleUseCase {
         };
       }
 
-      // logger
-
-      // 2. Check if role exists by name
-      const existingRole = await this.roleRepository.findByName(data.name);
-      if (!existingRole) {
-        this.logger.warn("[UpdateRoleUseCase] Role not found");
+      // 2. Find if role exists by id
+      const existingRoleById = await this.roleRepository.findById(id);
+      if (!existingRoleById) {
+        this.logger.warn("[UpdateRoleUseCase] Role not found by ID");
         return {
           success: false,
           message: RoleAppEnum.roleNotFound,
+          data: null,
+        };
+      }
+
+      // 3. Check if role name already exists
+      const existingRoleName = await this.roleRepository.findByName(data.name);
+      if (existingRoleName && existingRoleName.name !== existingRoleById.name) {
+        this.logger.warn("[UpdateRoleUseCase] Role name already exists");
+        return {
+          success: false,
+          message: RoleAppEnum.roleAlreadyExists,
           data: null,
         };
       }
