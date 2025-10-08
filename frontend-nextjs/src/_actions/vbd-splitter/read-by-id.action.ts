@@ -12,7 +12,7 @@ export async function ReadVbdSplitterByIdAction(
     id
   );
 
-  const vbdSplitterRes = await fetch(`${domain}/api/vbd-splitters/${id}`, {
+  const vbdSplitterRes = await fetch(`${domain}/api/vbd-splitter/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -23,13 +23,11 @@ export async function ReadVbdSplitterByIdAction(
 
   if (!vbdSplitterRes.ok) {
     const errorData = await vbdSplitterRes.json();
-    console.error(
+    console.warn(
       "[ReadVbdSplitterByIdAction] Error reading VBD Splitter:",
       errorData.message || vbdSplitterRes.statusText
     );
-    throw new Error(
-      `Failed to read VBD Splitter: ${errorData.message || vbdSplitterRes.statusText}`
-    );
+    return errorData;
   }
 
   const vbdSplitterData = await vbdSplitterRes.json();

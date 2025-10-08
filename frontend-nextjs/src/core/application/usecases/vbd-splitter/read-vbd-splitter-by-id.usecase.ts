@@ -15,6 +15,9 @@ export class ReadVbdSplitterByIdUseCase implements IReadVbdSplitterByIdUseCase {
 
   async execute(id: string): Promise<TResponseDto<TVbdOutRequestDto>> {
     try {
+      this.logger.info(
+        `[ReadVbdSplitterUseCase] Retrieving VBD Splitter with ID: ${id}`
+      );
       const vbdSplitter = await this.vbdSplitterRepo.findById(id);
       if (!vbdSplitter) {
         return {
