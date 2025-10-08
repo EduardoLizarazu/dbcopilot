@@ -22,9 +22,7 @@ export class DeleteRoleController implements IController {
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
-  async handle(
-    httpRequest: IHttpRequest<{ id: string }>
-  ): Promise<IHttpResponse> {
+  async handle(httpRequest: IHttpRequest<null>): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info("[DeleteRoleController] Handling request", httpRequest);
