@@ -37,6 +37,21 @@ export default function UsersClient({
   const [error, setError] = React.useState<string | null>(null);
   const [q, setQ] = React.useState("");
 
+  // Filter users based on the query
+  const filteredUsers = users.filter((user) => {
+    const query = q.toLowerCase();
+    return (
+      user.name.toLowerCase().includes(query) ||
+      (user.lastname &&
+        `${user.name} ${user.lastname}`.toLowerCase().includes(query)) ||
+      user.email.toLowerCase().includes(query) ||
+      user.rolesDetail.some((role) =>
+        role.name.toLowerCase().includes(query)
+      ) ||
+      user.id.toLowerCase().includes(query)
+    );
+  });
+
   const onDelete = async (id: string) => {
     const yes = window.confirm("Remove this user? This cannot be undone.");
     if (!yes) return;
@@ -71,7 +86,7 @@ export default function UsersClient({
           <SearchIcon fontSize="small" />
           <TextField
             size="small"
-            placeholder="Search by name or email..."
+            placeholder="Search by name, email, roles, or ID..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
             fullWidth
@@ -90,7 +105,7 @@ export default function UsersClient({
           </Box>
         )}
 
-        {!loading && users.length === 0 && (
+        {!loading && filteredUsers.length === 0 && (
           <Box className="text-center py-16">
             <Typography variant="h6" fontWeight={700} gutterBottom>
               No users found
@@ -110,7 +125,7 @@ export default function UsersClient({
           </Box>
         )}
 
-        {!loading && users.length > 0 && (
+        {!loading && filteredUsers.length > 0 && (
           <TableContainer component={Paper} elevation={0}>
             <Table size="small" aria-label="users table">
               <TableHead>
@@ -118,14 +133,13 @@ export default function UsersClient({
                   <TableCell sx={{ fontWeight: 700 }}>Name</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Roles</TableCell>
-                  {/* comma-separated */}
                   <TableCell align="right" sx={{ fontWeight: 700 }}>
                     Actions
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {users.map((u) => (
+                {filteredUsers.map((u) => (
                   <TableRow key={u.id} hover>
                     <TableCell>
                       {u.lastname ? `${u.name} ${u.lastname}` : u.name || "—"}
