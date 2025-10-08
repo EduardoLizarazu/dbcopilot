@@ -1,10 +1,10 @@
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
-import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
+import { TUserOutRequestWithRoles } from "@/core/application/dtos/user.app.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function ReadAllUserAction(): Promise<
-  TResOutContent<TRoleOutRequestDto[]>
+  TResOutContent<TUserOutRequestWithRoles[]>
 > {
   console.log("Reading all users...");
 

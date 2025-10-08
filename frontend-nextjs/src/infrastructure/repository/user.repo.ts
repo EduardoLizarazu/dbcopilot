@@ -17,6 +17,7 @@ import {
   TCreateUserDto,
   TUserOutputRequestDto,
   TUpdateUserDto,
+  TUserOutRequestWithRoles,
 } from "@/core/application/dtos/user.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
@@ -26,6 +27,52 @@ export class UserRepository implements IUserRepository {
     private firebaseAdmin: FirebaseAdminProvider,
     private firebaseClient: FirebaseClientProvider
   ) {}
+  async findAllWithRoles(): Promise<TUserOutRequestWithRoles[]> {
+    try {
+      // Read all users
+      const db = this.firebaseAdmin.db;
+      const usersSnapshot = await db
+        .collection(this.firebaseAdmin.coll.NLQ_USERS)
+        .get();
+
+      if (usersSnapshot.empty) {
+        this.logger.info("[UserRepository] No users found");
+        return [];
+      }
+
+      // Iterate through users and fetch roles for each users with users.roles array and iterate over that array to the get the roles id and fetch them
+      const usersWithRoles: TUserOutRequestWithRoles[] = [];
+      for (const userDoc of usersSnapshot.docs) {
+        const userData = userDoc.data() as TUserOutputRequestDto;
+        const roles: { id: string; name: string }[] = [];
+        if (Array.isArray(userData.roles) && userData.roles.length > 0) {
+          for (const roleId of userData.roles) {
+            const roleDoc = await db
+              .collection(this.firebaseAdmin.coll.NLQ_ROLES)
+              .doc(roleId)
+              .get();
+            if (roleDoc.exists) {
+              const roleData = roleDoc.data();
+              roles.push({ id: roleDoc.id, name: roleData?.name || "" });
+            }
+          }
+        }
+        usersWithRoles.push({
+          id: userDoc.id,
+          ...userData,
+          rolesDetail: roles,
+        } as TUserOutRequestWithRoles);
+      }
+
+      return usersWithRoles;
+    } catch (error) {
+      this.logger.error(
+        "[UserRepository] Error finding all users with roles:",
+        error.message
+      );
+      throw new Error("Error finding all users with roles: " + error.message);
+    }
+  }
   async findAllByEmail(email: string): Promise<TUserOutputRequestDto[]> {
     try {
       const db = this.firebaseAdmin.db;

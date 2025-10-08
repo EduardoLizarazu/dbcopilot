@@ -25,3 +25,10 @@ export type TUserInputRequestDto = z.infer<typeof userSchema>;
 // User Output Request DTO
 export const userOutputRequestSchema = userSchema.omit({ password: true });
 export type TUserOutputRequestDto = z.infer<typeof userOutputRequestSchema>;
+
+export type TUserOutRequestWithRoles = TUserOutputRequestDto & {
+  rolesDetail: {
+    id: string;
+    name: string;
+  }[];
+};

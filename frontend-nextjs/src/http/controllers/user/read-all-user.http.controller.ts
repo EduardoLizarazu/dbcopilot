@@ -67,7 +67,7 @@ export class ReadAllUserController implements IController {
       //   5. Check roles permissions
       const { hasAuth } = await this.accessRepo.hasRoles({
         ctxRoleNames: roleNames.roleNames,
-        requiredRoleNames: [ROLE.ADMIN],
+        requiredRoleNames: [],
       });
 
       if (!hasAuth) {

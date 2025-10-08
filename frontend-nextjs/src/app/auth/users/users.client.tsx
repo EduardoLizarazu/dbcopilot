@@ -3,46 +3,47 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  Box, Paper, Typography, TextField, IconButton, Button,
-  Table, TableHead, TableRow, TableCell, TableBody, TableContainer,
-  CircularProgress, Tooltip
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  IconButton,
+  Button,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TableContainer,
+  CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import { listUsersAction, type UserRow } from "@/controller/_actions/user/list";
 import { deleteUserAction } from "@/controller/_actions/user/delete";
+import { TUserOutRequestWithRoles } from "@/core/application/dtos/user.app.dto";
+import { ReadAllUserAction } from "@/_actions/users/read-all.action";
 
-export default function UsersClient({ initialUsers }: { initialUsers: UserRow[] }) {
-  const [users, setUsers] = React.useState<UserRow[]>(initialUsers);
+export default function UsersClient({
+  initialUsers,
+}: {
+  initialUsers: TUserOutRequestWithRoles[];
+}) {
+  const [users, setUsers] =
+    React.useState<TUserOutRequestWithRoles[]>(initialUsers);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [q, setQ] = React.useState("");
-
-  React.useEffect(() => {
-    const id = setTimeout(async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await listUsersAction(q);
-        setUsers(data);
-      } catch (e: any) {
-        setError(e?.message ?? "Search failed.");
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
-    return () => clearTimeout(id);
-  }, [q]);
 
   const onDelete = async (id: string) => {
     const yes = window.confirm("Remove this user? This cannot be undone.");
     if (!yes) return;
     try {
       await deleteUserAction(id);
-      const data = await listUsersAction(q);
-      setUsers(data);
+      const data = await ReadAllUserAction();
+      setUsers(data.data || []);
     } catch (e: any) {
       setError(e?.message ?? "Failed to remove user.");
     }
@@ -51,7 +52,9 @@ export default function UsersClient({ initialUsers }: { initialUsers: UserRow[] 
   return (
     <Box className="max-w-7xl mx-auto">
       <Box className="flex items-center justify-between mb-4">
-        <Typography variant="h5" fontWeight={800}>Users</Typography>
+        <Typography variant="h5" fontWeight={800}>
+          Users
+        </Typography>
         <Button
           component={Link}
           href="/auth/users/create"
@@ -75,7 +78,11 @@ export default function UsersClient({ initialUsers }: { initialUsers: UserRow[] 
           />
         </Box>
 
-        {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
 
         {loading && (
           <Box className="flex items-center justify-center py-8">
@@ -110,16 +117,23 @@ export default function UsersClient({ initialUsers }: { initialUsers: UserRow[] 
                 <TableRow>
                   <TableCell sx={{ fontWeight: 700 }}>Name</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Roles</TableCell>{/* comma-separated */}
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>Actions</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Roles</TableCell>
+                  {/* comma-separated */}
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {users.map((u) => (
                   <TableRow key={u.id} hover>
-                    <TableCell>{u.lastname ? `${u.name} ${u.lastname}` : u.name || "—"}</TableCell>
+                    <TableCell>
+                      {u.lastname ? `${u.name} ${u.lastname}` : u.name || "—"}
+                    </TableCell>
                     <TableCell>{u.email || "—"}</TableCell>
-                    <TableCell>{u.roleNames || "—"}</TableCell>
+                    <TableCell>
+                      {u.rolesDetail.map((role) => role.name).join(", ") || "—"}
+                    </TableCell>
                     <TableCell align="right">
                       <Tooltip title="Edit">
                         <IconButton

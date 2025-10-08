@@ -1,11 +1,11 @@
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
-import { TUserOutputRequestDto } from "../../dtos/user.app.dto";
+import { TUserOutRequestWithRoles } from "../../dtos/user.app.dto";
 import { IUserRepository } from "../../interfaces/auth/user.app.inter";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { UserAppEnum } from "../../enums/user.app.enum";
 
 export interface IReadAllUserUseCase {
-  execute(): Promise<TResponseDto<TUserOutputRequestDto[]>>;
+  execute(): Promise<TResponseDto<TUserOutRequestWithRoles[]>>;
 }
 
 export class ReadAllUserUseCase implements IReadAllUserUseCase {
@@ -14,9 +14,9 @@ export class ReadAllUserUseCase implements IReadAllUserUseCase {
     private readonly userRepository: IUserRepository
   ) {}
 
-  async execute(): Promise<TResponseDto<TUserOutputRequestDto[]>> {
+  async execute(): Promise<TResponseDto<TUserOutRequestWithRoles[]>> {
     try {
-      const users = await this.userRepository.findAll();
+      const users = await this.userRepository.findAllWithRoles();
       return {
         success: true,
         message: users.length
