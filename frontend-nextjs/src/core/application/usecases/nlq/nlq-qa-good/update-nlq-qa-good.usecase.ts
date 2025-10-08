@@ -112,14 +112,20 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
       // 4.a. If isOnKnowledgeSource is false, remove from knowledge base
       if (!data.isOnKnowledgeSource) {
         // If isOnKnowledgeSource is false, remove from knowledge base
-        await this.knowledgePort.delete(id);
+        await this.knowledgePort.deleteSplitter(
+          id,
+          dbConnWithVbdAndUser.vbd_splitter.name
+        );
         data.isOnKnowledgeSource = false; // Ensure it's false
         data.knowledgeSourceId = ""; // Clear knowledgeSourceId
       }
 
       // 4.b. If isOnKnowledgeSource is true, delete existing and add in knowledge base
       if (data.isOnKnowledgeSource) {
-        await this.knowledgePort.delete(id);
+        await this.knowledgePort.deleteSplitter(
+          id,
+          dbConnWithVbdAndUser.vbd_splitter.name
+        );
         await this.knowledgePort.create({
           id: id || existingNlqQaGood.id,
           nlqQaGoodId: id || existingNlqQaGood.id,

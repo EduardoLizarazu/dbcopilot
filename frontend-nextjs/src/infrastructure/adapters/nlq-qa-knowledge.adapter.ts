@@ -98,6 +98,22 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
       throw new Error("Error deleting NLQ QA knowledge");
     }
   }
+
+  async deleteSplitter(id: string, splitter_name: string): Promise<void> {
+    try {
+      // To delete all vectors in a namespace, I can use the delete method with a filter
+      await this.pineconeProvider
+        .getIndex()
+        .namespace(splitter_name)
+        .deleteOne(id);
+    } catch (error) {
+      this.logger.error("Error deleting NLQ QA knowledge for splitter", {
+        error,
+      });
+      throw new Error("Error deleting NLQ QA knowledge for splitter");
+    }
+  }
+
   async findByQuestion({
     namespace,
     question,
