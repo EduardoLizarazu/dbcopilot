@@ -4,12 +4,12 @@ import {
 } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
-export interface ICreateNlqQaValidInputDataStep {
+export interface IValidateInputOnCreateNlqQaStep {
   run(data: TNlqQaInRequestDto): Promise<TNlqQaInRequestDto>;
 }
 
-export class CreateNlqQaValidInputDataStep
-  implements ICreateNlqQaValidInputDataStep
+export class ValidateInputOnCreateNlqQaStep
+  implements IValidateInputOnCreateNlqQaStep
 {
   constructor(private readonly logger: ILogger) {}
 
@@ -18,7 +18,7 @@ export class CreateNlqQaValidInputDataStep
       await nlqQaInRequestSchema.safeParseAsync(data);
     if (!nlqQaValidationAsync.success) {
       this.logger.error(
-        "[CreateNlqQaValidInputDataStep]: Invalid data:",
+        "[ValidateInputOnCreateNlqQaStep]: Invalid data:",
         nlqQaValidationAsync.error.errors
       );
       throw new Error(

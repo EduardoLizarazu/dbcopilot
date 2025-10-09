@@ -1,16 +1,21 @@
 import {
-  nlqQaInRequestSchema,
   TNlqQaInRequestDto,
   TNlqQaOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { INlqQaErrorRepository } from "@/core/application/interfaces/nlq/nlq-qa-error.app.inter";
-import { INlqQaRepository } from "@/core/application/interfaces/nlq/nlq-qa.app.inter";
-import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
-import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
-import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
-import { IDbConnectionRepository } from "@/core/application/interfaces/dbconnection.inter";
+import { IValidateInputOnCreateNlqQaStep } from "@/core/application/steps/nlq-qa/validate-create-nlq-qa-input-data.step";
+import { IExtractSchemaBasedStep } from "@/core/application/steps/infoBased/extract-schemabased.step";
+import { ISearchSimilarQuestionOnKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/search-similar-question-on-knowledge-base.step";
+import { IReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
+import { ICreatePromptTemplateToGenQueryStep } from "@/core/application/steps/genQuery/create-prompt-template-to-gen-query.step";
+import { IGenQueryFromPromptTemplateStep } from "@/core/application/steps/genQuery/gen-query-from-prompt-template.step";
+import { IExtractQueryFromGenQueryStep } from "@/core/application/steps/genQuery/extract-query-from-gen-query.step";
+import { IExecuteQueryStep } from "@/core/application/steps/infoBased/execute-query.step";
+import { ICreateNlqQaStep } from "@/core/application/steps/nlq-qa/create-nlq-qa.step";
+import { ICreateNlqQaErrorStep } from "@/core/application/steps/nlq-qa-error/create-nlq-qa-error.step";
+import { IExtractSuggestionFromPromptTemplateStep } from "@/core/application/steps/genQuery/extract-suggestion-from-prompt-template.step";
+import { IPolicySafeUnMutableQueryStep } from "@/core/application/steps/genQuery/policy-safe-unmutable-query.step";
 
 /**
  * Create NLQ QA Use Case:
@@ -21,12 +26,14 @@ import { IDbConnectionRepository } from "@/core/application/interfaces/dbconnect
  * 5. Create prompt template to generate SQL query
  * 6. Generate SQL query from prompt template
  * 6.a Extract SQL query
- * 6.a.1 Validate SQL query
- * 6.b Extract suggestions
+ * 6.a.1 If SQL query is null, extract suggestion from generation response and return with suggestion
+ * 6.a.2 If suggestion is null, return error
+ * 6.a.3 If query is not null, validate SQL Query policy (no mutation)
+ * 6.a.4 If not safe, save on nlq_qa_error and reference nlq qa and return with error
  * 7.a Execute query
- * 7.b Error handling of query execution
+ * 7.b Error handling of query execution, save on nlq_qa_error and reference nlq qa and return with error
  * 8. Create NLQ QA entry
- * 9. Return response
+ * 9. Return response with information
  */
 
 export interface ICreateNlqQaUseCase {
@@ -36,278 +43,156 @@ export interface ICreateNlqQaUseCase {
 export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
   constructor(
     private readonly logger: ILogger,
-    private readonly nlqQaRepository: INlqQaRepository,
-    private readonly nlqQaKnowledgePort: INlqQaKnowledgePort,
-    private readonly dbConnRepo: IDbConnectionRepository,
-    private readonly nlqQaInformationPort: INlqQaInformationPort,
-    private readonly nlqQaGenerationPort: INlqQaQueryGenerationPort,
-    private readonly nlqQaErrorRepository: INlqQaErrorRepository
+    private readonly validInput: IValidateInputOnCreateNlqQaStep,
+    private readonly extractDbConnWithSplitterAndSchemaQueryStep: IReadDbConnectionWithSplitterAndSchemaQueryStep,
+    private readonly searchSimilarQuestionOnKnowledgeBaseStep: ISearchSimilarQuestionOnKnowledgeBaseStep,
+    private readonly extractSchemaBasedStep: IExtractSchemaBasedStep,
+    private readonly createPromptToGenQueryStep: ICreatePromptTemplateToGenQueryStep,
+    private readonly genQueryFromPromptTemplateStep: IGenQueryFromPromptTemplateStep,
+    private readonly extractQueryFromGenQueryStep: IExtractQueryFromGenQueryStep,
+    private readonly extractSuggestionFromGenQueryStep: IExtractSuggestionFromPromptTemplateStep,
+    private readonly safePolicyUnMutationQueryStep: IPolicySafeUnMutableQueryStep,
+    private readonly executeQueryStep: IExecuteQueryStep,
+    private readonly createNlqQaStep: ICreateNlqQaStep,
+    private readonly createNlqQaErrorStep: ICreateNlqQaErrorStep
   ) {}
 
   async execute(
     data: TNlqQaInRequestDto
   ): Promise<TResponseDto<TNlqQaOutRequestDto>> {
     try {
-      this.logger.info("[CreateNlqQaUseCase]: Creating NLQ QA...", {
-        data,
-      });
+      this.logger.info(
+        "[CreateNlqQaUseCase]: Starting NLQ QA creation process"
+      );
 
       // 1. Validate input data
-      const nlqQaValidationAsync =
-        await nlqQaInRequestSchema.safeParseAsync(data);
-      if (!nlqQaValidationAsync.success) {
-        this.logger.error(
-          "[CreateNlqQaUseCase]: Invalid data:",
-          nlqQaValidationAsync.error.errors
-        );
-        return {
-          data: null,
-          success: false,
-          message: "Invalid data",
-        };
-      }
+      const dateValidate = await this.validInput.run(data);
 
       // 2. Extract db connection with "vbd_splitter" and "schema_query"
-      const dbConn = await this.dbConnRepo.findWithVbdAndUserById(
-        data.dbConnectionId
-      );
-      if (!dbConn) {
-        this.logger.error(
-          `[CreateNlqQaUseCase]: DB Connection not found or VBD Splitter not configured: ${data.dbConnectionId}`
-        );
-        return {
-          data: null,
-          success: false,
-          message: "DB Connection not found or VBD Splitter not configured",
-        };
-      }
-
-      if (!dbConn.schema_query || dbConn.schema_query.trim() === "") {
-        this.logger.error(
-          `[CreateNlqQaUseCase]: DB Connection schema_query is empty: ${data.dbConnectionId}`
-        );
-        return {
-          data: null,
-          success: false,
-          message: "DB Connection schema_query is empty",
-        };
-      }
-
-      if (!dbConn.vbd_splitter || !dbConn.vbd_splitter.name) {
-        this.logger.error(
-          `[CreateNlqQaUseCase]: DB Connection VBD Splitter is not configured: ${data.dbConnectionId}`
-        );
-        return {
-          data: null,
-          success: false,
-          message: "DB Connection VBD Splitter is not configured",
-        };
-      }
+      const dbConnWithSplitterAndSchemaQuery =
+        await this.extractDbConnWithSplitterAndSchemaQueryStep.run({
+          dbConnectionId: data.dbConnectionId,
+        });
 
       // 3. Search similar questions from knowledge base with "vbd_splitter"
-      const similarQuestions = await this.nlqQaKnowledgePort.findByQuestion({
-        namespace: dbConn.vbd_splitter.name,
-        question: data.question,
-      });
-      this.logger.info(
-        `[CreateNlqQaUseCase]: Found ${similarQuestions.length} similar questions`
-      );
-      const similarQuestionsId = similarQuestions.map((q) => q.id);
+      const similarQuestionFromKnowledgeBase =
+        await this.searchSimilarQuestionOnKnowledgeBaseStep.run({
+          question: data.question,
+          splitterName:
+            dbConnWithSplitterAndSchemaQuery?.vbd_splitter?.name || "",
+        });
 
       // 4. Extract schema based on database with "schema_query"
-      const schema =
-        await this.nlqQaInformationPort.extractSchemaFromConnection({
-          type: dbConn.type,
-          host: dbConn.host,
-          port: dbConn.port,
-          database: dbConn.database,
-          username: dbConn.username,
-          password: dbConn.password,
-          sid: dbConn.sid,
-          schema_query: dbConn.schema_query,
-        });
-      this.logger.info(
-        `[CreateNlqQaUseCase]: Extracted schema with ${schema.length} tables`
-      );
+      const schemaBased = await this.extractSchemaBasedStep.run({
+        type: dbConnWithSplitterAndSchemaQuery?.type,
+        host: dbConnWithSplitterAndSchemaQuery?.host,
+        port: dbConnWithSplitterAndSchemaQuery?.port,
+        database: dbConnWithSplitterAndSchemaQuery?.database,
+        username: dbConnWithSplitterAndSchemaQuery?.username,
+        password: dbConnWithSplitterAndSchemaQuery?.password,
+        sid: dbConnWithSplitterAndSchemaQuery?.sid,
+        schema_query: dbConnWithSplitterAndSchemaQuery?.schema_query || "",
+      });
 
       // 5. Create prompt template to generate SQL query
-      const prompt =
-        await this.nlqQaGenerationPort.createPromptTemplateToGenerateQuery({
+      const promptTemplateToGenQuery =
+        await this.createPromptToGenQueryStep.run({
           question: data.question,
-          similarKnowledgeBased: similarQuestions,
-          schemaBased: schema,
+          schemaBased: schemaBased,
+          similarKnowledgeBased: similarQuestionFromKnowledgeBase,
         });
-      this.logger.info(
-        `[CreateNlqQaUseCase]: Created prompt template: ${prompt.promptTemplate}`
-      );
-      if (!prompt.promptTemplate) {
-        this.logger.error(`[CreateNlqQaUseCase]: Prompt template is empty`);
-        return {
-          data: null,
-          success: false,
-          message: "Prompt template is empty",
-        };
-      }
 
       // 6. Generate SQL query from prompt template
-      const answer = await this.nlqQaGenerationPort.queryGeneration(
-        prompt.promptTemplate
-      );
-      this.logger.info(
-        `[CreateNlqQaUseCase]: Generated answer from prompt: ${answer.answer}`
-      );
-      if (!answer.answer) {
-        this.logger.error(`[CreateNlqQaUseCase]: Answer is empty`);
+      const genQueryFromPromptTemplate =
+        await this.genQueryFromPromptTemplateStep.run({
+          promptTemplate: promptTemplateToGenQuery.promptTemplate,
+        });
+
+      // 6.a Extract SQL query
+      const extractQueryFromGenQuery =
+        await this.extractQueryFromGenQueryStep.run({
+          unCleanQuery: genQueryFromPromptTemplate.answer,
+        });
+
+      // 6.a.1 If SQL query is null, extract suggestion from generation response and return with suggestion
+      if (!extractQueryFromGenQuery?.query) {
+        const suggestion = await this.extractSuggestionFromGenQueryStep.run({
+          genResponse: genQueryFromPromptTemplate.answer,
+        });
         return {
           data: null,
           success: false,
-          message: "Answer generation is empty",
+          message: `Failed to generate SQL query. Suggestion: ${suggestion.suggestion}`,
         };
       }
 
-      // 6.a Extract SQL query
-      const query =
-        await this.nlqQaGenerationPort.extractQueryFromGenerationResponse(
-          answer.answer
-        );
-      this.logger.info(
-        `[CreateNlqQaUseCase]: Extracted SQL query: ${query.query}`
-      );
-      //  6.a.1 Validate SQL query
-      if (query.query) {
-        const isSafeQuery = await this.nlqQaGenerationPort.safeQuery(
-          query.query
-        );
-        if (!isSafeQuery || !query.query || query.query.trim() === "") {
-          this.logger.error(
-            `[CreateNlqQaUseCase]: SQL query is not safe: ${query.query}`
-          );
-          return {
-            data: null,
-            success: false,
-            message: "Generated SQL query is not safe",
-          };
-        }
-        if (!isSafeQuery.isSafe) {
-          this.logger.error(
-            `[CreateNlqQaUseCase]: SQL query is not safe: ${query.query}`
-          );
+      // 6.a.3 If query is not null, validate SQL Query policy (no mutation)
+      const safePolicyUnMutationQuery =
+        await this.safePolicyUnMutationQueryStep.run({
+          query: extractQueryFromGenQuery.query,
+        });
 
-          const nlqErrorId = await this.nlqQaErrorRepository.create({
-            question: data.question,
-            errorMessage: "Generated SQL query is not safe",
-            query: query.query,
-            knowledgeSourceUsedId: similarQuestionsId,
-            createdBy: data.createdBy,
-            createdAt: new Date(),
-          });
+      // 6.a.4 If not safe, save on nlq_qa_error and reference nlq qa and return with error
+      if (!safePolicyUnMutationQuery.isSafe) {
+        const error = await this.createNlqQaErrorStep.run({
+          question: data.question,
+          query: extractQueryFromGenQuery.query,
+          knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
+            (q) => q.id
+          ),
+          errorMessage: "Generated query is not policy safe.",
+          createdBy: dateValidate.actorId,
+        });
 
-          this.logger.info(
-            `[CreateNlqQaUseCase]: Created NLQ QA Error with id: ${nlqErrorId}`
-          );
+        await this.createNlqQaStep.run({
+          question: data.question,
+          query: extractQueryFromGenQuery.query,
+          isGood: false,
+          nlqErrorId: error.id,
+          knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
+            (q) => q.id
+          ),
+          dbConnectionId: data.dbConnectionId,
+          createdBy: dateValidate.actorId,
+          updatedBy: dateValidate.actorId,
+        });
 
-          await this.nlqQaRepository.create({
-            question: data.question,
-            query: query.query,
-            isGood: false,
-            timeQuestion: new Date(),
-            timeQuery: new Date(),
-            knowledgeSourceUsedId: similarQuestionsId,
-            userDeleted: false,
-            feedbackId: "",
-            nlqQaGoodId: "",
-            dbConnectionId: data.dbConnectionId,
-            nlqErrorId: nlqErrorId,
-            createdBy: data.createdBy,
-            updatedBy: data.createdBy,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          });
-
-          return {
-            data: null,
-            success: false,
-            message: "Generated SQL query is not safe",
-          };
-        }
-      }
-
-      // 6.b Extract suggestions
-      let suggestion = null;
-      if (!query.query) {
-        this.logger.info(
-          `[CreateNlqQaUseCase]: Found SQL query: ${query.query}`
-        );
-        suggestion =
-          await this.nlqQaGenerationPort.extractSuggestionsFromGenerationResponse(
-            answer.answer
-          );
-        this.logger.info(
-          `[CreateNlqQaUseCase]: Extracted suggestion: ${suggestion.suggestion}`
-        );
-        if (!suggestion.suggestion) {
-          this.logger.error(
-            `[CreateNlqQaUseCase]: Suggestion is empty when query is empty`
-          );
-          return {
-            data: null,
-            success: false,
-            message: "Suggestion is empty when query is empty",
-          };
-        }
         return {
           data: null,
           success: false,
-          message: suggestion.suggestion,
+          message: `Generated query is not policy safe.`,
         };
       }
 
       // 7.a Execute query
-      let informationData = { data: [] };
+      let queryResult = null;
       try {
-        informationData = await this.nlqQaInformationPort.executeQuery(
-          query.query
-        );
-        this.logger.info(
-          `[CreateNlqQaUseCase]: Executed query, received data: ${informationData.data ? informationData.data.length : 0} rows`
-        );
+        queryResult = await this.executeQueryStep.run({
+          query: extractQueryFromGenQuery.query,
+        });
       } catch (error) {
-        this.logger.error(
-          `[CreateNlqQaUseCase]: Error executing query: ${query.query}`,
-          { error: error instanceof Error ? error.message : String(error) }
-        );
-        //  7.b Error handling of query execution
-        const nlqErrorId = await this.nlqQaErrorRepository.create({
+        // 7.b Error handling of query execution, save on nlq_qa_error and reference nlq qa and return with error
+        const errorEntry = await this.createNlqQaErrorStep.run({
           question: data.question,
+          query: extractQueryFromGenQuery.query,
+          knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
+            (q) => q.id
+          ),
           errorMessage: error instanceof Error ? error.message : String(error),
-          query: query.query,
-          knowledgeSourceUsedId: similarQuestionsId,
-          createdBy: data.createdBy,
-          createdAt: new Date(),
+          createdBy: dateValidate.actorId,
         });
-
-        this.logger.info(
-          `[CreateNlqQaUseCase]: Created NLQ QA Error with id: ${nlqErrorId}`
-        );
-
-        await this.nlqQaRepository.create({
+        await this.createNlqQaStep.run({
           question: data.question,
-          query: query.query,
+          query: extractQueryFromGenQuery.query,
           isGood: false,
-          timeQuestion: new Date(),
-          timeQuery: new Date(),
-          knowledgeSourceUsedId: similarQuestionsId,
+          nlqErrorId: errorEntry.id,
+          knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
+            (q) => q.id
+          ),
           dbConnectionId: data.dbConnectionId,
-          userDeleted: false,
-          feedbackId: "",
-          nlqQaGoodId: "",
-          nlqErrorId: nlqErrorId,
-          createdBy: data.createdBy,
-          updatedBy: data.createdBy,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdBy: dateValidate.actorId,
+          updatedBy: dateValidate.actorId,
         });
-
         return {
           data: null,
           success: false,
@@ -316,51 +201,32 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       }
 
       // 8. Create NLQ QA entry
-      const newNlqQaId = await this.nlqQaRepository.create({
+      const createdNlqQa = await this.createNlqQaStep.run({
         question: data.question,
-        query: query.query,
+        query: extractQueryFromGenQuery.query,
         isGood: true,
-        timeQuestion: new Date(),
-        timeQuery: new Date(),
-        knowledgeSourceUsedId: similarQuestionsId,
-        dbConnectionId: data.dbConnectionId,
-        userDeleted: false,
-        feedbackId: "",
-        nlqQaGoodId: "",
         nlqErrorId: "",
-        createdBy: data.createdBy,
-        updatedBy: data.createdBy,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
+          (q) => q.id
+        ),
+        dbConnectionId: data.dbConnectionId,
+        createdBy: dateValidate.actorId,
+        updatedBy: dateValidate.actorId,
       });
-      this.logger.info("[CreateNlqQaUseCase]: Created NLQ QA", {
-        newNlqQaId,
-      });
-      const newNlqQa = await this.nlqQaRepository.findById(newNlqQaId);
 
-      this.logger.info("[CreateNlqQaUseCase]: Fetched NLQ QA", { newNlqQa });
-      if (!newNlqQa) {
-        this.logger.error(
-          "[CreateNlqQaUseCase]: NLQ QA not found after create"
-        );
-        return {
-          data: null,
-          success: false,
-          message: "NLQ QA not found after create",
-        };
-      }
-      // 9. Return response
+      // 9. Return response with information
+
       return {
-        data: {
-          ...newNlqQa,
-          results: informationData.data || [],
-        },
         success: true,
         message: "NLQ QA created successfully",
+        data: {
+          ...createdNlqQa,
+          results: queryResult?.data || [],
+        },
       };
     } catch (error) {
       this.logger.error("[CreateNlqQaUseCase]: Error creating NLQ QA", {
-        error,
+        error: error.message,
       });
       return {
         data: null,

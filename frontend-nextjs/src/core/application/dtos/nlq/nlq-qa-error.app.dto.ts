@@ -10,7 +10,9 @@ export const nlqQaErrorSchema = z.object({
   createdAt: z.date(),
 });
 
-export const createNlqQaErrorSchema = nlqQaErrorSchema.omit({ id: true });
+export const createNlqQaErrorSchema = nlqQaErrorSchema.omit({
+  id: true,
+});
 export type TCreateNlqQaErrorDto = z.infer<typeof createNlqQaErrorSchema>;
 
 export const updateNlqQaErrorSchema = nlqQaErrorSchema.omit({

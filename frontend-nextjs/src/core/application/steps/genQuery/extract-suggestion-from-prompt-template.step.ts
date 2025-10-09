@@ -2,7 +2,7 @@ import { ILogger } from "../../interfaces/ilog.app.inter";
 import { INlqQaQueryGenerationPort } from "../../ports/nlq-qa-query-generation.port";
 
 export interface IExtractSuggestionFromPromptTemplateStep {
-  run(data: { genResponse: string }): Promise<{ suggestion: string | null }>;
+  run(data: { genResponse: string }): Promise<{ suggestion: string }>;
 }
 
 export class ExtractSuggestionFromPromptTemplateStep
@@ -35,7 +35,14 @@ export class ExtractSuggestionFromPromptTemplateStep
         `[ExtractSuggestionFromPromptTemplateStep] Extracted suggestion: ${response?.suggestion}`
       );
 
-      return { suggestion: response?.suggestion || null };
+      if (!response || !response.suggestion) {
+        this.logger.error(
+          `[ExtractSuggestionFromPromptTemplateStep] Failed to extract suggestion`
+        );
+        throw new Error("Failed to extract suggestion");
+      }
+
+      return { suggestion: response.suggestion };
     } catch (error) {
       this.logger.error(
         `[ExtractSuggestionFromPromptTemplateStep] Error: ${error.message}`

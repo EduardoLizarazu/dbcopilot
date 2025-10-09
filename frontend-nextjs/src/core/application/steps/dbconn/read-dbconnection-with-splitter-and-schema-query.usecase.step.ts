@@ -3,9 +3,9 @@ import { IDbConnectionRepository } from "@/core/application/interfaces/dbconnect
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
 export interface IReadDbConnectionWithSplitterAndSchemaQueryStep {
-  run(
-    dbConnectionId: string
-  ): Promise<TDbConnectionOutRequestDtoWithVbAndUser | null>;
+  run(data: {
+    dbConnectionId: string;
+  }): Promise<TDbConnectionOutRequestDtoWithVbAndUser | null>;
 }
 
 export class ReadDbConnectionWithSplitterAndSchemaQueryStep
@@ -16,34 +16,35 @@ export class ReadDbConnectionWithSplitterAndSchemaQueryStep
     private readonly dbConnRepo: IDbConnectionRepository
   ) {}
 
-  async run(
-    dbConnectionId: string
-  ): Promise<TDbConnectionOutRequestDtoWithVbAndUser | null> {
+  async run(data: {
+    dbConnectionId: string;
+  }): Promise<TDbConnectionOutRequestDtoWithVbAndUser | null> {
     try {
       this.logger.info(
-        `[ReadDbConnectionWithSplitterStep] Reading DB Connection with ID: ${dbConnectionId}`
+        `[ReadDbConnectionWithSplitterStep] Reading DB Connection with ID: ${data.dbConnectionId}`
       );
-      const dbConnWithVbdAndUser =
-        await this.dbConnRepo.findWithVbdAndUserById(dbConnectionId);
+      const dbConnWithVbdAndUser = await this.dbConnRepo.findWithVbdAndUserById(
+        data.dbConnectionId
+      );
       //   Validate if it exists and and has a vbd_splitter and has schema_query
 
       if (!dbConnWithVbdAndUser) {
         this.logger.error(
-          `[ReadDbConnectionWithSplitterStep] Database connection with ID: ${dbConnectionId} not found`
+          `[ReadDbConnectionWithSplitterStep] Database connection with ID: ${data.dbConnectionId} not found`
         );
         throw new Error("Database connection not found");
       }
 
       if (!dbConnWithVbdAndUser.vbd_splitter?.name) {
         this.logger.error(
-          `[ReadDbConnectionWithSplitterStep] Database connection with ID: ${dbConnectionId} does not have a vbd_splitter`
+          `[ReadDbConnectionWithSplitterStep] Database connection with ID: ${data.dbConnectionId} does not have a vbd_splitter`
         );
         throw new Error("Database connection not have a vbd_splitter name");
       }
 
       if (!dbConnWithVbdAndUser.schema_query) {
         this.logger.error(
-          `[ReadDbConnectionWithSplitterStep] Database connection with ID: ${dbConnectionId} does not have a schema_query`
+          `[ReadDbConnectionWithSplitterStep] Database connection with ID: ${data.dbConnectionId} does not have a schema_query`
         );
         throw new Error("Database connection not have a schema_query");
       }

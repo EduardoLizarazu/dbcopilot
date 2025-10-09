@@ -10,7 +10,7 @@ export interface ICreateNlqQaStep {
   run(data: TCreateNlqQaDto): Promise<TNlqQaOutRequestDto>;
 }
 
-export class createNlqQaStep implements ICreateNlqQaStep {
+export class CreateNlqQaStep implements ICreateNlqQaStep {
   constructor(
     private readonly logger: ILogger,
     private readonly nlqQaRepo: INlqQaRepository
@@ -20,10 +20,21 @@ export class createNlqQaStep implements ICreateNlqQaStep {
     try {
       const now = new Date();
       this.logger.info(
-        `[createNlqQaStep] Creating NLQ QA with data: ${JSON.stringify({ ...data, createdAt: now, updatedAt: now })}`
+        `[createNlqQaStep] Creating NLQ QA with data: ${JSON.stringify({
+          ...data,
+        })}`
       );
       //   1. Validate input
-      const validData = await createNlqQaSchema.safeParseAsync(data);
+      const validData = await createNlqQaSchema.safeParseAsync({
+        ...data,
+        userDeleted: false,
+        timeQuestion: now,
+        timeQuery: now,
+        createdAt: now,
+        updatedAt: now,
+        nlqQaGoodId: "",
+        feedbackId: "",
+      });
       if (!validData.success) {
         this.logger.error(
           `[createNlqQaStep] Invalid input data: ${JSON.stringify(validData.error)}`
@@ -31,7 +42,7 @@ export class createNlqQaStep implements ICreateNlqQaStep {
         throw new Error("Invalid input data");
       }
 
-      const id = await this.nlqQaRepo.create(data);
+      const id = await this.nlqQaRepo.create(validData.data);
       this.logger.info(`[createNlqQaStep] Created NLQ QA with id: ${id}`);
 
       const result = await this.nlqQaRepo.findById(id);

@@ -18,8 +18,17 @@ export class CreateNlqQaErrorStep implements ICreateNlqQaErrorStep {
 
   async run(data: TCreateNlqQaErrorDto): Promise<TNlqQaErrorOutRequestDto> {
     try {
+      this.logger.info(
+        `[CreateNlqQaErrorStep] Creating NLQ QA Error with data: ${JSON.stringify(
+          data
+        )}`
+      );
+
       // 1. Validate input
-      const validData = await createNlqQaErrorSchema.safeParseAsync(data);
+      const validData = await createNlqQaErrorSchema.safeParseAsync({
+        ...data,
+        createdAt: new Date(),
+      });
 
       if (!validData.success) {
         this.logger.error(

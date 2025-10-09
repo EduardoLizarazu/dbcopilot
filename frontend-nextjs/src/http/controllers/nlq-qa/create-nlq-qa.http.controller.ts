@@ -87,7 +87,7 @@ export class CreateNlqQaController implements IController {
       // ==== BUSINESS LOGIC USE CASES ====
       const useCase = await this.createNlqQaUseCase.execute({
         ...body,
-        createdBy: decoded.uid,
+        actorId: decoded.uid,
       });
 
       if (!useCase.success) {

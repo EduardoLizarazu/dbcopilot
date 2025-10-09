@@ -10,17 +10,17 @@ export const nlqQaSchema = z.object({
   question: z.string().min(2),
   query: z.string().min(2),
   isGood: z.boolean().default(true),
-  timeQuestion: z.date(),
-  timeQuery: z.date(),
+  timeQuestion: z.date().default(new Date()),
+  timeQuery: z.date().default(new Date()),
   userDeleted: z.boolean().default(false),
 
-  feedbackId: z.string(),
+  feedbackId: z.string().default(""),
   knowledgeSourceUsedId: z.array(z.string()),
-  createdBy: z.string(),
-  nlqErrorId: z.string(),
+  nlqErrorId: z.string().default(""),
   nlqQaGoodId: z.string().default(""),
   dbConnectionId: z.string().min(2),
 
+  createdBy: z.string(),
   updatedBy: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -39,11 +39,14 @@ export const updateNlqQaSchema = nlqQaSchema.omit({
 
 export type TUpdateNlqQaDto = z.infer<typeof updateNlqQaSchema>;
 
-export const nlqQaInRequestSchema = nlqQaSchema.pick({
-  question: true,
-  createdBy: true,
-  dbConnectionId: true,
-});
+export const nlqQaInRequestSchema = nlqQaSchema
+  .pick({
+    question: true,
+    dbConnectionId: true,
+  })
+  .extend({
+    actorId: z.string().min(2),
+  });
 
 export type TNlqQaInRequestDto = z.infer<typeof nlqQaInRequestSchema>;
 

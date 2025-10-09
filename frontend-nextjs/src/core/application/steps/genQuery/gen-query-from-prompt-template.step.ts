@@ -2,7 +2,7 @@ import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
 
 export interface IGenQueryFromPromptTemplateStep {
-  run(data: { promptTemplate: string }): Promise<{ unCleanQuery: string }>;
+  run(data: { promptTemplate: string }): Promise<{ answer: string }>;
 }
 
 export class GenQueryFromPromptTemplateStep
@@ -15,7 +15,7 @@ export class GenQueryFromPromptTemplateStep
 
   async run(data: {
     promptTemplate: string;
-  }): Promise<{ unCleanQuery: string }> {
+  }): Promise<{ answer: string }> {
     try {
       this.logger.info(
         `[GenQueryFromPromptTemplateStep] Generating query from prompt template: ${data.promptTemplate}`
@@ -43,7 +43,7 @@ export class GenQueryFromPromptTemplateStep
         throw new Error("Failed to generate query");
       }
 
-      return { unCleanQuery: query.answer };
+      return { answer: query.answer };
     } catch (error) {
       this.logger.error(
         `[GenQueryFromPromptTemplateStep] Error: ${error.message}`
