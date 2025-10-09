@@ -2,10 +2,10 @@ import { z } from "zod";
 import { TDbConnectionOutRequestDto } from "../dbconnection.dto";
 
 export const nlqQaGoodSchema = z.object({
-  id: z.string(),
+  id: z.string().min(2),
   question: z.string().min(2),
   query: z.string().min(2),
-  originId: z.string(), // FK to nlqQa
+  originId: z.string().default(""), // FK to nlqQa
   dbConnectionId: z.string().min(2),
 
   // VDB
@@ -13,7 +13,7 @@ export const nlqQaGoodSchema = z.object({
   isOnKnowledgeSource: z.boolean(), // If the question is on the VDB
 
   // Generated fields from the query and question
-  detailQuestion: z.string().min(2),
+  detailQuestion: z.string().min(2), // detailed version of the question
   think: z.string().min(2), // how the query was built according to the question
   tablesColumns: z.array(z.string().min(1)).min(1), // ["[TABLE].[COLUMN]"] // To know which tables and columns were used
   semanticFields: z // To know the meaning of the fields
@@ -23,7 +23,8 @@ export const nlqQaGoodSchema = z.object({
         purpose: z.string().min(1),
       })
     )
-    .min(1),
+    .min(1)
+    .default([]),
   semanticTables: z // To know the meaning of the tables
     .array(
       z.object({
@@ -31,7 +32,8 @@ export const nlqQaGoodSchema = z.object({
         purpose: z.string().min(1),
       })
     )
-    .min(1),
+    .min(1)
+    .default([]),
   flags: z // To know the meaning of the flags used like why D2_TIPODOC='07'=Invoice
     .array(
       z.object({
@@ -39,15 +41,16 @@ export const nlqQaGoodSchema = z.object({
         flag: z.string().min(1),
       })
     )
-    .min(1),
+    .min(1)
+    .default([]),
 
   // Who did what and when
   isDelete: z.boolean().default(false),
   questionBy: z.string().min(2),
   createdBy: z.string().min(2),
   updatedBy: z.string().min(2),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().default(new Date()),
+  updatedAt: z.date().default(new Date()),
 });
 
 export const createNlqQaGoodSchema = nlqQaGoodSchema.omit({ id: true });
@@ -60,14 +63,17 @@ export const updateNlqQaGoodSchema = nlqQaGoodSchema.partial().omit({
 
 export type TUpdateNlqQaGoodDto = z.infer<typeof updateNlqQaGoodSchema>;
 
-export const nlqQaGoodInRequestSchema = nlqQaGoodSchema.partial().pick({
-  question: true,
-  query: true,
-  originId: true,
-  questionBy: true,
-  createdBy: true,
-  dbConnectionId: true,
-});
+export const nlqQaGoodInRequestSchema = nlqQaGoodSchema
+  .pick({
+    question: true,
+    query: true,
+    originId: true,
+    questionBy: true,
+    dbConnectionId: true,
+  })
+  .extend({
+    actorId: z.string().min(2).optional(),
+  });
 export type TNlqQaGoodInRequestDto = z.infer<typeof nlqQaGoodInRequestSchema>;
 
 export type TNlqQaGoodOutRequestDto = z.infer<typeof nlqQaGoodSchema>;

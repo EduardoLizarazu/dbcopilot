@@ -37,6 +37,14 @@ export const updateNlqQaSchema = nlqQaSchema.omit({
   createdBy: true,
 });
 
+export const updateNlqGoodSchema = z.object({
+  id: z.string().min(2),
+  isGood: z.boolean(),
+  nlqQaGoodId: z.string().min(2),
+});
+
+export type TUpdateNlqGoodDto = z.infer<typeof updateNlqGoodSchema>;
+
 export type TUpdateNlqQaDto = z.infer<typeof updateNlqQaSchema>;
 
 export const nlqQaInRequestSchema = nlqQaSchema
