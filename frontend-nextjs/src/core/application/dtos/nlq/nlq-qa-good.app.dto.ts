@@ -87,6 +87,7 @@ export const nlqQaGoodInRequestSchema = nlqQaGoodSchema
     flags: true,
   })
   .extend({
+    id: z.string().min(2).optional(),
     actorId: z.string().min(2).optional(),
   });
 export type TNlqQaGoodInRequestDto = z.infer<typeof nlqQaGoodInRequestSchema>;
