@@ -26,7 +26,6 @@ import { TNlqQaGoodOutWithUserAndConnRequestDto } from "@/core/application/dtos/
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
-import { create } from "axios";
 
 export default function NlqClient({
   initial,
