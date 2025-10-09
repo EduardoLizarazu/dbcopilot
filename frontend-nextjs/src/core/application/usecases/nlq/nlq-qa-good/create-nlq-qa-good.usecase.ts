@@ -34,7 +34,6 @@ export interface ICreateNlqQaGoodUseCase {
  * 7. If an originId is provided, updates the corresponding NLQ QA entry to mark it as "good".
  * 8. Returns the created NLQ QA Good entry or an error message if any step fails.
  */
-
 export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
   constructor(
     private readonly logger: ILogger,
