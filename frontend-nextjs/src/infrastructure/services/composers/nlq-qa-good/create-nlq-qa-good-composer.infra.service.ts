@@ -1,9 +1,14 @@
+import { ReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
+import { AddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/add-to-knowledge-base.step";
+import { CreateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/create-nlq-qa-good.step";
+import { UpdateNlqQaGoodKnowledgeStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good-knowledge.step";
+import { ValidateCreateNlqQaGoodInputDataStep } from "@/core/application/steps/nlq-qa-good/validate-create-nlq-qa-good-input-data.step";
+import { UpdateNlqQaGoodFieldFromGoodStep } from "@/core/application/steps/nlq-qa/update-nlq-qa-good-field-from-good.step";
 import { CreateNlqQaGoodUseCase } from "@/core/application/usecases/nlq/nlq-qa-good/create-nlq-qa-good.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { CreateNlqQaGoodController } from "@/http/controllers/nlq-qa-good/create-nlq-qa-good.http.controller";
 import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 import { NlqQaKnowledgeAdapter } from "@/infrastructure/adapters/nlq-qa-knowledge.adapter";
-import { NlqQaTopologyGenerationAdapter } from "@/infrastructure/adapters/nlq-qa-topology-generation";
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
@@ -43,19 +48,46 @@ export function createNlqQaGoodComposer(): IController {
     openAiProvider
   );
 
-  const nlqQaTopologyAdapter = new NlqQaTopologyGenerationAdapter(
+  // STEPS
+  const validateInputDataStep = new ValidateCreateNlqQaGoodInputDataStep(
+    loggerProvider
+  );
+
+  const ensureDbConnWithSplitterExistsStep =
+    new ReadDbConnectionWithSplitterAndSchemaQueryStep(
+      loggerProvider,
+      dbConnRepo
+    );
+
+  const createNlqQaGoodStep = new CreateNlqQaGoodStep(
     loggerProvider,
-    openAiProvider
+    nlqQaGoodRepo
+  );
+
+  const addToKnowledgeSource = new AddToTheKnowledgeBaseStep(
+    loggerProvider,
+    nlqQaKnowledgeAdapter
+  );
+
+  const updateNlqQaGoodOnKnowledgeStep = new UpdateNlqQaGoodKnowledgeStep(
+    loggerProvider,
+    nlqQaGoodRepo
+  );
+
+  const updateNlqQaIfOriginIdStep = new UpdateNlqQaGoodFieldFromGoodStep(
+    loggerProvider,
+    nlqQaRepo
   );
 
   // USE CASES
   const useCase = new CreateNlqQaGoodUseCase(
     loggerProvider,
-    nlqQaRepo,
-    nlqQaGoodRepo,
-    dbConnRepo,
-    nlqQaTopologyAdapter,
-    nlqQaKnowledgeAdapter
+    validateInputDataStep,
+    ensureDbConnWithSplitterExistsStep,
+    createNlqQaGoodStep,
+    addToKnowledgeSource,
+    updateNlqQaGoodOnKnowledgeStep,
+    updateNlqQaIfOriginIdStep
   );
 
   // CONTROLLER

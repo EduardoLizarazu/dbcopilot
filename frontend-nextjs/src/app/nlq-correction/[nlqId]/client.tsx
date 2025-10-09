@@ -42,6 +42,7 @@ export default function NlqCorrectionClient({
   const [newRows, setNewRows] = React.useState<any[] | null>(null);
   const [loadingPrev, setLoadingPrev] = React.useState(false);
   const [loadingNew, setLoadingNew] = React.useState(false);
+  const [loadingSave, setLoadingSave] = React.useState(false);
 
   const [runError, setRunError] = React.useState<string | null>(null);
   const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -84,13 +85,15 @@ export default function NlqCorrectionClient({
   const saveCorrection = async () => {
     setSaveError(null);
     setSaveOk(null);
+    setLoadingSave(true);
     try {
       const res = await CreateNlqQaGoodAction({
         originId: initial.id,
         question: initial.question,
-        query: newSql,
+        query: newSql.trimStart().trimEnd().toLowerCase(),
         questionBy: initial.user?.id || "",
         dbConnectionId: initial.dbConnection?.id || "",
+        isOnKnowledgeSource: true,
       });
       setSaveOk("Everything was OK — correction saved and NLQ marked as good.");
       setFeedback({
@@ -103,6 +106,8 @@ export default function NlqCorrectionClient({
       const msg = e?.message ?? "Save failed";
       setSaveError(msg);
       setFeedback({ isActive: true, severity: "error", message: msg });
+    } finally {
+      setLoadingSave(false);
     }
   };
 

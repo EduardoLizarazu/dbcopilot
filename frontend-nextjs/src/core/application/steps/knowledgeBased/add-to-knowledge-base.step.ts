@@ -18,14 +18,17 @@ export class AddToTheKnowledgeBaseStep implements IAddToTheKnowledgeBaseStep {
   async run(data: TCreateNlqQaKnowledgeDto): Promise<{ id: string }> {
     try {
       this.logger.info(
-        `[AddToTheKnowledgeBaseStep] Adding to knowledge base: ${data}`
+        `[AddToTheKnowledgeBaseStep] Adding to knowledge base: ${JSON.stringify(data)}`
       );
 
       // 1. Validate input
       const validInput = await createNlqQaKnowledgeSchema.safeParseAsync(data);
       if (!validInput.success) {
-        this.logger.error(`[AddToTheKnowledgeBaseStep] Invalid input: ${data}`);
-        throw new Error("Invalid input");
+        this.logger.error(
+          `[AddToTheKnowledgeBaseStep] Invalid input: ${JSON.stringify(data)}: `,
+          JSON.stringify(validInput.error)
+        );
+        throw new Error("Invalid input: " + validInput.error.message);
       }
 
       // 2. Add to knowledge base using the knowledge port

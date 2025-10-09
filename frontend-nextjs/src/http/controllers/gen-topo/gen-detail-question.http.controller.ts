@@ -1,25 +1,21 @@
-import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
+import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { IController } from "../IController.http.controller";
-import { ICreateNlqQaGoodUseCase } from "@/core/application/usecases/nlq/nlq-qa-good/create-nlq-qa-good.usecase";
-import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
-import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
-import { HttpErrors } from "@/http/helpers/HttpErrors.http";
+import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { IHttpErrors } from "@/http/helpers/IHttpErrors.http";
 import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
+import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
-import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
-import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
-import {
-  TCreateNlqQaGoodDto,
-  TNlqQaGoodInRequestDto,
-} from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
+import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
+import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
+import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
 import { ROLE } from "@/http/utils/role.enum";
+import { IGenerateDetailQuestionUseCase } from "@/core/application/usecases/gen-topo/generate-detail-question.usecase";
 
-export class CreateNlqQaGoodController implements IController {
+export class GenerateDetailQuestionController implements IController {
   constructor(
     private readonly logger: ILogger,
-    private readonly createNlqQaGoodUseCase: ICreateNlqQaGoodUseCase,
+    private readonly generateDetailQuestionUseCase: IGenerateDetailQuestionUseCase,
     private readonly decodeTokenAdapter: IDecodeTokenPort,
     private readonly accessRepo: IAuthorizationRepository,
     private httpErrors: IHttpErrors = new HttpErrors(),
@@ -27,38 +23,38 @@ export class CreateNlqQaGoodController implements IController {
   ) {}
 
   async handle(
-    httpRequest: IHttpRequest<TNlqQaGoodInRequestDto>
+    httpRequest: IHttpRequest<{ question: string; query: string }>
   ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info(
-        "[CreateNlqQaGoodController] handling request",
+        "[GenerateDetailQuestionController] handling request",
         httpRequest
       );
 
       //   ==== INPUT HEADERS ====
       //   1. Check headers
       const headers = httpRequest.header as Record<string, string>;
-      this.logger.info("[CreateNlqQaGoodController] Headers:", headers);
+      this.logger.info("[GenerateDetailQuestionController] Headers:", headers);
       //   2. Check authorization
       const authHeader =
         headers["Authorization"] || headers["authorization"] || "";
       if (!authHeader.startsWith("Bearer ")) {
         this.logger.error(
-          "[CreateNlqQaGoodController] No token provided",
+          "[GenerateDetailQuestionController] No token provided",
           httpRequest
         );
         const error = this.httpErrors.error_400("Error creating NLQ QA");
         return new HttpResponse(error.statusCode, error.body);
       }
       const token = authHeader.replace("Bearer ", "");
-      this.logger.info("[CreateNlqQaGoodController] Token:", token);
+      this.logger.info("[GenerateDetailQuestionController] Token:", token);
 
       //   3. Decode token
       const decoded = await this.decodeTokenAdapter.decodeToken(token);
       if (!decoded) {
         this.logger.error(
-          "[CreateNlqQaGoodController] Invalid token",
+          "[GenerateDetailQuestionController] Invalid token",
           httpRequest
         );
         const error = this.httpErrors.error_401("Invalid token");
@@ -69,7 +65,7 @@ export class CreateNlqQaGoodController implements IController {
         decoded.uid
       );
       this.logger.info(
-        "[CreateNlqQaGoodController] User roles names:",
+        "[GenerateDetailQuestionController] User roles names:",
         roleNames.roleNames
       );
       //   5. Check roles permissions
@@ -78,51 +74,59 @@ export class CreateNlqQaGoodController implements IController {
         requiredRoleNames: [],
       });
       if (!hasAuth) {
-        this.logger.error("[CreateNlqQaGoodController] User is not authorized");
+        this.logger.error(
+          "[GenerateDetailQuestionController] User is not authorized"
+        );
         const error = this.httpErrors.error_401("User is not authorized");
         return new HttpResponse(error.statusCode, error.body);
       }
 
       //   ==== INPUT BODY ====
       //   1. Check body
-      this.logger.info("[CreateNlqQaGoodController] Body:", httpRequest.body);
+      this.logger.info(
+        "[GenerateDetailQuestionController] Body:",
+        httpRequest.body
+      );
       if (!httpRequest.body) {
-        this.logger.error("[CreateNlqQaGoodController] No body provided");
+        this.logger.error(
+          "[GenerateDetailQuestionController] No body provided"
+        );
         const error = this.httpErrors.error_400("No body provided");
         return new HttpResponse(error.statusCode, error.body);
       }
       const body = httpRequest.body;
 
       // ==== BUSINESS LOGIC USE CASES ====
-      const useCase = await this.createNlqQaGoodUseCase.execute({
+      const useCase = await this.generateDetailQuestionUseCase.execute({
         ...body,
-        actorId: decoded.uid,
       });
-      this.logger.info(
-        "[CreateNlqQaGoodController] UseCase executed successfully",
-        useCase
-      );
 
       if (!useCase.success) {
-        this.logger.error("[CreateNlqQaGoodController] Error creating NLQ QA", {
-          ...useCase,
-        });
+        this.logger.error(
+          "[GenerateDetailQuestionController] Error creating NLQ QA",
+          {
+            ...useCase,
+          }
+        );
         const error = this.httpErrors.error_400(
-          "Error creating NLQ QA Good: " + useCase.message
+          "Error creating NLQ QA: " + useCase.message
         );
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      // ==== OUTPUT OF RESPONSE ====
+      // ==== OUTPUT RESPONSE ====
       const success = this.httpSuccess.success_201({
-        message: "Nlq Qa Good created successfully",
+        message: useCase.message,
         data: useCase.data,
       });
       return new HttpResponse(success.statusCode, success.body);
-    } catch (error) {
-      this.logger.error("[CreateNlqQaGoodController] Error:", error);
-      const httpError = this.httpErrors.error_500("Internal server error");
-      return new HttpResponse(httpError.statusCode, httpError.body);
+    } catch (err) {
+      this.logger.error(
+        "[GenerateDetailQuestionController] Unexpected error",
+        err
+      );
+      const error = this.httpErrors.error_500("Unexpected error");
+      return new HttpResponse(error.statusCode, error.body);
     }
   }
 }

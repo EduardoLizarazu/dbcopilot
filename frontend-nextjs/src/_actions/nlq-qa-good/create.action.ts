@@ -1,14 +1,14 @@
 "use server";
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
 import {
-  TCreateNlqQaGoodDto,
+  TNlqQaGoodInRequestDto,
   TNlqQaGoodOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function CreateNlqQaGoodAction(
-  input: TCreateNlqQaGoodDto
+  input: TNlqQaGoodInRequestDto
 ): Promise<TResOutContent<TNlqQaGoodOutRequestDto>> {
   console.log("Creating NLQ QA (test)...", input);
 

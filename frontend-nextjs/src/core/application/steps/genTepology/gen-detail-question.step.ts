@@ -1,16 +1,14 @@
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { INlqQaTopologyGenerationPort } from "../../ports/nlq-qa-topology-generation.port";
 
-export interface IGenTopologyDetailQuestionStep {
+export interface IGenDetailQuestionStep {
   run(data: {
     question: string;
     query: string;
   }): Promise<{ detailQuestion: string }>;
 }
 
-export class GenTopologyDetailQuestionStep
-  implements IGenTopologyDetailQuestionStep
-{
+export class GenDetailQuestionStep implements IGenDetailQuestionStep {
   constructor(
     private readonly logger: ILogger,
     private readonly genTopoPort: INlqQaTopologyGenerationPort
@@ -21,21 +19,21 @@ export class GenTopologyDetailQuestionStep
   }): Promise<{ detailQuestion: string }> {
     try {
       this.logger.info(
-        `[GenTopologyDetailQuestionStep] Running detail question generation from topology`,
+        `[GenDetailQuestionStep] Running detail question generation from topology`,
         data
       );
 
       // 1. Validate input
       if (!data.question || data.question.trim() === "") {
         this.logger.error(
-          `[GenTopologyDetailQuestionStep] Invalid input question: ${data?.question}`
+          `[GenDetailQuestionStep] Invalid input question: ${data?.question}`
         );
         throw new Error("Invalid input question");
       }
 
       if (!data.query || data.query.trim() === "") {
         this.logger.error(
-          `[GenTopologyDetailQuestionStep] Invalid input query: ${data?.query}`
+          `[GenDetailQuestionStep] Invalid input query: ${data?.query}`
         );
         throw new Error("Invalid input query");
       }
@@ -48,16 +46,14 @@ export class GenTopologyDetailQuestionStep
 
       if (!response?.detailQuestion) {
         this.logger.error(
-          `[GenTopologyDetailQuestionStep] No detail question generated from topology`
+          `[GenDetailQuestionStep] No detail question generated from topology`
         );
         throw new Error("No detail question generated from topology");
       }
 
       return { detailQuestion: response.detailQuestion };
     } catch (error) {
-      this.logger.error(
-        `[GenTopologyDetailQuestionStep] Error: ${error.message}`
-      );
+      this.logger.error(`[GenDetailQuestionStep] Error: ${error.message}`);
       throw new Error(
         "Error generating detail question from topology: " + error.message
       );

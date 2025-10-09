@@ -22,7 +22,7 @@ export class ValidateCreateNlqQaGoodInputDataStep {
           nlqQaGoodValidationAsync.error.errors
         );
         throw new Error(
-          `Invalid data: ${JSON.stringify(nlqQaGoodValidationAsync.error.issues)}`
+          `Invalid data: ${JSON.stringify(nlqQaGoodValidationAsync.error.message)}`
         );
       }
 

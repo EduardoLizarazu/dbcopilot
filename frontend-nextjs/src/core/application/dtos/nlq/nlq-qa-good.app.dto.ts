@@ -9,13 +9,13 @@ export const nlqQaGoodSchema = z.object({
   dbConnectionId: z.string().min(2),
 
   // VDB
-  knowledgeSourceId: z.string().min(2), // VDB - Same as this.id
-  isOnKnowledgeSource: z.boolean(), // If the question is on the VDB
+  knowledgeSourceId: z.string().default(""), // VDB - Same as this.id
+  isOnKnowledgeSource: z.boolean().default(false), // If the question is on the VDB
 
   // Generated fields from the query and question
-  detailQuestion: z.string().min(2), // detailed version of the question
-  think: z.string().min(2), // how the query was built according to the question
-  tablesColumns: z.array(z.string().min(1)).min(1), // ["[TABLE].[COLUMN]"] // To know which tables and columns were used
+  detailQuestion: z.string().default(""), // detailed version of the question
+  think: z.string().default(""), // how the query was built according to the question
+  tablesColumns: z.array(z.string()).default([""]), // ["[TABLE].[COLUMN]"] // To know which tables and columns were used
   semanticFields: z // To know the meaning of the fields
     .array(
       z.object({
@@ -23,7 +23,6 @@ export const nlqQaGoodSchema = z.object({
         purpose: z.string().min(1),
       })
     )
-    .min(1)
     .default([]),
   semanticTables: z // To know the meaning of the tables
     .array(
@@ -32,7 +31,6 @@ export const nlqQaGoodSchema = z.object({
         purpose: z.string().min(1),
       })
     )
-    .min(1)
     .default([]),
   flags: z // To know the meaning of the flags used like why D2_TIPODOC='07'=Invoice
     .array(
@@ -41,7 +39,6 @@ export const nlqQaGoodSchema = z.object({
         flag: z.string().min(1),
       })
     )
-    .min(1)
     .default([]),
 
   // Who did what and when
@@ -63,6 +60,16 @@ export const updateNlqQaGoodSchema = nlqQaGoodSchema.partial().omit({
 
 export type TUpdateNlqQaGoodDto = z.infer<typeof updateNlqQaGoodSchema>;
 
+export const updateNlqQaGoodOnKnowledgeSchema = nlqQaGoodSchema.pick({
+  id: true,
+  knowledgeSourceId: true,
+  isOnKnowledgeSource: true,
+});
+
+export type TUpdateNlqQaGoodOnKnowledgeDto = z.infer<
+  typeof updateNlqQaGoodOnKnowledgeSchema
+>;
+
 export const nlqQaGoodInRequestSchema = nlqQaGoodSchema
   .pick({
     question: true,
@@ -70,6 +77,14 @@ export const nlqQaGoodInRequestSchema = nlqQaGoodSchema
     originId: true,
     questionBy: true,
     dbConnectionId: true,
+    detailQuestion: true,
+    isOnKnowledgeSource: true,
+    knowledgeSourceId: true,
+    think: true,
+    tablesColumns: true,
+    semanticFields: true,
+    semanticTables: true,
+    flags: true,
   })
   .extend({
     actorId: z.string().min(2).optional(),
@@ -93,3 +108,28 @@ export type TNlqQaGoodOutWithUserAndConnRequestDto = TNlqQaGoodOutRequestDto & {
  *    - Bad feedback from the analyst
  *    - Error in the query or suggestion by the system
  */
+
+export const genTopologyInRequestSchema = nlqQaGoodSchema
+  .pick({
+    question: true,
+    query: true,
+  })
+  .extend({
+    actorId: z.string().min(2),
+  });
+
+export type TGenTopologyInRequestDto = z.infer<
+  typeof genTopologyInRequestSchema
+>;
+
+export const genTopologyOutRequestSchema = nlqQaGoodSchema.pick({
+  think: true,
+  flags: true,
+  tablesColumns: true,
+  semanticFields: true,
+  semanticTables: true,
+});
+
+export type TGenTopologyOutRequestDto = z.infer<
+  typeof genTopologyOutRequestSchema
+>;
