@@ -10,7 +10,6 @@ import { IAddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBa
 import { IDeleteOnKnowledgeBaseByIdStep } from "@/core/application/steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
 import { IUpdateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good.step";
 import { IValidateUpdateNlqQaGoodInputDataStep } from "@/core/application/steps/nlq-qa-good/validate-update-nlq-qa-good-input-data.step";
-import { DbConnectionRepository } from "@/infrastructure/repository/dbconnection.repo";
 
 export interface IUpdateNlqQaGoodUseCase {
   execute(

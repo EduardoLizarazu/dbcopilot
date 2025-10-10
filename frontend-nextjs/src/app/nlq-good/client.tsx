@@ -35,6 +35,13 @@ import { ReadAllNlqQaGoodAction } from "@/_actions/nlq-qa-good/read-all.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
 
+type TOnKnowledgeSource = {
+  nlqId: string;
+  dbConnectionId: string;
+  question: string;
+  query: string;
+};
+
 export default function NlqGoodClient({
   initialRows,
 }: {
@@ -87,13 +94,16 @@ export default function NlqGoodClient({
   };
 
   // UPLOAD: immediate, general_* = ""
-  const onUpload = async (nlqId: string, dbConnectionId: string) => {
-    markUploading(nlqId, true);
+
+  const onUpload = async (data: TOnKnowledgeSource) => {
+    markUploading(data.nlqId, true);
     try {
       await UpdateNlqQaGoodAction({
-        id: nlqId,
-        dbConnectionId: dbConnectionId,
+        id: data.nlqId,
+        dbConnectionId: data.dbConnectionId,
         isOnKnowledgeSource: true,
+        question: data.question,
+        query: data.query,
       });
       setFeedback({
         isActive: true,
@@ -108,18 +118,20 @@ export default function NlqGoodClient({
         message: e?.message ?? "Upload failed",
       });
     } finally {
-      markUploading(nlqId, false);
+      markUploading(data.nlqId, false);
     }
   };
 
   // DELETE: immediate (no confirm)
-  const onDelete = async (nlqId: string, dbConnectionId: string) => {
-    markDeleting(nlqId, true);
+  const onDelete = async (data: TOnKnowledgeSource) => {
+    markDeleting(data.nlqId, true);
     try {
       await UpdateNlqQaGoodAction({
-        id: nlqId,
+        id: data.nlqId,
         isOnKnowledgeSource: false,
-        dbConnectionId: dbConnectionId,
+        dbConnectionId: data.dbConnectionId,
+        question: data.question,
+        query: data.query,
       });
       setFeedback({
         isActive: true,
@@ -134,7 +146,7 @@ export default function NlqGoodClient({
         message: e?.message ?? "Delete failed",
       });
     } finally {
-      markDeleting(nlqId, false);
+      markDeleting(data.nlqId, false);
     }
   };
 
@@ -375,7 +387,12 @@ export default function NlqGoodClient({
                               <span>
                                 <IconButton
                                   onClick={() =>
-                                    onDelete(r.id, r.dbConnectionId)
+                                    onDelete({
+                                      nlqId: r.id,
+                                      dbConnectionId: r.dbConnectionId,
+                                      question: r.question,
+                                      query: r.query,
+                                    })
                                   }
                                   size="small"
                                   aria-label="delete"
@@ -400,7 +417,14 @@ export default function NlqGoodClient({
                           >
                             <span>
                               <IconButton
-                                onClick={() => onUpload(r.id, r.dbConnectionId)}
+                                onClick={() =>
+                                  onUpload({
+                                    nlqId: r.id,
+                                    dbConnectionId: r.dbConnectionId,
+                                    question: r.question,
+                                    query: r.query,
+                                  })
+                                }
                                 size="small"
                                 aria-label="upload"
                                 disabled={isUploading}
