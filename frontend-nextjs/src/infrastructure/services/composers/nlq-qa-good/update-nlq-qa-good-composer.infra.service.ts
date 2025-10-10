@@ -1,3 +1,8 @@
+import { ReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
+import { AddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/add-to-knowledge-base.step";
+import { DeleteOnKnowledgeBaseByIdStep } from "@/core/application/steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
+import { UpdateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good.step";
+import { ValidateUpdateNlqQaGoodInputDataStep } from "@/core/application/steps/nlq-qa-good/validate-update-nlq-qa-good-input-data.step";
 import { UpdateNlqQaGoodUseCase } from "@/core/application/usecases/nlq/nlq-qa-good/update-nlq-qa-good.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { UpdateNlqQaGoodController } from "@/http/controllers/nlq-qa-good/update-nlq-qa-good.http.controller";
@@ -41,12 +46,39 @@ export function updateNlqQaGoodComposer(): IController {
     openAiProvider
   );
 
+  // STEPS
+  const validateUpdateNlqQaGoodInputDataStep =
+    new ValidateUpdateNlqQaGoodInputDataStep(loggerProvider);
+
+  const ensureDbConnWithSplitterExistsStep =
+    new ReadDbConnectionWithSplitterAndSchemaQueryStep(
+      loggerProvider,
+      dbConnRepo
+    );
+
+  const addToKnowledgeBaseStep = new AddToTheKnowledgeBaseStep(
+    loggerProvider,
+    nlqQaKnowledgeAdapter
+  );
+
+  const deleteOnKnowledgeBaseByIdStep = new DeleteOnKnowledgeBaseByIdStep(
+    loggerProvider,
+    nlqQaKnowledgeAdapter
+  );
+
+  const updateNlqQaGoodStep = new UpdateNlqQaGoodStep(
+    loggerProvider,
+    nlqQaGoodRepo
+  );
+
   // USE CASES
   const useCase = new UpdateNlqQaGoodUseCase(
     loggerProvider,
-    nlqQaGoodRepo,
-    dbConnRepo,
-    nlqQaKnowledgeAdapter
+    validateUpdateNlqQaGoodInputDataStep,
+    ensureDbConnWithSplitterExistsStep,
+    addToKnowledgeBaseStep,
+    deleteOnKnowledgeBaseByIdStep,
+    updateNlqQaGoodStep
   );
 
   // CONTROLLER

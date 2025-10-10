@@ -8,7 +8,7 @@ import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
 import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
-import { TUpdateNlqQaGoodDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import { TUpdateNlqQaGoodInRqDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { ROLE } from "@/http/utils/role.enum";
@@ -24,7 +24,7 @@ export class UpdateNlqQaGoodController implements IController {
   ) {}
 
   async handle(
-    httpRequest: IHttpRequest<TUpdateNlqQaGoodDto>
+    httpRequest: IHttpRequest<TUpdateNlqQaGoodInRqDto>
   ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
@@ -91,10 +91,9 @@ export class UpdateNlqQaGoodController implements IController {
       const body = httpRequest.body;
 
       // ==== BUSINESS LOGIC USE CASES ====
+      body.actorId = decoded.uid;
       const useCase = await this.updateNlqQaGoodUseCase.execute(body.id, {
         ...body,
-        updatedBy: decoded.uid,
-        updatedAt: new Date(),
       });
 
       if (!useCase.success) {
@@ -102,7 +101,9 @@ export class UpdateNlqQaGoodController implements IController {
           "[UpdateNlqQaGoodController] Use case returned null",
           httpRequest
         );
-        const error = this.httpErrors.error_400("Error updating NLQ QA Good");
+        const error = this.httpErrors.error_400(
+          useCase.message || "Error updating NLQ QA good"
+        );
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -110,7 +111,7 @@ export class UpdateNlqQaGoodController implements IController {
 
       // ==== OUTPUT OF RESPONSE ====
       const success = this.httpSuccess.success_200({
-        message: "NLQ QA Good updated successfully",
+        message: useCase.message,
         data: useCase.data,
       });
       return new HttpResponse(success.statusCode, success.body);

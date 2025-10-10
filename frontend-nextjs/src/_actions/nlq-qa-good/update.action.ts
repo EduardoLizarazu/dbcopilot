@@ -2,13 +2,13 @@
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
 import {
   TNlqQaGoodOutRequestDto,
-  TUpdateNlqQaGoodDto,
+  TUpdateNlqQaGoodInRqDto,
 } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function UpdateNlqQaGoodAction(
-  input: TUpdateNlqQaGoodDto
+  input: TUpdateNlqQaGoodInRqDto
 ): Promise<TResOutContent<TNlqQaGoodOutRequestDto>> {
   console.log("Updating NLQ QA Good...", input);
 
