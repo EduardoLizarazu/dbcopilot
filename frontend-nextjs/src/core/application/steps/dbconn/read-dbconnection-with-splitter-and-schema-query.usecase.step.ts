@@ -2,6 +2,14 @@ import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos
 import { IDbConnectionRepository } from "@/core/application/interfaces/dbconnection.inter";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 
+/**
+ * Step to read a DB connection by its ID, ensuring it has an associated splitter and schema query:
+ * 1. Validates the provided DB connection ID.
+ * 2. Fetches the DB connection from the repository.
+ * 3. Checks if the DB connection has an associated splitter and schema query.
+ * 4. If all validations pass, returns the DB connection; otherwise, throws an error.
+ */
+
 export interface IReadDbConnectionWithSplitterAndSchemaQueryStep {
   run(data: {
     dbConnectionId: string;

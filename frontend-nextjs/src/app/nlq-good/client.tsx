@@ -30,10 +30,13 @@ import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
 import CloudOffIcon from "@mui/icons-material/CloudOff";
 import CloudDoneIcon from "@mui/icons-material/CloudDone";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import { TNlqQaGoodOutWithUserAndConnRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { ReadAllNlqQaGoodAction } from "@/_actions/nlq-qa-good/read-all.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
+import { DeleteNqlQaGoodByIdAction } from "@/_actions/nlq-qa-good/delete.action";
 
 type TOnKnowledgeSource = {
   nlqId: string;
@@ -147,6 +150,27 @@ export default function NlqGoodClient({
       });
     } finally {
       markDeleting(data.nlqId, false);
+    }
+  };
+
+  const onRemoveItem = async (id: string) => {
+    markDeleting(id, true);
+    try {
+      await DeleteNqlQaGoodByIdAction(id);
+      setFeedback({
+        isActive: true,
+        severity: "success",
+        message: "Item deleted successfully.",
+      });
+      await refresh();
+    } catch (e: any) {
+      setFeedback({
+        isActive: true,
+        severity: "error",
+        message: e?.message ?? "Delete failed",
+      });
+    } finally {
+      markDeleting(id, false);
     }
   };
 
@@ -438,6 +462,23 @@ export default function NlqGoodClient({
                             </span>
                           </Tooltip>
                         )}
+                        <Tooltip title="Delete item">
+                          <span>
+                            <IconButton
+                              size="small"
+                              aria-label="delete"
+                              sx={{ ml: 0.5 }}
+                              onClick={() => onRemoveItem(r.id)}
+                              disabled={deleteBusy.has(r.id)}
+                            >
+                              {deleteBusy.has(r.id) ? (
+                                <CircularProgress size={16} />
+                              ) : (
+                                <DeleteIcon fontSize="small" />
+                              )}
+                            </IconButton>
+                          </span>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   );

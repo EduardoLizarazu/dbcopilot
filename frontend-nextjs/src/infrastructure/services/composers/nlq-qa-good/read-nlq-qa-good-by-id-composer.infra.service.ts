@@ -1,7 +1,5 @@
-import { ReadAllNlqQaGoodUseCase } from "@/core/application/usecases/nlq/nlq-qa-good/read-all-nlq-qa-good.usecase";
 import { ReadNlqQaGoodByIdUseCase } from "@/core/application/usecases/nlq/nlq-qa-good/read-nlq-qa-good-by-id.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
-import { ReadAllNlqQaGoodController } from "@/http/controllers/nlq-qa-good/read-all-nlq-qa-good.http.controller";
 import { ReadNlqQaGoodByIdController } from "@/http/controllers/nlq-qa-good/read-nlq-qa-good-by-id.http.controller";
 import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";

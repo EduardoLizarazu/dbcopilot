@@ -1,11 +1,11 @@
 "use server";
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
-import { TNlqQaGoodOutWithUserRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import { TNlqQaGoodOutWithUserAndConnRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function ReadAllNlqQaGoodAction(): Promise<
-  TResOutContent<TNlqQaGoodOutWithUserRequestDto[]>
+  TResOutContent<TNlqQaGoodOutWithUserAndConnRequestDto[]>
 > {
   console.log("Reading all NLQ QA Good entries...");
   const nlqQaGoodRes = await fetch(`${domain}/api/nlq-qa-good`, {
