@@ -15,6 +15,39 @@ export class DbConnectionRepository implements IDbConnectionRepository {
     private readonly logger: ILogger,
     private firebaseAdmin: FirebaseAdminProvider
   ) {}
+  async findAllByVbdSplitterId(data: {
+    vbdSplitterIdrId: string;
+  }): Promise<TDbConnectionOutRequestDto[]> {
+    try {
+      const db = this.firebaseAdmin.db;
+      const dbConnDocs = await db
+        .collection(this.firebaseAdmin.coll.DB_CONNECTIONS)
+        .where("id_vbd_splitter", "==", data.vbdSplitterIdrId)
+        .get();
+      if (dbConnDocs.empty) {
+        this.logger.info("No DB Connections found by VBD Splitter ID:", {
+          ...data,
+        });
+        return [];
+      }
+      const results = dbConnDocs.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as TDbConnectionOutRequestDto[];
+      this.logger.info("Found DB Connections by VBD Splitter ID:", {
+        ...data,
+        results,
+      });
+      return results;
+    } catch (error) {
+      this.logger.error("Failed to find DB Connections by VBD Splitter ID:", {
+        error: error.message || JSON.stringify(error),
+      });
+      throw new Error(
+        `Failed to find DB Connections by VBD Splitter ID: ${error.message || JSON.stringify(error)}`
+      );
+    }
+  }
 
   async create(data: TCreateDbConnectionDto): Promise<string> {
     try {

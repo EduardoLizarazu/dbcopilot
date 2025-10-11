@@ -1,3 +1,8 @@
+import { ReadAllDbConnBySplitterIdStep } from "@/core/application/steps/dbconn/read-all-dbconn-by-splitter-id.step";
+import { DeleteOnKnowledgeBaseByIdStep } from "@/core/application/steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
+import { DeleteSplitterOnKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/delete-splitter-on-knowledge-base.step";
+import { DeleteVbdSplitterByIdStep } from "@/core/application/steps/vbd-splitter/delete-vbd-splitter-by-id.step";
+import { ReadVbdSplitterByIdStep } from "@/core/application/steps/vbd-splitter/read-vbd-splitter-by-id.step";
 import { DeleteVbdSplitterUseCase } from "@/core/application/usecases/vbd-splitter/delete-vbd-splitter.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { DeleteVbdSplitterController } from "@/http/controllers/vbd-splitter/delete-vbd-splitter.http.controller";
@@ -9,7 +14,6 @@ import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winsto
 import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { DbConnectionRepository } from "@/infrastructure/repository/dbconnection.repo";
-import { NlqQaGoodRepository } from "@/infrastructure/repository/nlq/nlq-qa-good.repo";
 import { VbdSplitterRepository } from "@/infrastructure/repository/vbd-splitter.repo";
 
 export function DeleteVbdSplitterComposer(): IController {
@@ -24,8 +28,6 @@ export function DeleteVbdSplitterComposer(): IController {
     loggerProvider,
     firebaseAdmin
   );
-
-  const nlqQaGoodRepo = new NlqQaGoodRepository(loggerProvider, firebaseAdmin);
 
   const dbConnRepo = new DbConnectionRepository(loggerProvider, firebaseAdmin);
 
@@ -47,13 +49,32 @@ export function DeleteVbdSplitterComposer(): IController {
     firebaseAdmin
   );
 
+  // STEPS
+  const checkIfVbdSplitterExists = new ReadVbdSplitterByIdStep(
+    loggerProvider,
+    vbdSplitterRepo
+  );
+
+  const checkIfVbdSplitterIsUsedInDbConnections =
+    new ReadAllDbConnBySplitterIdStep(loggerProvider, dbConnRepo);
+
+  const deleteSplitterFromKnowledgeBase = new DeleteSplitterOnKnowledgeBaseStep(
+    loggerProvider,
+    knowledgeAdapter
+  );
+
+  const deleteVbdSplitterByIdStep = new DeleteVbdSplitterByIdStep(
+    loggerProvider,
+    vbdSplitterRepo
+  );
+
   // USE CASES
   const useCase = new DeleteVbdSplitterUseCase(
     loggerProvider,
-    vbdSplitterRepo,
-    dbConnRepo,
-    nlqQaGoodRepo,
-    knowledgeAdapter
+    checkIfVbdSplitterExists,
+    checkIfVbdSplitterIsUsedInDbConnections,
+    deleteSplitterFromKnowledgeBase,
+    deleteVbdSplitterByIdStep
   );
 
   // CONTROLLER

@@ -25,4 +25,7 @@ export interface IDbConnectionRepository
   findHaveVbdById(
     id: string
   ): Promise<TDbConnectionOutRequestDtoWithVbd | null>;
+  findAllByVbdSplitterId(data: {
+    vbdSplitterIdrId: string;
+  }): Promise<TDbConnectionOutRequestDto[]>;
 }

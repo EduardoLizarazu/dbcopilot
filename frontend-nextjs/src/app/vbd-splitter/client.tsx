@@ -3,6 +3,7 @@
 import { TVbdOutRequestDto } from "@/core/application/dtos/vbd.dto";
 import { useState } from "react";
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -38,6 +39,20 @@ export default function VbdSplitterClient({
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const { setFeedback } = useFeedbackContext();
+  const [deleteLoading, setDeleteLoading] = useState({
+    id: "",
+    loading: false,
+  });
+
+  const [fb, setFb] = useState<{
+    isActive: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({
+    isActive: false,
+    message: "",
+    severity: "success",
+  });
 
   const refresh = async () => {
     setLoading(true);
@@ -79,10 +94,10 @@ export default function VbdSplitterClient({
   });
 
   const onDelete = async (id: string) => {
-    setLoading(true);
+    setDeleteLoading({ id, loading: true });
     try {
       await DeleteVbdSplitterAction(id);
-      setFeedback({
+      setFb({
         message: "VBD Splitter deleted successfully",
         severity: "success",
         isActive: true,
@@ -90,13 +105,13 @@ export default function VbdSplitterClient({
       await refresh();
     } catch (error) {
       console.error("Error deleting VBD Splitter:", error);
-      setFeedback({
-        message: "Error deleting VBD Splitter",
+      setFb({
+        message: error.message || "Error deleting VBD Splitter",
         severity: "error",
         isActive: true,
       });
     } finally {
-      setLoading(false);
+      setDeleteLoading({ id: "", loading: false });
     }
   };
 
@@ -143,6 +158,18 @@ export default function VbdSplitterClient({
           </Button>
         </Box>
       </Paper>
+
+      {/* Feedback Snackbar */}
+      {fb.isActive && (
+        <Box sx={{ mb: 2 }}>
+          <Alert
+            severity={fb.severity}
+            onClose={() => setFb({ ...fb, isActive: false })}
+          >
+            {fb.message}
+          </Alert>
+        </Box>
+      )}
 
       {/* Table */}
       <Paper elevation={1}>
@@ -196,6 +223,9 @@ export default function VbdSplitterClient({
                             <IconButton
                               aria-label="Delete VBD Splitter"
                               size="small"
+                              loading={
+                                deleteLoading && deleteLoading.id === row.id
+                              }
                               onClick={() => {
                                 if (
                                   confirm(
