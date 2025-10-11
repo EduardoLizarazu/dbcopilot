@@ -1,6 +1,16 @@
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { INlqQaKnowledgePort } from "../../ports/nlq-qa-knowledge.app.inter";
 
+/**
+ * Step to delete knowledge base entry by id and splitter name
+ * 1. Validate input
+ * 2. Call the knowledge port to delete the entry based on id and splitter name
+ * 3. Handle errors and log appropriately
+ * @param data - Object containing the id of the entry to delete and the splitter name
+ * @returns Promise<void>
+ * @throws Error if deletion fails or input is invalid
+ */
+
 export interface IDeleteOnKnowledgeBaseByIdStep {
   run(data: { id: string; splitterName: string }): Promise<void>;
 }

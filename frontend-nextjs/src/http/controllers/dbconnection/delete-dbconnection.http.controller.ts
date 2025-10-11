@@ -112,7 +112,9 @@ export class DeleteDbConnectionController implements IController {
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
       this.logger.error("[DeleteDbConnectionController] Unexpected error", err);
-      const error = this.httpErrors.error_500("Unexpected error");
+      const error = this.httpErrors.error_500(
+        err.message || "Internal server error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

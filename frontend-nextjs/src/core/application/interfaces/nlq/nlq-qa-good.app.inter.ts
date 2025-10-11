@@ -12,6 +12,7 @@ export interface INlqQaGoodRepository
     TUpdateNlqQaGoodDto,
     TNlqQaGoodOutRequestDto
   > {
+  findByDbConnId(dbConnId: string): Promise<TNlqQaGoodOutRequestDto[]>;
   findAllWithUserAndConn(): Promise<TNlqQaGoodOutWithUserAndConnRequestDto[]>;
   findWithUserAndConnById(
     id: string

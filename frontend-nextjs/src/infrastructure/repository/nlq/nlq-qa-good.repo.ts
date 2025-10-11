@@ -13,6 +13,30 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
     private readonly logger: ILogger,
     private readonly fbAdminProvider: FirebaseAdminProvider
   ) {}
+  async findByDbConnId(dbConnId: string): Promise<TNlqQaGoodOutRequestDto[]> {
+    try {
+      // Query Firestore for NLQ QA Good entries with the specified dbConnId
+      const snapshot = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_GOODS)
+        .where("dbConnectionId", "==", dbConnId)
+        .get();
+
+      const goods: TNlqQaGoodOutRequestDto[] = [];
+      snapshot.forEach((doc) => {
+        goods.push({ id: doc.id, ...doc.data() } as TNlqQaGoodOutRequestDto);
+      });
+
+      return goods;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaGoodRepository] Error finding NLQ QA Good by DB Connection ID",
+        error.message
+      );
+      throw new Error(
+        "Error finding NLQ QA Good by DB Connection ID: " + error.message
+      );
+    }
+  }
 
   async switchSoftDelete(id: string): Promise<void> {
     try {

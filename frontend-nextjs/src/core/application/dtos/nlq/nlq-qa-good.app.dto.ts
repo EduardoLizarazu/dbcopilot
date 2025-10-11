@@ -138,3 +138,17 @@ export const genTopologyOutRequestSchema = nlqQaGoodSchema.pick({
 export type TGenTopologyOutRequestDto = z.infer<
   typeof genTopologyOutRequestSchema
 >;
+
+/**
+ * Remove db connection by id with the fields:
+ * - dbConnectionId
+ * - knowledgeSourceId
+ * - isOnKnowledgeSource
+ */
+
+export const removeDbConnOnNlqQaGoodSchema = nlqQaGoodSchema.pick({
+  id: true,
+  dbConnectionId: true,
+  knowledgeSourceId: true,
+  isOnKnowledgeSource: true,
+});

@@ -2,6 +2,14 @@ import { TVbdOutRequestDto } from "../../dtos/vbd.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IVbdSplitterRepository } from "../../interfaces/vbd-splitter.inter";
 
+/**
+ * Steps to read a VBD Splitter by ID:
+ * 1. Validate input id
+ * 2. Check if the VBD Splitter exists, based on id
+ * 2.1 If not found, throw an error
+ * 3. Return the VBD Splitter data
+ */
+
 export interface IReadVbdSplitterByIdStep {
   run(data: { idSplitter: string }): Promise<TVbdOutRequestDto>;
 }
