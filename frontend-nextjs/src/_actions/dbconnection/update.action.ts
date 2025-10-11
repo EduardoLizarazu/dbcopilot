@@ -1,7 +1,7 @@
 "use server";
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
 import {
-  TDbConnectionInRequestDto,
+  TUpdateDbConnInReqDto,
   TDbConnectionOutRequestDto,
 } from "@/core/application/dtos/dbconnection.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
@@ -9,7 +9,7 @@ import { domain } from "@/utils/constants";
 
 export async function UpdateDbConnectionAction(
   id: string,
-  input: TDbConnectionInRequestDto
+  input: TUpdateDbConnInReqDto
 ): Promise<TResOutContent<TDbConnectionOutRequestDto>> {
   console.log(
     "[UpdateDbConnectionAction] Initiating DB Connection update",

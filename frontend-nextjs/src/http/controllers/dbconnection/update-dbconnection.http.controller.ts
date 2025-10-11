@@ -9,7 +9,7 @@ import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
-import { TDbConnectionInRequestDto } from "@/core/application/dtos/dbconnection.dto";
+import { TUpdateDbConnInReqDto } from "@/core/application/dtos/dbconnection.dto";
 import { IUpdateDbConnectionUseCase } from "@/core/application/usecases/dbconnection/update-dbconnection.usecase";
 
 export class UpdateDbConnectionController implements IController {
@@ -23,7 +23,7 @@ export class UpdateDbConnectionController implements IController {
   ) {}
 
   async handle(
-    httpRequest: IHttpRequest<TDbConnectionInRequestDto>
+    httpRequest: IHttpRequest<TUpdateDbConnInReqDto>
   ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
@@ -130,8 +130,13 @@ export class UpdateDbConnectionController implements IController {
       });
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
-      this.logger.error("[UpdateDbConnectionController] Unexpected error", err);
-      const error = this.httpErrors.error_500("Unexpected error");
+      this.logger.error(
+        "[UpdateDbConnectionController] Unexpected error",
+        err.message
+      );
+      const error = this.httpErrors.error_500(
+        err.message || "Unexpected error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

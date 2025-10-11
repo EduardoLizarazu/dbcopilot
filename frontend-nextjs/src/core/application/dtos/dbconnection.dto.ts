@@ -53,6 +53,12 @@ export const createDbConnInRqSchema = dbConnectionSchema
 
 export type TCreateDbConnInReqDto = z.infer<typeof createDbConnInRqSchema>;
 
+export const updateDbConnInRqSchema = createDbConnInRqSchema.extend({
+  id: z.string().min(2).max(100),
+});
+
+export type TUpdateDbConnInReqDto = z.infer<typeof updateDbConnInRqSchema>;
+
 export type TDbConnectionOutRequestDto = z.infer<typeof dbConnectionSchema>;
 
 export type TDbConnectionOutRequestDtoWithVbAndUser =

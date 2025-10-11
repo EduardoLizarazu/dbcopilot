@@ -1,4 +1,5 @@
-import { CreateDbConnectionUseCase } from "@/core/application/usecases/dbconnection/create-dbconnection.usecase";
+import { UpdateDbConnStep } from "@/core/application/steps/dbconn/update-dbconn.step";
+import { ValidateInputUpdateDbConnStep } from "@/core/application/steps/dbconn/validate-input-update-dbconn.step";
 import { UpdateDbConnectionUseCase } from "@/core/application/usecases/dbconnection/update-dbconnection.usecase";
 import { UpdateDbConnectionController } from "@/http/controllers/dbconnection/update-dbconnection.http.controller";
 import { IController } from "@/http/controllers/IController.http.controller";
@@ -32,11 +33,22 @@ export function UpdateDbConnectionComposer(): IController {
     firebaseAdmin
   );
 
-  // USE CASES
-  const useCase = new UpdateDbConnectionUseCase(
+  // STEPS
+  const validateUpdateInputDbConnStep = new ValidateInputUpdateDbConnStep(
+    loggerProvider
+  );
+
+  const updateDbConnStep = new UpdateDbConnStep(
     loggerProvider,
     dbConnRepo,
     vbdSplitterRepo
+  );
+
+  // USE CASES
+  const useCase = new UpdateDbConnectionUseCase(
+    loggerProvider,
+    validateUpdateInputDbConnStep,
+    updateDbConnStep
   );
 
   // CONTROLLER
