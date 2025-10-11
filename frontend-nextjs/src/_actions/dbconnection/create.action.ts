@@ -1,14 +1,14 @@
 "use server";
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
 import {
-  TDbConnectionInRequestDto,
+  TCreateDbConnInReqDto,
   TDbConnectionOutRequestDto,
 } from "@/core/application/dtos/dbconnection.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function CreateDbConnectionAction(
-  input: TDbConnectionInRequestDto
+  input: TCreateDbConnInReqDto
 ): Promise<TResOutContent<TDbConnectionOutRequestDto>> {
   console.log(
     "[CreateDbConnectionAction] Initiating DB Connection creation",
@@ -35,7 +35,7 @@ export async function CreateDbConnectionAction(
       errorData.message || dbConnectionRes.statusText
     );
     throw new Error(
-      `Failed to create DB Connection: ${errorData.message || dbConnectionRes.statusText}`
+      `Failed to create DB Connection - ${errorData.message || dbConnectionRes.statusText}`
     );
   }
 

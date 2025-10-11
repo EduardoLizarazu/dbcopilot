@@ -6,7 +6,7 @@ export const dbConnectionSchema = z.object({
   id_vbd_splitter: z.string().min(2).max(100),
 
   name: z.string().min(2).max(100),
-  description: z.string().min(0).max(255).optional(),
+  description: z.string().min(0).max(255).default(""),
 
   type: z.enum(["mysql", "postgres", "mssql", "oracle"]),
   host: z.string().min(1).max(255),
@@ -14,14 +14,14 @@ export const dbConnectionSchema = z.object({
   database: z.string().min(1).max(255),
   username: z.string().min(1).max(255),
   password: z.string().min(1).max(255),
-  sid: z.string().optional().nullable(), // oracle
+  sid: z.string().optional().nullable().default(""), // oracle
 
   schema_query: z.string().min(2),
 
   createdBy: z.string().min(2).max(100),
   updatedBy: z.string().min(2).max(100),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().default(() => new Date()),
+  updatedAt: z.date().default(() => new Date()),
 });
 
 export const createDbConnectionSchema = dbConnectionSchema.omit({ id: true });
@@ -33,10 +33,8 @@ export const updateDbConnectionSchema = dbConnectionSchema.omit({
 });
 export type TUpdateDbConnectionDto = z.infer<typeof updateDbConnectionSchema>;
 
-export const dbConnectionInRequestSchema = dbConnectionSchema
-  .partial()
+export const createDbConnInRqSchema = dbConnectionSchema
   .pick({
-    id: true,
     id_vbd_splitter: true,
     name: true,
     description: true,
@@ -53,9 +51,7 @@ export const dbConnectionInRequestSchema = dbConnectionSchema
     actorId: z.string().min(2).max(100),
   });
 
-export type TDbConnectionInRequestDto = z.infer<
-  typeof dbConnectionInRequestSchema
->;
+export type TCreateDbConnInReqDto = z.infer<typeof createDbConnInRqSchema>;
 
 export type TDbConnectionOutRequestDto = z.infer<typeof dbConnectionSchema>;
 

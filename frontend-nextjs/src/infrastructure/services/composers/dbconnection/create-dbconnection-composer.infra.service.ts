@@ -1,3 +1,5 @@
+import { CreateDbConnStep } from "@/core/application/steps/dbconn/create-dbconn.step";
+import { ValidateInputCreateDbConnStep } from "@/core/application/steps/dbconn/validate-input-create-dbconn.step";
 import { CreateDbConnectionUseCase } from "@/core/application/usecases/dbconnection/create-dbconnection.usecase";
 import { CreateDbConnectionController } from "@/http/controllers/dbconnection/create-dbconnection.http.controller";
 import { IController } from "@/http/controllers/IController.http.controller";
@@ -31,11 +33,22 @@ export function CreateDbConnectionComposer(): IController {
     firebaseAdmin
   );
 
-  // USE CASES
-  const useCase = new CreateDbConnectionUseCase(
+  // STEPS
+  const validateInputDbConnStep = new ValidateInputCreateDbConnStep(
+    loggerProvider
+  );
+
+  const createDbConnStep = new CreateDbConnStep(
     loggerProvider,
     dbConnRepo,
     vbdSplitterRepo
+  );
+
+  // USE CASES
+  const useCase = new CreateDbConnectionUseCase(
+    loggerProvider,
+    validateInputDbConnStep,
+    createDbConnStep
   );
 
   // CONTROLLER

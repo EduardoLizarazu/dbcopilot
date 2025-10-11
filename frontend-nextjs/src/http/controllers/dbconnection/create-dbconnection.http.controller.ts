@@ -10,7 +10,7 @@ import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { HttpErrors } from "@/http/helpers/HttpErrors.http";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { ICreateDbConnectionUseCase } from "@/core/application/usecases/dbconnection/create-dbconnection.usecase";
-import { TDbConnectionInRequestDto } from "@/core/application/dtos/dbconnection.dto";
+import { TCreateDbConnInReqDto } from "@/core/application/dtos/dbconnection.dto";
 
 export class CreateDbConnectionController implements IController {
   constructor(
@@ -23,7 +23,7 @@ export class CreateDbConnectionController implements IController {
   ) {}
 
   async handle(
-    httpRequest: IHttpRequest<TDbConnectionInRequestDto>
+    httpRequest: IHttpRequest<TCreateDbConnInReqDto>
   ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
@@ -107,9 +107,7 @@ export class CreateDbConnectionController implements IController {
             ...useCase,
           }
         );
-        const error = this.httpErrors.error_400(
-          "Error creating DB Connection: " + useCase.message
-        );
+        const error = this.httpErrors.error_400(useCase.message);
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -121,7 +119,9 @@ export class CreateDbConnectionController implements IController {
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
       this.logger.error("[CreateDbConnectionController] Unexpected error", err);
-      const error = this.httpErrors.error_500("Unexpected error");
+      const error = this.httpErrors.error_500(
+        err.message || "Unexpected error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }
