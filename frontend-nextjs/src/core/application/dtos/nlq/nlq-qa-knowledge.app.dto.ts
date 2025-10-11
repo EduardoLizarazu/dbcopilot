@@ -27,3 +27,12 @@ export type TUpdateNlqQaKnowledgeDto = z.infer<
 
 export type TNlqQaKnowledgeInRequestDto = z.infer<typeof nlqQaKnowledgeSchema>;
 export type TNlqQaKnowledgeOutRequestDto = z.infer<typeof nlqQaKnowledgeSchema>;
+
+export const updateSplitterNameOnKnowledgeBaseDto = z.object({
+  oldName: z.string().min(2),
+  newName: z.string().min(2),
+});
+
+export type TUpdateSplitterNameOnKnowledgeBaseDto = z.infer<
+  typeof updateSplitterNameOnKnowledgeBaseDto
+>;

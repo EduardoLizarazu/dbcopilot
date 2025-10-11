@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 export const VbdSchema = z.object({
-  id: z.string(),
+  id: z.string().min(2),
   name: z.string().min(2).max(100),
   createdBy: z.string().min(2).max(100),
   updatedBy: z.string().min(2).max(100),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().default(new Date()),
+  updatedAt: z.date().default(new Date()),
 });
 
 export const createVbdSchema = VbdSchema.omit({ id: true });

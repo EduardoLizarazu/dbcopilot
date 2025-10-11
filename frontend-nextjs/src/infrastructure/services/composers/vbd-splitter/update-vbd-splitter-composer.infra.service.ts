@@ -1,3 +1,7 @@
+import { UpdateSplitterNameOnKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/update-splitter-name-on-knowledge-base.step";
+import { ReadVbdSplitterByIdStep } from "@/core/application/steps/vbd-splitter/read-vbd-splitter-by-id.step";
+import { UpdateVbdSplitterStep } from "@/core/application/steps/vbd-splitter/update-vbd-splitter.step";
+import { VbdSplitterValidInputRqUpdateStep } from "@/core/application/steps/vbd-splitter/vbd-splitter-valid-input-rq-update.step";
 import { UpdateVbdSplitterUseCase } from "@/core/application/usecases/vbd-splitter/update-vbd-splitter.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { UpdateVbdSplitterController } from "@/http/controllers/vbd-splitter/update-vbd-splitter.httpt.controller";
@@ -24,8 +28,6 @@ export function UpdateVbdSplitterComposer(): IController {
     firebaseAdmin
   );
 
-  const nlqQaGoodRepo = new NlqQaGoodRepository(loggerProvider, firebaseAdmin);
-
   //   PORTS
   const knowledgeAdapter = new NlqQaKnowledgeAdapter(
     loggerProvider,
@@ -44,12 +46,31 @@ export function UpdateVbdSplitterComposer(): IController {
     firebaseAdmin
   );
 
+  // STEPS
+  const readVbdSplitterByIdStep = new ReadVbdSplitterByIdStep(
+    loggerProvider,
+    vbdSplitterRepo
+  );
+
+  const validateVbdSplitterInput = new VbdSplitterValidInputRqUpdateStep(
+    loggerProvider
+  );
+
+  const updateSplitterNameOnKnowledgeBaseStep =
+    new UpdateSplitterNameOnKnowledgeBaseStep(loggerProvider, knowledgeAdapter);
+
+  const updateVbdSplitterStep = new UpdateVbdSplitterStep(
+    loggerProvider,
+    vbdSplitterRepo
+  );
+
   // USE CASES
   const useCase = new UpdateVbdSplitterUseCase(
     loggerProvider,
-    vbdSplitterRepo,
-    nlqQaGoodRepo,
-    knowledgeAdapter
+    readVbdSplitterByIdStep,
+    validateVbdSplitterInput,
+    updateSplitterNameOnKnowledgeBaseStep,
+    updateVbdSplitterStep
   );
 
   // CONTROLLER

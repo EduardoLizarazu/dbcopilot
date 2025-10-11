@@ -2,6 +2,7 @@ import {
   TCreateNlqQaKnowledgeDto,
   TNlqQaKnowledgeOutRequestDto,
   TUpdateNlqQaKnowledgeDto,
+  TUpdateSplitterNameOnKnowledgeBaseDto,
 } from "@/core/application/dtos/nlq/nlq-qa-knowledge.app.dto";
 import { IGenericMutationRepository } from "@/core/application/interfaces/generic.app.inter";
 
@@ -20,4 +21,7 @@ export interface INlqQaKnowledgePort
   }): Promise<TNlqQaKnowledgeOutRequestDto[]>;
   deleteAllBySplitter(splitterName: string): Promise<void>;
   deleteSplitter(id: string, splitter_name: string): Promise<void>;
+  updateSplitterName(
+    data: TUpdateSplitterNameOnKnowledgeBaseDto
+  ): Promise<void>;
 }

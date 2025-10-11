@@ -2,11 +2,13 @@ import {
   TCreateNlqQaKnowledgeDto,
   TNlqQaKnowledgeOutRequestDto,
   TUpdateNlqQaKnowledgeDto,
+  TUpdateSplitterNameOnKnowledgeBaseDto,
 } from "@/core/application/dtos/nlq/nlq-qa-knowledge.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaKnowledgePort } from "@/core/application/ports/nlq-qa-knowledge.app.inter";
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
 import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
+import { PineconeRecord, RecordMetadata } from "@pinecone-database/pinecone";
 
 export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
   constructor(
@@ -14,6 +16,76 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
     private readonly pineconeProvider: PineconeProvider,
     private readonly openaiProvider: OpenAIProvider
   ) {}
+  /**
+   *
+   * Update the name of a splitter in the knowledge base.
+   * 1. List all vectors id in the old namespace.
+   * 2. For each vector id, fetch the vector data (embeddings & metadata)
+   * 3. Re-upload the vector data to the new namespace with the same id (embedding & metadata).
+   * 4. Delete the old namespace.
+   *
+   * @param data - Object containing oldName and newName of the splitter.
+   * @throws Error if there is an issue during the update process.
+   * @returns void
+   */
+
+  async updateSplitterName(
+    data: TUpdateSplitterNameOnKnowledgeBaseDto
+  ): Promise<void> {
+    try {
+      this.logger.info("Updating splitter name", { data });
+
+      // 1. List all vectors id in the old namespace.
+      const index = this.pineconeProvider.getIndex();
+      const paginationList = await index
+        .namespace(data.oldName)
+        .listPaginated();
+      const vectorIds: string[] = [];
+      for await (const page of paginationList.vectors) {
+        const id = page.id;
+        vectorIds.push(id);
+      }
+      this.logger.info(`Processing ${vectorIds.length} vectors`, { vectorIds });
+
+      // 2. For each vector id, fetch the vector data (embeddings & metadata)
+      const vectorData: PineconeRecord<RecordMetadata>[] = [];
+      for (const id of vectorIds) {
+        const fetchResult = await index.namespace(data.oldName).fetch([id]);
+        const record = fetchResult?.records?.[id];
+        if (record) {
+          vectorData.push(record);
+        }
+      }
+
+      this.logger.info(`Fetched data for ${vectorData.length} vectors`, {
+        vectorData,
+      });
+
+      // 3. Re-upload the vector data to the new namespace with the same id (embedding & metadata).
+      const upsertData = vectorData.map((vec) => ({
+        id: vec.id,
+        values: vec.values,
+        metadata: vec.metadata,
+      }));
+      await index.namespace(data.newName).upsert(upsertData);
+      this.logger.info(
+        `Upserted ${upsertData.length} vectors to new namespace`,
+        {
+          newNamespace: data.newName,
+        }
+      );
+
+      await this.deleteAllBySplitter(data.oldName);
+      this.logger.info(`Deleted old namespace`, { oldNamespace: data.oldName });
+      this.logger.info("Successfully updated splitter name");
+    } catch (error) {
+      this.logger.error("Error updating namespace", {
+        message: error instanceof Error ? error.message : "Unknown error",
+        rawError: error,
+      });
+      throw new Error((error as Error).message);
+    }
+  }
   async deleteAllBySplitter(splitterName: string): Promise<void> {
     try {
       await this.pineconeProvider.getIndex().deleteNamespace(splitterName);
