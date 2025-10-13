@@ -16,6 +16,47 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
     private readonly pineconeProvider: PineconeProvider,
     private readonly openaiProvider: OpenAIProvider
   ) {}
+  async transferSplitterKnowledge(data: {
+    id: string;
+    oldSplitterName: string;
+    newSplitterName: string;
+  }): Promise<void> {
+    try {
+      this.logger.info("Transferring splitter knowledge", { data });
+      const index = this.pineconeProvider.getIndex();
+
+      const fetchResult = await index
+        .namespace(data.oldSplitterName)
+        .fetch([data.id]);
+      const record = fetchResult?.records?.[data.id];
+
+      if (!record) {
+        this.logger.error("Error transferring splitter knowledge", {
+          message: "Record not found",
+        });
+        throw new Error("Record not found");
+      }
+
+      // 4. Upsert the record to the new namespace
+      const upsertData = {
+        id: record.id,
+        values: record.values,
+        metadata: record.metadata,
+      };
+
+      await index.namespace(data.newSplitterName).upsert([upsertData]);
+      this.logger.info("Successfully transferred splitter knowledge", { data });
+
+      // 5. Delete the record from the old namespace
+      await index.namespace(data.oldSplitterName).deleteOne(data.id);
+      this.logger.info("Deleted old splitter knowledge", { data });
+    } catch (error) {
+      this.logger.error("Error transferring splitter knowledge", {
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+      throw new Error(error.message || "Error transferring splitter knowledge");
+    }
+  }
   /**
    *
    * Update the name of a splitter in the knowledge base.

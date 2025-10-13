@@ -12,6 +12,11 @@ export interface INlqQaKnowledgePort
     TUpdateNlqQaKnowledgeDto,
     TNlqQaKnowledgeOutRequestDto
   > {
+  transferSplitterKnowledge(data: {
+    id: string;
+    oldSplitterName: string;
+    newSplitterName: string;
+  }): Promise<void>;
   findByQuestion({
     namespace,
     question,
