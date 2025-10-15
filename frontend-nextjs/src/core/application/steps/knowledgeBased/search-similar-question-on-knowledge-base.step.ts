@@ -22,7 +22,8 @@ export class SearchSimilarQuestionOnKnowledgeBaseStep
   }): Promise<TNlqQaKnowledgeOutRequestDto[]> {
     try {
       this.logger.info(
-        `[SearchSimilarQuestionOnKnowledgeBaseStep] Searching for similar questions in knowledge base...`
+        `[SearchSimilarQuestionOnKnowledgeBaseStep] Searching for similar questions in knowledge base...`,
+        JSON.stringify(data)
       );
 
       if (!data.question || !data.splitterName) {

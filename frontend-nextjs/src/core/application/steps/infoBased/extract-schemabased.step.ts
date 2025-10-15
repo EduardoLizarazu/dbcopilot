@@ -23,7 +23,8 @@ export class ExtractSchemaBasedStep implements IExtractSchemaBasedStep {
   ): Promise<TNlqQaInformationSchemaExtractionDto> {
     try {
       this.logger.info(
-        `[ExtractSchemaBasedStep] Extracting schema based information...`
+        `[ExtractSchemaBasedStep] Extracting schema based information...`,
+        JSON.stringify(connection)
       );
       // 1. Validate connection
       const dataValid = await connDto.safeParseAsync(connection);
@@ -39,7 +40,8 @@ export class ExtractSchemaBasedStep implements IExtractSchemaBasedStep {
         await this.nlqInfoPort.extractSchemaFromConnection(connection);
 
       this.logger.info(
-        `[ExtractSchemaBasedStep] Successfully extracted schema based information.`
+        `[ExtractSchemaBasedStep] Successfully extracted schema based information.`,
+        JSON.stringify(schemaBasedInfo)
       );
       return schemaBasedInfo;
     } catch (error) {

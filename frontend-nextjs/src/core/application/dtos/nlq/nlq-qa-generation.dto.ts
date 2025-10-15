@@ -14,10 +14,10 @@ export const nlqQaGenerationSchema = z.object({
   ),
   schemaBased: z.array(
     z.object({
-      TABLE_SCHEMA: z.string().optional(),
-      TABLE_NAME: z.string().optional(),
-      COLUMN_NAME: z.string().optional(),
-      DATA_TYPE: z.string().optional(),
+      TABLE_SCHEMA: z.string(),
+      TABLE_NAME: z.string(),
+      COLUMN_NAME: z.string(),
+      DATA_TYPE: z.string(),
       DATA_LENGTH: z.number().optional(),
       DATA_PRECISION: z.number().optional(),
       DATA_SCALE: z.number().optional(),
@@ -32,7 +32,7 @@ export const nlqQaGenerationSchema = z.object({
   answer: z.string(),
 });
 
-// Create prompt template
+// Create prompt template 40190
 export const createNlqQaGenerationPromptTemplate = nlqQaGenerationSchema.pick({
   question: true,
   similarKnowledgeBased: true,

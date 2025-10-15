@@ -86,7 +86,10 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
         const id = page.id;
         vectorIds.push(id);
       }
-      this.logger.info(`Processing ${vectorIds.length} vectors`, { vectorIds });
+      this.logger.info(
+        `[NlqQaKnowledgeAdapter] Processing ${vectorIds.length} vectors`,
+        { vectorIds }
+      );
 
       // 2. For each vector id, fetch the vector data (embeddings & metadata)
       const vectorData: PineconeRecord<RecordMetadata>[] = [];
@@ -120,7 +123,7 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
       this.logger.info(`Deleted old namespace`, { oldNamespace: data.oldName });
       this.logger.info("Successfully updated splitter name");
     } catch (error) {
-      this.logger.error("Error updating namespace", {
+      this.logger.error("[NlqQaKnowledgeAdapter] Error updating namespace", {
         message: error instanceof Error ? error.message : "Unknown error",
         rawError: error,
       });
@@ -173,7 +176,7 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
         stack: error instanceof Error ? error.stack : null,
         rawError: error,
       });
-      throw new Error("Error creating NLQ QA knowledge");
+      throw new Error(error.message || "Error creating NLQ QA knowledge");
     }
   }
   async update(id: string, data: TUpdateNlqQaKnowledgeDto): Promise<void> {
@@ -200,15 +203,17 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
         stack: error instanceof Error ? error.stack : null,
         rawError: error,
       });
-      throw new Error("Error updating NLQ QA knowledge");
+      throw new Error(error.message || "Error updating NLQ QA knowledge");
     }
   }
   async delete(id: string): Promise<void> {
     try {
       await this.pineconeProvider.getIndex().deleteOne(id);
     } catch (error) {
-      this.logger.error("Error deleting NLQ QA knowledge", { error });
-      throw new Error("Error deleting NLQ QA knowledge");
+      this.logger.error("Error deleting NLQ QA knowledge", {
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+      throw new Error(error.message || "Error deleting NLQ QA knowledge");
     }
   }
 
@@ -221,9 +226,11 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
         .deleteOne(id);
     } catch (error) {
       this.logger.error("Error deleting NLQ QA knowledge for splitter", {
-        error,
+        error: error.message || error,
       });
-      throw new Error("Error deleting NLQ QA knowledge for splitter");
+      throw new Error(
+        error.message || "Error deleting NLQ QA knowledge for splitter"
+      );
     }
   }
 
@@ -235,6 +242,14 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
     question: string;
   }): Promise<TNlqQaKnowledgeOutRequestDto[]> {
     try {
+      this.logger.info(
+        `[NlqQaKnowledgeAdapter] Finding NLQ QA knowledge by question`,
+        {
+          namespace,
+          question,
+        }
+      );
+
       // First, generate the embedding for the question
       const embedding = await this.openaiProvider.generateEmbedding(question);
 
@@ -270,14 +285,25 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
           score: typeof match.score === "number" ? match.score : 0,
         })
       );
+      this.logger.info(
+        `[NlqQaKnowledgeAdapterError] Found ${results.length} similar questions`,
+        {
+          results,
+        }
+      );
       return results;
     } catch (error) {
-      this.logger.error("Error finding NLQ QA knowledge by question", {
-        message: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : null,
-        rawError: error,
-      });
-      throw new Error("Error finding NLQ QA knowledge by question");
+      this.logger.error(
+        "[NlqQaKnowledgeAdapterError] finding NLQ QA knowledge by question",
+        {
+          message: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : null,
+          rawError: error,
+        }
+      );
+      throw new Error(
+        error.message || "Error finding NLQ QA knowledge by question"
+      );
     }
   }
   async findById(id: string): Promise<TNlqQaKnowledgeOutRequestDto | null> {
@@ -297,7 +323,7 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
           rawError: error,
         }
       );
-      throw new Error("Error finding NLQ QA knowledge by ID");
+      throw new Error(error.message || "Error finding NLQ QA knowledge by ID");
     }
   }
   async findAll(): Promise<TNlqQaKnowledgeOutRequestDto[]> {

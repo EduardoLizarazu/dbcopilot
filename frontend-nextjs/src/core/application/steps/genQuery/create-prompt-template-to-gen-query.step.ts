@@ -24,14 +24,16 @@ export class CreatePromptTemplateToGenQueryStep
   ): Promise<{ promptTemplate: string }> {
     try {
       this.logger.info(
-        `[CreatePromptTemplateToGenQueryStep] Creating prompt template with data: ${JSON.stringify(data)}`
+        `[CreatePromptTemplateToGenQueryStep] Creating prompt template with data: `,
+        JSON.stringify(data)
       );
       //   1. Validate input data
       const validData =
         await createNlqQaGenerationPromptTemplate.safeParseAsync(data);
       if (!validData.success) {
         this.logger.error(
-          `[CreatePromptTemplateToGenQueryStep] Invalid input data: ${JSON.stringify(validData.error.issues)}`
+          `[CreatePromptTemplateToGenQueryStep] Invalid input data: `,
+          JSON.stringify(validData.error.issues)
         );
         throw new Error("Invalid input data");
       }
@@ -42,7 +44,8 @@ export class CreatePromptTemplateToGenQueryStep
           validData.data
         );
       this.logger.info(
-        `[CreatePromptTemplateToGenQueryStep] Created prompt template characters: ${prompt.promptTemplate.length}`
+        `[CreatePromptTemplateToGenQueryStep] Created prompt template characters: `,
+        prompt.promptTemplate.length
       );
 
       if (!prompt.promptTemplate) {
@@ -54,11 +57,10 @@ export class CreatePromptTemplateToGenQueryStep
 
       //   3. Return prompt template
       return prompt;
-
-      return prompt;
     } catch (error) {
       this.logger.error(
-        `[CreatePromptTemplateToGenQueryStep] Error: ${error.message}`
+        `[CreatePromptTemplateToGenQueryStep] Error: `,
+        error.message
       );
       throw new Error(
         "Error in CreatePromptTemplateToGenQueryStep " + error.message

@@ -16,6 +16,10 @@ import { ICreateNlqQaStep } from "@/core/application/steps/nlq-qa/create-nlq-qa.
 import { ICreateNlqQaErrorStep } from "@/core/application/steps/nlq-qa-error/create-nlq-qa-error.step";
 import { IExtractSuggestionFromPromptTemplateStep } from "@/core/application/steps/genQuery/extract-suggestion-from-prompt-template.step";
 import { IPolicySafeUnMutableQueryStep } from "@/core/application/steps/genQuery/policy-safe-unmutable-query.step";
+import {
+  TNlqInfoExtractorDto,
+  TNlqInformationData,
+} from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
 
 /**
  * Create NLQ QA Use Case:
@@ -165,11 +169,19 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       }
 
       // 7.a Execute query
-      let queryResult = null;
+      let queryResult: TNlqInformationData | null = null;
       try {
-        queryResult = await this.executeQueryStep.run({
+        const executeQueryDto: TNlqInfoExtractorDto = {
+          type: dbConnWithSplitterAndSchemaQuery?.type,
+          host: dbConnWithSplitterAndSchemaQuery?.host || "",
+          port: dbConnWithSplitterAndSchemaQuery?.port || 0,
+          database: dbConnWithSplitterAndSchemaQuery?.database || "",
+          username: dbConnWithSplitterAndSchemaQuery?.username || "",
+          password: dbConnWithSplitterAndSchemaQuery?.password || "",
+          sid: dbConnWithSplitterAndSchemaQuery?.sid || undefined,
           query: extractQueryFromGenQuery.query,
-        });
+        };
+        queryResult = await this.executeQueryStep.run(executeQueryDto);
       } catch (error) {
         // 7.b Error handling of query execution, save on nlq_qa_error and reference nlq qa and return with error
         const errorEntry = await this.createNlqQaErrorStep.run({
@@ -215,6 +227,14 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       });
 
       // 9. Return response with information
+
+      this.logger.info(
+        "[CreateNlqQaUseCase]: NLQ QA creation process completed successfully",
+        JSON.stringify({
+          data: createdNlqQa,
+          queryResult: queryResult,
+        })
+      );
 
       return {
         success: true,

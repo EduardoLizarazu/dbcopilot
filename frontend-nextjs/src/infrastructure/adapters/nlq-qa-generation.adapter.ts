@@ -40,12 +40,17 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
     data: TCreateNlqQaGenerationPromptTemplate
   ): Promise<{ promptTemplate: string }> {
     try {
+      this.logger.info(
+        `[NlqQaGenerationAdapter] Creating prompt template with data: `,
+        JSON.stringify(data)
+      );
+      // Create a prompt template using the provided data
       const template = `
-        You are a SQL expert specialized in oracle19c databases. 
+        You are a SQL expert specialized in postgres or oracle19c databases. 
         Generate a SELECT query that answers the user's question using ONLY the provided database schema.
 
-        ### Database Schema oracle19c:
-        ${JSON.stringify(data.schemaBased, null, 2)}
+        ### Database Schema postgres or oracle19c:
+        ${JSON.stringify(data.schemaBased)}
 
         ### User Question:
         ${JSON.stringify(data.question, null, 2)}
@@ -55,7 +60,7 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
 
         ### Instructions:
         1. Use ONLY the tables and columns from the provided schema
-        2. Generate standard oracle19c SQL without database-specific extensions
+        2. Generate standard postgres or oracle19c SQL without database-specific extensions
         3. Return ONLY the SQL query with no additional text
         4. Always use explicit JOIN syntax instead of implicit joins
         5. Include necessary WHERE clauses based on the question

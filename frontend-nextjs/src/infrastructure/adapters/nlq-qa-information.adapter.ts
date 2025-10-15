@@ -24,7 +24,7 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
     try {
       this.logger.info(
         "[NlqQaInformationAdapter] Extracting schema from connection",
-        { connection }
+        JSON.stringify(connection)
       );
       dataSource = await this.typeOrmProvider.createDataSource({
         type: connection.type,
@@ -50,7 +50,7 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
 
       this.logger.info(
         "[NlqQaInformationAdapter] Schema extracted from connection",
-        { length: result.length, connection }
+        JSON.stringify({ result: result })
       );
       return result;
     } catch (error) {
