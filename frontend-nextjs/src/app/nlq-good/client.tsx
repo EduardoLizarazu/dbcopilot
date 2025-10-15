@@ -331,7 +331,9 @@ export default function NlqGoodClient({
                             whiteSpace: "nowrap",
                           }}
                         >
-                          {r.question || "—"}
+                          {r.question?.length > 15
+                            ? `${r.question.slice(0, 15)}...`
+                            : r.question || "—"}
                         </Box>
                       </TableCell>
                       <TableCell>
