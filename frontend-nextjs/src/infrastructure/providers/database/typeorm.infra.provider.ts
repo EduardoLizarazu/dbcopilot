@@ -43,10 +43,14 @@ export class TypeOrmProvider {
       database: config.database,
       ...(config.sid ? { sid: config.sid } : {}), // Include sid only if defined
       synchronize: false, // Explicitly disable synchronization
-      logging: false, // Disable logging unless needed
+      logging: true, // Disable logging unless needed
       entities: [], // No entities needed
       migrations: [], // No migrations
       subscribers: [], // No subscribers
+      extra: {
+        encrypt: false,
+        trustServerCertificate: true,
+      },
     };
     return await new DataSource(this.config);
   }
