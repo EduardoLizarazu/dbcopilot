@@ -132,14 +132,29 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
   }
   async deleteAllBySplitter(splitterName: string): Promise<void> {
     try {
+      const index = this.pineconeProvider.getIndex();
+      const namespace = await index.listNamespaces();
+
+      // Check if the namespace exists
+      const namespaceExists = namespace.namespaces.some(
+        (ns) => ns === splitterName
+      );
+
+      if (!namespaceExists) {
+        this.logger.warn(
+          `[NlqQaKnowledgeAdapter] Namespace ${splitterName} does not exist. Skipping deletion.`
+        );
+        return;
+      }
+
       await this.pineconeProvider.getIndex().deleteNamespace(splitterName);
     } catch (error) {
-      this.logger.error("Error updating namespace", {
+      this.logger.error("[NlqQaKnowledgeAdapter] Error deleting namespace", {
         message: error instanceof Error ? error.message : "Unknown error",
         stack: error instanceof Error ? error.stack : null,
         rawError: error,
       });
-      throw new Error("Error updating namespace");
+      throw new Error((error as Error).message || "Error deleting namespace");
     }
   }
 
@@ -171,11 +186,14 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
 
       return data.id;
     } catch (error) {
-      this.logger.error("Error creating NLQ QA knowledge", {
-        message: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : null,
-        rawError: error,
-      });
+      this.logger.error(
+        "[NlqQaKnowledgeAdapter] Error creating NLQ QA knowledge",
+        {
+          message: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : null,
+          rawError: error,
+        }
+      );
       throw new Error(error.message || "Error creating NLQ QA knowledge");
     }
   }

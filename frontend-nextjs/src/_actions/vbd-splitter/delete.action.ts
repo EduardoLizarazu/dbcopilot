@@ -21,7 +21,7 @@ export async function DeleteVbdSplitterAction(
 
   if (!vbdSplitterRes.ok) {
     const errorData = await vbdSplitterRes.json();
-    console.error(
+    console.warn(
       "[DeleteVbdSplitterAction] Error deleting VBD Splitter:",
       errorData.message || vbdSplitterRes.statusText
     );

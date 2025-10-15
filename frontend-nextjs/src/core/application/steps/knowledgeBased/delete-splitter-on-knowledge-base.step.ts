@@ -16,21 +16,21 @@ export class DeleteSplitterOnKnowledgeBaseStep
   async run(data: { splitterName: string }): Promise<void> {
     try {
       this.logger.info(
-        `Deleting knowledge base entries for splitter: ${data.splitterName}`
+        `[DeleteSplitterOnKnowledgeBaseStep] Deleting knowledge base entries for splitter: ${data.splitterName}`
       );
       //   1. Validate input
       if (!data.splitterName) {
-        this.logger.error(`Invalid input`);
+        this.logger.error(`[DeleteSplitterOnKnowledgeBaseStep] Invalid input`);
         throw new Error(`Invalid input`);
       }
       await this.knowledgePort.deleteAllBySplitter(data.splitterName);
     } catch (error) {
       this.logger.error(
-        `Error deleting knowledge base entries for splitter: ${data.splitterName}`,
+        `[DeleteSplitterOnKnowledgeBaseStep] Error deleting knowledge base entries for splitter: ${data.splitterName}`,
         error.message
       );
       throw new Error(
-        `Error deleting knowledge base entries: ${error.message}`
+        error.message || "Error deleting knowledge base entries for splitter"
       );
     }
   }
