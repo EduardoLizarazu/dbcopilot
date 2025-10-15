@@ -4,6 +4,7 @@ import {
 } from "@/core/application/dtos/nlq/nlq-qa-generation.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
+import { error } from "console";
 
 export interface ICreatePromptTemplateToGenQueryStep {
   run(
@@ -35,7 +36,7 @@ export class CreatePromptTemplateToGenQueryStep
           `[CreatePromptTemplateToGenQueryStep] Invalid input data: `,
           JSON.stringify(validData.error.issues)
         );
-        throw new Error("Invalid input data");
+        throw new Error(validData.error.message || "Invalid input data");
       }
 
       //   2. Create prompt template
@@ -63,7 +64,7 @@ export class CreatePromptTemplateToGenQueryStep
         error.message
       );
       throw new Error(
-        "Error in CreatePromptTemplateToGenQueryStep " + error.message
+        error.message || "Error in creating prompt template to generate query"
       );
     }
   }

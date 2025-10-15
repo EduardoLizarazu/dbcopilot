@@ -4,11 +4,11 @@ export const nlqQaGenerationSchema = z.object({
   question: z.string(),
   similarKnowledgeBased: z.array(
     z.object({
-      id: z.string(),
+      id: z.string().min(2),
       nlqQaGoodId: z.string().min(2),
       question: z.string().min(2),
       query: z.string().min(2),
-      tablesColumns: z.array(z.string().min(1)).min(1), // ["[TABLE].[COLUMN]"]
+      tablesColumns: z.array(z.string()), // ["[TABLE].[COLUMN]"]
       score: z.number(),
     })
   ),
