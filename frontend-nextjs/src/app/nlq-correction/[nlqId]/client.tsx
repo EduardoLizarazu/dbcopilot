@@ -229,18 +229,12 @@ export default function NlqCorrectionClient({
               <AccordionDetails>
                 {initial.nlqQaGoodUsed.map((item, index) => (
                   <Box key={index} sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Question
+                    <Typography variant="subtitle2" color="text">
+                      <b>Question:</b> {item.question || "—"}
                     </Typography>
-                    <Typography>{item.question || "—"}</Typography>
-                    <Typography
-                      variant="subtitle2"
-                      color="text.secondary"
-                      sx={{ mt: 1 }}
-                    >
-                      Query
+                    <Typography variant="subtitle2" color="text" sx={{ mt: 1 }}>
+                      <b>Query:</b> {item.query || "—"}
                     </Typography>
-                    <Typography>{item.query || "—"}</Typography>
                   </Box>
                 ))}
               </AccordionDetails>

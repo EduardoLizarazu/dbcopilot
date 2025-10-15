@@ -277,6 +277,7 @@ export class NlqQaAppRepository implements INlqQaRepository {
           this.fbAdminProvider.db
             .collection(this.fbAdminProvider.coll.NLQ_GOODS)
             .where("id", "==", knowledgeSourceId)
+            .limit(1)
             .get()
             .then((snapshot) => {
               this.logger.info(
@@ -286,10 +287,12 @@ export class NlqQaAppRepository implements INlqQaRepository {
                   countNlqQaGood: snapshot.size || 0,
                 }
               );
-              return snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-              })) as TNlqQaGoodOutRequestDto;
+              return snapshot.size === 1
+                ? ({
+                    id: snapshot.docs[0].id,
+                    ...snapshot.docs[0].data(),
+                  } as TNlqQaGoodOutRequestDto)
+                : null;
             })
         )
       );
