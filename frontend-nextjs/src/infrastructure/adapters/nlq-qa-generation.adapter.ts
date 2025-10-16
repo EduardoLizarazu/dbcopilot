@@ -26,7 +26,7 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
           },
         ],
         temperature: 0.1, // Low temperature for deterministic output
-        max_tokens: 500,
+        max_tokens: 1500,
         top_p: 0.1,
       });
 
@@ -46,10 +46,13 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
       );
       // Create a prompt template using the provided data
       const template = `
-        You are a SQL expert specialized in postgres or oracle19c databases. 
-        Generate a SELECT query that answers the user's question using ONLY the provided database schema.
+        You are a SQL expert specialized in ${data.dbType} databases. 
+        Generate a SELECT query that answers the user's question using ONLY the provided database schema and the help of the similar questions with its sql and score to guide you.
 
-        ### Database Schema postgres or oracle19c:
+        ### Database Type:
+        ${data.dbType}
+ 
+        ### Database Schema ANSI SQL:
         ${JSON.stringify(data.schemaBased)}
 
         ### User Question:
@@ -59,27 +62,44 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
         ${JSON.stringify(data.similarKnowledgeBased, null, 2)}
 
         ### Instructions:
-        1. Use ONLY the tables and columns from the provided schema
-        2. Generate standard postgres or oracle19c SQL without database-specific extensions
-        3. Return ONLY the SQL query with no additional text
-        4. Always use explicit JOIN syntax instead of implicit joins
-        5. Include necessary WHERE clauses based on the question
-        6. Use table aliases for readability
-        7. Format the query for readability
-        8. Use the similarity question as inspiration but adapt to the current question and schema
-        9. Generate the sql without ";", even at the end of the query
-        10. If you don't know the answer, respond with why you don't know according to the format
+        A) Scope & Validation
+        1) Use ONLY the tables and columns present in the provided schema list.
+        2) Build an internal map: schema.table -> {columns, datatypes}; validate every referenced column.
+        3) Qualify tables as TABLE_SCHEMA.TABLE_NAME and use table aliases; qualify selected/filtered columns.
+
+
+        B) Dialect: mssql
+        5) Use standard T-SQL for SELECT/JOIN/WHERE/ORDER BY. Avoid vendor-specific features from other engines.
+
+        C) Query Construction
+        6) Always use explicit JOINs inferred from columns that exist on both sides (e.g., *_ID ↔ ID). Do not invent columns.
+        7) Add necessary WHERE clauses implied by the question; respect datatypes (no quoting numerics; use parameters for strings/dates).
+        8) Use table aliases; format the query with indentation and line breaks.
+        9) When “top/latest/best” is implied, add a deterministic ORDER BY and (if needed) OFFSET … FETCH.
+
+        D) Similarity Enforcement (STRICT)
+        10) Let similarity_threshold = 0.95:
+            - Validate the candidate SQL against the current schema map.
+            - If score is greater than similarity_threshold, then, reuse it as-is, do not modify anything, generate it as it is. Do not add anything else!.
+            - If score is less than similarity_threshold, then, minimally adapt invalid identifiers or may have to combine multiple similar items; if still invalid, return NOT_ANSWERED.
+
+        E) Output & Fallback
+        13) Return ONLY the SQL query, inside a code block, with no extra text and no trailing semicolon.
 
 
         ### Response Format, if you know the answer:
         Return ONLY the SQL query inside a code block:
         \`\`\`sql
-        SELECT ... WHERE ...
+          SELECT ...
+          FROM schema.table AS t
+          JOIN schema.other AS o ON ...
+          WHERE ...
+          ORDER BY ...
         \`\`\`
 
         ### Response Format, if you don't know the answer:
         \`\`\`NOT_ANSWERED
-        I don't know because ...
+          I don't know because ...
         \`\`\`
 
       `;

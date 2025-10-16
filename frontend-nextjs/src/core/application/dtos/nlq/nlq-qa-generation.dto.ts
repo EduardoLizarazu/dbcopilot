@@ -30,6 +30,7 @@ export const nlqQaGenerationSchema = z.object({
     })
   ),
   answer: z.string(),
+  dbType: z.string(),
 });
 
 // Create prompt template 40190
@@ -37,6 +38,7 @@ export const createNlqQaGenerationPromptTemplate = nlqQaGenerationSchema.pick({
   question: true,
   similarKnowledgeBased: true,
   schemaBased: true,
+  dbType: true,
 });
 
 export type TCreateNlqQaGenerationPromptTemplate = z.infer<
