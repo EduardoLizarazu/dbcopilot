@@ -1,5 +1,6 @@
 "use server";
 import { DataSource } from "typeorm";
+import { encoding_for_model } from "tiktoken";
 
 export async function queryODBC() {
   const tempDataSource = new DataSource({
@@ -26,89 +27,44 @@ export async function queryODBC() {
     try {
       // Execute the query
       const result = await queryRunner.query(`
-SELECT
-    ac.owner                               AS table_schema,
-    ac.table_name,
-    ac.column_name,
-    ac.data_type,
-    ac.data_length,
-    ac.data_precision,
-    ac.data_scale,
-    ac.nullable,
-    CASE WHEN pk_cols.column_name IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS is_primary_key,
-    CASE WHEN fk_cols.column_name IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS is_foreign_key,
-    fk_ref_cons.r_owner                    AS referenced_table_schema,
-    fk_ref_cons.r_table_name               AS referenced_table_name,
-    fk_ref_cols.column_name                AS referenced_column_name
-FROM
-    ALL_TAB_COLUMNS ac
-LEFT JOIN (
-    -- Columnas que participan en PRIMARY KEY del mismo owner
-    SELECT
-        acc.owner,
-        acc.table_name,
-        acc.column_name
-    FROM ALL_CONSTRAINTS cons
-    JOIN ALL_CONS_COLUMNS acc
-      ON cons.owner = acc.owner
-     AND cons.constraint_name = acc.constraint_name
-    WHERE cons.constraint_type = 'P'
-      AND cons.owner = 'TMPRD'          -- limita al owner objetivo
-) pk_cols
-  ON ac.owner = pk_cols.owner
- AND ac.table_name = pk_cols.table_name
- AND ac.column_name = pk_cols.column_name
-LEFT JOIN (
-    -- Columnas que participan en FOREIGN KEY del mismo owner
-    SELECT
-        acc.owner,
-        acc.table_name,
-        acc.column_name,
-        acc.position,
-        cons.r_owner,                    -- esquema referenciado
-        cons.r_constraint_name           -- constraint referenciada (PK/Unique en la tabla padre)
-    FROM ALL_CONSTRAINTS cons
-    JOIN ALL_CONS_COLUMNS acc
-      ON cons.owner = acc.owner
-     AND cons.constraint_name = acc.constraint_name
-    WHERE cons.constraint_type = 'R'
-      AND cons.owner = 'TMPRD'          -- limita al owner objetivo
-) fk_cols
-  ON ac.owner = fk_cols.owner
- AND ac.table_name = fk_cols.table_name
- AND ac.column_name = fk_cols.column_name
-LEFT JOIN (
-    -- Detalle de la constraint referenciada (en la tabla padre)
-    SELECT
-        owner        AS r_owner,
-        constraint_name,
-        table_name   AS r_table_name
-    FROM ALL_CONSTRAINTS
-    WHERE constraint_type IN ('P','U')  -- la referenciada debe ser PK o UNIQUE
-) fk_ref_cons
-  ON fk_cols.r_owner = fk_ref_cons.r_owner
- AND fk_cols.r_constraint_name = fk_ref_cons.constraint_name
-LEFT JOIN (
-    -- Columnas específicas referenciadas, matcheadas por posición
-    SELECT
-        owner,
-        constraint_name,
-        column_name,
-        position
-    FROM ALL_CONS_COLUMNS
-) fk_ref_cols
-  ON fk_ref_cons.r_owner = fk_ref_cols.owner
- AND fk_ref_cons.constraint_name = fk_ref_cols.constraint_name
- AND fk_cols.position = fk_ref_cols.position
-WHERE
-    ac.owner = 'TMPRD'                   -- << SOLO tablas/columnas del usuario TMPRD
-ORDER BY
-    ac.owner,
-    ac.table_name,
-    ac.column_id
-`);
+        SELECT DISTINCT
+          c.owner        AS TABLE_SCHEMA,
+          c.table_name AS TABLE_NAME,
+          c.column_name AS COLUMN_NAME,
+          CASE
+            WHEN c.data_type IN ('CHAR','NCHAR','VARCHAR2','NVARCHAR2')
+              THEN c.data_type || '(' || c.char_col_decl_length || ')'
+            WHEN c.data_type IN ('NUMBER','FLOAT') AND c.data_precision IS NOT NULL AND c.data_scale IS NOT NULL
+              THEN c.data_type || '(' || c.data_precision || ',' || c.data_scale || ')'
+            WHEN c.data_type IN ('NUMBER','FLOAT') AND c.data_precision IS NOT NULL AND c.data_scale IS NULL
+              THEN c.data_type || '(' || c.data_precision || ')'
+            WHEN c.data_type IN ('RAW')
+              THEN c.data_type || '(' || c.data_length || ')'
+            ELSE c.data_type
+          END AS DATA_TYPE
+        FROM ALL_TAB_COLUMNS c
+        JOIN ALL_TABLES t
+          ON t.owner = c.owner
+        AND t.table_name = c.table_name
+        WHERE (
+          c.owner = USER
+          OR EXISTS (
+            SELECT 1
+            FROM ALL_TAB_PRIVS p
+            WHERE p.table_name = c.table_name
+              AND p.table_schema = c.owner
+              AND p.grantee = USER
+          )
+        )
+        ORDER BY
+          c.owner, c.table_name, c.column_name
+    `);
 
       console.log("Query result:", result);
+      console.log(`Number of rows retrieved: ${result.length}`);
+      const encoding = encoding_for_model("gpt-4-turbo");
+      const tokens = encoding.encode(JSON.stringify(result));
+      console.log(`Number of tokens used: ${tokens.length}`);
       return result;
     } catch (queryError) {
       console.error("Error executing query:", queryError);

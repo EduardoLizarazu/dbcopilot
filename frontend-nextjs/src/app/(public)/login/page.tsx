@@ -48,7 +48,7 @@ export default function LoginPage() {
     (async () => {
       await queryODBC()
         .then((result) => {
-          console.log(result);
+          console.log("SCHEMA", result);
 
           console.log("OracleDB connection test successful");
         })
