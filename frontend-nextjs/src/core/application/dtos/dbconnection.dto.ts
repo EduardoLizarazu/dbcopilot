@@ -70,3 +70,14 @@ export type TDbConnectionOutRequestDtoWithVbAndUser =
 export type TDbConnectionOutRequestDtoWithVbd = TDbConnectionOutRequestDto & {
   vbd_splitter: TVbdOutRequestDto;
 };
+
+export const dbConnStringSchema = dbConnectionSchema.pick({
+  type: true,
+  host: true,
+  port: true,
+  database: true,
+  username: true,
+  password: true,
+});
+
+export type TDbConnStringDto = z.infer<typeof dbConnStringSchema>;
