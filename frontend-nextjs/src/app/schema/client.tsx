@@ -11,7 +11,12 @@ import {
   TableCell,
   TableBody,
   TableContainer,
+  Tooltip,
+  IconButton,
+  Link,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { TSchemaOutRqDto } from "@/core/application/dtos/schemaContext.dto";
 
 export default function ListSchemaClient({
@@ -34,6 +39,10 @@ export default function ListSchemaClient({
       ].some((field) => field.includes(lowerQuery))
     );
   });
+
+  async function onDelete(id: string) {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
@@ -60,6 +69,7 @@ export default function ListSchemaClient({
               <TableCell sx={{ fontWeight: 700 }}>Port</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>DB Name</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Connections</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -87,6 +97,27 @@ export default function ListSchemaClient({
                     <TableCell>{field.port}</TableCell>
                     <TableCell>{field.database}</TableCell>
                     <TableCell>{connectionCount}</TableCell>
+                    <TableCell align="right">
+                      <Tooltip title="Edit">
+                        <IconButton
+                          component={Link}
+                          href={`/schema/${row.id}`}
+                          aria-label="Edit role"
+                          size="small"
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Remove">
+                        <IconButton
+                          onClick={() => onDelete(row.id)}
+                          aria-label="Remove role"
+                          size="small"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
                   </TableRow>
                 ));
               })
