@@ -9,6 +9,8 @@ import { IUpdateDbConnStep } from "../../steps/dbconn/update-dbconn.step";
 import { IValidateInputUpdateDbConnStep } from "../../steps/dbconn/validate-input-update-dbconn.step";
 import { ITransferSplitterToNewOnKnowledgeBaseStep } from "../../steps/knowledgeBased/transfer-splitter-to-new-on-knowledge-base.step";
 import { IReadNlqQaGoodByDbConnIdStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-dbconn-id.step";
+import { IReadSchemaByConnIdStep } from "../../steps/schema/read-schema-by-connection-id.step";
+import { IUpdateConnOnSchemaStep } from "../../steps/schema/update-conn-on-schema.step";
 import { IReadVbdSplitterByIdStep } from "../../steps/vbd-splitter/read-vbd-splitter-by-id.step";
 
 export interface IUpdateDbConnectionUseCase {
@@ -39,7 +41,9 @@ export class UpdateDbConnectionUseCase implements IUpdateDbConnectionUseCase {
     private readonly readSplitterByIdStep: IReadVbdSplitterByIdStep,
     private readonly readNlqQaGoodByDbConnIdStep: IReadNlqQaGoodByDbConnIdStep,
     private readonly updateDbConnStep: IUpdateDbConnStep,
-    private readonly transferSplitterToNewOnKnowledgeBaseStep: ITransferSplitterToNewOnKnowledgeBaseStep
+    private readonly transferSplitterToNewOnKnowledgeBaseStep: ITransferSplitterToNewOnKnowledgeBaseStep,
+    private readonly readSchemaByConnIdStep: IReadSchemaByConnIdStep,
+    private readonly updateConnOnSchemaStep: IUpdateConnOnSchemaStep
   ) {}
 
   async execute(
@@ -97,6 +101,22 @@ export class UpdateDbConnectionUseCase implements IUpdateDbConnectionUseCase {
       delete updateDto.actorId;
 
       const updatedDbConn = await this.updateDbConnStep.run(updateDto);
+
+      // 9. Find schema by connection id
+      const schema = await this.readSchemaByConnIdStep.run(oldDbConn.id);
+      if (schema && schema.id) {
+        // 10. Update connection info on schema
+        await this.updateConnOnSchemaStep.run(schema.id, {
+          id: oldDbConn.id,
+          type: updatedDbConn.type,
+          host: updatedDbConn.host,
+          port: updatedDbConn.port,
+          database: updatedDbConn.database,
+          sid: updatedDbConn.sid,
+          username: updatedDbConn.username,
+          password: updatedDbConn.password,
+        });
+      }
 
       // 9. Return response
       return {

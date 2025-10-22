@@ -19,8 +19,7 @@ export class ReadSchemaByIdStep implements IReadSchemaByIdStep {
         throw new Error("Invalid schema ID");
       }
 
-      const schemaDoc =
-        await this.schemaRepo.findSchemaCtxKnowledgeGraphById(schemaId);
+      const schemaDoc = await this.schemaRepo.findById(schemaId);
       if (!schemaDoc) {
         this.logger.error("[ReadSchemaByIdStep] Schema not found:", schemaId);
         throw new Error("Schema not found");

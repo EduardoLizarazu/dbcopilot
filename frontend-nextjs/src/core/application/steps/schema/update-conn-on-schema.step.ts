@@ -8,11 +8,11 @@ import {
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { ISchemaRepository } from "../../interfaces/schema/schema.inter";
 
-export interface IUpdateSchemaStep {
+export interface IUpdateConnOnSchemaStep {
   run(id: string, data: TUpdateConnOnSchemaInRqDto): Promise<TSchemaOutRqDto>;
 }
 
-export class UpdateSchemaStep implements IUpdateSchemaStep {
+export class UpdateConnOnSchemaStep implements IUpdateConnOnSchemaStep {
   constructor(
     private readonly logger: ILogger,
     private readonly schemaRepo: ISchemaRepository

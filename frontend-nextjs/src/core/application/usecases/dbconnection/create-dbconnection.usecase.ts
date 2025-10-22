@@ -7,19 +7,19 @@ import { ILogger } from "../../interfaces/ilog.app.inter";
 import { ICreateDbConnStep } from "../../steps/dbconn/create-dbconn.step";
 import { IValidateInputCreateDbConnStep } from "../../steps/dbconn/validate-input-create-dbconn.step";
 import { ICreateSchemaStep } from "../../steps/schema/create-schema.step";
-import { IReadSchemaByConnectionFieldsStep } from "../../steps/schema/read-by-connecion-fields.step";
-import { IUpdateSchemaStep } from "../../steps/schema/update-schema.step";
+import { IReadSchemaByConnectionFieldsStep } from "../../steps/schema/read-schema-by-connecion-fields.step";
+import { IAddConnToSchemaStep } from "../../steps/schema/add-conn-to-schema.step";
 
 /**
  * Create db connection use case:
  * 1. Validate input data
  * 2. Create the db connection
- * 3. Verify if connection fields already exists in SCHEMA CTX KNOWLEDGE GRAPH
+ * 3. Verify if connection fields already exists in SCHEMA
  * 3.a.1. If no exists.
- * 3.a.2. Create a new SCHEMA CTX KNOWLEDGE GRAPH with the connection fields.
+ * 3.a.2. Create a new SCHEMA  with the connection fields.
  * 3.b.1. If exists.
- * 3.b.2. Find the id of the existing SCHEMA CTX KNOWLEDGE GRAPH
- * 3.b.3. Update add the new connection fields to the existing SCHEMA CTX KNOWLEDGE GRAPH
+ * 3.b.2. Find the id of the existing SCHEMA
+ * 3.b.3. Update add the new connection fields to the existing SCHEMA
  * 3. Return response
  */
 
@@ -36,7 +36,7 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
     private readonly createDbConnStep: ICreateDbConnStep,
     private readonly readSchemaByConnectionFieldsStep: IReadSchemaByConnectionFieldsStep,
     private readonly createSchemaStep: ICreateSchemaStep,
-    private readonly updateSchemaStep: IUpdateSchemaStep
+    private readonly addConnToSchema: IAddConnToSchemaStep
   ) {}
 
   async execute(
@@ -52,7 +52,7 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
       delete createDto.actorId;
       const createdDbConn = await this.createDbConnStep.run(createDto);
 
-      // STEP 3: Verify if connection fields already exists in SCHEMA CTX KNOWLEDGE GRAPH
+      // STEP 3: Verify if connection fields already exists in SCHEMA
       const existingSchema = await this.readSchemaByConnectionFieldsStep.run({
         type: createdDbConn.type,
         host: createdDbConn.host,
@@ -66,7 +66,7 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
 
       if (!existingSchema) {
         // 3.a.1. If no exists.
-        // 3.a.2. Create a new SCHEMA CTX KNOWLEDGE GRAPH with the connection fields.
+        // 3.a.2. Create a new SCHEMA  with the connection fields.
         await this.createSchemaStep.run({
           id: createdDbConn.id,
           type: createdDbConn.type,
@@ -79,11 +79,11 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
       }
       if (existingSchema) {
         // 3.b.1. If exists.
-        // 3.b.2. Find the id of the existing SCHEMA CTX KNOWLEDGE GRAPH
+        // 3.b.2. Find the id of the existing SCHEMA
         const existingSchemaId = existingSchema.id;
 
-        // 3.b.3. Update add the new connection fields to the existing SCHEMA CTX KNOWLEDGE GRAPH
-        await this.updateSchemaStep.run(existingSchemaId, {
+        // 3.b.3. Update add the new connection fields to the existing SCHEMA (adding the new connection)
+        await this.addConnToSchema.run(existingSchemaId, {
           schemaId: existingSchemaId,
           id: createdDbConn.id,
           type: createdDbConn.type,

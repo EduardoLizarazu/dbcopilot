@@ -2,11 +2,11 @@ import { TSchemaOutRqDto } from "../../dtos/schemaContext.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { ISchemaRepository } from "../../interfaces/schema/schema.inter";
 
-export interface IReadByConnIdStep {
+export interface IReadSchemaByConnIdStep {
   run(connId: string): Promise<TSchemaOutRqDto | null>;
 }
 
-export class ReadByConnIdStep implements IReadByConnIdStep {
+export class ReadSchemaByConnIdStep implements IReadSchemaByConnIdStep {
   constructor(
     private readonly logger: ILogger,
     private readonly schemaRepo: ISchemaRepository

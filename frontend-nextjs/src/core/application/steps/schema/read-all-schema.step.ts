@@ -1,20 +1,20 @@
-import { TSchemaCtxKnowledgeGraphOutRq } from "../../dtos/schemaContext.dto";
+import { TSchemaOutRqDto } from "../../dtos/schemaContext.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
-import { ISchemaCtxKnowledgeGraphRepository } from "../../interfaces/schema/schema.inter";
+import { ISchemaRepository } from "../../interfaces/schema/schema.inter";
 
 export interface IReadAllSchemaStep {
-  run(): Promise<TSchemaCtxKnowledgeGraphOutRq[]>;
+  run(): Promise<TSchemaOutRqDto[]>;
 }
 
 export class ReadAllSchemaStep implements IReadAllSchemaStep {
   constructor(
     private readonly logger: ILogger,
-    private readonly schemaRepo: ISchemaCtxKnowledgeGraphRepository
+    private readonly schemaRepo: ISchemaRepository
   ) {}
-  async run(): Promise<TSchemaCtxKnowledgeGraphOutRq[]> {
+  async run(): Promise<TSchemaOutRqDto[]> {
     try {
       this.logger.info("[ReadAllSchemaStep] Reading all schemas");
-      const schemas = await this.schemaRepo.findAllSchemaCtxKnowledgeGraph();
+      const schemas = await this.schemaRepo.findAll();
       this.logger.info(
         "[ReadAllSchemaStep] Retrieved schemas:",
         JSON.stringify(schemas)
