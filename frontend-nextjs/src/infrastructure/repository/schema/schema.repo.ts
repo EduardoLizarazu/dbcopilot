@@ -40,8 +40,26 @@ export class SchemaRepository implements ISchemaRepository {
   ) {}
 
   // CREATE SCHEMA
-  createSchema(data: TCreateSchema): Promise<string> {
-    throw new Error("Method not implemented.");
+  async createSchema(data: TCreateSchema): Promise<string> {
+    try {
+      // Use Firebase Admin SDK to insert Schema Context Knowledge Graph
+      const schemaDocRef = await this.fbAdmin.db
+        .collection(this.fbAdmin.coll.SCHEMA)
+        .add(data);
+
+      await schemaDocRef.update({ id: schemaDocRef.id });
+      this.logger.info("SchemaRepository: Created schema:", {
+        id: schemaDocRef.id,
+        ...data,
+      });
+      return schemaDocRef.id;
+    } catch (error) {
+      this.logger.error(
+        "[SchemaRepository] Error creating schema:",
+        error.message
+      );
+      throw new Error(error.message || "Error creating schema");
+    }
   }
   // CREATE NODES
   createSchemaNode(
@@ -183,8 +201,30 @@ export class SchemaRepository implements ISchemaRepository {
   }
 
   //   UPDATE SCHEMA
-  updateConnOnSchema(id: string, data: TUpdateConnOnSchema): Promise<void> {
-    throw new Error("Method not implemented.");
+  async updateConnOnSchema(
+    id: string,
+    data: TUpdateConnOnSchema
+  ): Promise<void> {
+    try {
+      this.logger.info(
+        `[SchemaRepository] Updating connection on schema with ID ${id}:`,
+        data
+      );
+      // Use Firebase Admin SDK to update the schema document
+      await this.fbAdmin.db
+        .collection(this.fbAdmin.coll.SCHEMA)
+        .doc(id)
+        .update({ ...data });
+      this.logger.info(
+        `[SchemaRepository] Updated connection on schema with ID ${id}`
+      );
+    } catch (error) {
+      this.logger.error(
+        `[SchemaRepository] Error updating connection on schema with ID ${id}:`,
+        error.message
+      );
+      throw new Error(error.message || "Error updating connection on schema");
+    }
   }
   // UPDATE NODES
   updateSchemaNode(
