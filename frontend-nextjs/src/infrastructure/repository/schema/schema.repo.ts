@@ -28,6 +28,7 @@ import {
   TCreateSchema,
   TSchemaOutRqDto,
   TUpdateConnOnSchema,
+  TSchema,
 } from "@/core/application/dtos/schemaContext.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { ISchemaRepository } from "@/core/application/interfaces/schema/schema.inter";
@@ -312,6 +313,7 @@ export class SchemaRepository implements ISchemaRepository {
   updateUseEdge(id: string, data: Partial<UseEdge>): Promise<void> {
     throw new Error("Method not implemented.");
   }
+  //  UPDATE INDEX
   updateSchemasByNameIndex(
     schemaCtxId: string,
     data: Partial<SchemasByNameIndex>
@@ -343,15 +345,59 @@ export class SchemaRepository implements ISchemaRepository {
     throw new Error("Method not implemented.");
   }
   //   DELETE
-  deleteSchema(id: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  async deleteSchema(id: string): Promise<void> {
+    try {
+      this.logger.info(`[SchemaRepository] Deleting schema with ID ${id}`);
+      await this.fbAdmin.db
+        .collection(this.fbAdmin.coll.SCHEMA)
+        .doc(id)
+        .delete();
+      this.logger.info(`[SchemaRepository] Deleted schema with ID ${id}`);
+    } catch (error) {
+      this.logger.error(
+        `[SchemaRepository] Error deleting schema with ID ${id}:`,
+        error.message
+      );
+      throw new Error(error.message || "Error deleting schema");
+    }
   }
+  async deleteConnOnSchema(id: string, connId: string): Promise<void> {
+    try {
+      this.logger.info(
+        `[SchemaRepository] Deleting connection ${connId} from schema ${id}`
+      );
+      const schemaDocRef = this.fbAdmin.db
+        .collection(this.fbAdmin.coll.SCHEMA)
+        .doc(id);
+      const schemaDoc = await schemaDocRef.get();
+
+      if (!schemaDoc.exists) {
+        throw new Error(`Schema with ID ${id} does not exist`);
+      }
+      const schemaData = schemaDoc.data() as TSchema;
+      const connList = schemaData.connStringRef || [];
+      const updateConnList = connList.filter((conn) => conn !== connId);
+      await schemaDocRef.update({ connStringRef: updateConnList });
+      this.logger.info(
+        `[SchemaRepository] Deleted connection ${connId} from schema ${id}`
+      );
+    } catch (error) {
+      this.logger.error(
+        `[SchemaRepository] Error deleting connection ${connId} from schema ${id}:`,
+        error.message
+      );
+      throw new Error(error.message || "Error deleting connection from schema");
+    }
+  }
+  // DELETE NODE
   deleteNodeById(schemaCtxId: string, nodeId: string): Promise<void> {
     throw new Error("Method not implemented.");
   }
+  // DELETE EDGE
   deleteEdgeById(schemaCtxId: string, edgeId: string): Promise<void> {
     throw new Error("Method not implemented.");
   }
+  // DELETE INDEX
   deleteSchemasByNameIndex(
     schemaCtxId: string,
     indexId: string
@@ -382,15 +428,116 @@ export class SchemaRepository implements ISchemaRepository {
   ): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  findSchemaCtxKnowledgeGraphById(id: string): Promise<TSchemaOutRqDto | null> {
-    throw new Error("Method not implemented.");
+  // READ
+  async findById(id: string): Promise<TSchemaOutRqDto | null> {
+    try {
+      this.logger.info(`[SchemaRepository] Finding schema by ID ${id}`);
+      const schemaDoc = await this.fbAdmin.db
+        .collection(this.fbAdmin.coll.SCHEMA)
+        .doc(id)
+        .get();
+      if (!schemaDoc.exists) {
+        this.logger.info(
+          `[SchemaRepository] Schema with ID ${id} does not exist`
+        );
+        return null;
+      }
+      return schemaDoc.data() as TSchemaOutRqDto;
+    } catch (error) {
+      this.logger.error(
+        `[SchemaRepository] Error finding schema by ID ${id}:`,
+        error.message
+      );
+      throw new Error(error.message || "Error finding schema by ID");
+    }
   }
-  findAllSchemaCtxKnowledgeGraph(): Promise<TSchemaOutRqDto[]> {
-    throw new Error("Method not implemented.");
+  async findAll(): Promise<TSchemaOutRqDto[]> {
+    try {
+      this.logger.info(`[SchemaRepository] Finding all schemas`);
+      const snapshot = await this.fbAdmin.db
+        .collection(this.fbAdmin.coll.SCHEMA)
+        .get();
+      const schemas: TSchemaOutRqDto[] = [];
+      snapshot.forEach((doc) => {
+        schemas.push(doc.data() as TSchemaOutRqDto);
+      });
+      return schemas;
+    } catch (error) {
+      this.logger.error(
+        `[SchemaRepository] Error finding all schemas:`,
+        error.message
+      );
+      throw new Error(error.message || "Error finding all schemas");
+    }
   }
-  findByConnectionFields(
+  async findByConnectionFields(
     data: TReadByConnectionFieldsDto
   ): Promise<TSchemaOutRqDto | null> {
-    throw new Error("Method not implemented.");
+    try {
+      this.logger.info(
+        `[SchemaRepository] Finding schema by connection fields:`,
+        data
+      );
+      // iterate through collection with where clauses (connStringRef is an array of objects)
+      const snapshot = await this.fbAdmin.db
+        .collection(this.fbAdmin.coll.SCHEMA)
+        .get();
+
+      const schemas = snapshot.docs.map((doc) => doc.data() as TSchemaOutRqDto);
+      const foundSchema = schemas.find((schema) => {
+        return schema.connStringRef?.some(
+          (conn) =>
+            conn.host === data.host &&
+            conn.port === data.port &&
+            conn.database === data.database &&
+            conn.username === data.username &&
+            conn.sid === data.sid
+        );
+      });
+      if (!foundSchema) {
+        this.logger.info(
+          `[SchemaRepository] No schema found with the given connection fields`
+        );
+        return null;
+      }
+      return foundSchema;
+    } catch (error) {
+      this.logger.error(
+        `[SchemaRepository] Error finding schema by connection fields:`,
+        error.message
+      );
+      throw new Error(
+        error.message || "Error finding schema by connection fields"
+      );
+    }
+  }
+  async findByConnId(connId: string): Promise<TSchemaOutRqDto | null> {
+    try {
+      this.logger.info(
+        `[SchemaRepository] Finding schema by connection ID ${connId}`
+      );
+      const snapshot = await this.fbAdmin.db
+        .collection(this.fbAdmin.coll.SCHEMA)
+        .get();
+
+      const schemas = snapshot.docs.map((doc) => doc.data() as TSchemaOutRqDto);
+      const foundSchema = schemas.find((schema) =>
+        schema.connStringRef?.some((conn) => conn.id === connId)
+      );
+
+      if (!foundSchema) {
+        this.logger.info(
+          `[SchemaRepository] No schema found with connection ID ${connId}`
+        );
+        return null;
+      }
+      return foundSchema;
+    } catch (error) {
+      this.logger.error(
+        `[SchemaRepository] Error finding schema by connection ID ${connId}:`,
+        error.message
+      );
+      throw new Error(error.message || "Error finding schema by connection ID");
+    }
   }
 }

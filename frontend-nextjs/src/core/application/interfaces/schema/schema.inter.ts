@@ -192,6 +192,7 @@ export interface ISchemaRepository {
 
   // DELETE
   deleteSchema(id: string): Promise<void>;
+  deleteConnOnSchema(id: string, connId: string): Promise<void>;
 
   // DELETE NODE
   deleteNodeById(schemaCtxId: string, nodeId: string): Promise<void>;
@@ -216,11 +217,12 @@ export interface ISchemaRepository {
   ): Promise<void>;
 
   // READ
-  findSchemaCtxKnowledgeGraphById(id: string): Promise<TSchemaOutRqDto | null>;
-  findAllSchemaCtxKnowledgeGraph(): Promise<TSchemaOutRqDto[]>;
+  findById(id: string): Promise<TSchemaOutRqDto | null>;
+  findAll(): Promise<TSchemaOutRqDto[]>;
   findByConnectionFields(
     data: TReadByConnectionFieldsDto
   ): Promise<TSchemaOutRqDto | null>;
+  findByConnId(connId: string): Promise<TSchemaOutRqDto | null>;
 
   // READ BY NODE
 }

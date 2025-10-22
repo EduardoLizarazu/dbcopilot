@@ -5,6 +5,7 @@ import { IReadDbConnByIdStep } from "../../steps/dbconn/read-dbconn-by-id.step";
 import { IDeleteOnKnowledgeBaseByIdStep } from "../../steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
 import { IReadNlqQaGoodByDbConnIdStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-dbconn-id.step";
 import { IRemoveDbConnOnNlqQaGoodByIdStep } from "../../steps/nlq-qa-good/remove-dbconn-on-nlq-qa-good.step";
+import { IDeleteConnSchemaStep } from "../../steps/schema/delete-conn-schema.step";
 import { IReadVbdSplitterByIdStep } from "../../steps/vbd-splitter/read-vbd-splitter-by-id.step";
 
 export interface IDeleteDbConnectionUseCase {
@@ -22,7 +23,8 @@ export interface IDeleteDbConnectionUseCase {
  * 5.2 If knowledge source is false, skip
  * 6. Update all the nlq qa good entry to isOnKnowledgeSource false and knowledgeSourceId to empty string and connectionId to empty string, by iteration
  * 7. Delete db connection
- * 8. Return response
+ * 8. Delete the connection from the schema context graph
+ * 9. Return response
  */
 
 export class DeleteDbConnectionUseCase implements IDeleteDbConnectionUseCase {
@@ -33,7 +35,8 @@ export class DeleteDbConnectionUseCase implements IDeleteDbConnectionUseCase {
     private readonly readNlqQaGoodByDbConnId: IReadNlqQaGoodByDbConnIdStep,
     private readonly deleteOnKnowledgeBaseById: IDeleteOnKnowledgeBaseByIdStep,
     private readonly removeDbConnOnNlqQaGoodById: IRemoveDbConnOnNlqQaGoodByIdStep,
-    private readonly deleteDbConnStep: IDeleteDbConnStep
+    private readonly deleteDbConnStep: IDeleteDbConnStep,
+    private readonly deleteConnOnSchemaStep: IDeleteConnSchemaStep
   ) {}
   async execute(id: string): Promise<TResponseDto<null>> {
     try {
@@ -78,7 +81,10 @@ export class DeleteDbConnectionUseCase implements IDeleteDbConnectionUseCase {
       // 7. Delete db connection
       await this.deleteDbConnStep.run(id);
 
-      // 8. Return response
+      // 8. Delete the connection from the schema context graph
+      await this.deleteConnOnSchemaStep.run(id);
+
+      // 9. Return response
       this.logger.info(
         `[DeleteDbConnectionUseCase] Successfully deleted DB connection with id: ${id}`
       );
