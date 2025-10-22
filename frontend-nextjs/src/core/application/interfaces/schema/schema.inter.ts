@@ -191,7 +191,7 @@ export interface ISchemaRepository {
   ): Promise<ColumnsByAliasIndex>;
 
   // DELETE
-  deleteSchemaCtxKnowledgeGraph(id: string): Promise<void>;
+  deleteSchema(id: string): Promise<void>;
 
   // DELETE NODE
   deleteNodeById(schemaCtxId: string, nodeId: string): Promise<void>;

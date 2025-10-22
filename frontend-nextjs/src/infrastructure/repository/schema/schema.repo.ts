@@ -39,10 +39,11 @@ export class SchemaRepository implements ISchemaRepository {
     private readonly fbAdmin: FirebaseAdminProvider
   ) {}
 
+  // CREATE SCHEMA
   createSchema(data: TCreateSchema): Promise<string> {
     throw new Error("Method not implemented.");
   }
-
+  // CREATE NODES
   createSchemaNode(
     schemaCtxId: string,
     data: SchemaNodeMetadata
@@ -103,6 +104,7 @@ export class SchemaRepository implements ISchemaRepository {
   ): Promise<string> {
     throw new Error("Method not implemented.");
   }
+  //   CREATE EDGES
   createBelongToEdge(
     schemaCtxKwId: string,
     data: BelongSchemaEdge
@@ -179,9 +181,12 @@ export class SchemaRepository implements ISchemaRepository {
   ): Promise<TablesByAliasIndex> {
     throw new Error("Method not implemented.");
   }
+
+  //   UPDATE SCHEMA
   updateConnOnSchema(id: string, data: TUpdateConnOnSchema): Promise<void> {
     throw new Error("Method not implemented.");
   }
+  // UPDATE NODES
   updateSchemaNode(
     id: string,
     data: Partial<SchemaNodeMetadata>
@@ -233,6 +238,7 @@ export class SchemaRepository implements ISchemaRepository {
   ): Promise<void> {
     throw new Error("Method not implemented.");
   }
+  //   UPDATE EDGES
   updateBelongToEdge(
     id: string,
     data: Partial<BelongSchemaEdge>
@@ -296,7 +302,8 @@ export class SchemaRepository implements ISchemaRepository {
   ): Promise<ColumnsByAliasIndex> {
     throw new Error("Method not implemented.");
   }
-  deleteSchemaCtxKnowledgeGraph(id: string): Promise<void> {
+  //   DELETE
+  deleteSchema(id: string): Promise<void> {
     throw new Error("Method not implemented.");
   }
   deleteNodeById(schemaCtxId: string, nodeId: string): Promise<void> {
