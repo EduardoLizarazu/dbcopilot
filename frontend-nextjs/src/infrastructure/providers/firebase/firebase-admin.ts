@@ -12,6 +12,7 @@ enum FbCollection {
   NLQ_ROLES = "nlq_roles",
   VBD_SPLITTERS = "vbd_splitters",
   DB_CONNECTIONS = "db_connections",
+  SCHEMA = "schema",
 }
 
 // Handle \n when key is stored in a single-line env var

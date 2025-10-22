@@ -5,7 +5,6 @@ import {
   ColumnNodeMetadata,
   ColumnsByAliasIndex,
   ColumnsByTableAndNameIndex,
-  TCreateSchemaCtxKnowledgeGraphInRq,
   FilterEdge,
   FilterNodeMetadata,
   GrainEdge,
@@ -16,7 +15,6 @@ import {
   QueryNodeMetadata,
   QuestionNodeMetadata,
   ScheduleEdge,
-  SchemaCtxKnowledge,
   SchemaNodeMetadata,
   SchemasByNameIndex,
   SubqueryEdge,
@@ -29,13 +27,12 @@ import {
   TSchemaCtxKnowledgeGraphOutRq,
   TUpdateConnOnSchemaGraph,
   TReadByConnectionFieldsDto,
+  TCreateSchema,
 } from "../../dtos/schemaContext.dto";
 
-export interface ISchemaCtxKnowledgeGraphRepository {
+export interface ISchemaRepository {
   // create
-  createSchemaCtxKnowledgeGraph(
-    data: TCreateSchemaCtxKnowledgeGraphInRq
-  ): Promise<string>;
+  createSchema(data: TCreateSchema): Promise<string>;
   //  CREATE NODES
   createSchemaNode(
     schemaCtxId: string,

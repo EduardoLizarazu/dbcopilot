@@ -1,10 +1,12 @@
 import {
+  CreateSchema,
   createSchemaCtxKnowledgeGraphInRq,
+  TCreateSchema,
   TCreateSchemaCtxKnowledgeGraphInRq,
   TSchemaCtxKnowledgeGraphOutRq,
 } from "../../dtos/schemaContext.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
-import { ISchemaCtxKnowledgeGraphRepository } from "../../interfaces/schema/schema.inter";
+import { ISchemaRepository } from "../../interfaces/schema/schema.inter";
 
 export interface ICreateSchemaStep {
   run(
@@ -15,7 +17,7 @@ export interface ICreateSchemaStep {
 export class CreateSchemaStep implements ICreateSchemaStep {
   constructor(
     private readonly logger: ILogger,
-    private readonly schemaRepo: ISchemaCtxKnowledgeGraphRepository
+    private readonly schemaRepo: ISchemaRepository
   ) {}
 
   async run(
@@ -40,10 +42,24 @@ export class CreateSchemaStep implements ICreateSchemaStep {
         );
       }
 
+      // 2. Create dto
+      const dto: TCreateSchema = {
+        connStringRef: [{ ...vData.data }],
+      };
+
+      const createVData = await CreateSchema.safeParseAsync(dto);
+      if (!createVData.success) {
+        this.logger.error(
+          "[CreateSchemaStep] Create DTO Validation failed:",
+          JSON.stringify(createVData.error)
+        );
+        throw new Error(
+          "Validation failed: " + JSON.stringify(createVData.error.message)
+        );
+      }
+
       //   1. Create the schema context knowledge graph
-      const schemaId = await this.schemaRepo.createSchemaCtxKnowledgeGraph(
-        vData.data
-      );
+      const schemaId = await this.schemaRepo.createSchema(createVData.data);
 
       this.logger.info("[CreateSchemaStep] Created schema with ID:", schemaId);
 

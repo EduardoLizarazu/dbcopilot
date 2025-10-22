@@ -300,6 +300,11 @@ export type TCreateSchemaCtxKnowledgeGraphInRq = z.infer<
   typeof createSchemaCtxKnowledgeGraphInRq
 >;
 
+export const CreateSchema = schemaCtxKnowledgeGraph.omit({
+  id: true,
+});
+export type TCreateSchema = z.infer<typeof CreateSchema>;
+
 export const schemaCtxKnowledgeGraphOutRq = schemaCtxKnowledgeGraph;
 export type TSchemaCtxKnowledgeGraphOutRq = z.infer<
   typeof schemaCtxKnowledgeGraphOutRq
