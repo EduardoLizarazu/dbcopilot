@@ -1,5 +1,4 @@
 import {
-  TCreateSchemaCtxKnowledgeGraphInRq,
   SchemaNodeMetadata,
   TableNodeMetadata,
   ColumnNodeMetadata,
@@ -25,10 +24,10 @@ import {
   ColumnsByTableAndNameIndex,
   ColumnsByAliasIndex,
   TablesByAliasIndex,
-  TUpdateConnOnSchemaGraph,
-  TSchemaCtxKnowledgeGraphOutRq,
   TReadByConnectionFieldsDto,
   TCreateSchema,
+  TSchemaOutRqDto,
+  TUpdateConnOnSchema,
 } from "@/core/application/dtos/schemaContext.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { ISchemaRepository } from "@/core/application/interfaces/schema/schema.inter";
@@ -39,6 +38,7 @@ export class SchemaRepository implements ISchemaRepository {
     private readonly logger: ILogger,
     private readonly fbAdmin: FirebaseAdminProvider
   ) {}
+
   createSchema(data: TCreateSchema): Promise<string> {
     throw new Error("Method not implemented.");
   }
@@ -179,10 +179,7 @@ export class SchemaRepository implements ISchemaRepository {
   ): Promise<TablesByAliasIndex> {
     throw new Error("Method not implemented.");
   }
-  updateConnOnSchemaGraph(
-    id: string,
-    data: TUpdateConnOnSchemaGraph[]
-  ): Promise<void> {
+  updateConnOnSchema(id: string, data: TUpdateConnOnSchema): Promise<void> {
     throw new Error("Method not implemented.");
   }
   updateSchemaNode(
@@ -338,18 +335,15 @@ export class SchemaRepository implements ISchemaRepository {
   ): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  findSchemaCtxKnowledgeGraphById(
-    id: string
-  ): Promise<TSchemaCtxKnowledgeGraphOutRq | null> {
+  findSchemaCtxKnowledgeGraphById(id: string): Promise<TSchemaOutRqDto | null> {
     throw new Error("Method not implemented.");
   }
-  findAllSchemaCtxKnowledgeGraph(): Promise<TSchemaCtxKnowledgeGraphOutRq[]> {
+  findAllSchemaCtxKnowledgeGraph(): Promise<TSchemaOutRqDto[]> {
     throw new Error("Method not implemented.");
   }
   findByConnectionFields(
     data: TReadByConnectionFieldsDto
-  ): Promise<TSchemaCtxKnowledgeGraphOutRq | null> {
+  ): Promise<TSchemaOutRqDto | null> {
     throw new Error("Method not implemented.");
   }
-  // Implement the methods defined in the interface
 }

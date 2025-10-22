@@ -24,10 +24,11 @@ import {
   TablesBySchemaAndNameIndex,
   TempConceptNodeMetadata,
   UseEdge,
-  TSchemaCtxKnowledgeGraphOutRq,
-  TUpdateConnOnSchemaGraph,
+  TUpdateConnOnSchemaInRqDto,
   TReadByConnectionFieldsDto,
   TCreateSchema,
+  TSchemaOutRqDto,
+  TUpdateConnOnSchema,
 } from "../../dtos/schemaContext.dto";
 
 export interface ISchemaRepository {
@@ -120,10 +121,7 @@ export interface ISchemaRepository {
   ): Promise<ColumnsByAliasIndex>;
 
   // UPDATE NODES
-  updateConnOnSchemaGraph(
-    id: string,
-    data: TUpdateConnOnSchemaGraph[]
-  ): Promise<void>;
+  updateConnOnSchema(id: string, data: TUpdateConnOnSchema): Promise<void>;
   updateSchemaNode(
     id: string,
     data: Partial<SchemaNodeMetadata>
@@ -218,13 +216,11 @@ export interface ISchemaRepository {
   ): Promise<void>;
 
   // READ
-  findSchemaCtxKnowledgeGraphById(
-    id: string
-  ): Promise<TSchemaCtxKnowledgeGraphOutRq | null>;
-  findAllSchemaCtxKnowledgeGraph(): Promise<TSchemaCtxKnowledgeGraphOutRq[]>;
+  findSchemaCtxKnowledgeGraphById(id: string): Promise<TSchemaOutRqDto | null>;
+  findAllSchemaCtxKnowledgeGraph(): Promise<TSchemaOutRqDto[]>;
   findByConnectionFields(
     data: TReadByConnectionFieldsDto
-  ): Promise<TSchemaCtxKnowledgeGraphOutRq | null>;
+  ): Promise<TSchemaOutRqDto | null>;
 
   // READ BY NODE
 }

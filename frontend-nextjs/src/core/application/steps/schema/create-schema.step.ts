@@ -1,17 +1,14 @@
 import {
-  CreateSchema,
-  createSchemaCtxKnowledgeGraphInRq,
+  createSchemaDto,
+  TCreateInSchemaDto,
   TCreateSchema,
-  TCreateSchemaCtxKnowledgeGraphInRq,
-  TSchemaCtxKnowledgeGraphOutRq,
+  TSchemaOutRqDto,
 } from "../../dtos/schemaContext.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { ISchemaRepository } from "../../interfaces/schema/schema.inter";
 
 export interface ICreateSchemaStep {
-  run(
-    data: TCreateSchemaCtxKnowledgeGraphInRq
-  ): Promise<TSchemaCtxKnowledgeGraphOutRq>;
+  run(data: TCreateInSchemaDto): Promise<TSchemaOutRqDto>;
 }
 
 export class CreateSchemaStep implements ICreateSchemaStep {
@@ -20,9 +17,7 @@ export class CreateSchemaStep implements ICreateSchemaStep {
     private readonly schemaRepo: ISchemaRepository
   ) {}
 
-  async run(
-    data: TCreateSchemaCtxKnowledgeGraphInRq
-  ): Promise<TSchemaCtxKnowledgeGraphOutRq> {
+  async run(data: TCreateInSchemaDto): Promise<TSchemaOutRqDto> {
     try {
       this.logger.info(
         "[CreateSchemaStep] Creating schema:",
@@ -30,8 +25,7 @@ export class CreateSchemaStep implements ICreateSchemaStep {
       );
 
       // 1. Validate
-      const vData =
-        await createSchemaCtxKnowledgeGraphInRq.safeParseAsync(data);
+      const vData = await createSchemaDto.safeParseAsync(data);
       if (!vData.success) {
         this.logger.error(
           "[CreateSchemaStep] Validation failed:",
@@ -44,10 +38,10 @@ export class CreateSchemaStep implements ICreateSchemaStep {
 
       // 2. Create dto
       const dto: TCreateSchema = {
-        connStringRef: [{ ...vData.data }],
+        connStringRef: [...new Set(vData.data.connStringRef)],
       };
 
-      const createVData = await CreateSchema.safeParseAsync(dto);
+      const createVData = await createSchemaDto.safeParseAsync(dto);
       if (!createVData.success) {
         this.logger.error(
           "[CreateSchemaStep] Create DTO Validation failed:",

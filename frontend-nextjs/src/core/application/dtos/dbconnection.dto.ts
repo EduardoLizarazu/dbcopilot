@@ -2,21 +2,22 @@ import { z } from "zod";
 import { TVbdOutRequestDto } from "./vbd.dto";
 
 export const dbType = z.enum(["mysql", "postgres", "mssql", "oracle"]);
+export const baseConn = z.object({
+  type: dbType,
+  host: z.string().min(1),
+  port: z.number().min(1).max(65535),
+  database: z.string().min(1),
+  username: z.string().min(1),
+  password: z.string().min(1),
+  sid: z.string().optional().nullable().default(""), // oracle
+});
 
-export const dbConnectionSchema = z.object({
+export const dbConnectionSchema = baseConn.extend({
   id: z.string().min(2).max(100),
   id_vbd_splitter: z.string().min(2).max(100),
 
   name: z.string().min(2).max(100),
   description: z.string().min(0).max(255).default(""),
-
-  type: dbType,
-  host: z.string().min(1).max(255),
-  port: z.number().min(1).max(65535),
-  database: z.string().min(1).max(255),
-  username: z.string().min(1).max(255),
-  password: z.string().min(1).max(255),
-  sid: z.string().optional().nullable().default(""), // oracle
 
   schema_query: z.string().min(2),
 

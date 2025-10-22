@@ -80,16 +80,14 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
 
         // 3.b.3. Update add the new connection fields to the existing SCHEMA CTX KNOWLEDGE GRAPH
         await this.updateSchemaStep.run(existingSchemaId, {
-          id: existingSchemaId,
-          connStringRef: {
-            id: createdDbConn.id,
-            type: createdDbConn.type,
-            host: createdDbConn.host,
-            port: createdDbConn.port,
-            database: createdDbConn.database,
-            username: createdDbConn.username,
-            password: createdDbConn.password,
-          },
+          schemaId: existingSchemaId,
+          id: createdDbConn.id,
+          type: createdDbConn.type,
+          host: createdDbConn.host,
+          port: createdDbConn.port,
+          database: createdDbConn.database,
+          username: createdDbConn.username,
+          password: createdDbConn.password,
         });
       }
 

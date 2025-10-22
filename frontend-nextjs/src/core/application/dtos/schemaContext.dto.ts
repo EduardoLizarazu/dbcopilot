@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { dbType } from "./dbconnection.dto";
+import { baseConn, dbType } from "./dbconnection.dto";
 
 // NODES METADATA
 export const nodeBase = z.object({
@@ -264,87 +264,53 @@ export const graphIndex = z.object({
 });
 
 // MAIN GRAPH
-export const schemaCtxKnowledgeGraph = z.object({
+export const basedConnDto = baseConn.extend({
   id: z.string().min(2).max(100),
-  connStringRef: z.array(
-    z.object({
-      id: z.string().min(2).max(100),
-      name: z.string().min(1),
-      type: dbType,
-      host: z.string().min(1),
-      port: z.number().min(1),
-      database: z.string().min(1),
-      username: z.string().min(1),
-      password: z.string().min(1),
-    })
-  ),
+});
+
+export const schemaDto = z.object({
+  id: z.string().min(2).max(100),
+  connStringRef: z.array(basedConnDto).min(1),
   nodes: z.record(z.string(), nodeUnion).default({}),
   edges: z.record(z.string(), edgeUnion).default({}),
   index: graphIndex.default({}),
 });
+export type TSchema = z.infer<typeof schemaDto>;
 
-export type TSchemaCtxKnowledgeGraph = z.infer<typeof schemaCtxKnowledgeGraph>;
+// create in request dto
+export const createSchemaInRqDto = basedConnDto;
+export type TCreateInSchemaDto = z.infer<typeof createSchemaInRqDto>;
 
-export const createSchemaCtxKnowledgeGraphInRq = z.object({
-  id: z.string().min(2).max(100),
-  name: z.string().min(1),
-  type: dbType,
-  host: z.string().min(1),
-  port: z.number().min(1),
-  database: z.string().min(1),
-  username: z.string().min(1),
-  password: z.string().min(1),
-});
-
-export type TCreateSchemaCtxKnowledgeGraphInRq = z.infer<
-  typeof createSchemaCtxKnowledgeGraphInRq
->;
-
-export const CreateSchema = schemaCtxKnowledgeGraph.omit({
+// create schema dto
+export const createSchemaDto = schemaDto.omit({
   id: true,
 });
-export type TCreateSchema = z.infer<typeof CreateSchema>;
+export type TCreateSchema = z.infer<typeof createSchemaDto>;
 
-export const schemaCtxKnowledgeGraphOutRq = schemaCtxKnowledgeGraph;
-export type TSchemaCtxKnowledgeGraphOutRq = z.infer<
-  typeof schemaCtxKnowledgeGraphOutRq
->;
+// schema out request dto
+export const schemaOutRqDto = schemaDto;
+export type TSchemaOutRqDto = z.infer<typeof schemaOutRqDto>;
 
-export const updateConnOnSchemaGraph = schemaCtxKnowledgeGraph
-  .omit({
-    connStringRef: true,
-    nodes: true,
-    edges: true,
-    index: true,
-  })
-  .extend({
-    connStringRef: z.object({
-      id: z.string().min(2).max(100),
-      name: z.string().min(1),
-      type: dbType,
-      host: z.string().min(1),
-      port: z.number().min(1),
-      database: z.string().min(1),
-      username: z.string().min(1),
-      password: z.string().min(1),
-    }),
-  });
-
-export type TUpdateConnOnSchemaGraph = z.infer<typeof updateConnOnSchemaGraph>;
-
-export const readByConnectionFieldsDto = z.object({
-  type: dbType,
-  host: z.string().min(1),
-  port: z.number().min(1),
-  database: z.string().min(1),
+// update connection on schema dto in request
+export const updateConnOnSchemaInRqDto = createSchemaInRqDto.extend({
+  schemaId: z.string().min(2).max(100),
 });
+export type TUpdateConnOnSchemaInRqDto = z.infer<
+  typeof updateConnOnSchemaInRqDto
+>;
+export const updateConnOnSchema = schemaDto.pick({
+  connStringRef: true,
+});
+export type TUpdateConnOnSchema = z.infer<typeof updateConnOnSchema>;
 
+// read by connection fields dto
+export const readByConnectionFieldsDto = basedConnDto;
 export type TReadByConnectionFieldsDto = z.infer<
   typeof readByConnectionFieldsDto
 >;
-// -----------------------
 
-export const schemaCtxKnowledge = schemaCtxKnowledgeGraph
+// -----------------------
+export const schemaCtxKnowledge = schemaDto
   .pick({
     id: true,
     connStringRef: true,
