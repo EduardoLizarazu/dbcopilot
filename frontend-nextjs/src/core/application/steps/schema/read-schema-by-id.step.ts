@@ -1,17 +1,17 @@
-import { TSchemaCtxKnowledgeGraphOutRq } from "../../dtos/schemaContext.dto";
+import { TSchemaOutRqDto } from "../../dtos/schemaContext.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
-import { ISchemaCtxKnowledgeGraphRepository } from "../../interfaces/schema/schema.inter";
+import { ISchemaRepository } from "../../interfaces/schema/schema.inter";
 
 export interface IReadSchemaByIdStep {
-  run(schemaId: string): Promise<TSchemaCtxKnowledgeGraphOutRq>;
+  run(schemaId: string): Promise<TSchemaOutRqDto>;
 }
 
 export class ReadSchemaByIdStep implements IReadSchemaByIdStep {
   constructor(
     private readonly logger: ILogger,
-    private readonly schemaRepo: ISchemaCtxKnowledgeGraphRepository
+    private readonly schemaRepo: ISchemaRepository
   ) {}
-  async run(schemaId: string): Promise<TSchemaCtxKnowledgeGraphOutRq> {
+  async run(schemaId: string): Promise<TSchemaOutRqDto> {
     try {
       this.logger.info("[ReadSchemaByIdStep] Reading schema by ID:", schemaId);
       if (!schemaId || schemaId.trim() === "") {

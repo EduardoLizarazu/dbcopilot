@@ -1,13 +1,13 @@
 import {
   readByConnectionFieldsDto,
   TReadByConnectionFieldsDto,
-  TSchemaCtxKnowledgeGraphOutRq,
+  TSchemaOutRqDto,
 } from "../../dtos/schemaContext.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
-import { ISchemaCtxKnowledgeGraphRepository } from "../../interfaces/schema/schema.inter";
+import { ISchemaRepository } from "../../interfaces/schema/schema.inter";
 
 export interface IReadSchemaByConnectionFieldsStep {
-  run(data: TReadByConnectionFieldsDto): Promise<TSchemaCtxKnowledgeGraphOutRq>;
+  run(data: TReadByConnectionFieldsDto): Promise<TSchemaOutRqDto>;
 }
 
 export class ReadSchemaByConnectionFieldsStep
@@ -15,12 +15,10 @@ export class ReadSchemaByConnectionFieldsStep
 {
   constructor(
     private readonly logger: ILogger,
-    private readonly schemaRepo: ISchemaCtxKnowledgeGraphRepository
+    private readonly schemaRepo: ISchemaRepository
   ) {}
 
-  async run(
-    data: TReadByConnectionFieldsDto
-  ): Promise<TSchemaCtxKnowledgeGraphOutRq> {
+  async run(data: TReadByConnectionFieldsDto): Promise<TSchemaOutRqDto> {
     try {
       this.logger.info(
         "[ReadSchemaByConnectionFieldsStep] Reading schema by connection fields:",
