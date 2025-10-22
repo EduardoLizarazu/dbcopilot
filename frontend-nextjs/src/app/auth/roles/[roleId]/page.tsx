@@ -1,7 +1,6 @@
 export const runtime = "nodejs";
 
 import { notFound } from "next/navigation";
-import { getRoleAction } from "@/controller/_actions/role/get";
 import EditRoleClient from "./role.edit.client";
 import { ReadRoleByIdAction } from "@/_actions/roles/read-by-id";
 

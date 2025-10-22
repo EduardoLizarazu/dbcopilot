@@ -21,9 +21,6 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
-import type { RoleOption } from "@/controller/_actions/user/roles";
-import type { UserProfile } from "@/controller/_actions/user/get";
-import { updateUserAction } from "@/controller/_actions/user/update";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { TUserOutputRequestDto } from "@/core/application/dtos/user.app.dto";
 import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
