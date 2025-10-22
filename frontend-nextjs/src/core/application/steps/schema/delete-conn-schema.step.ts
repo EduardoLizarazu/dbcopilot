@@ -16,10 +16,22 @@ export class DeleteConnSchemaStep implements IDeleteConnSchemaStep {
         "[DeleteConnSchemaStep] Deleting connection from schema:",
         { connId }
       );
+      //   1. Validate input
       if (!connId) {
         throw new Error("Input data is missing");
       }
-      await this.schemaRepo.deleteConnOnSchema();
+
+      //   2. Find schema by connection ID
+      const schema = await this.schemaRepo.findByConnId(connId);
+      if (!schema) {
+        this.logger.info(
+          "[DeleteConnSchemaStep] No schema found for the given connection ID:",
+          { connId }
+        );
+        return; // Exit if no schema found
+      }
+
+      await this.schemaRepo.deleteConnOnSchema(schema.id, connId);
     } catch (error) {
       this.logger.error(
         "[DeleteConnSchemaStep] Error deleting connection from schema:",

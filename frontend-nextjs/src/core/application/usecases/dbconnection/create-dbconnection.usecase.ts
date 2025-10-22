@@ -59,6 +59,10 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
         port: createdDbConn.port,
         database: createdDbConn.database,
       });
+      const existingSchemaByConnId =
+        await this.readSchemaByConnectionFieldsStep.run({
+          id: createdDbConn.id,
+        });
 
       if (!existingSchema) {
         // 3.a.1. If no exists.

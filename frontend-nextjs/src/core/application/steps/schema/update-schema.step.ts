@@ -39,8 +39,7 @@ export class UpdateSchemaStep implements IUpdateSchemaStep {
         );
       }
 
-      const prevSchema =
-        await this.schemaRepo.findSchemaCtxKnowledgeGraphById(id);
+      const prevSchema = await this.schemaRepo.findById(id);
       if (
         !prevSchema ||
         !prevSchema.id ||
@@ -79,8 +78,7 @@ export class UpdateSchemaStep implements IUpdateSchemaStep {
 
       await this.schemaRepo.updateConnOnSchema(id, updateVData.data);
       this.logger.info("[UpdateSchemaStep] Update successful");
-      const updatedDoc =
-        await this.schemaRepo.findSchemaCtxKnowledgeGraphById(id);
+      const updatedDoc = await this.schemaRepo.findById(id);
 
       if (!updatedDoc) {
         this.logger.error(

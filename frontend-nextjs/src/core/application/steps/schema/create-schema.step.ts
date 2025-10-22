@@ -58,8 +58,7 @@ export class CreateSchemaStep implements ICreateSchemaStep {
       this.logger.info("[CreateSchemaStep] Created schema with ID:", schemaId);
 
       //   2. Return the newly created schema ID
-      const newDoc =
-        await this.schemaRepo.findSchemaCtxKnowledgeGraphById(schemaId);
+      const newDoc = await this.schemaRepo.findById(schemaId);
       if (!newDoc) {
         this.logger.error("[CreateSchemaStep] Schema not found:", schemaId);
         throw new Error("Schema not found");
