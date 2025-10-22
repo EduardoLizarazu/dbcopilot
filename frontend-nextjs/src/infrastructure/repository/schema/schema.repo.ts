@@ -483,19 +483,32 @@ export class SchemaRepository implements ISchemaRepository {
         .collection(this.fbAdmin.coll.SCHEMA)
         .get();
 
-      const schemas = snapshot.docs.map((doc) => doc.data() as TSchemaOutRqDto);
+      const schemas: TSchemaOutRqDto[] = [];
+      snapshot.forEach((doc) => {
+        schemas.push(doc.data() as TSchemaOutRqDto);
+      });
+      this.logger.info(
+        `[SchemaRepository] Retrieved ${schemas.length} schemas for connection fields search`,
+        JSON.stringify(schemas)
+      );
       const foundSchema = schemas.find((schema) => {
-        return schema.connStringRef?.some(
+        const isMatching = schema.connStringRef.every(
           (conn) =>
             conn.host === data.host &&
             conn.port === data.port &&
             conn.database === data.database &&
             conn.sid === data.sid
         );
+        return isMatching;
       });
+      this.logger.info(
+        `[SchemaRepository] Schema found with the given connection fields:`,
+        JSON.stringify(foundSchema || null)
+      );
       if (!foundSchema) {
         this.logger.info(
-          `[SchemaRepository] No schema found with the given connection fields`
+          `[SchemaRepository] No schema found with the given connection fields`,
+          JSON.stringify(foundSchema || null)
         );
         return null;
       }

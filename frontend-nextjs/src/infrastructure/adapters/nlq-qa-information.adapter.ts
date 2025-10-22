@@ -110,6 +110,9 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
     } catch (error) {
       this.logger.error("Error executing query from connection", error.message);
       throw new Error(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (queryRunner) await queryRunner.release();
+      if (dataSource) await dataSource.destroy();
     }
   }
   async extractSchemaBased(

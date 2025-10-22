@@ -59,6 +59,7 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
         host: createdDbConn.host,
         port: createdDbConn.port,
         database: createdDbConn.database,
+        sid: createdDbConn.sid,
       });
 
       if (!existingSchema) {
@@ -72,6 +73,7 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
           database: createdDbConn.database,
           username: createdDbConn.username,
           password: createdDbConn.password,
+          sid: createdDbConn.sid,
         });
       }
       if (existingSchema) {
@@ -89,6 +91,7 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
           database: createdDbConn.database,
           username: createdDbConn.username,
           password: createdDbConn.password,
+          sid: createdDbConn.sid,
         });
       }
 
