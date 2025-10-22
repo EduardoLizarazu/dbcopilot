@@ -30,9 +30,16 @@ export const dbConnectionSchema = baseConn.extend({
 export const createDbConnectionSchema = dbConnectionSchema.omit({ id: true });
 export type TCreateDbConnectionDto = z.infer<typeof createDbConnectionSchema>;
 
-export const updateDbConnectionSchema = dbConnectionSchema.omit({
-  createdAt: true,
-  createdBy: true,
+export const updateDbConnectionSchema = dbConnectionSchema.pick({
+  id: true,
+  id_vbd_splitter: true,
+  name: true,
+  username: true,
+  password: true,
+  description: true,
+  updatedBy: true,
+  updatedAt: true,
+  schema_query: true,
 });
 export type TUpdateDbConnectionDto = z.infer<typeof updateDbConnectionSchema>;
 
