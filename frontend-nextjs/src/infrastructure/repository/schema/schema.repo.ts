@@ -490,7 +490,6 @@ export class SchemaRepository implements ISchemaRepository {
             conn.host === data.host &&
             conn.port === data.port &&
             conn.database === data.database &&
-            conn.username === data.username &&
             conn.sid === data.sid
         );
       });

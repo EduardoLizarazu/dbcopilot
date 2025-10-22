@@ -1,5 +1,6 @@
 import {
   createSchemaDto,
+  createSchemaInRqDto,
   TCreateInSchemaDto,
   TCreateSchema,
   TSchemaOutRqDto,
@@ -25,7 +26,7 @@ export class CreateSchemaStep implements ICreateSchemaStep {
       );
 
       // 1. Validate
-      const vData = await createSchemaDto.safeParseAsync(data);
+      const vData = await createSchemaInRqDto.safeParseAsync(data);
       if (!vData.success) {
         this.logger.error(
           "[CreateSchemaStep] Validation failed:",
@@ -38,7 +39,7 @@ export class CreateSchemaStep implements ICreateSchemaStep {
 
       // 2. Create dto
       const dto: TCreateSchema = {
-        connStringRef: [...new Set(vData.data.connStringRef)],
+        connStringRef: [{ ...vData.data }],
       };
 
       const createVData = await createSchemaDto.safeParseAsync(dto);

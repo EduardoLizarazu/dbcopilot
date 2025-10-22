@@ -21,6 +21,7 @@ import { IAddConnToSchemaStep } from "../../steps/schema/add-conn-to-schema.step
  * 3.b.2. Find the id of the existing SCHEMA
  * 3.b.3. Update add the new connection fields to the existing SCHEMA
  * 3. Return response
+ * 1521
  */
 
 export interface ICreateDbConnectionUseCase {
@@ -59,10 +60,6 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
         port: createdDbConn.port,
         database: createdDbConn.database,
       });
-      const existingSchemaByConnId =
-        await this.readSchemaByConnectionFieldsStep.run({
-          id: createdDbConn.id,
-        });
 
       if (!existingSchema) {
         // 3.a.1. If no exists.

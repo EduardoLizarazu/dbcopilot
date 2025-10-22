@@ -304,7 +304,11 @@ export const updateConnOnSchema = schemaDto.pick({
 export type TUpdateConnOnSchema = z.infer<typeof updateConnOnSchema>;
 
 // read by connection fields dto
-export const readByConnectionFieldsDto = basedConnDto;
+export const readByConnectionFieldsDto = basedConnDto.omit({
+  id: true,
+  username: true,
+  password: true,
+});
 export type TReadByConnectionFieldsDto = z.infer<
   typeof readByConnectionFieldsDto
 >;
