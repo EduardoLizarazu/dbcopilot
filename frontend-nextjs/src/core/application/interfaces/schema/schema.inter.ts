@@ -3,7 +3,9 @@ import {
   BelongSchemaEdge,
   CalculateEdge,
   ColumnNodeMetadata,
-  createSchemaCtxKnowledgeGraphInRq,
+  ColumnsByAliasIndex,
+  ColumnsByTableAndNameIndex,
+  TCreateSchemaCtxKnowledgeGraphInRq,
   FilterEdge,
   FilterNodeMetadata,
   GrainEdge,
@@ -15,20 +17,25 @@ import {
   QuestionNodeMetadata,
   ScheduleEdge,
   SchemaCtxKnowledge,
-  SchemaCtxKnowledgeGraph,
   SchemaNodeMetadata,
+  SchemasByNameIndex,
   SubqueryEdge,
   SubQueryNodeMetadata,
   TableNodeMetadata,
+  TablesByAliasIndex,
+  TablesBySchemaAndNameIndex,
   TempConceptNodeMetadata,
   updateSchemaCtxKnowledgeGraphInRq,
   UseEdge,
+  TSchemaCtxKnowledgeGraphOutRq,
+  TUpdateSchemaCtxKnowledgeGraphInRq,
+  TReadByConnectionFieldsDto,
 } from "../../dtos/schemaContext.dto";
 
 export interface ISchemaCtxKnowledgeGraphRepository {
   // create
   createSchemaCtxKnowledgeGraph(
-    data: createSchemaCtxKnowledgeGraphInRq
+    data: TCreateSchemaCtxKnowledgeGraphInRq
   ): Promise<string>;
   //  CREATE NODES
   createSchemaNode(
@@ -94,11 +101,32 @@ export interface ISchemaCtxKnowledgeGraphRepository {
   createQueryEdge(schemaCtxId: string, data: QueryEdge): Promise<string>;
   createAskEdge(schemaCtxId: string, data: AskEdge): Promise<string>;
   createUseEdge(schemaCtxId: string, data: UseEdge): Promise<string>;
+  // CREATE INDEXES
+  createSchemasByNameIndex(
+    schemaCtxId: string,
+    data: SchemasByNameIndex
+  ): Promise<SchemasByNameIndex>;
+  createTablesBySchemaIndex(
+    schemaCtxId: string,
+    data: TablesBySchemaAndNameIndex
+  ): Promise<TablesBySchemaAndNameIndex>;
+  createColumnsByAliasIndex(
+    schemaCtxId: string,
+    data: ColumnsByTableAndNameIndex
+  ): Promise<ColumnsByTableAndNameIndex>;
+  createTablesByAliasIndex(
+    schemaCtxId: string,
+    data: TablesByAliasIndex
+  ): Promise<TablesByAliasIndex>;
+  createColumnsByAliasIndex(
+    schemaCtxId: string,
+    data: ColumnsByAliasIndex
+  ): Promise<ColumnsByAliasIndex>;
 
   // UPDATE NODES
   updateSchemaCtxKnowledgeGraph(
     id: string,
-    data: updateSchemaCtxKnowledgeGraphInRq
+    data: TUpdateSchemaCtxKnowledgeGraphInRq
   ): Promise<void>;
   updateSchemaNode(
     id: string,
@@ -146,15 +174,61 @@ export interface ISchemaCtxKnowledgeGraphRepository {
   updateQueryEdge(id: string, data: Partial<QueryEdge>): Promise<void>;
   updateAskEdge(id: string, data: Partial<AskEdge>): Promise<void>;
   updateUseEdge(id: string, data: Partial<UseEdge>): Promise<void>;
+  // UPDATE INDEX
+  updateSchemasByNameIndex(
+    schemaCtxId: string,
+    data: Partial<SchemasByNameIndex>
+  ): Promise<SchemasByNameIndex>;
+  updateTablesBySchemaIndex(
+    schemaCtxId: string,
+    data: Partial<TablesBySchemaAndNameIndex>
+  ): Promise<TablesBySchemaAndNameIndex>;
+  updateColumnsByTableAndNameIndex(
+    schemaCtxId: string,
+    data: Partial<ColumnsByTableAndNameIndex>
+  ): Promise<ColumnsByTableAndNameIndex>;
+  updateTablesByAliasIndex(
+    schemaCtxId: string,
+    data: Partial<TablesByAliasIndex>
+  ): Promise<TablesByAliasIndex>;
+  updateColumnsByAliasIndex(
+    schemaCtxId: string,
+    data: Partial<ColumnsByAliasIndex>
+  ): Promise<ColumnsByAliasIndex>;
 
-  // delete
+  // DELETE
   deleteSchemaCtxKnowledgeGraph(id: string): Promise<void>;
-  deleteNodeById(id: string): Promise<void>;
-  deleteEdgeById(id: string): Promise<void>;
 
-  // read
+  // DELETE NODE
+  deleteNodeById(schemaCtxId: string, nodeId: string): Promise<void>;
+
+  // DELETE EDGE
+  deleteEdgeById(schemaCtxId: string, edgeId: string): Promise<void>;
+
+  // DELETE INDEX
+  deleteSchemasByNameIndex(schemaCtxId: string, indexId: string): Promise<void>;
+  deleteTablesBySchemaIndex(
+    schemaCtxId: string,
+    indexId: string
+  ): Promise<void>;
+  deleteColumnsByTableAndNameIndex(
+    schemaCtxId: string,
+    indexId: string
+  ): Promise<void>;
+  deleteTablesByAliasIndex(schemaCtxId: string, indexId: string): Promise<void>;
+  deleteColumnsByAliasIndex(
+    schemaCtxId: string,
+    indexId: string
+  ): Promise<void>;
+
+  // READ
   findSchemaCtxKnowledgeGraphById(
     id: string
-  ): Promise<SchemaCtxKnowledge | null>;
-  findAllSchemaCtxKnowledgeGraph(): Promise<SchemaCtxKnowledge[]>;
+  ): Promise<TSchemaCtxKnowledgeGraphOutRq | null>;
+  findAllSchemaCtxKnowledgeGraph(): Promise<TSchemaCtxKnowledgeGraphOutRq[]>;
+  findByConnectionFields(
+    data: TReadByConnectionFieldsDto
+  ): Promise<TSchemaCtxKnowledgeGraphOutRq | null>;
+
+  // READ BY NODE
 }

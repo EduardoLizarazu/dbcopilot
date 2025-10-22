@@ -16,7 +16,7 @@
 
 import { z } from "zod";
 // array of object
-const nlqQaInformationSchemaExtraction = z.array(
+export const nlqQaInformationSchemaExtraction = z.array(
   z.object({
     TABLE_SCHEMA: z.string(),
     TABLE_NAME: z.string(),

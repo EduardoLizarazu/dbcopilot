@@ -11,6 +11,16 @@ import { IValidateInputCreateDbConnStep } from "../../steps/dbconn/validate-inpu
  * Create db connection use case:
  * 1. Validate input data
  * 2. Create the db connection
+ * 3. Verify if connection fields already exists in SCHEMA CTX KNOWLEDGE GRAPH
+ * 3.a.1. If no exists.
+ * 3.a.2. Create a new SCHEMA CTX KNOWLEDGE GRAPH with the connection fields.
+ * 3.b.1. If exists.
+ * 3.b.2. Find the id of the existing SCHEMA CTX KNOWLEDGE GRAPH
+ * 3.b.3. Update add the new connection fields to the existing SCHEMA CTX KNOWLEDGE GRAPH
+ * 3.b.4. Compare the physical schema with the existing ctx schema.
+ * 3.b.5. If there are new tables/columns, add them to the SCHEMA CTX KNOWLEDGE GRAPH
+ * 3.b.6. If there are same columns, update the profile information.
+ * 3.b.7. Return the id of the existing SCHEMA CTX KNOWLEDGE GRAPH
  * 3. Return response
  */
 
@@ -50,7 +60,7 @@ export class CreateDbConnectionUseCase implements ICreateDbConnectionUseCase {
       this.logger.error(`[CreateDbConnectionUseCase] Error: ${errorMessage}`);
       return {
         success: false,
-        message: `Error creating DB connection: ${errorMessage}`,
+        message: errorMessage || "Error creating DB connection",
         data: null,
       };
     }

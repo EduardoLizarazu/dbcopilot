@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { TVbdOutRequestDto } from "./vbd.dto";
 
+export const dbType = z.enum(["mysql", "postgres", "mssql", "oracle"]);
+
 export const dbConnectionSchema = z.object({
   id: z.string().min(2).max(100),
   id_vbd_splitter: z.string().min(2).max(100),
@@ -8,7 +10,7 @@ export const dbConnectionSchema = z.object({
   name: z.string().min(2).max(100),
   description: z.string().min(0).max(255).default(""),
 
-  type: z.enum(["mysql", "postgres", "mssql", "oracle"]),
+  type: dbType,
   host: z.string().min(1).max(255),
   port: z.number().min(1).max(65535),
   database: z.string().min(1).max(255),

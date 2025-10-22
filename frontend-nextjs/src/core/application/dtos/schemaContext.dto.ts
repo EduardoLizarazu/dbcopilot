@@ -1,5 +1,5 @@
-import { profile } from "console";
 import { z } from "zod";
+import { dbType } from "./dbconnection.dto";
 
 // NODES METADATA
 export const nodeBase = z.object({
@@ -226,39 +226,113 @@ export const edgeUnion = z.union([
   useEdge,
 ]);
 
+// INDEX (Scope index (name → id))
+export const Id = z.string().min(2).max(100);
+// 1) schemas_by_name: nombreSchema -> schemaId
+export const schemasByNameIndex = z.record(z.string(), Id);
+export type SchemasByNameIndex = z.infer<typeof schemasByNameIndex>;
+// 2) tables_by_schema_and_name: schemaId -> (nombreTabla -> tableId)
+export const tablesBySchemaAndNameIndex = z.record(
+  Id,
+  z.record(z.string(), Id)
+);
+export type TablesBySchemaAndNameIndex = z.infer<
+  typeof tablesBySchemaAndNameIndex
+>;
+// 3) columns_by_table_and_name: tableId -> (nombreColumna -> columnId)
+export const columnsByTableAndNameIndex = z.record(
+  Id,
+  z.record(z.string(), Id)
+);
+export type ColumnsByTableAndNameIndex = z.infer<
+  typeof columnsByTableAndNameIndex
+>;
+
+// 4) índices por alias
+export const tablesByAliasIndex = z.record(z.string(), Id);
+export type TablesByAliasIndex = z.infer<typeof tablesByAliasIndex>;
+export const columnsByAliasIndex = z.record(z.string(), Id);
+export type ColumnsByAliasIndex = z.infer<typeof columnsByAliasIndex>;
+
+// INDEX GRAPH COMPLETE
+export const graphIndex = z.object({
+  schemas_by_name: schemasByNameIndex.default({}),
+  tables_by_schema_and_name: tablesBySchemaAndNameIndex.default({}),
+  columns_by_table_and_name: columnsByTableAndNameIndex.default({}),
+  tables_by_alias: tablesByAliasIndex.default({}),
+  columns_by_alias: columnsByAliasIndex.default({}),
+});
+
 // MAIN GRAPH
 export const schemaCtxKnowledgeGraph = z.object({
   id: z.string().min(2).max(100),
   connStringRef: z.array(
     z.object({
+      id: z.string().min(2).max(100),
+      name: z.string().min(1),
+      type: dbType,
       host: z.string().min(1),
       port: z.number().min(1),
       database: z.string().min(1),
+      username: z.string().min(1),
+      password: z.string().min(1),
     })
   ),
   nodes: z.record(z.string(), nodeUnion).default({}),
   edges: z.record(z.string(), edgeUnion).default({}),
+  index: graphIndex.default({}),
 });
 
-export type SchemaCtxKnowledgeGraph = z.infer<typeof schemaCtxKnowledgeGraph>;
+export type TSchemaCtxKnowledgeGraph = z.infer<typeof schemaCtxKnowledgeGraph>;
 
-export const createSchemaCtxKnowledgeGraphInRq = schemaCtxKnowledgeGraph.omit({
-  id: true,
-});
+export const createSchemaCtxKnowledgeGraphInRq = schemaCtxKnowledgeGraph
+  .omit({
+    id: true,
+    connStringRef: true,
+    nodes: true,
+    edges: true,
+    index: true,
+  })
+  .extend({
+    connStringRef: z.object({
+      id: z.string().min(2).max(100),
+      name: z.string().min(1),
+      type: dbType,
+      host: z.string().min(1),
+      port: z.number().min(1),
+      database: z.string().min(1),
+    }),
+  });
 
-export type createSchemaCtxKnowledgeGraphInRq = z.infer<
+export type TCreateSchemaCtxKnowledgeGraphInRq = z.infer<
   typeof createSchemaCtxKnowledgeGraphInRq
+>;
+
+export const schemaCtxKnowledgeGraphOutRq = schemaCtxKnowledgeGraph;
+export type TSchemaCtxKnowledgeGraphOutRq = z.infer<
+  typeof schemaCtxKnowledgeGraphOutRq
 >;
 
 export const updateSchemaCtxKnowledgeGraphInRq = schemaCtxKnowledgeGraph.omit({
   nodes: true,
   edges: true,
+  index: true,
 });
 
-export type updateSchemaCtxKnowledgeGraphInRq = z.infer<
+export type TUpdateSchemaCtxKnowledgeGraphInRq = z.infer<
   typeof updateSchemaCtxKnowledgeGraphInRq
 >;
 
+export const readByConnectionFieldsDto = z.object({
+  type: dbType,
+  host: z.string().min(1),
+  port: z.number().min(1),
+  database: z.string().min(1),
+});
+
+export type TReadByConnectionFieldsDto = z.infer<
+  typeof readByConnectionFieldsDto
+>;
 // -----------------------
 
 export const schemaCtxKnowledge = schemaCtxKnowledgeGraph
