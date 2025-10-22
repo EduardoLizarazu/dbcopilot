@@ -72,12 +72,20 @@ export default function ListSchemaClient({
             ) : (
               filteredRows.map((row) => {
                 const connectionCount = row.connStringRef.length;
-                return row.connStringRef.map((conn, index) => (
+                const connFields = row.connStringRef.flatMap((conn) => [
+                  {
+                    type: conn.type,
+                    host: conn.host,
+                    port: conn.port,
+                    database: conn.database,
+                  },
+                ]);
+                return connFields.map((field, index) => (
                   <TableRow key={`${row.id}-${index}`}>
-                    <TableCell>{conn.type}</TableCell>
-                    <TableCell>{conn.host}</TableCell>
-                    <TableCell>{conn.port}</TableCell>
-                    <TableCell>{conn.database}</TableCell>
+                    <TableCell>{field.type}</TableCell>
+                    <TableCell>{field.host}</TableCell>
+                    <TableCell>{field.port}</TableCell>
+                    <TableCell>{field.database}</TableCell>
                     <TableCell>{connectionCount}</TableCell>
                   </TableRow>
                 ));
