@@ -1,4 +1,5 @@
 import {
+  createSchemaCtxKnowledgeGraphInRq,
   TCreateSchemaCtxKnowledgeGraphInRq,
   TSchemaCtxKnowledgeGraphOutRq,
 } from "../../dtos/schemaContext.dto";
@@ -25,9 +26,24 @@ export class CreateSchemaStep implements ICreateSchemaStep {
         "[CreateSchemaStep] Creating schema:",
         JSON.stringify(data)
       );
+
+      // 1. Validate
+      const vData =
+        await createSchemaCtxKnowledgeGraphInRq.safeParseAsync(data);
+      if (!vData.success) {
+        this.logger.error(
+          "[CreateSchemaStep] Validation failed:",
+          JSON.stringify(vData.error)
+        );
+        throw new Error(
+          "Validation failed: " + JSON.stringify(vData.error.message)
+        );
+      }
+
       //   1. Create the schema context knowledge graph
-      const schemaId =
-        await this.schemaRepo.createSchemaCtxKnowledgeGraph(data);
+      const schemaId = await this.schemaRepo.createSchemaCtxKnowledgeGraph(
+        vData.data
+      );
 
       this.logger.info("[CreateSchemaStep] Created schema with ID:", schemaId);
 

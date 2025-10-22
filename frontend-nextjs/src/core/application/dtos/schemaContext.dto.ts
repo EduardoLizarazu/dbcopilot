@@ -285,9 +285,28 @@ export const schemaCtxKnowledgeGraph = z.object({
 
 export type TSchemaCtxKnowledgeGraph = z.infer<typeof schemaCtxKnowledgeGraph>;
 
-export const createSchemaCtxKnowledgeGraphInRq = schemaCtxKnowledgeGraph
+export const createSchemaCtxKnowledgeGraphInRq = z.object({
+  id: z.string().min(2).max(100),
+  name: z.string().min(1),
+  type: dbType,
+  host: z.string().min(1),
+  port: z.number().min(1),
+  database: z.string().min(1),
+  username: z.string().min(1),
+  password: z.string().min(1),
+});
+
+export type TCreateSchemaCtxKnowledgeGraphInRq = z.infer<
+  typeof createSchemaCtxKnowledgeGraphInRq
+>;
+
+export const schemaCtxKnowledgeGraphOutRq = schemaCtxKnowledgeGraph;
+export type TSchemaCtxKnowledgeGraphOutRq = z.infer<
+  typeof schemaCtxKnowledgeGraphOutRq
+>;
+
+export const updateConnOnSchemaGraph = schemaCtxKnowledgeGraph
   .omit({
-    id: true,
     connStringRef: true,
     nodes: true,
     edges: true,
@@ -301,27 +320,12 @@ export const createSchemaCtxKnowledgeGraphInRq = schemaCtxKnowledgeGraph
       host: z.string().min(1),
       port: z.number().min(1),
       database: z.string().min(1),
+      username: z.string().min(1),
+      password: z.string().min(1),
     }),
   });
 
-export type TCreateSchemaCtxKnowledgeGraphInRq = z.infer<
-  typeof createSchemaCtxKnowledgeGraphInRq
->;
-
-export const schemaCtxKnowledgeGraphOutRq = schemaCtxKnowledgeGraph;
-export type TSchemaCtxKnowledgeGraphOutRq = z.infer<
-  typeof schemaCtxKnowledgeGraphOutRq
->;
-
-export const updateSchemaCtxKnowledgeGraphInRq = schemaCtxKnowledgeGraph.omit({
-  nodes: true,
-  edges: true,
-  index: true,
-});
-
-export type TUpdateSchemaCtxKnowledgeGraphInRq = z.infer<
-  typeof updateSchemaCtxKnowledgeGraphInRq
->;
+export type TUpdateConnOnSchemaGraph = z.infer<typeof updateConnOnSchemaGraph>;
 
 export const readByConnectionFieldsDto = z.object({
   type: dbType,

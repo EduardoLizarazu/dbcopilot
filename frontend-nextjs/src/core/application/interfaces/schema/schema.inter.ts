@@ -25,10 +25,9 @@ import {
   TablesByAliasIndex,
   TablesBySchemaAndNameIndex,
   TempConceptNodeMetadata,
-  updateSchemaCtxKnowledgeGraphInRq,
   UseEdge,
   TSchemaCtxKnowledgeGraphOutRq,
-  TUpdateSchemaCtxKnowledgeGraphInRq,
+  TUpdateConnOnSchemaGraph,
   TReadByConnectionFieldsDto,
 } from "../../dtos/schemaContext.dto";
 
@@ -124,9 +123,9 @@ export interface ISchemaCtxKnowledgeGraphRepository {
   ): Promise<ColumnsByAliasIndex>;
 
   // UPDATE NODES
-  updateSchemaCtxKnowledgeGraph(
+  updateConnOnSchemaGraph(
     id: string,
-    data: TUpdateSchemaCtxKnowledgeGraphInRq
+    data: TUpdateConnOnSchemaGraph[]
   ): Promise<void>;
   updateSchemaNode(
     id: string,
