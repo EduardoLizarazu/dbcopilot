@@ -26,6 +26,7 @@ import RuleIcon from "@mui/icons-material/Rule";
 import PolylineIcon from "@mui/icons-material/Polyline";
 import CableIcon from "@mui/icons-material/Cable";
 import ListIcon from "@mui/icons-material/List";
+import SchemaIcon from "@mui/icons-material/Schema";
 
 const DRAWER_WIDTH = 280;
 
@@ -106,6 +107,7 @@ export default function SidebarClient({
             icon={<CableIcon />}
             label="DB Connection"
           />
+          <NavItem href="/schema" icon={<SchemaIcon />} label="Schema" />
           <NavItem
             href="/vbd-splitter"
             icon={<ListIcon />}
