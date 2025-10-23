@@ -80,17 +80,10 @@ export default function ListSchemaClient({
                 </TableCell>
               </TableRow>
             ) : (
-              filteredRows.map((row) => {
+              filteredRows.map((row, index) => {
                 const connectionCount = row.connStringRef.length;
-                const connFields = row.connStringRef.flatMap((conn) => [
-                  {
-                    type: conn.type,
-                    host: conn.host,
-                    port: conn.port,
-                    database: conn.database,
-                  },
-                ]);
-                return connFields.map((field, index) => (
+                const field = row.connStringRef[0];
+                return (
                   <TableRow key={`${row.id}-${index}`}>
                     <TableCell>{field.type}</TableCell>
                     <TableCell>{field.host}</TableCell>
@@ -119,7 +112,7 @@ export default function ListSchemaClient({
                       </Tooltip>
                     </TableCell>
                   </TableRow>
-                ));
+                );
               })
             )}
           </TableBody>
