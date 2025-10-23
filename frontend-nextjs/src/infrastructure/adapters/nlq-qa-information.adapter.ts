@@ -101,6 +101,30 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
       queryRunner = dataSource.createQueryRunner();
 
       const result = await queryRunner.query(data.query);
+      //       const result = await queryRunner.query(`select pb7_filial "Sucursal",
+      //        pb7_produt "Producto",
+      //        b1_desc "Desc. Producto",
+      //        pb7_qtde "Cantidad",
+      //        pb7_data "Fecha Ingreso Balanza",
+      //        pb7_dsaida "Fecha Salida Balanza",
+      //        pb7_pedido "Pedido-Datos Cofer",
+      //        pb7_placa "Placa",
+      //        pb7_chofer "Chofer",
+      //        pb7_telefo "Teléfono",
+      //        pb7_docume "DOCUMENTO",
+      //        pb7_qtde "Cantidad de Entrega",
+      //        pb7_pbruto "P.BRUTO",
+      //        pb7_ptara "TARA",
+      //        pb7_observ "OBS.",
+      //        pb7_xobs "OBS. DE ENTREGA",
+      //        pb7_xzafra "ZAFRA"
+      //   from tmprd.pb7300 pb7,
+      //        tmprd.sb1300 sb1
+      //  where
+      //     pb7_produt = b1_cod
+      //  order by
+      //             pb7_data,
+      //           pb7_pedido`);
 
       this.logger.info(
         "[NlqQaInformationAdapter] Query executed from connection",

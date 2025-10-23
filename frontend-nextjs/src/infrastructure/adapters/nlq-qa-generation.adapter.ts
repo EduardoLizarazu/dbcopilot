@@ -78,15 +78,16 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
         9) When “top/latest/best” is implied, add a deterministic ORDER BY and (if needed) OFFSET … FETCH.
         10) Limit the query to SELECT statements only. Do not generate data-modifying queries.
         11) Answer only the sql query, do not add any explanations and without ";" at the end.
+        12) Ignore D_E_L_E_T_E columns in all tables when constructing queries.
 
         D) Similarity Enforcement (STRICT)
-        12) Let similarity_threshold = 0.95:
+        13) Let similarity_threshold = 0.95:
             - Validate the candidate SQL against the current schema map.
             - If score is greater than similarity_threshold, then, reuse it as-is, do not modify anything, generate it as it is. Do not add anything else!.
             - If score is less than similarity_threshold, then, minimally adapt invalid identifiers or may have to combine multiple similar items; if still invalid, return NOT_ANSWERED.
 
         E) Output & Fallback
-        13) Return ONLY the SQL query, inside a code block, with no extra text and no trailing semicolon.
+        14) Return ONLY the SQL query, inside a code block, with no extra text and no trailing semicolon.
 
 
         ### Response Format, if you know the answer:
