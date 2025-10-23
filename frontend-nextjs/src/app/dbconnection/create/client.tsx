@@ -236,6 +236,7 @@ export default function DbConnectionClient({
                 labelId="db-type-label"
                 value={dbConn?.type || ""}
                 required
+                inputProps={{ readOnly: isUpdate }}
                 onChange={(e) =>
                   setDbConn({
                     ...dbConn,
@@ -259,7 +260,8 @@ export default function DbConnectionClient({
               value={dbConn?.host || ""}
               required
               onChange={(e) => setDbConn({ ...dbConn, host: e.target.value })}
-              inputProps={{ maxLength: 100 }}
+              disabled={isUpdate}
+              inputProps={{ maxLength: 100, readOnly: isUpdate }}
               fullWidth
             />
 
@@ -267,6 +269,7 @@ export default function DbConnectionClient({
               label="Port"
               value={dbConn?.port || ""}
               required
+              disabled={isUpdate}
               onChange={(e) => {
                 const portValue = e.target.value;
                 if (/^\d*$/.test(portValue)) {
@@ -284,6 +287,7 @@ export default function DbConnectionClient({
               label="Database"
               value={dbConn?.database || ""}
               required
+              disabled={isUpdate}
               onChange={(e) =>
                 setDbConn({ ...dbConn, database: e.target.value })
               }
@@ -313,6 +317,7 @@ export default function DbConnectionClient({
               fullWidth
             />
             <TextField
+              disabled={isUpdate}
               label="SID (Oracle only)"
               value={dbConn?.sid || ""}
               required
