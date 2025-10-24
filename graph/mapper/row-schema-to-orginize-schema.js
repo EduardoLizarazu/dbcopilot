@@ -5,7 +5,7 @@
  *  ]
  * into:
  *  [
- *    { schema, tables: [{ name, columns: [{ name, dataType }] }] }
+ *    { schema: { name }, tables: [{ name, columns: [{ name, dataType: { name } }] }] }
  *  ]
  *
  * Notes:
@@ -16,7 +16,7 @@
 const { schemaV1 } = require("../const/schemav1");
 
 function mapRawSchemaToOrganizationSchema(schemaV1) {
-  const bySchema = new Map(); // schema -> { schema, tables: Map<tableName, { name, columns: Map<colName, { name, dataType }> }> }
+  const bySchema = new Map(); // schemaName -> { schemaName, tables: Map<tableName, { name, columns: Map<colName, { name, dataTypeName }> }> }
 
   for (const row of schemaV1) {
     const { TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE } = row;
@@ -25,7 +25,7 @@ function mapRawSchemaToOrganizationSchema(schemaV1) {
     // schema bucket
     let schemaEntry = bySchema.get(TABLE_SCHEMA);
     if (!schemaEntry) {
-      schemaEntry = { schema: TABLE_SCHEMA, tables: new Map() };
+      schemaEntry = { schemaName: TABLE_SCHEMA, tables: new Map() };
       bySchema.set(TABLE_SCHEMA, schemaEntry);
     }
 
@@ -40,7 +40,7 @@ function mapRawSchemaToOrganizationSchema(schemaV1) {
     if (!tableEntry.columns.has(COLUMN_NAME)) {
       tableEntry.columns.set(COLUMN_NAME, {
         name: COLUMN_NAME,
-        dataType: DATA_TYPE || null,
+        dataTypeName: DATA_TYPE || null,
       });
     }
   }
@@ -50,10 +50,16 @@ function mapRawSchemaToOrganizationSchema(schemaV1) {
   for (const [, schemaEntry] of bySchema) {
     const tablesArr = [];
     for (const [, tableEntry] of schemaEntry.tables) {
-      const columnsArr = Array.from(tableEntry.columns.values());
+      const columnsArr = Array.from(tableEntry.columns.values()).map((c) => ({
+        name: c.name,
+        dataType: { name: c.dataTypeName },
+      }));
       tablesArr.push({ name: tableEntry.name, columns: columnsArr });
     }
-    result.push({ schema: schemaEntry.schema, tables: tablesArr });
+    result.push({
+      schema: { name: schemaEntry.schemaName },
+      tables: tablesArr,
+    });
   }
   return result;
 }
