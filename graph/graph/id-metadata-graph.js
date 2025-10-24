@@ -1,12 +1,14 @@
 const IdGen = require("../utils/id-gen");
 
 class IdMetadataGraph {
-  constructor() {
+  constructor({ autoCreateNodes = true } = {}) {
     // Use generated string ids to keep ids stable and unique
     this.adj = new Map(); // id -> array of edges { to: id, metadata: {}, weight }
     this.labelToId = new Map(); // label -> id
     this.idToLabel = new Map(); // id -> label
     this.nodeMeta = new Map(); // id -> metadata object
+    // behaviour: whether addEdge resolves unknown labels by creating nodes
+    this.autoCreateNodes = Boolean(autoCreateNodes);
   }
 
   // Add a node with a label and optional metadata. If label exists, returns existing id
@@ -33,8 +35,22 @@ class IdMetadataGraph {
       weight = metadata;
       metadata = {};
     }
+    if (weight !== undefined) this._validateWeight(weight);
     const u = this._resolveNode(uLabelOrId);
     const v = this._resolveNode(vLabelOrId);
+    const edges = this.adj.get(u);
+    edges.push({ to: v, metadata, weight });
+  }
+
+  // Strict version: do not auto-create nodes; throw if u or v are unknown labels
+  addEdgeStrict(uLabelOrId, vLabelOrId, metadata = {}, weight = undefined) {
+    if (typeof metadata === "number") {
+      weight = metadata;
+      metadata = {};
+    }
+    if (weight !== undefined) this._validateWeight(weight);
+    const u = this._resolveExistingNode(uLabelOrId);
+    const v = this._resolveExistingNode(vLabelOrId);
     const edges = this.adj.get(u);
     edges.push({ to: v, metadata, weight });
   }
@@ -46,29 +62,29 @@ class IdMetadataGraph {
     const v = this._resolveExistingNode(vLabelOrId);
     const edges = this.adj.get(u) || [];
     const before = edges.length;
+
     const filtered = edges.filter((e) => {
-      if (e.to !== v) return true; // keep
-      if (matchMetadata === undefined || matchMetadata === null) return false; // remove all to v
-      // If matchMetadata specifies a weight, require it to match
-      if (matchMetadata.weight !== undefined) {
-        if (e.weight !== matchMetadata.weight) return true; // keep if weight differs
-      }
-      // handle weight separately because edge.metadata does not include weight
-      if (matchMetadata.weight !== undefined) {
-        // if weights differ, keep this edge
-        if (e.weight !== matchMetadata.weight) return true;
-      }
+      if (e.to !== v) return true; // keep non-target edges
+      if (matchMetadata == null) return false; // remove all edges to v
 
-      // build match object without weight before matching metadata
-      const metaToMatch = Object.assign({}, matchMetadata);
-      delete metaToMatch.weight;
+      // If weight specified and doesn't match, keep
+      if (
+        matchMetadata.weight !== undefined &&
+        e.weight !== matchMetadata.weight
+      )
+        return true;
 
-      // if there is no other metadata to check, weight (if matched) is enough -> remove
-      if (Object.keys(metaToMatch).length === 0) return false;
+      // shallow metadata match excluding weight
+      const { weight, ...metaOnly } = matchMetadata;
+      if (Object.keys(metaOnly).length === 0) {
+        // only weight was specified (and matched) -> remove
+        return false;
+      }
 
       // otherwise remove only when metadata matches
-      return !this._metaMatches(e.metadata, metaToMatch);
+      return !this._metaMatches(e.metadata, metaOnly);
     });
+
     this.adj.set(u, filtered);
     return before - filtered.length;
   }
@@ -153,6 +169,14 @@ class IdMetadataGraph {
       if (meta[k] !== matchMeta[k]) return false;
     }
     return true;
+  }
+
+  // validate weight is a non-negative finite number
+  _validateWeight(w) {
+    if (w == null) return;
+    if (typeof w !== "number" || !Number.isFinite(w) || w < 0) {
+      throw new Error("weight must be a non-negative finite number");
+    }
   }
   // Return a plain object mapping label -> id
   getLabelToId() {
@@ -265,6 +289,34 @@ function IdMetadataGraphTest() {
   g.displayNodeMeta();
   g.displayEdgesRaw();
   g.displayAdj();
+
+  // Demonstrate addEdgeStrict (requires existing nodes)
+  console.log(
+    "\nDemonstrate addEdgeStrict with existing nodes (adds audit-backup)"
+  );
+  g.addEdgeStrict("sales.orders", "public.users", { type: "audit-backup" }, 2);
+  g.displayEdgesRaw();
+
+  // Demonstrate addEdgeStrict with unknown node -> should throw
+  console.log("\nDemonstrate addEdgeStrict with unknown target (should throw)");
+  try {
+    g.addEdgeStrict("sales.orders", "unknown.table", { type: "x" }, 1);
+  } catch (err) {
+    console.log("expected error:", err.message);
+  }
+
+  // Demonstrate addEdge auto-creates missing labels (convenience)
+  console.log("\nDemonstrate addEdge auto-creates missing label new.ghost");
+  g.addEdge("sales.orders", "new.ghost", { type: "temp" }, 3);
+  g.displayAdjList();
+
+  // Demonstrate weight validation (negative weight should throw)
+  console.log("\nDemonstrate weight validation (negative weight)");
+  try {
+    g.addEdge("sales.orders", "public.users", { type: "bad" }, -5);
+  } catch (err) {
+    console.log("expected weight error:", err.message);
+  }
 
   // Remove an edge by matching metadata
   console.log("\nRemove the audit edge from sales.orders -> public.users");
