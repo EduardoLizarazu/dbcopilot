@@ -17,6 +17,18 @@ function main() {
 
   console.log("Adjacency List Representation:");
   g.displayAdjList();
+
+  // Demonstrate removeEdge: remove edge 1 -> 2
+  console.log("\nRemoving edge 1 -> 2");
+  const removedCount = g.removeEdge(1, 2);
+  console.log(`removed edges: ${removedCount}`);
+  g.displayAdjList();
+
+  // Demonstrate removeNode: remove node labeled 0
+  console.log("\nRemoving node 0");
+  const removedLabel = g.removeNode(0);
+  console.log(`removed node label: ${removedLabel}`);
+  g.displayAdjList();
 }
 
 main();
