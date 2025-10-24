@@ -16,8 +16,8 @@ const {
 function main() {
   //   MetadataGraphTest();
   //   IdMetadataGraphTest();
-  //   rowSchemaToOrganizationSchemaTest();
-  buildGraphFromSchemaV2Test();
+  rowSchemaToOrganizationSchemaTest();
+  //   buildGraphFromSchemaV2Test();
 }
 
 main();
