@@ -347,4 +347,4 @@ function IdMetadataGraphTest() {
   g.displayAdjList();
 }
 
-module.exports = IdMetadataGraphTest;
+module.exports = { IdMetadataGraph, IdMetadataGraphTest };
