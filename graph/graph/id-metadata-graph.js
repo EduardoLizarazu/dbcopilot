@@ -50,7 +50,21 @@ class IdMetadataGraph {
       if (matchMetadata.weight !== undefined) {
         if (e.weight !== matchMetadata.weight) return true; // keep if weight differs
       }
-      return !this._metaMatches(e.metadata, matchMetadata);
+      // handle weight separately because edge.metadata does not include weight
+      if (matchMetadata.weight !== undefined) {
+        // if weights differ, keep this edge
+        if (e.weight !== matchMetadata.weight) return true;
+      }
+
+      // build match object without weight before matching metadata
+      const metaToMatch = Object.assign({}, matchMetadata);
+      delete metaToMatch.weight;
+
+      // if there is no other metadata to check, weight (if matched) is enough -> remove
+      if (Object.keys(metaToMatch).length === 0) return false;
+
+      // otherwise remove only when metadata matches
+      return !this._metaMatches(e.metadata, metaToMatch);
     });
     this.adj.set(u, filtered);
     return before - filtered.length;
