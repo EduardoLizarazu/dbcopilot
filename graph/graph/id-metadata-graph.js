@@ -176,6 +176,37 @@ class IdMetadataGraph {
   displayIdToLabel() {
     console.log("idToLabel:", this.getIdToLabel());
   }
+
+  // Return a plain object mapping id -> node metadata
+  getNodeMeta() {
+    const out = {};
+    for (const [id, meta] of this.nodeMeta.entries()) out[id] = meta;
+    return out;
+  }
+
+  // Console-friendly printer for node metadata
+  displayNodeMeta() {
+    console.log("nodeMeta:", this.getNodeMeta());
+  }
+
+  // Return adjacency as a plain object mapping id -> array of edges { toId, toLabel, weight, metadata }
+  getAdj() {
+    const out = {};
+    for (const [id, edges] of this.adj.entries()) {
+      out[id] = edges.map((e) => ({
+        toId: e.to,
+        toLabel: this.idToLabel.get(e.to),
+        weight: e.weight,
+        metadata: e.metadata,
+      }));
+    }
+    return out;
+  }
+
+  // Console-friendly printer for adjacency
+  displayAdj() {
+    console.log("adj:", this.getAdj());
+  }
 }
 
 function IdMetadataGraphTest() {
@@ -208,6 +239,8 @@ function IdMetadataGraphTest() {
   console.log("\nMappings:");
   g.displayLabelToId();
   g.displayIdToLabel();
+  g.displayNodeMeta();
+  g.displayAdj();
 
   // Remove an edge by matching metadata
   console.log("\nRemove the audit edge from sales.orders -> public.users");
