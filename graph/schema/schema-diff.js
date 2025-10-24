@@ -6,7 +6,7 @@ const {
 
 // Compare two schema arrays and produce a structured diff.
 // Output uses schemaStatus { UNCHANGED:0, NEW:1, NOT_FOUND:2 }
-// Each schema: { schema: { name }, status, tables: [ { name, status, columns: [ { name, status, dataType: { name, status } } ] } ] }
+// Each schema: { schema: { name, status }, tables: [ { name, status, columns: [ { name, status, dataType: { name, status } } ] } ] }
 
 const schemaStatus = {
   UNCHANGED: 0,
@@ -70,13 +70,15 @@ function compareSchemas(newSchemas = [], oldSchemas = []) {
     const inNew = newMap.has(schemaName);
     const inOld = oldMap.has(schemaName);
     const schemaEntry = {
-      schema: { name: schemaName },
-      status:
-        inNew && inOld
-          ? schemaStatus.UNCHANGED
-          : inNew
-          ? schemaStatus.NEW
-          : schemaStatus.NOT_FOUND,
+      schema: {
+        name: schemaName,
+        status:
+          inNew && inOld
+            ? schemaStatus.UNCHANGED
+            : inNew
+            ? schemaStatus.NEW
+            : schemaStatus.NOT_FOUND,
+      },
       tables: [],
     };
 
