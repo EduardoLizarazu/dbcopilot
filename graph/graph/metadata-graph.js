@@ -183,4 +183,4 @@ function MetadataGraphTest() {
   g.displayAdjList();
 }
 
-module.exports = MetadataGraphTest;
+module.exports = { MetadataGraphTest };

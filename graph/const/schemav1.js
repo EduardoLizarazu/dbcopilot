@@ -2,7 +2,7 @@
 // This file exports `nlqQaInformationSchemaExtraction` — an array of objects
 // with the minimal fields: TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE.
 
-const physicalSchema = [
+const schemaV1 = [
   // public schema - users
   {
     TABLE_SCHEMA: "public",
@@ -191,4 +191,4 @@ const physicalSchema = [
 ];
 
 // Export for CommonJS. This keeps it simple to require() from Node for quick checks.
-module.exports = { physicalSchema };
+module.exports = { schemaV1 };

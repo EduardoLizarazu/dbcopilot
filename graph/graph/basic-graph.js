@@ -147,4 +147,4 @@ function BasicGraphTest() {
   g.displayAdjList();
 }
 
-module.exports = BasicGraphTest;
+module.exports = { BasicGraphTest };
