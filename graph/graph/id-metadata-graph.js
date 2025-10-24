@@ -207,6 +207,36 @@ class IdMetadataGraph {
   displayAdj() {
     console.log("adj:", this.getAdj());
   }
+
+  // Return a flat array of all edges in the graph with rich info:
+  // [{ fromId, fromLabel, toId, toLabel, weight, metadata }, ...]
+  getEdges() {
+    const out = [];
+    for (const [fromId, edges] of this.adj.entries()) {
+      const fromLabel = this.idToLabel.get(fromId);
+      for (const e of edges) {
+        out.push({
+          fromId,
+          fromLabel,
+          toId: e.to,
+          toLabel: this.idToLabel.get(e.to),
+          weight: e.weight,
+          metadata: e.metadata,
+        });
+      }
+    }
+    return out;
+  }
+
+  // Console-friendly printer that lists one edge per line with its metadata
+  displayEdges() {
+    const edges = this.getEdges();
+    if (edges.length === 0) {
+      console.log("No edges");
+      return;
+    }
+    console.log("edges: ", edges);
+  }
 }
 
 function IdMetadataGraphTest() {
@@ -240,6 +270,7 @@ function IdMetadataGraphTest() {
   g.displayLabelToId();
   g.displayIdToLabel();
   g.displayNodeMeta();
+  g.displayEdges();
   g.displayAdj();
 
   // Remove an edge by matching metadata
