@@ -154,6 +154,7 @@ class IdMetadataGraph {
     }
     return true;
   }
+
   // Return a plain object mapping label -> id
   getLabelToId() {
     const out = {};
@@ -203,11 +204,6 @@ function IdMetadataGraphTest() {
 
   console.log("\nInitial Metadata Graph:");
   g.displayAdjList();
-
-  // Show the label->id and id->label maps
-  console.log("\nMappings:");
-  g.displayLabelToId();
-  g.displayIdToLabel();
 
   // Remove an edge by matching metadata
   console.log("\nRemove the audit edge from sales.orders -> public.users");
