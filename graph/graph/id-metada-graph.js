@@ -1,4 +1,4 @@
-class MetadataGraph {
+class IdMetadataGraph {
   constructor() {
     // Use stable numeric ids (incrementing) to avoid reindexing on removals
     this.nextId = 0;
@@ -142,8 +142,8 @@ class MetadataGraph {
   }
 }
 
-function MetadataGraphTest() {
-  const g = new MetadataGraph();
+function IdMetadataGraphTest() {
+  const g = new IdMetadataGraph();
 
   // Add nodes with metadata (e.g., schema info)
   g.addNode("public.users", { schema: "public", table: "users" });
@@ -183,4 +183,4 @@ function MetadataGraphTest() {
   g.displayAdjList();
 }
 
-module.exports = MetadataGraphTest;
+module.exports = IdMetadataGraphTest;
