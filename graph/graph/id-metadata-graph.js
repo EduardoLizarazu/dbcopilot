@@ -1,7 +1,7 @@
 const IdGen = require("../utils/id-gen");
 
 class IdMetadataGraph {
-  constructor({ autoCreateNodes = true } = {}) {
+  constructor({ autoCreateNodes = false } = {}) {
     // Use generated string ids to keep ids stable and unique
     this.adj = new Map(); // id -> array of edges { to: id, metadata: {}, weight }
     this.labelToId = new Map(); // label -> id
@@ -151,7 +151,8 @@ class IdMetadataGraph {
     if (this.adj.has(x)) return x;
     // if x is a known label, return id
     if (this.labelToId.has(x)) return this.labelToId.get(x);
-    // otherwise create a new node with label x
+    // otherwise either create a new node (if allowed) or throw
+    if (!this.autoCreateNodes) throw new Error(`label or id '${x}' not found`);
     return this.addNode(x, {});
   }
 
@@ -305,8 +306,21 @@ function IdMetadataGraphTest() {
     console.log("expected error:", err.message);
   }
 
-  // Demonstrate addEdge auto-creates missing labels (convenience)
-  console.log("\nDemonstrate addEdge auto-creates missing label new.ghost");
+  // Demonstrate addEdge in strict mode: adding to unknown label must throw
+  console.log(
+    "\nDemonstrate addEdge in strict mode with unknown target (should throw)"
+  );
+  try {
+    g.addEdge("sales.orders", "new.ghost", { type: "temp" }, 3);
+  } catch (err) {
+    console.log("expected error (strict mode):", err.message);
+  }
+
+  // To add an edge to a previously-unknown label, create the node first then add the edge
+  console.log(
+    "\nCreate node new.ghost explicitly and add edge to it (strict mode)"
+  );
+  g.addNode("new.ghost", { schema: "tmp", table: "ghost" });
   g.addEdge("sales.orders", "new.ghost", { type: "temp" }, 3);
   g.displayAdjList();
 
