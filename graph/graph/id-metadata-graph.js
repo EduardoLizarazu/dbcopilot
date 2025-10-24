@@ -1,7 +1,8 @@
+const IdGen = require("../utils/id-gen");
+
 class IdMetadataGraph {
   constructor() {
-    // Use stable numeric ids (incrementing) to avoid reindexing on removals
-    this.nextId = 0;
+    // Use generated string ids to keep ids stable and unique
     this.adj = new Map(); // id -> array of edges { to: id, metadata: {}, weight }
     this.labelToId = new Map(); // label -> id
     this.idToLabel = new Map(); // id -> label
@@ -13,7 +14,9 @@ class IdMetadataGraph {
     if (label === undefined || label === null)
       throw new Error("label required");
     if (this.labelToId.has(label)) return this.labelToId.get(label);
-    const id = this.nextId++;
+    // generate a unique string id
+    let id = IdGen();
+    while (this.adj.has(id)) id = IdGen();
     this.labelToId.set(label, id);
     this.idToLabel.set(id, label);
     this.nodeMeta.set(id, metadata);
@@ -128,21 +131,18 @@ class IdMetadataGraph {
 
   // Helpers
   _resolveNode(x) {
-    if (typeof x === "number") {
-      if (!this.adj.has(x)) throw new Error(`node id ${x} not found`);
-      return x;
-    }
-    // label: if exists return id, otherwise create node with empty metadata
+    // if x is already an id (string) present in the graph, return it
+    if (this.adj.has(x)) return x;
+    // if x is a known label, return id
     if (this.labelToId.has(x)) return this.labelToId.get(x);
+    // otherwise create a new node with label x
     return this.addNode(x, {});
   }
 
   _resolveExistingNode(x) {
-    if (typeof x === "number") {
-      if (!this.adj.has(x)) throw new Error(`node id ${x} not found`);
-      return x;
-    }
-    if (!this.labelToId.has(x)) throw new Error(`label '${x}' not found`);
+    // if x is an id present in the graph
+    if (this.adj.has(x)) return x;
+    if (!this.labelToId.has(x)) throw new Error(`label or id '${x}' not found`);
     return this.labelToId.get(x);
   }
 
