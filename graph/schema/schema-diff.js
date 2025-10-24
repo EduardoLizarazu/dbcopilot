@@ -1,3 +1,9 @@
+const { schemaV1 } = require("../const/schemav1");
+const { schemaV2 } = require("../const/schemav2");
+const {
+  mapRawSchemaToOrganizationSchema,
+} = require("../mapper/row-schema-to-orginize-schema");
+
 // Compare two schema arrays and produce a structured diff.
 // Output uses schemaStatus { UNCHANGED:0, NEW:1, NOT_FOUND:2 }
 // Each schema: { schema: { name }, status, tables: [ { name, status, columns: [ { name, status, dataType: { name, status } } ] } ] }
@@ -191,4 +197,13 @@ function compareSchemas(newSchemas = [], oldSchemas = []) {
   return { schemaStatus, schemaDiff: result };
 }
 
-module.exports = { compareSchemas, schemaStatus };
+// test
+function compareSchemasTest() {
+  const result = compareSchemas(
+    mapRawSchemaToOrganizationSchema(schemaV1),
+    mapRawSchemaToOrganizationSchema(schemaV2)
+  );
+  console.log(JSON.stringify(result, null, 2));
+}
+
+module.exports = { compareSchemas, schemaStatus, compareSchemasTest };

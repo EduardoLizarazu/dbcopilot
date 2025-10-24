@@ -13,10 +13,17 @@ const {
   buildGraphFromSchemaV2Test,
 } = require("./schema/schema-graph-builder");
 
+const {
+  compareSchemas,
+  schemaStatus,
+  compareSchemasTest,
+} = require("./schema/schema-diff");
+
 function main() {
   //   MetadataGraphTest();
   //   IdMetadataGraphTest();
-  rowSchemaToOrganizationSchemaTest();
+  //   rowSchemaToOrganizationSchemaTest();
+  compareSchemasTest();
   //   buildGraphFromSchemaV2Test();
 }
 
