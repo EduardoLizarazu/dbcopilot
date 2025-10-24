@@ -1,9 +1,8 @@
 // Function to add an edge between two vertices
 const BasicGraphTest = require("./basic-graph");
+const idGen = require("./id-gen");
 
-function main() {
-  BasicGraphTest();
-}
+function main() {}
 
 main();
 
