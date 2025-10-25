@@ -9,6 +9,11 @@ const {
 } = require("./mapper/row-schema-to-orginize-schema");
 
 const {
+  mapOrganizationSchemaToRawRows,
+  organizeSchemaToRawSchemaTest,
+} = require("./mapper/organize-schema-to-raw-schema");
+
+const {
   buildGraphFromSchemaV2,
   buildGraphFromSchemaV2Test,
 } = require("./schema/schema-graph-builder");
@@ -24,8 +29,9 @@ const { joinSchemas, joinSchemasTest } = require("./schema/join-schema");
 function main() {
   //   MetadataGraphTest();
   //   IdMetadataGraphTest();
-  rowSchemaToOrganizationSchemaTest();
-  joinSchemasTest();
+  //   rowSchemaToOrganizationSchemaTest();
+  //   joinSchemasTest();
+  organizeSchemaToRawSchemaTest();
   //   compareSchemasTest();
   //   buildGraphFromSchemaV2Test();
 }
