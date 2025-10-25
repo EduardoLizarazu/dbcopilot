@@ -19,10 +19,13 @@ const {
   compareSchemasTest,
 } = require("./schema/compare-schema");
 
+const { joinSchemas, joinSchemasTest } = require("./schema/join-schema");
+
 function main() {
   //   MetadataGraphTest();
   //   IdMetadataGraphTest();
   rowSchemaToOrganizationSchemaTest();
+  joinSchemasTest();
   //   compareSchemasTest();
   //   buildGraphFromSchemaV2Test();
 }
