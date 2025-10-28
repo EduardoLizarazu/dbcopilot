@@ -1,8 +1,5 @@
 import { CreateDbConnStep } from "@/core/application/steps/dbconn/create-dbconn.step";
 import { ValidateInputCreateDbConnStep } from "@/core/application/steps/dbconn/validate-input-create-dbconn.step";
-import { CreateSchemaStep } from "@/core/application/steps/schema/create-schema.step";
-import { ReadSchemaByConnectionFieldsStep } from "@/core/application/steps/schema/read-schema-by-connecion-fields.step";
-import { AddConnToSchemaStep } from "@/core/application/steps/schema/add-conn-to-schema.step";
 import { CreateDbConnectionUseCase } from "@/core/application/usecases/dbconnection/create-dbconnection.usecase";
 import { CreateDbConnectionController } from "@/http/controllers/dbconnection/create-dbconnection.http.controller";
 import { IController } from "@/http/controllers/IController.http.controller";
@@ -11,7 +8,6 @@ import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/fireb
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { DbConnectionRepository } from "@/infrastructure/repository/dbconnection.repo";
-import { SchemaRepository } from "@/infrastructure/repository/schema/schema.repo";
 import { VbdSplitterRepository } from "@/infrastructure/repository/vbd-splitter.repo";
 
 export function CreateDbConnectionComposer(): IController {
@@ -25,7 +21,6 @@ export function CreateDbConnectionComposer(): IController {
     firebaseAdmin
   );
   const dbConnRepo = new DbConnectionRepository(loggerProvider, firebaseAdmin);
-  const schemaRepo = new SchemaRepository(loggerProvider, firebaseAdmin);
 
   // Others utils
   const decodeTokenAdapter = new DecodeTokenAdapter(
@@ -48,25 +43,12 @@ export function CreateDbConnectionComposer(): IController {
     dbConnRepo,
     vbdSplitterRepo
   );
-  const readSchemaByConnectionFieldsStep = new ReadSchemaByConnectionFieldsStep(
-    loggerProvider,
-    schemaRepo
-  );
-
-  const createSchemaStep = new CreateSchemaStep(loggerProvider, schemaRepo);
-  const addConnToSchemaStep = new AddConnToSchemaStep(
-    loggerProvider,
-    schemaRepo
-  );
 
   // USE CASES
   const useCase = new CreateDbConnectionUseCase(
     loggerProvider,
     validateInputDbConnStep,
-    createDbConnStep,
-    readSchemaByConnectionFieldsStep,
-    createSchemaStep,
-    addConnToSchemaStep
+    createDbConnStep
   );
 
   // CONTROLLER

@@ -3,8 +3,6 @@ import { UpdateDbConnStep } from "@/core/application/steps/dbconn/update-dbconn.
 import { ValidateInputUpdateDbConnStep } from "@/core/application/steps/dbconn/validate-input-update-dbconn.step";
 import { TransferSplitterToNewOnKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/transfer-splitter-to-new-on-knowledge-base.step";
 import { ReadNlqQaGoodByDbConnIdStep } from "@/core/application/steps/nlq-qa-good/read-nlq-qa-good-by-dbconn-id.step";
-import { ReadSchemaByConnIdStep } from "@/core/application/steps/schema/read-schema-by-connection-id.step";
-import { UpdateConnOnSchemaStep } from "@/core/application/steps/schema/update-conn-on-schema.step";
 import { ReadVbdSplitterByIdStep } from "@/core/application/steps/vbd-splitter/read-vbd-splitter-by-id.step";
 import { UpdateDbConnectionUseCase } from "@/core/application/usecases/dbconnection/update-dbconnection.usecase";
 import { UpdateDbConnectionController } from "@/http/controllers/dbconnection/update-dbconnection.http.controller";
@@ -18,7 +16,6 @@ import { PineconeProvider } from "@/infrastructure/providers/vector/pinecone";
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { DbConnectionRepository } from "@/infrastructure/repository/dbconnection.repo";
 import { NlqQaGoodRepository } from "@/infrastructure/repository/nlq/nlq-qa-good.repo";
-import { SchemaRepository } from "@/infrastructure/repository/schema/schema.repo";
 import { VbdSplitterRepository } from "@/infrastructure/repository/vbd-splitter.repo";
 
 export function UpdateDbConnectionComposer(): IController {
@@ -42,8 +39,6 @@ export function UpdateDbConnectionComposer(): IController {
     pineconeProvider,
     openaiProvider
   );
-
-  const schemaRepo = new SchemaRepository(loggerProvider, firebaseAdmin);
 
   // Others utils
   const decodeTokenAdapter = new DecodeTokenAdapter(
@@ -85,16 +80,6 @@ export function UpdateDbConnectionComposer(): IController {
       knowledgeSourcePort
     );
 
-  const readSchemaByConnId = new ReadSchemaByConnIdStep(
-    loggerProvider,
-    schemaRepo
-  );
-
-  const updateConnOnSchemaStep = new UpdateConnOnSchemaStep(
-    loggerProvider,
-    schemaRepo
-  );
-
   // USE CASES
   const useCase = new UpdateDbConnectionUseCase(
     loggerProvider,
@@ -103,9 +88,7 @@ export function UpdateDbConnectionComposer(): IController {
     readSplitterByIdStep,
     readNlqQaGoodByDbConnIdStep,
     updateDbConnStep,
-    transferSplitterToNewOnKnowledgeBaseStep,
-    readSchemaByConnId,
-    updateConnOnSchemaStep
+    transferSplitterToNewOnKnowledgeBaseStep
   );
 
   // CONTROLLER
