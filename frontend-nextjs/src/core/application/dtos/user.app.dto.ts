@@ -8,6 +8,7 @@ export const userSchema = z.object({
   lastname: z.string().min(1, "Lastname is required"),
   roles: z.array(z.string()),
 });
+export type TUser = z.infer<typeof userSchema>;
 
 export const createUserSchema = userSchema.omit({ id: true });
 

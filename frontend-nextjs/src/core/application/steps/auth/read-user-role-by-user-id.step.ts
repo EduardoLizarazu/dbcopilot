@@ -22,7 +22,7 @@ export class ReadUserRolesByUserIdStep implements IReadUserRolesByUserIdStep {
         await this.authorizationRepository.findRolesNamesByUserId(userId);
 
       if (!roles || roles?.roleNames.length === 0) {
-        this.logger.error(`No roles found for userId: ${userId}`);
+        this.logger.error(`No roles found for userId: ${userId}`, roles);
         throw new Error("No roles found for the given userId");
       }
 

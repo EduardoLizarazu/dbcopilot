@@ -2,7 +2,7 @@ import { nextAdapter } from "@/http/adapters/next-adapter.http";
 import { readNlqQaHistoryComposer } from "@/infrastructure/services/composers/nlq/read-nlq-qa-history-composer.infra.service";
 import { NextRequest } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   console.log("API: NLQ request...", req);
   const adapter = await nextAdapter(req, readNlqQaHistoryComposer(), {
     isTokenRequired: true,

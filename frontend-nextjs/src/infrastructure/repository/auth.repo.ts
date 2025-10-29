@@ -1,6 +1,7 @@
 import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
 import { FirebaseAdminProvider } from "../providers/firebase/firebase-admin";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
+import { TUser } from "@/core/application/dtos/user.app.dto";
 
 export class AuthorizationRepository implements IAuthorizationRepository {
   constructor(
@@ -20,23 +21,24 @@ export class AuthorizationRepository implements IAuthorizationRepository {
   }
   async findRolesNamesByUserId(uid: string): Promise<{ roleNames: string[] }> {
     try {
-      this.logger.info("AuthService: Fetching roles for UID:", uid);
+      this.logger.info("[AuthService] Fetching roles for UID:", uid);
 
       const user = await this.firebaseAdmin.db
         .collection(this.firebaseAdmin.coll.NLQ_USERS)
-        .where("uid", "==", uid)
+        .where("id", "==", uid)
         .get();
       if (user.empty) {
         console.log("No user found with UID:", uid);
         return { roleNames: [] };
       }
 
-      this.logger.info("AuthService: User found:", user.docs[0].data());
+      const userData = user.docs[0].data() as TUser;
 
-      const userData = user.docs[0].data();
-      const roles: string[] = userData.roleIds || [];
+      this.logger.info("[AuthService] User found:", JSON.stringify(userData));
 
-      this.logger.info("AuthService: User roles IDs:", roles);
+      const roles: string[] = userData.roles || [];
+
+      this.logger.info("[AuthService] User roles IDs:", roles);
 
       // Fetch by roles document ids
       const rolesDocs = await Promise.all(
