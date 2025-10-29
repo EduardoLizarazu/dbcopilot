@@ -4,7 +4,7 @@ import { TNlqQaHistoryOutDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto"
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
-export async function ReadAllNlqAction(): Promise<
+export async function ReadAllNlqHistoryAction(): Promise<
   TResOutContent<TNlqQaHistoryOutDto[]>
 > {
   console.log("Reading all NLQ...");
