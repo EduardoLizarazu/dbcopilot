@@ -2,11 +2,11 @@ import { ILogger } from "../../interfaces/ilog.app.inter";
 import { TNlqQaHistoryOutDto } from "../../dtos/nlq/nlq-qa.app.dto";
 import { INlqQaRepository } from "../../interfaces/nlq/nlq-qa.app.inter";
 
-export interface ReadAllNlqQaStep {
+export interface IReadAllNlqQaStep {
   run(): Promise<TNlqQaHistoryOutDto[]>;
 }
 
-export class ReadAllNlqQaStep implements ReadAllNlqQaStep {
+export class ReadAllNlqQaStep implements IReadAllNlqQaStep {
   constructor(
     private readonly logger: ILogger,
     private readonly nlqQaRepository: INlqQaRepository
