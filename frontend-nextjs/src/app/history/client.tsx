@@ -122,15 +122,24 @@ export default function HistoryClient({
                       }}
                     >
                       {r.question
-                        ? r.question.length > 30
-                          ? `${r.question.slice(0, 30)}...`
+                        ? r.question.length > 100
+                          ? `${r.question.slice(0, 100)}...`
                           : r.question
                         : "—"}
                     </div>
                   </TableCell>
                   <TableCell>
                     {r.createdAt ? (
-                      <LocalTime iso={new Date(r.createdAt).toISOString()} />
+                      <LocalTime
+                        fb_date={
+                          r.createdAt
+                            ? (r.createdAt as unknown as {
+                                _seconds: number;
+                                _nanoseconds: number;
+                              })
+                            : undefined
+                        }
+                      />
                     ) : (
                       "—"
                     )}
