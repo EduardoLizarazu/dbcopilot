@@ -12,8 +12,8 @@ export default function LogoutButton() {
   };
 
   return (
-    <Button variant="outlined" onClick={onClick} sx={{ textTransform: "none" }}>
-      Log out
+    <Button variant="outlined" onClick={onClick} sx={{ width: "100%" }}>
+      Logout
     </Button>
   );
 }

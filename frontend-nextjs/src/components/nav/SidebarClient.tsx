@@ -84,7 +84,7 @@ export default function SidebarClient({
       </Box>
       <Divider />
       <List sx={{ px: 0.5 }}>
-        <NavItem href="/dashboard" icon={<DashboardIcon />} label="Dashboard" />
+        {/* <NavItem href="/dashboard" icon={<DashboardIcon />} label="Dashboard" /> */}
         <NavItem href="/chat" icon={<ChatIcon />} label="Chat" />
         {/* {isAdmin && (
         )} */}
@@ -107,7 +107,7 @@ export default function SidebarClient({
             icon={<CableIcon />}
             label="DB Connection"
           />
-          <NavItem href="/schema" icon={<SchemaIcon />} label="Schema" />
+          {/* <NavItem href="/schema" icon={<SchemaIcon />} label="Schema" /> */}
           <NavItem
             href="/vbd-splitter"
             icon={<ListIcon />}
@@ -154,6 +154,7 @@ export default function SidebarClient({
           "& .MuiDrawer-paper": {
             width: DRAWER_WIDTH,
             boxSizing: "border-box",
+            overflow: "hidden",
           },
         }}
       >
