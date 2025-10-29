@@ -1,9 +1,8 @@
 "use client";
-import { Box, Button, Container, Menu, MenuItem } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React from "react";
 import { ChatResultExportBtn } from "./chatResultExportBtn";
-import { TCreatePromptCmdWithConnIdOutput } from "@/controller/_actions/chat/command/create-prompt-with-connection-id.command";
 
 /**
  * "data": [
