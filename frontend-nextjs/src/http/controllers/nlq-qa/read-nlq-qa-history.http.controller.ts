@@ -22,9 +22,7 @@ export class ReadNlqQaHistoryController implements IController {
     private httpSuccess: IHttpSuccess = new HttpSuccess()
   ) {}
 
-  async handle(
-    httpRequest: IHttpRequest<{ id: string }>
-  ): Promise<IHttpResponse> {
+  async handle(httpRequest: IHttpRequest<null>): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info(
@@ -71,7 +69,7 @@ export class ReadNlqQaHistoryController implements IController {
       //   5. Check roles permissions
       const { hasAuth } = await this.accessRepo.hasRoles({
         ctxRoleNames: roleNames.roleNames,
-        requiredRoleNames: [ROLE.ANALYST, ROLE.ADMIN],
+        requiredRoleNames: [],
       });
       if (!hasAuth) {
         this.logger.error(
@@ -80,16 +78,6 @@ export class ReadNlqQaHistoryController implements IController {
         const error = this.httpErrors.error_401("User is not authorized");
         return new HttpResponse(error.statusCode, error.body);
       }
-
-      //   ==== INPUT BODY ====
-      //   1. Check body
-      this.logger.info("[ReadNlqQaHistoryController] Body:", httpRequest.body);
-      if (!httpRequest.body) {
-        this.logger.error("[ReadNlqQaHistoryController] No body provided");
-        const error = this.httpErrors.error_400("No body provided");
-        return new HttpResponse(error.statusCode, error.body);
-      }
-      const body = httpRequest.body;
 
       // ==== BUSINESS LOGIC USE CASES ====
       const useCase = await this.readNlqQaHistoryUseCase.execute({
@@ -103,15 +91,13 @@ export class ReadNlqQaHistoryController implements IController {
             ...useCase,
           }
         );
-        const error = this.httpErrors.error_400(
-          "Error reading NLQ history: " + useCase.message
-        );
+        const error = this.httpErrors.error_400(useCase.message);
         return new HttpResponse(error.statusCode, error.body);
       }
 
       // ==== OUTPUT RESPONSE ====
       const success = this.httpSuccess.success_200({
-        message: "NLQ QA history retrieved successfully",
+        message: useCase.message,
         data: useCase.data,
       });
       return new HttpResponse(success.statusCode, success.body);
