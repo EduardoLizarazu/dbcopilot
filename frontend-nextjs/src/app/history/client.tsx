@@ -16,6 +16,10 @@ import {
   IconButton,
   Tooltip,
   CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -37,8 +41,40 @@ export default function HistoryClient({
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return rows;
-    return rows.filter((r) => (r.question || "").toLowerCase().includes(q));
+    return rows.filter((r) => {
+      const question = (r.question || "").toLowerCase();
+      const email = (r.user?.email || "").toLowerCase();
+      return question.includes(q) || email.includes(q);
+    });
   }, [rows, query]);
+
+  const [sortDir, setSortDir] = React.useState<"desc" | "asc">("desc");
+
+  const getTime = (val: any) => {
+    if (!val) return 0;
+    // Firestore-like timestamp
+    if (
+      typeof val === "object" &&
+      Object.prototype.hasOwnProperty.call(val, "_seconds")
+    ) {
+      return (val._seconds || 0) * 1000 + (val._nanoseconds || 0) / 1e6;
+    }
+    // JS Date
+    if (val instanceof Date) return val.getTime();
+    // ISO string or number
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? 0 : d.getTime();
+  };
+
+  const displayed = React.useMemo(() => {
+    const arr = filtered.slice();
+    arr.sort((a, b) => {
+      const at = getTime(a.createdAt);
+      const bt = getTime(b.createdAt);
+      return sortDir === "desc" ? bt - at : at - bt;
+    });
+    return arr;
+  }, [filtered, sortDir]);
 
   const markDeleting = (id: string, on: boolean) => {
     setDeleteBusy((prev) => {
@@ -80,13 +116,27 @@ export default function HistoryClient({
       </Typography>
 
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <TextField
-          size="small"
-          placeholder="Search by question..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          fullWidth
-        />
+        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+          <TextField
+            size="small"
+            placeholder="Search by email or question..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            fullWidth
+          />
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <InputLabel id="sort-label">Sort by createdAt</InputLabel>
+            <Select
+              labelId="sort-label"
+              label="Sort by createdAt"
+              value={sortDir}
+              onChange={(e) => setSortDir(e.target.value as any)}
+            >
+              <MenuItem value="desc">Newest first</MenuItem>
+              <MenuItem value="asc">Oldest first</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
       </Paper>
 
       <TableContainer component={Paper} elevation={1}>
@@ -102,10 +152,10 @@ export default function HistoryClient({
             </TableRow>
           </TableHead>
           <TableBody>
-            {filtered.length === 0 ? (
+            {displayed.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={3}
+                  colSpan={4}
                   align="center"
                   sx={{ py: 6, color: "text.secondary" }}
                 >
@@ -113,7 +163,7 @@ export default function HistoryClient({
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((r) => (
+              displayed.map((r) => (
                 <TableRow key={r.id} hover>
                   <TableCell sx={{ maxWidth: 640 }}>
                     <div
