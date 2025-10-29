@@ -4,6 +4,7 @@ import { TNlqQaFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa-
 import { TNlqQaGoodOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import {
   TCreateNlqQaDto,
+  TNlqQaHistoryOutDto,
   TNlqQaOutRequestDto,
   TNlqQaWitFeedbackOutRequestDto,
   TUpdateNlqQaDto,
@@ -17,6 +18,38 @@ export class NlqQaAppRepository implements INlqQaRepository {
     private readonly logger: ILogger,
     private readonly fbAdminProvider: FirebaseAdminProvider
   ) {}
+  async findAllByUserId(userId: string): Promise<TNlqQaHistoryOutDto[]> {
+    try {
+      this.logger.info("[NlqQaAppRepository] Finding NLQ QA by User ID", {
+        userId,
+      });
+
+      // Query NLQ QA collection where createdBy equals userId
+      const db = this.fbAdminProvider.db;
+      const nlqQas: TNlqQaHistoryOutDto[] = [];
+      const querySnapshot = await db
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
+        .where("createdBy", "==", userId)
+        .get();
+
+      querySnapshot.forEach((doc) => {
+        nlqQas.push({ id: doc.id, ...doc.data() } as TNlqQaHistoryOutDto);
+      });
+
+      this.logger.info(
+        `[NlqQaAppRepository] Found ${nlqQas.length} NLQ QA records for User ID: ${userId}`
+      );
+      return nlqQas;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaAppRepository] Error finding NLQ QA by User ID",
+        {
+          error,
+        }
+      );
+      throw new Error(error.message || "Error finding NLQ QA by User ID");
+    }
+  }
   async findAllWithUserAndFeedback(): Promise<
     TNlqQaWitFeedbackOutRequestDto[]
   > {

@@ -1,5 +1,6 @@
 import {
   TCreateNlqQaDto,
+  TNlqQaHistoryOutDto,
   TNlqQaOutRequestDto,
   TNlqQaWitFeedbackOutRequestDto,
   TUpdateNlqQaDto,
@@ -16,5 +17,6 @@ export interface INlqQaRepository
     id: string
   ): Promise<TNlqQaWitFeedbackOutRequestDto>;
   findAllWithUserAndFeedback(): Promise<TNlqQaWitFeedbackOutRequestDto[]>;
+  findAllByUserId(userId: string): Promise<TNlqQaHistoryOutDto[]>;
   softDeleteById(id: string): Promise<void>;
 }

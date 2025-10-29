@@ -22,9 +22,12 @@ export const nlqQaSchema = z.object({
 
   createdBy: z.string(),
   updatedBy: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().default(new Date()),
+  updatedAt: z.date().default(new Date()),
 });
+
+export const nlqQaHistoryOutSchema = nlqQaSchema;
+export type TNlqQaHistoryOutDto = z.infer<typeof nlqQaHistoryOutSchema>;
 
 export const createNlqQaSchema = nlqQaSchema.omit({
   id: true,
