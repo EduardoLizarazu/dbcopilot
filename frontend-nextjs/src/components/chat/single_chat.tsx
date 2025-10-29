@@ -113,12 +113,6 @@ export function SingleChat(
     setIsResetHf(true);
   }
 
-  function handleResetBySelectedHistoryPrompt() {
-    setPromptId(null);
-    setResult({ data: [], error: null });
-    setIsResetHf(true);
-  }
-
   return (
     <Container>
       <Suspense fallback={<CircularProgress />}>
