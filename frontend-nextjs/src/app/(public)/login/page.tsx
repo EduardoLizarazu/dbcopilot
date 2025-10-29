@@ -105,20 +105,6 @@ export default function LoginPage() {
             >
               {loading ? <CircularProgress size={22} /> : "Sign in"}
             </Button>
-
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <MLink
-                component="button"
-                type="button"
-                sx={{ textTransform: "none" }}
-              >
-                Forgot password?
-              </MLink>
-            </Box>
           </Box>
         </Box>
       </Paper>

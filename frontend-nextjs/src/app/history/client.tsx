@@ -121,7 +121,11 @@ export default function HistoryClient({
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {r.question || "—"}
+                      {r.question
+                        ? r.question.length > 30
+                          ? `${r.question.slice(0, 30)}...`
+                          : r.question
+                        : "—"}
                     </div>
                   </TableCell>
                   <TableCell>
