@@ -1,6 +1,5 @@
 import { ReadUserRolesByUserIdStep } from "@/core/application/steps/auth/read-user-role-by-user-id.step";
-import { ReadAllNlqQaByUserIdStep } from "@/core/application/steps/nlq-qa/read-all-nlq-qa-base-on-user.step";
-import { ReadAllNlqQaStep } from "@/core/application/steps/nlq-qa/read-all-nlq-qa.step";
+import { ReadAllWithUserFeedbackErrorStep } from "@/core/application/steps/nlq-qa/read-all-with-user-feedback-error.step";
 import { ReadNlqQaHistoryUseCase } from "@/core/application/usecases/nlq/nlq-qa/read-nlq-qa-history.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { ReadNlqQaHistoryController } from "@/http/controllers/nlq-qa/read-nlq-qa-history.http.controller";
@@ -28,16 +27,10 @@ export function readNlqQaHistoryComposer(): IController {
     firebaseAdmin
   );
   //   STEPS
-  const readAllNlqQaByUserIdStep = new ReadAllNlqQaByUserIdStep(
+  const readAllNlqQaStep = new ReadAllWithUserFeedbackErrorStep(
     loggerProvider,
     nlqQaRepository
   );
-
-  const readAllNlqQaStep = new ReadAllNlqQaStep(
-    loggerProvider,
-    nlqQaRepository
-  );
-
   const readUserRolesByUserIdStep = new ReadUserRolesByUserIdStep(
     loggerProvider,
     authRepository
@@ -46,7 +39,6 @@ export function readNlqQaHistoryComposer(): IController {
   // Use cases
   const readNlqQaHistoryUseCase = new ReadNlqQaHistoryUseCase(
     loggerProvider,
-    readAllNlqQaByUserIdStep,
     readAllNlqQaStep,
     readUserRolesByUserIdStep
   );

@@ -1,11 +1,11 @@
 "use server";
 import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
-import { TNlqQaHistoryOutDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
+import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function ReadAllNlqHistoryAction(): Promise<
-  TResOutContent<TNlqQaHistoryOutDto[]>
+  TResOutContent<TNlqQaWitFeedbackOutRequestDto[]>
 > {
   console.log("Reading all NLQ...");
   const nlqRes = await fetch(`${domain}/api/nlq/history`, {

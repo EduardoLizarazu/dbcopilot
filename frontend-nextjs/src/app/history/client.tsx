@@ -21,15 +21,16 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
-import { TNlqQaHistoryOutDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
+import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 
 export default function HistoryClient({
   initialRows,
 }: {
-  initialRows: TNlqQaHistoryOutDto[];
+  initialRows: TNlqQaWitFeedbackOutRequestDto[];
 }) {
   const { setFeedback } = useFeedbackContext();
-  const [rows, setRows] = React.useState<TNlqQaHistoryOutDto[]>(initialRows);
+  const [rows, setRows] =
+    React.useState<TNlqQaWitFeedbackOutRequestDto[]>(initialRows);
   const [query, setQuery] = React.useState("");
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
 
@@ -92,6 +93,7 @@ export default function HistoryClient({
         <Table size="small" aria-label="nlq history table">
           <TableHead>
             <TableRow>
+              <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Created At</TableCell>
               <TableCell align="right" sx={{ fontWeight: 700 }}>
@@ -113,6 +115,17 @@ export default function HistoryClient({
             ) : (
               filtered.map((r) => (
                 <TableRow key={r.id} hover>
+                  <TableCell sx={{ maxWidth: 640 }}>
+                    <div
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {r.user?.email || "—"}
+                    </div>
+                  </TableCell>
                   <TableCell sx={{ maxWidth: 640 }}>
                     <div
                       style={{

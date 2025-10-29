@@ -1,26 +1,24 @@
-import { TNlqQaHistoryOutDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
+import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { IReadUserRolesByUserIdStep } from "@/core/application/steps/auth/read-user-role-by-user-id.step";
-import { IReadAllNlqQaByUserIdStep } from "@/core/application/steps/nlq-qa/read-all-nlq-qa-base-on-user.step";
-import { IReadAllNlqQaStep } from "@/core/application/steps/nlq-qa/read-all-nlq-qa.step";
+import { IReadAllWithUserFeedbackErrorStep } from "@/core/application/steps/nlq-qa/read-all-with-user-feedback-error.step";
 
 export interface IReadNlqQaHistoryUseCase {
   execute(data: {
     userId: string;
-  }): Promise<TResponseDto<TNlqQaHistoryOutDto[]>>;
+  }): Promise<TResponseDto<TNlqQaWitFeedbackOutRequestDto[]>>;
 }
 
 export class ReadNlqQaHistoryUseCase implements IReadNlqQaHistoryUseCase {
   constructor(
     private readonly logger: ILogger,
-    private readonly readAllNlqQaByUserIdStep: IReadAllNlqQaByUserIdStep,
-    private readonly readAllNlqQaStep: IReadAllNlqQaStep,
+    private readonly readAllNlqQaStep: IReadAllWithUserFeedbackErrorStep,
     private readonly readUserRolesByUserIdStep: IReadUserRolesByUserIdStep
   ) {}
   async execute(data: {
     userId: string;
-  }): Promise<TResponseDto<TNlqQaHistoryOutDto[]>> {
+  }): Promise<TResponseDto<TNlqQaWitFeedbackOutRequestDto[]>> {
     try {
       this.logger.info(
         `[ReadNlqQaHistoryUseCase] Executing NLQ QA history read for userId: ${data.userId}`
@@ -40,6 +38,7 @@ export class ReadNlqQaHistoryUseCase implements IReadNlqQaHistoryUseCase {
         )}`
       );
       // 3. Determine which step to use based on roles
+      const nlqs = await this.readAllNlqQaStep.run();
 
       if (userRoles.roleNames.includes("admin")) {
         this.logger.info(
@@ -48,7 +47,7 @@ export class ReadNlqQaHistoryUseCase implements IReadNlqQaHistoryUseCase {
         return {
           success: true,
           message: "NLQ QA history retrieved successfully",
-          data: await this.readAllNlqQaStep.run(),
+          data: nlqs,
         };
       } else {
         this.logger.info(
@@ -57,9 +56,7 @@ export class ReadNlqQaHistoryUseCase implements IReadNlqQaHistoryUseCase {
         return {
           success: true,
           message: "NLQ QA history retrieved successfully",
-          data: await this.readAllNlqQaByUserIdStep.run({
-            userId: data.userId,
-          }),
+          data: nlqs.filter((nlq) => nlq?.createdBy === data.userId),
         };
       }
     } catch (error) {
