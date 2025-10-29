@@ -148,7 +148,7 @@ export default function HistoryClient({
                     <Tooltip title="Edit">
                       <IconButton
                         component={Link}
-                        href={`/history/${r.id}`}
+                        href={`/nlq/${r.id}`}
                         size="small"
                         aria-label="edit"
                       >
