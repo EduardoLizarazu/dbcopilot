@@ -26,6 +26,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
+import { DeleteHistoryByIdAction } from "@/_actions/nlq-qa/history/delete-history-by-id.action";
 
 export default function HistoryClient({
   initialRows,
@@ -92,6 +93,7 @@ export default function HistoryClient({
     markDeleting(id, true);
     try {
       // For now perform optimistic local delete. Integrate backend delete call if available.
+      await DeleteHistoryByIdAction(id);
       setRows((prev) => prev.filter((r) => r.id !== id));
       setFeedback({
         isActive: true,

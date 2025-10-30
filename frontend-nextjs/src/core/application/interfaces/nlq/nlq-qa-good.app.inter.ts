@@ -1,5 +1,6 @@
 import {
   TCreateNlqQaGoodDto,
+  TNlqQaGoodDto,
   TNlqQaGoodOutRequestDto,
   TNlqQaGoodOutWithUserAndConnRequestDto,
   TUpdateNlqQaGoodDto,
@@ -19,4 +20,5 @@ export interface INlqQaGoodRepository
   ): Promise<TNlqQaGoodOutWithUserAndConnRequestDto | null>;
   findByUserId(uid: string): Promise<TNlqQaGoodOutRequestDto[]>;
   switchSoftDelete(id: string): Promise<void>;
+  findAllByNlqQaId(nlqQaId: string): Promise<TNlqQaGoodDto[]>;
 }

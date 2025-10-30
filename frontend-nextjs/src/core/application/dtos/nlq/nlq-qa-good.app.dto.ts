@@ -50,6 +50,8 @@ export const nlqQaGoodSchema = z.object({
   updatedAt: z.date().default(new Date()),
 });
 
+export type TNlqQaGoodDto = z.infer<typeof nlqQaGoodSchema>;
+
 export const createNlqQaGoodSchema = nlqQaGoodSchema.omit({ id: true });
 export type TCreateNlqQaGoodDto = z.infer<typeof createNlqQaGoodSchema>;
 

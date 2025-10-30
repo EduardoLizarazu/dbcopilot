@@ -1,5 +1,6 @@
 import {
   TCreateNlqQaGoodDto,
+  TNlqQaGoodDto,
   TNlqQaGoodOutRequestDto,
   TNlqQaGoodOutWithUserAndConnRequestDto,
   TUpdateNlqQaGoodDto,
@@ -13,6 +14,30 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
     private readonly logger: ILogger,
     private readonly fbAdminProvider: FirebaseAdminProvider
   ) {}
+  async findAllByNlqQaId(nlqQaId: string): Promise<TNlqQaGoodDto[]> {
+    try {
+      const db = this.fbAdminProvider.db;
+      const snapshot = await db
+        .collection(this.fbAdminProvider.coll.NLQ_GOODS)
+        .where("originId", "==", nlqQaId)
+        .get();
+
+      const goods: TNlqQaGoodDto[] = [];
+      snapshot.forEach((doc) => {
+        goods.push({ id: doc.id, ...doc.data() } as TNlqQaGoodDto);
+      });
+
+      return goods;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaGoodRepository] Error finding NLQ QA Goods by NLQ QA ID",
+        error.message
+      );
+      throw new Error(
+        error.message || "Error finding NLQ QA Goods by NLQ QA ID"
+      );
+    }
+  }
   async findByDbConnId(dbConnId: string): Promise<TNlqQaGoodOutRequestDto[]> {
     try {
       // Query Firestore for NLQ QA Good entries with the specified dbConnId
