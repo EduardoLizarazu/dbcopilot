@@ -23,19 +23,12 @@ import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.acti
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 
 interface Props {
-  previousConversation?: {
-    chatId: string;
-    prompt: string;
-    results: any;
-    row_count: number;
+  props?: {
+    prompt?: string;
   } | null;
 }
 
-export function SingleChat(
-  { previousConversation = null }: Props = { previousConversation: null }
-) {
-  const router = useRouter();
-
+export function SingleChat({ props = null }: Props = { props: null }) {
   const [dbConn, setDbConn] = React.useState<
     TDbConnectionOutRequestDtoWithVbAndUser[]
   >([]);
@@ -46,9 +39,7 @@ export function SingleChat(
 
   // STATE
   const [promptId, setPromptId] = React.useState<string | null>(null);
-  const [prompt, setPrompt] = React.useState<string>(
-    previousConversation?.prompt ?? ""
-  );
+  const [prompt, setPrompt] = React.useState<string>(props?.prompt || "");
   const [result, setResult] = React.useState<{
     error?: string | null;
     data: Record<string, unknown>[];
