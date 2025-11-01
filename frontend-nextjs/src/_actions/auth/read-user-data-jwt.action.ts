@@ -8,7 +8,7 @@ dotenv.config();
 
 const COOKIE_NAME: string = process.env.COOKIE_NAME || "default_cookie_name";
 
-export async function ReadUserDataJwt() {
+export async function ReadUserDataJwtAction() {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;

@@ -1,6 +1,6 @@
 // src/contexts/AuthContext.tsx
 "use client";
-import { ReadUserDataJwt } from "@/controller/_actions/auth/read-user-data-jwt";
+import { ReadUserDataJwtAction } from "@/_actions/auth/read-user-data-jwt.action";
 import { createContext, useContext, useState, useEffect } from "react";
 
 interface User {
@@ -35,7 +35,7 @@ export const AuthProvider = ({
     const fetchUser = async () => {
       try {
         // const response = await fetch("/api/auth/me");
-        const response = await ReadUserDataJwt();
+        const response = await ReadUserDataJwtAction();
         if (response) {
           // Ensure roles is a string array
           const userData: User = {
