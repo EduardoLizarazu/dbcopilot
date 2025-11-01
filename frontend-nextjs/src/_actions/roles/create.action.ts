@@ -1,5 +1,5 @@
 "use server";
-import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
+import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
 import { CreateRoleInput } from "@/controller/_actions/role/create";
 import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
@@ -15,7 +15,7 @@ export async function CreateRoleAction(
     body: JSON.stringify(input),
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${await readTokenFromCookie()}`,
+      Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
     },
   });
   console.log("Response:", roleRes);

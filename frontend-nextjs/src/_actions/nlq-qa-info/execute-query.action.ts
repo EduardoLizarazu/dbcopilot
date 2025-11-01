@@ -1,5 +1,5 @@
 "use server";
-import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
+import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
 import {
   TNlqInformationData,
   TNlqQaInfoExtractorInRequestDto,
@@ -17,7 +17,7 @@ export async function InfoExtractorAction(
     body: JSON.stringify(input),
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${await readTokenFromCookie()}`,
+      Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
     },
   });
   console.log("[InfoExtractorAction] API Response received", dbConnectionRes);

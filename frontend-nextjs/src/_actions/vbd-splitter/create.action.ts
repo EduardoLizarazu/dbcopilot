@@ -1,5 +1,5 @@
 "use server";
-import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
+import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import {
   TCreateVbdDto,
@@ -20,7 +20,7 @@ export async function CreateVbdSplitterAction(
     body: JSON.stringify(input),
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${await readTokenFromCookie()}`,
+      Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
     },
   });
   console.log("[CreateVbdSplitterAction] API Response received", vbdRes);

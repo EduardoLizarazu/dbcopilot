@@ -1,6 +1,6 @@
 "use server";
 
-import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
+import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
 import { domain } from "@/utils/constants";
 
 export async function ReadAllRolesAction(): Promise<
@@ -11,7 +11,7 @@ export async function ReadAllRolesAction(): Promise<
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${await readTokenFromCookie()}`,
+      Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
     },
   });
   console.log("Response:", rolesRes);

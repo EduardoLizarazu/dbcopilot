@@ -1,5 +1,5 @@
 "use server";
-import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
+import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
 import { domain } from "@/utils/constants";
 
 export async function DeleteRoleAction(id: string): Promise<void> {
@@ -8,7 +8,7 @@ export async function DeleteRoleAction(id: string): Promise<void> {
   const roleRes = await fetch(`${domain}/api/roles/${id}`, {
     method: "DELETE",
     headers: {
-      Authorization: `Bearer ${await readTokenFromCookie()}`,
+      Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
     },
   });
   console.log("Response:", roleRes);

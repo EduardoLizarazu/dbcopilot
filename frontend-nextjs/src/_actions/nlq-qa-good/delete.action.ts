@@ -1,5 +1,5 @@
 "use server";
-import { readTokenFromCookie } from "@/controller/_actions/auth/token/read-token-from-cookie";
+import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
@@ -14,7 +14,7 @@ export async function DeleteNqlQaGoodByIdAction(
   const nlqQaGoodRes = await fetch(`${domain}/api/nlq-qa-good/${id}`, {
     method: "DELETE",
     headers: {
-      Authorization: `Bearer ${await readTokenFromCookie()}`,
+      Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
     },
   });
   console.log("[DeleteNqlQaGoodByIdAction] Response:", nlqQaGoodRes);
