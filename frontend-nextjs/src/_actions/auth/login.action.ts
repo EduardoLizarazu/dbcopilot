@@ -4,7 +4,7 @@
 import { TUser } from "@/core/application/dtos/user.app.dto";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { FirebaseClientProvider } from "@/infrastructure/providers/firebase/firebase-client";
-import { COOKIE_NAME } from "@/utils/constants";
+import { COOKIE_ROLES, JWT_COOKIE_NAME } from "@/utils/constants";
 import {
   signInWithCustomToken,
   signInWithEmailAndPassword,
@@ -55,6 +55,15 @@ export async function loginAction(email: string, password: string) {
 
   console.log("Role names:", rolesNames);
 
+  const cookieStore = await cookies();
+  cookieStore.set(COOKIE_ROLES, JSON.stringify(rolesNames), {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 3600,
+  });
+
   // Create a custom token using the Admin SDK for this authenticated uid
   let customToken: string;
   try {
@@ -93,7 +102,7 @@ export async function loginAction(email: string, password: string) {
   try {
     const maxAge = Number.parseInt("3600", 10); // seconds
     const cookieStore = await cookies();
-    cookieStore.set(COOKIE_NAME, idTokenString, {
+    cookieStore.set(JWT_COOKIE_NAME, idTokenString, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",

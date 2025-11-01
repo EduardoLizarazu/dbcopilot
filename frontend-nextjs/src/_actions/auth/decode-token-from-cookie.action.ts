@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { adminAuth } from "@/infrastructure/providers/firebase/firebase-admin"; // your Admin SDK init
-import { COOKIE_NAME } from "@/utils/constants";
+import { JWT_COOKIE_NAME } from "@/utils/constants";
 
 export type DecodedUser = {
   uid: string;
@@ -11,7 +11,7 @@ export type DecodedUser = {
 };
 
 export async function DecodeTokenFromCookieAction(): Promise<DecodedUser | null> {
-  const token = (await cookies()).get(COOKIE_NAME)?.value;
+  const token = (await cookies()).get(JWT_COOKIE_NAME)?.value;
   if (!token) return null;
 
   try {

@@ -1,6 +1,6 @@
 // middleware.ts (at project root)
 import { NextResponse, NextRequest } from "next/server";
-import { COOKIE_NAME } from "@/utils/constants";
+import { COOKIE_ROLES, JWT_COOKIE_NAME } from "@/utils/constants";
 import {
   DecodedUser,
   DecodeTokenFromCookieAction,
@@ -9,7 +9,7 @@ import {
 /**
  * Middleware rules:
  * - /login is public (no token required)
- * - All other routes require a valid ID token stored in cookie (COOKIE_NAME)
+ * - All other routes require a valid ID token stored in cookie (JWT_COOKIE_NAME)
  * - Routes starting with /chat or /history require a valid token but NOT admin role
  * - All other routes require admin role (custom claim 'admin' in decoded.roles)
  * - On missing/invalid token or insufficient role: clear cookie and redirect to /login
@@ -33,28 +33,23 @@ export async function middleware(req: NextRequest) {
   }
 
   // Read token from cookie
-  const token = req.cookies.get(COOKIE_NAME)?.value || "";
+  const token = req.cookies.get(JWT_COOKIE_NAME)?.value || "";
   if (!token) {
     // clear cookie and redirect to login
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     const res = NextResponse.redirect(url);
-    res.cookies.set(COOKIE_NAME, "", { path: "/", httpOnly: true, maxAge: 0 });
+    res.cookies.set(JWT_COOKIE_NAME, "", {
+      path: "/",
+      httpOnly: true,
+      maxAge: 0,
+    });
     return res;
   }
 
-  // Verify token using Admin SDK
-  let decoded: DecodedUser | null = null;
-  try {
-    decoded = await DecodeTokenFromCookieAction();
-  } catch (err) {
-    // invalid token — clear and redirect
-    const url = req.nextUrl.clone();
-    url.pathname = "/login";
-    const res = NextResponse.redirect(url);
-    res.cookies.set(COOKIE_NAME, "", { path: "/", httpOnly: true, maxAge: 0 });
-    return res;
-  }
+  // Check for roles cookie
+  const rolesCookie = req.cookies.get(COOKIE_ROLES)?.value || "[]";
+  const parsedRoles = JSON.parse(rolesCookie);
 
   // Determine if admin role is required for this path
   const adminNotRequired =
@@ -62,7 +57,7 @@ export async function middleware(req: NextRequest) {
 
   if (!adminNotRequired) {
     // For all other routes, require admin role
-    const rolesClaim = decoded?.roles || [];
+    const rolesClaim = parsedRoles || [];
     const roles = Array.isArray(rolesClaim)
       ? rolesClaim
       : typeof rolesClaim === "string"
@@ -73,7 +68,7 @@ export async function middleware(req: NextRequest) {
       const url = req.nextUrl.clone();
       url.pathname = "/login";
       const res = NextResponse.redirect(url);
-      res.cookies.set(COOKIE_NAME, "", {
+      res.cookies.set(JWT_COOKIE_NAME, "", {
         path: "/",
         httpOnly: true,
         maxAge: 0,
