@@ -76,7 +76,7 @@ export async function loginAction(email: string, password: string) {
     );
     // getIdToken returns the JWT string
     idTokenString = await userCredential.user.getIdToken();
-    console.log("ID Token (JWT) obtained from client SDK");
+    console.log("ID Token (JWT) obtained from client SDK", idTokenString);
   } catch (error) {
     throw new Error(error.message || "fail on login");
   }
