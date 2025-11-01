@@ -18,15 +18,14 @@ export async function loginAction(email: string, password: string) {
   const fbAdmin = new FirebaseAdminProvider();
   const fbClient = new FirebaseClientProvider();
 
-  const res = await signInWithEmailAndPassword(
-    fbClient.getAuth(),
-    email,
-    password
-  );
+  let res;
+  try {
+    res = await signInWithEmailAndPassword(fbClient.getAuth(), email, password);
+  } catch (e) {
+    throw new Error("fail on login");
+  }
 
-  // console.log("User credential: ", res);
-
-  if (!res.user) throw new Error("fail on login");
+  if (!res?.user) throw new Error("fail on login");
 
   // Get the role's name from the user
   const user = await fbAdmin.db
@@ -65,35 +64,36 @@ export async function loginAction(email: string, password: string) {
     console.log("Custom token created:", customToken);
   } catch (err) {
     // fail on token creation
-    throw new Error(err.message || "fail on custom token creation");
+    throw new Error(err.message || "fail on login");
   }
 
   // Sign in with the custom token to get the ID token (JWT)
-  let localId: string;
+  let idTokenString: string;
   try {
     const userCredential = await signInWithCustomToken(
       fbClient.getAuth(),
       customToken
     );
-    localId = userCredential.user.uid;
-    console.log("User ID (UID):", localId);
+    // getIdToken returns the JWT string
+    idTokenString = await userCredential.user.getIdToken();
+    console.log("ID Token (JWT) obtained from client SDK");
   } catch (error) {
-    throw new Error(error.message || "fail on verifying custom token");
+    throw new Error(error.message || "fail on login");
   }
 
-  // Verify the ID token to get the token string
+  // Verify the ID token (JWT) using Admin SDK to decode/validate it
   try {
-    const idToken = await fbAdmin.auth.verifyIdToken(localId);
-    console.log("ID Token (JWT):", idToken);
+    const decoded = await fbAdmin.auth.verifyIdToken(idTokenString);
+    console.log("Decoded ID token:", decoded);
   } catch (error) {
-    throw new Error(error.message || "fail on verifying ID token");
+    throw new Error(error.message || "fail on login");
   }
 
   // Set secure, httpOnly cookie with the ID token (JWT) so server sessions continue to work
   try {
     const maxAge = Number.parseInt("3600", 10); // seconds
     const cookieStore = await cookies();
-    cookieStore.set(COOKIE_NAME, customToken, {
+    cookieStore.set(COOKIE_NAME, idTokenString, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
