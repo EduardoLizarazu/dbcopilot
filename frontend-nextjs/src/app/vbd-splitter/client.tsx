@@ -86,11 +86,15 @@ export default function VbdSplitterClient({
       return true;
     };
 
-    const matchesName = row.name
-      .toLowerCase()
-      .includes(nameFilter.toLowerCase());
+    const q = nameFilter.trim().toLowerCase();
+    const matchesNameOrEmail = (() => {
+      if (!q) return true;
+      const name = (row.name || "").toLowerCase();
+      const email = (row.user?.email || "").toLowerCase();
+      return name.includes(q) || email.includes(q);
+    })();
 
-    return matchesName && isWithinRange(createdAt);
+    return matchesNameOrEmail && isWithinRange(createdAt);
   });
 
   const onDelete = async (id: string) => {
@@ -125,7 +129,7 @@ export default function VbdSplitterClient({
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
           <TextField
-            label="Filter by name"
+            label="Search by splitter name or user email"
             size="small"
             value={nameFilter}
             onChange={(e) => setNameFilter(e.target.value)}
