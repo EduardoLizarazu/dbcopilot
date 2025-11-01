@@ -34,7 +34,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await loginAction(email.trim(), password);
-      // router.replace(redirect || "/chat");
+      router.replace(redirect || "/chat");
     } catch (error: any) {
       setErr(error?.message ?? "Unable to sign in.");
     } finally {

@@ -23,7 +23,7 @@ export class DecodeTokenAdapter implements IDecodeTokenPort {
         uid: decodedToken.sub,
       } as TTokenDecodedDto;
     } catch (error) {
-      this.logger.error("Error decoding token", error);
+      this.logger.error("Error decoding token", error.message);
       return null;
     }
   }
