@@ -1,10 +1,6 @@
 // middleware.ts (at project root)
 import { NextResponse, NextRequest } from "next/server";
 import { COOKIE_ROLES, JWT_COOKIE_NAME } from "@/utils/constants";
-import {
-  DecodedUser,
-  DecodeTokenFromCookieAction,
-} from "./_actions/auth/decode-token-from-cookie.action";
 
 /**
  * Middleware rules:
@@ -49,7 +45,8 @@ export async function middleware(req: NextRequest) {
 
   // Check for roles cookie
   const rolesCookie = req.cookies.get(COOKIE_ROLES)?.value || "[]";
-  const parsedRoles = JSON.parse(rolesCookie);
+  const parsedRoles: string[] = JSON.parse(rolesCookie);
+  console.log("mw roles: ", parsedRoles);
 
   // Determine if admin role is required for this path
   const adminNotRequired =
@@ -58,11 +55,7 @@ export async function middleware(req: NextRequest) {
   if (!adminNotRequired) {
     // For all other routes, require admin role
     const rolesClaim = parsedRoles || [];
-    const roles = Array.isArray(rolesClaim)
-      ? rolesClaim
-      : typeof rolesClaim === "string"
-        ? [rolesClaim]
-        : [];
+    const roles = rolesClaim;
     const isAdmin = roles.includes("admin");
     if (!isAdmin) {
       const url = req.nextUrl.clone();
