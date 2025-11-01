@@ -15,7 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { loginAction } from "@/controller/_actions/auth/login";
+import { loginAction } from "@/_actions/auth/login.action";
 
 export default function LoginPage() {
   const router = useRouter();
