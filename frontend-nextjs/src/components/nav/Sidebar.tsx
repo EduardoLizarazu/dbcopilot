@@ -1,9 +1,9 @@
 // components/Sidebar.tsx (Server Component)
-import { getCurrentUser } from "@/infrastructure/services/auth.server";
+import { DecodeTokenFromCookieAction } from "@/_actions/auth/decode-token-from-cookie.action";
 import SidebarClient from "@/components/nav/SidebarClient";
 
 export default async function Sidebar() {
-  const user = await getCurrentUser();
+  const user = await DecodeTokenFromCookieAction();
   if (!user) return null;
 
   const isAdmin =
