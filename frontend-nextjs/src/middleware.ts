@@ -1,6 +1,10 @@
 // middleware.ts (at project root)
 import { NextResponse, NextRequest } from "next/server";
 import { COOKIE_NAME } from "@/utils/constants";
+import {
+  DecodedUser,
+  DecodeTokenFromCookieAction,
+} from "./_actions/auth/decode-token-from-cookie.action";
 
 /**
  * Middleware rules:
@@ -39,35 +43,12 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
-  // Verify token by calling a server-side endpoint (avoids importing admin SDK into middleware)
-  let decoded: any = null;
+  // Verify token using Admin SDK
+  let decoded: DecodedUser | null = null;
   try {
-    const verifyUrl = new URL(
-      "/api/auth/verify",
-      req.nextUrl.origin
-    ).toString();
-    const verifyRes = await fetch(verifyUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-      // ensure we don't cache the verification response
-      cache: "no-store",
-    });
-
-    if (!verifyRes.ok) {
-      const url = req.nextUrl.clone();
-      url.pathname = "/login";
-      const res = NextResponse.redirect(url);
-      res.cookies.set(COOKIE_NAME, "", {
-        path: "/",
-        httpOnly: true,
-        maxAge: 0,
-      });
-      return res;
-    }
-
-    decoded = await verifyRes.json();
+    decoded = await DecodeTokenFromCookieAction();
   } catch (err) {
+    // invalid token — clear and redirect
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     const res = NextResponse.redirect(url);
@@ -81,7 +62,7 @@ export async function middleware(req: NextRequest) {
 
   if (!adminNotRequired) {
     // For all other routes, require admin role
-    const rolesClaim = decoded?.roles || decoded?.role || [];
+    const rolesClaim = decoded?.roles || [];
     const roles = Array.isArray(rolesClaim)
       ? rolesClaim
       : typeof rolesClaim === "string"
