@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@mui/material";
-import { logoutAction } from "@/controller/_actions/auth/logout";
+import { logoutAction } from "@/_actions/auth/logout.action";
 
 export default function LogoutButton() {
   const router = useRouter();
