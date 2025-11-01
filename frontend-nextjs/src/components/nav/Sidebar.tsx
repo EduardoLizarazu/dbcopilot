@@ -6,8 +6,7 @@ export default async function Sidebar() {
   const user = await DecodeTokenFromCookieAction();
   if (!user) return null;
 
-  const isAdmin =
-    Boolean(user.admin) || user.role === "admin" || user["role"] === "admin";
+  const isAdmin = user.roles?.includes("admin");
 
-  return <SidebarClient email={user.email ?? ""} isAdmin={isAdmin} />;
+  return <SidebarClient email={user.email || ""} isAdmin={isAdmin} />;
 }

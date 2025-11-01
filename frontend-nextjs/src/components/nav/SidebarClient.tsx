@@ -86,34 +86,34 @@ export default function SidebarClient({
       <List sx={{ px: 0.5 }}>
         {/* <NavItem href="/dashboard" icon={<DashboardIcon />} label="Dashboard" /> */}
         <NavItem href="/chat" icon={<ChatIcon />} label="Chat" />
-        {/* {isAdmin && (
-        )} */}
-        <>
-          <NavItem href="/auth/users" icon={<GroupIcon />} label="Users" />
-          <NavItem href="/auth/roles" icon={<SecurityIcon />} label="Roles" />
-          <NavItem
-            href="/history"
-            icon={<HistoryIcon />}
-            label="Chat History"
-          />
-          <NavItem
-            href="/nlq-correction"
-            icon={<RuleIcon />}
-            label="NLQ Correction"
-          />
-          <NavItem href="/nlq-good" icon={<PolylineIcon />} label="NLQ Good" />
-          <NavItem
-            href="/dbconnection"
-            icon={<CableIcon />}
-            label="DB Connection"
-          />
-          {/* <NavItem href="/schema" icon={<SchemaIcon />} label="Schema" /> */}
-          <NavItem
-            href="/vbd-splitter"
-            icon={<ListIcon />}
-            label="VBD Splitter"
-          />
-        </>
+        <NavItem href="/history" icon={<HistoryIcon />} label="Chat History" />
+        {isAdmin && (
+          <>
+            <NavItem href="/auth/users" icon={<GroupIcon />} label="Users" />
+            <NavItem href="/auth/roles" icon={<SecurityIcon />} label="Roles" />
+            <NavItem
+              href="/nlq-correction"
+              icon={<RuleIcon />}
+              label="NLQ Correction"
+            />
+            <NavItem
+              href="/nlq-good"
+              icon={<PolylineIcon />}
+              label="NLQ Good"
+            />
+            <NavItem
+              href="/dbconnection"
+              icon={<CableIcon />}
+              label="DB Connection"
+            />
+            {/* <NavItem href="/schema" icon={<SchemaIcon />} label="Schema" /> */}
+            <NavItem
+              href="/vbd-splitter"
+              icon={<ListIcon />}
+              label="VBD Splitter"
+            />
+          </>
+        )}
       </List>
       <Box sx={{ mt: "auto", p: 2 }}>
         <LogoutButton />
