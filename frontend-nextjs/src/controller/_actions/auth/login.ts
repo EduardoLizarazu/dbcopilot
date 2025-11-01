@@ -5,7 +5,10 @@ import { TUser } from "@/core/application/dtos/user.app.dto";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { FirebaseClientProvider } from "@/infrastructure/providers/firebase/firebase-client";
 import { COOKIE_NAME } from "@/utils/constants";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithCustomToken,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { cookies } from "next/headers";
 
 export async function loginAction(email: string, password: string) {
@@ -21,7 +24,7 @@ export async function loginAction(email: string, password: string) {
     password
   );
 
-  console.log("User credential: ", res);
+  // console.log("User credential: ", res);
 
   if (!res.user) throw new Error("fail on login");
 
@@ -62,7 +65,28 @@ export async function loginAction(email: string, password: string) {
     console.log("Custom token created:", customToken);
   } catch (err) {
     // fail on token creation
-    throw new Error("fail on login");
+    throw new Error(err.message || "fail on custom token creation");
+  }
+
+  // Sign in with the custom token to get the ID token (JWT)
+  let localId: string;
+  try {
+    const userCredential = await signInWithCustomToken(
+      fbClient.getAuth(),
+      customToken
+    );
+    localId = userCredential.user.uid;
+    console.log("User ID (UID):", localId);
+  } catch (error) {
+    throw new Error(error.message || "fail on verifying custom token");
+  }
+
+  // Verify the ID token to get the token string
+  try {
+    const idToken = await fbAdmin.auth.verifyIdToken(localId);
+    console.log("ID Token (JWT):", idToken);
+  } catch (error) {
+    throw new Error(error.message || "fail on verifying ID token");
   }
 
   // Set secure, httpOnly cookie with the ID token (JWT) so server sessions continue to work

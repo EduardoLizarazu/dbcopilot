@@ -22,8 +22,8 @@ export default function LoginPage() {
   const search = useSearchParams();
   const redirect = search.get("redirect") || "/chat";
 
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [email, setEmail] = React.useState("ex04@gmail.com");
+  const [password, setPassword] = React.useState("Passw0rd4");
   const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [err, setErr] = React.useState<string | null>(null);
