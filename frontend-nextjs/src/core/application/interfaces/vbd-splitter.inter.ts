@@ -2,6 +2,7 @@ import {
   TCreateVbdDto,
   TUpdateVbdDto,
   TVbdOutRequestDto,
+  TVbdSplitterWithUserDto,
 } from "../dtos/vbd.dto";
 import { IGenericMutationRepository } from "./generic.app.inter";
 
@@ -12,4 +13,5 @@ export interface IVbdSplitterRepository
     TVbdOutRequestDto
   > {
   findByName(name: string): Promise<TVbdOutRequestDto | null>;
+  findAllVbdSplitterWithUser(): Promise<TVbdSplitterWithUserDto[]>;
 }

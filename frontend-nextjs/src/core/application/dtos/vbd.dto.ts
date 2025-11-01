@@ -9,6 +9,8 @@ export const VbdSchema = z.object({
   updatedAt: z.date().default(new Date()),
 });
 
+export type TVbdDto = z.infer<typeof VbdSchema>;
+
 export const createVbdSchema = VbdSchema.omit({ id: true });
 
 export type TCreateVbdDto = z.infer<typeof createVbdSchema>;
@@ -31,3 +33,15 @@ export const vbdInRequestSchema = VbdSchema.partial()
 export type TVbdInRequestDto = z.infer<typeof vbdInRequestSchema>;
 
 export type TVbdOutRequestDto = z.infer<typeof VbdSchema>;
+
+export const vbdSplitterWithUser = VbdSchema.extend({
+  user: z
+    .object({
+      id: z.string().min(2),
+      email: z.string().email().max(100),
+    })
+    .nullable()
+    .default({ id: "", email: "" }),
+});
+
+export type TVbdSplitterWithUserDto = z.infer<typeof vbdSplitterWithUser>;

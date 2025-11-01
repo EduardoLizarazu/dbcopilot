@@ -1,6 +1,6 @@
 "use client";
 
-import { TVbdOutRequestDto } from "@/core/application/dtos/vbd.dto";
+import { TVbdSplitterWithUserDto } from "@/core/application/dtos/vbd.dto";
 import { useState } from "react";
 import {
   Alert,
@@ -31,9 +31,9 @@ import { useFeedbackContext } from "@/contexts/feedback.context";
 export default function VbdSplitterClient({
   initialRows,
 }: {
-  initialRows: TVbdOutRequestDto[];
+  initialRows: TVbdSplitterWithUserDto[];
 }) {
-  const [rows, setRows] = useState<TVbdOutRequestDto[]>(initialRows);
+  const [rows, setRows] = useState<TVbdSplitterWithUserDto[]>(initialRows);
   const [loading, setLoading] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -202,8 +202,8 @@ export default function VbdSplitterClient({
                 ) : (
                   filteredRows.map((row) => (
                     <TableRow key={row.id} hover>
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.id}</TableCell>
+                      <TableCell>{row.name || "-"}</TableCell>
+                      <TableCell>{row?.user?.email || "-"}</TableCell>
                       <TableCell>
                         <LocalTime fb_date={row.createdAt as any} />
                       </TableCell>

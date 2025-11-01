@@ -4,7 +4,9 @@ import { FirebaseAdminProvider } from "../providers/firebase/firebase-admin";
 import {
   TCreateVbdDto,
   TUpdateVbdDto,
+  TVbdDto,
   TVbdOutRequestDto,
+  TVbdSplitterWithUserDto,
 } from "@/core/application/dtos/vbd.dto";
 
 export class VbdSplitterRepository implements IVbdSplitterRepository {
@@ -12,9 +14,58 @@ export class VbdSplitterRepository implements IVbdSplitterRepository {
     private readonly logger: ILogger,
     private readonly firebaseAdmin: FirebaseAdminProvider
   ) {}
+  async findAllVbdSplitterWithUser(): Promise<TVbdSplitterWithUserDto[]> {
+    try {
+      this.logger.info(
+        "[VbdSplitterRepository] Finding all VBD Splitters with user"
+      );
+      const collection = this.firebaseAdmin.db.collection(
+        this.firebaseAdmin.coll.VBD_SPLITTERS
+      );
+      const snapshot = await collection.get();
+
+      const vbdSplittersWithUser: TVbdSplitterWithUserDto[] = [];
+      for (const doc of snapshot.docs) {
+        const vbdData = doc.data() as TVbdDto;
+        const vbdDataUserId = vbdData.createdBy;
+        // Fetch user data
+        const userDoc = await this.firebaseAdmin.db
+          .collection(this.firebaseAdmin.coll.NLQ_USERS)
+          .doc(vbdDataUserId)
+          .get();
+        const userData = userDoc.exists
+          ? {
+              id: userDoc.id,
+              email: userDoc.data()?.email || "",
+            }
+          : { id: "", email: "" };
+        vbdSplittersWithUser.push({
+          ...vbdData,
+          user: userData,
+        });
+      }
+      this.logger.info(
+        "[VbdSplitterRepository] Successfully found all VBD Splitters with user",
+        vbdSplittersWithUser
+      );
+      return vbdSplittersWithUser;
+    } catch (error) {
+      this.logger.error(
+        "[VbdSplitterRepository] Error finding all VBD Splitters with user:",
+        {
+          error: error.errorMessage || error.message || JSON.stringify(error),
+        }
+      );
+      throw new Error(
+        "Error finding all VBD Splitters with user: " + error.errorMessage ||
+          error.message ||
+          JSON.stringify(error)
+      );
+    }
+  }
   async create(data: TCreateVbdDto): Promise<string> {
     try {
-      this.logger.info("VbdSplitterRepository: Creating VBD Splitter:", {
+      this.logger.info("[VbdSplitterRepository] Creating VBD Splitter:", {
         ...data,
       });
 
