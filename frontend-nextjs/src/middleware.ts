@@ -30,6 +30,7 @@ export async function middleware(req: NextRequest) {
 
   // Read token from cookie
   const token = req.cookies.get(JWT_COOKIE_NAME)?.value || "";
+  // console.log("[mw] token: ", token);
   if (!token) {
     // clear cookie and redirect to login
     const url = req.nextUrl.clone();
@@ -40,6 +41,8 @@ export async function middleware(req: NextRequest) {
       httpOnly: true,
       maxAge: 0,
     });
+    console.log("[mw] No token provided");
+
     return res;
   }
 
@@ -75,5 +78,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api).*)"],
 };
