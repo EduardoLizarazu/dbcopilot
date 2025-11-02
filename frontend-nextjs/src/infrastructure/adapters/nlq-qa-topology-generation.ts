@@ -19,8 +19,8 @@ export class NlqQaTopologyGenerationAdapter
         `[NlqQaTopologyGenerationAdapter] Generating detailed question from query: ${data.query}`
       );
       const prompt = `
-        Given the following user question and sql query,
-        generate a more detailed question that captures the intent of the user.
+        You will rewrite the user question so that it fully reflects the business logic contained in the SQL query. 
+        The rewritten question must capture every relevant filter, condition, grouping, metric, time range, and scope present in the SQL.
 
         ### User Question:
         ${data.question}
@@ -29,15 +29,16 @@ export class NlqQaTopologyGenerationAdapter
         ${data.query}
 
         ### Instructions:
-        1. Generate a detailed question that captures the intent of the user.
-        2. The detailed question should be specific and unambiguous.
-        3. Return ONLY the detailed question with as the response format.
-        4. Do not include any additional text or explanation.
-        5. Always use the same language as the user question.
-        6. If the user question is vague, make reasonable assumptions to clarify it.
+        1. Use the SQL as the source of truth — do NOT introduce logic not present in the query.
+        2. Explicitly include all business rules found in the SQL (filters, conditions, groupings, date ranges, status flags, currency filters, etc.).
+        3. If the original question is vague, clarify it based ONLY on the SQL logic.
+        4. Preserve the original language of the user.
+        5. Make the question precise, specific, and unambiguous.
+        6. DO NOT mention SQL or technical terms — rewrite only in business language.
+
 
         ### Response format Detailed Question:
-        Return the detailed question only with no additional text.
+        Return ONLY the rewritten detailed question.
         \`\`\`question
             <detailed question>
         \`\`\`
