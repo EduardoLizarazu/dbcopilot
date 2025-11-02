@@ -11,6 +11,7 @@ import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
 import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
 import { ROLE } from "@/http/utils/role.enum";
 import { IGenerateDetailQuestionUseCase } from "@/core/application/usecases/gen-topo/generate-detail-question.usecase";
+import { error } from "console";
 
 export class GenerateDetailQuestionController implements IController {
   constructor(
@@ -108,9 +109,7 @@ export class GenerateDetailQuestionController implements IController {
             ...useCase,
           }
         );
-        const error = this.httpErrors.error_400(
-          "Error creating NLQ QA: " + useCase.message
-        );
+        const error = this.httpErrors.error_400(useCase.message);
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -125,7 +124,9 @@ export class GenerateDetailQuestionController implements IController {
         "[GenerateDetailQuestionController] Unexpected error",
         err
       );
-      const error = this.httpErrors.error_500("Unexpected error");
+      const error = this.httpErrors.error_500(
+        err.message || "Unexpected error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }
