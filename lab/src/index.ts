@@ -7,6 +7,8 @@
 // main();
 import bm25 from "wink-bm25-text-search";
 import tokenizer from "wink-tokenizer";
+import { knowledge1 } from "./const/knowledge";
+import { generateRandomId } from "./service/ramdom-id";
 
 const tok = tokenizer();
 const engine = bm25();
@@ -29,7 +31,9 @@ const docs = [
 ];
 
 // Agrega documentos
-docs.forEach((doc) => engine.addDoc(doc, doc.id));
+knowledge1.forEach(async (doc) =>
+  engine.addDoc(doc.question, await generateRandomId())
+);
 engine.consolidate(); // Prepara el índice
 
 // Consulta

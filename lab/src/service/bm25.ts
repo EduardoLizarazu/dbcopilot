@@ -26,7 +26,8 @@ docs.forEach((doc) => engine.addDoc(doc, doc.id));
 engine.consolidate(); // Prepara el índice
 
 // Consulta
-const query = "azúcar blanca";
+const query =
+  "Mostrame las líneas de pedido aprobadas emitidas entre el 01/01/25 y el 16/02/25, indicando pedido, cliente (id y nombre), producto (id y descripción), cantidad pedida y fecha de emisión.";
 const results = engine.search(query);
 
 // Muestra resultados con score BM25

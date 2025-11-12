@@ -1,7 +1,7 @@
 import { Pinecone } from "@pinecone-database/pinecone";
 import { env } from "../env";
-import { randomUUID } from "crypto";
 import { generateEmbedding } from "./openai";
+import { generateRandomId } from "./ramdom-id";
 
 export const pinecone = new Pinecone({
   apiKey: env.pineconeKey,
@@ -11,7 +11,7 @@ export const index = pinecone.Index(env.pineconeIndex);
 
 export async function upsert(data: { question: string; query: string }) {
   try {
-    const docId = randomUUID();
+    const docId = await generateRandomId();
 
     const vector = await generateEmbedding(`${data.question}`);
 
