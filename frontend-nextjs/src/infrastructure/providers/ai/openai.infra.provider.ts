@@ -6,7 +6,7 @@ export const EMBEDDING_MODEL = "text-embedding-3-small"; // cost-effective
 export class OpenAIProvider {
   private readonly _apiKey: string = process.env.OPENAI_API_KEY || "";
   private readonly _openai = new OpenAI({ apiKey: this._apiKey });
-  private readonly _chatModel = "gpt-4o-mini"; // fast, good reasoning
+  private readonly _chatModel = process.env.OPENAI_MODEL || "gpt-4o-mini"; // fast, good reasoning
   private readonly _embeddingModel = "text-embedding-3-small"; // cost-effective
   constructor() {}
 
