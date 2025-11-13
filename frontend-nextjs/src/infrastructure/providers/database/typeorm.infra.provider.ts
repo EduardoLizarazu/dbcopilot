@@ -51,6 +51,7 @@ export class TypeOrmProvider {
         encrypt: true,
         trustServerCertificate: false,
         rejectUnauthorized: false,
+        ssl: { rejectUnauthorized: false },
       },
     };
     return await new DataSource(this.config);
