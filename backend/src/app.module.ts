@@ -11,6 +11,10 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import { DemoHelperModule } from './demo-helper/demo-helper.module';
 import { UsersModule } from './users/users.module';
 import { CaslModule } from './casl/casl.module';
+import { ChatModule } from './chat/chat.module';
+import { Neo4jService } from './neo4j/neo4j/neo4j.service';
+import { Neo4jModule } from './neo4j/neo4j/neo4j.module';
+import { SchemaModule } from './schema/schema.module';
 
 @Module({
   imports: [
@@ -18,35 +22,41 @@ import { CaslModule } from './casl/casl.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      database: 'dbcopilot',
-      port: 5432,
-      username: 'postgres',
-      password: 'Passw0rd',
+      type: process.env.DB_TYPE as any,
+      database: process.env.DB_NAME as any,
+      port: process.env.DB_PORT as any,
+      username: process.env.DB_USER as any,
+      password: process.env.DB_PASSWORD as any,
       // entities: [User],
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, // for demo/development
+      logging: true,
     }),
+    Neo4jModule,
     UsersModule,
     AuthModule,
     DemoHelperModule,
     CaslModule,
+    ChatModule,
+    Neo4jModule,
+    SchemaModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: PermissionsGuard,
-    },
+    Neo4jService,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard,
+    // },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: PermissionsGuard,
+    // },
   ],
 })
 export class AppModule {}

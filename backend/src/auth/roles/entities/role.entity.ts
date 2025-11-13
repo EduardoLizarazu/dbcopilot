@@ -3,10 +3,12 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Permission } from 'src/auth/permissions/entities/permission.entity';
+import { SchemaGraph } from 'src/auth/schema-graph/entities/schema-graph.entity';
 
 @Entity()
 export class Role {
@@ -16,13 +18,23 @@ export class Role {
   @Column({ unique: true })
   name: string;
 
-  @Column({ type: 'integer', default: 999 })
-  rank: number;
+  @Column({ nullable: true })
+  description?: string;
 
-  @ManyToMany(() => User, (user) => user.roles)
+  @ManyToMany(() => User, (user) => user.roles, {
+    onDelete: 'CASCADE', // Ensure bidirectional cascade
+  })
   users?: User[];
 
-  @ManyToMany(() => Permission, (permission) => permission.roles)
+  @ManyToMany(() => Permission, (permission) => permission.roles, {
+    onDelete: 'CASCADE', // Ensure bidirectional cascade
+  })
   @JoinTable() // Owning side
   permissions?: Permission[];
+
+  @OneToMany(() => SchemaGraph, (schemaGraph) => schemaGraph.role, {
+    cascade: true,
+    onDelete: 'CASCADE', // Delete permission will remove from roles
+  })
+  schemaGraphs?: SchemaGraph[];
 }

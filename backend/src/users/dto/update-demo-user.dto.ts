@@ -5,7 +5,6 @@ import { CreateUserDto } from './create-user.dto';
 import { Permission } from 'src/auth/permissions/entities/permission.entity';
 
 export class UpdateUserDemoDto extends PartialType(CreateUserDto) {
-  roles?: Role[];
   permissions?: Permission[];
   accountStatus?: AccountStatus;
 }

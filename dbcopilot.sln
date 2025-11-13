@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "asp_bridge", "asp_bridge\asp_bridge.csproj", "{5336D9EE-EF07-6B26-D1D5-73165450044A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5336D9EE-EF07-6B26-D1D5-73165450044A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5336D9EE-EF07-6B26-D1D5-73165450044A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5336D9EE-EF07-6B26-D1D5-73165450044A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5336D9EE-EF07-6B26-D1D5-73165450044A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4B3AE6A8-A68A-4B4D-A183-729A5A4831A0}
+	EndGlobalSection
+EndGlobal

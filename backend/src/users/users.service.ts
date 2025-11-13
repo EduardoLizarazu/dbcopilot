@@ -1,56 +1,176 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { Repository, UpdateResult } from 'typeorm';
+import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserDemoDto } from './dto/update-demo-user.dto';
 import { User } from './entities/user.entity';
 import { AccountStatus } from './enums/user.enums';
 
+type TUser = {
+  name: string;
+  username: string;
+  password: string;
+  roles: TRole[];
+};
+
+type TRole = {
+  id: number;
+  name: string;
+  description?: string;
+  permissions: TPermission[];
+};
+
+type TPermission = {
+  id: number;
+  name: string;
+  description?: string;
+  isActive: boolean;
+};
+
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
 
-  async create(dto: CreateUserDto): Promise<User> {
-    const { username, password, name } = dto;
+  async create(dto: CreateUserDto): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const { username, password, name, roles } = dto;
 
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const user = this.usersRepository.create({
-      username,
-      password: hashedPassword,
-      name,
-    });
+      // 1. Hash password
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = dto.password
+        ? await bcrypt.hash(dto.password, salt)
+        : null;
 
-    const newUser = await this.usersRepository.save(user);
+      // Format role [ 1 ]
+      const rolesId = roles.map((role) => role.id);
 
-    delete (newUser as Partial<User>).password;
+      // Format special permission [ [ { id: 1, isActive: true }, { id: 2, isActive: true } ] ]
+      const specialPerm = roles
+        .map((role) => {
+          return role.permissions.map((perm) => {
+            return { id: perm.id, isActive: perm.isActive };
+          });
+        })
+        .flat();
 
-    return newUser;
+      // 2. Create user entity
+      const userId = await queryRunner.manager.query(
+        `INSERT INTO "user" (username, password, name)
+        VALUES ($1, $2, $3) RETURNING id`,
+        [username, hashedPassword, name],
+      );
+
+      // Insert roles
+      for (const roleId of rolesId) {
+        await queryRunner.manager.query(
+          `INSERT INTO user_roles_role ("userId", "roleId") VALUES ($1, $2)`,
+          [userId[0]?.id, roleId],
+        );
+      }
+
+      // Group permissions by id and determine isActive status
+      const permMap = new Map<number, boolean>();
+      specialPerm.forEach((perm) => {
+        if (permMap.has(perm.id)) {
+          permMap.set(perm.id, permMap.get(perm.id) || perm.isActive);
+        } else {
+          permMap.set(perm.id, perm.isActive);
+        }
+      });
+
+      // Insert permissions
+      for (const [id, isActive] of permMap) {
+        await queryRunner.manager.query(
+          `INSERT INTO user_permission (user_id, permission_id, "isActive")
+           VALUES ($1, $2, $3)`,
+          [userId[0]?.id, id, isActive],
+        );
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException('Error creating user');
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async findAll(): Promise<User[]> {
-    const users = await this.usersRepository.find();
-    return users.map((user) => {
-      delete (user as Partial<User>).password;
-      return user;
+    const users = await this.usersRepository.find({
+      relations: ['roles', 'userPermissions'],
     });
+    return users;
   }
 
-  async findOne(userId: number, withPassword: boolean = false): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
+  async findOne(userId: number, withPassword: boolean = false): Promise<any> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: [
+        'roles',
+        'userPermissions',
+        'roles.permissions',
+        'userPermissions.permission',
+      ],
+    });
     if (!user) {
       throw new NotFoundException();
     }
 
-    // Extract password from user object
-    if (withPassword) delete (user as Partial<User>).password;
+    return this.TransformUserStructure(user);
+  }
 
-    return user;
+  TransformUserStructure(user1) {
+    // Create a map of user permissions for easy lookup
+    const userPermissionMap = user1.userPermissions.reduce(
+      (map, userPermission) => {
+        map[`${userPermission.permissionId}`] = userPermission.isActive;
+        return map;
+      },
+      {},
+    );
+
+    // Transform roles and their permissions
+    const roles = user1.roles.map((role) => ({
+      id: role.id,
+      name: role.name,
+      description: role.description,
+      permissions: role.permissions.map((permission) => ({
+        id: permission.id,
+        name: permission.name,
+        description: permission.description,
+        isActive:
+          userPermissionMap[permission.id] !== undefined
+            ? userPermissionMap[permission.id]
+            : true,
+      })),
+    }));
+
+    // Create the new user object with transformed roles
+    const user2 = {
+      id: user1.id,
+      username: user1.username,
+      // Assuming password isn't derivable from user1 object for security reasons,
+      // you'd typically get this from another source. For demonstration, let's say it's a fixed string.
+      password: '',
+      name: user1.name,
+      roles,
+    };
+
+    return user2;
   }
 
   async findOneByUsername(username: string): Promise<User | null> {
@@ -110,16 +230,125 @@ export class UsersService {
     const { roles, permissions, accountStatus } = dto;
 
     user.roles = roles ?? user.roles;
-    user.permissions = permissions ?? user.permissions;
+    // user.permissions = permissions ?? user.permissions;
     user.accountStatus = accountStatus ?? user.accountStatus;
 
     return await this.usersRepository.save(user);
   }
 
-  async updateProfile(userId: number, dto: UpdateUserDto): Promise<User> {
-    await this.findOne(userId);
-    await this.usersRepository.update(userId, dto);
-    return await this.findOne(userId);
+  isEmpty(data: string | null | undefined) {}
+
+  async update(userId: number, dto: UpdateUserDto): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const { username, password, name, roles } = dto;
+
+      // 1. Hash new password ONLY if provided and non-empty
+      let hashedPassword: string | null = null;
+      if (password && password.trim() !== '') {
+        const salt = await bcrypt.genSalt();
+        hashedPassword = await bcrypt.hash(password, salt);
+      }
+
+      // 2. Build dynamic update query
+      const updateParts: string[] = [];
+      const params: any[] = [];
+      let paramIndex = 1;
+
+      if (username) {
+        updateParts.push(`username = $${paramIndex}`);
+        params.push(username);
+        paramIndex++;
+      }
+
+      if (name) {
+        updateParts.push(`name = $${paramIndex}`);
+        params.push(name);
+        paramIndex++;
+      }
+
+      if (hashedPassword !== null) {
+        // Only update if password was provided
+        updateParts.push(`password = $${paramIndex}`);
+        params.push(hashedPassword);
+        paramIndex++;
+      }
+
+      // 3. Execute update only if there are fields to update
+      if (updateParts.length > 0) {
+        params.push(userId); // Always add userId as last parameter
+
+        await queryRunner.manager.query(
+          `UPDATE "user" SET
+          ${updateParts.join(', ')}
+          WHERE id = $${paramIndex}`,
+          params,
+        );
+      }
+
+      // 3. Update roles
+      const rolesId = roles?.map((role) => role.id);
+
+      // Delete existing roles
+      await queryRunner.manager.query(
+        `DELETE FROM user_roles_role WHERE "userId" = $1`,
+        [userId],
+      );
+
+      // Insert new roles
+      if (rolesId) {
+        for (const roleId of rolesId) {
+          await queryRunner.manager.query(
+            `INSERT INTO user_roles_role ("userId", "roleId") VALUES ($1, $2)`,
+            [userId, roleId],
+          );
+        }
+      }
+
+      // 4. Update direct permissions
+      const specialPerm = roles?.flatMap((role) =>
+        role.permissions.map((perm) => ({
+          id: perm.id,
+          isActive: perm.isActive,
+        })),
+      );
+
+      // Group permissions by id and determine isActive status
+      const permMap = new Map<number, boolean>();
+      specialPerm?.forEach((perm) => {
+        if (permMap.has(perm.id)) {
+          permMap.set(perm.id, permMap.get(perm.id) || perm.isActive);
+        } else {
+          permMap.set(perm.id, perm.isActive);
+        }
+      });
+
+      console.log('permMap: ', permMap);
+
+      // Delete existing permissions
+      await queryRunner.manager.query(
+        `DELETE FROM user_permission WHERE user_id = $1`,
+        [userId],
+      );
+
+      // Insert new permissions
+      for (const [id, isActive] of permMap) {
+        await queryRunner.manager.query(
+          `INSERT INTO user_permission (user_id, permission_id, "isActive")
+     VALUES ($1, $2, $3)`,
+          [userId, id, isActive],
+        );
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException('Error updating user');
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async updateAccountStatus(
@@ -213,16 +442,28 @@ export class UsersService {
     return await this.findOneWithRolesPermissionAndDirectPermissions(userId);
   }
 
-  async remove(userId: number, forceDelete: boolean = false) {
-    const user = await this.findOne(userId);
+  async remove(userId: number) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const user = await queryRunner.manager.findOne(User, {
+        where: { id: userId },
+      });
 
-    if (user.accountStatus === AccountStatus.Inactive) {
-      throw new Error(
-        'The user still active, please deactivate the user first',
-      );
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found.`); // Or throw a custom error
+      }
+      // Remove the user
+      await queryRunner.manager.remove(User, user);
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error(`Error deleting user: ${error}`);
+      throw new BadRequestException('Error deleting user');
+    } finally {
+      await queryRunner.release();
     }
-    if (!forceDelete) throw new Error('You must force the deletion');
-
-    return await this.usersRepository.remove(user);
   }
 }

@@ -3,11 +3,14 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Permission } from 'src/auth/permissions/entities/permission.entity';
 import { Role } from 'src/auth/roles/entities/role.entity';
 import { AccountStatus } from '../enums/user.enums';
+import { UserPermission } from 'src/auth/permissions/entities/user_permission.entity';
+import { Prompt } from 'src/chat/prompt/entities/prompt.entity';
 
 @Entity()
 export class User {
@@ -26,13 +29,19 @@ export class User {
   @Column({ default: AccountStatus.Inactive })
   accountStatus: AccountStatus;
 
-  @ManyToMany(() => Role, (role) => role.users)
+  @ManyToMany(() => Role, (role) => role.users, {
+    onDelete: 'CASCADE', // Ensure bidirectional cascade
+  })
   @JoinTable()
   roles?: Role[];
 
   // Ability to also directly assign permissions to user
   // means more flexibility with potentially more complexity
-  @ManyToMany(() => Permission, (permission) => permission.users)
-  @JoinTable()
-  permissions?: Permission[];
+  @OneToMany(() => UserPermission, (userPerm) => userPerm.user, {
+    onDelete: 'CASCADE', // Ensure bidirectional cascade
+  })
+  userPermissions: UserPermission[]; // The list of user-permission associations
+
+  @OneToMany(() => Prompt, (prompt) => prompt.user)
+  prompts: Prompt[]; // The list of user-permission associations
 }

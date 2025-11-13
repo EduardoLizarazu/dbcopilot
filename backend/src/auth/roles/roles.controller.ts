@@ -83,8 +83,7 @@ export class RolesController {
   @Delete(':id')
   // @Roles(ClientRole.Admin)
   // @Permissions(ClientPermission.DeleteRole)
-  remove(@Param('id') id: string, @Body('forceDelete') forceDelete?: string) {
-    if (forceDelete === '0') return this.rolesService.remove(+id);
-    return this.rolesService.remove(+id, forceDelete === '1');
+  remove(@Param('id') id: string) {
+    return this.rolesService.remove(+id);
   }
 }

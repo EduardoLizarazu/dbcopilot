@@ -1,9 +1,14 @@
-import { IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { IsNull } from 'typeorm';
 
 export class CreateUserDto {
   @IsString()
-  // @IsUnique(...) check my previous video on how to make such
-  // custom validator as IsUnique doesn't exist in class-validator
   username: string;
 
   @IsString()
@@ -13,4 +18,37 @@ export class CreateUserDto {
 
   @IsString()
   name: string;
+
+  @IsArray()
+  roles: Role[];
+}
+
+class Role {
+  @IsNumber()
+  id: number;
+
+  @IsString()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsArray()
+  permissions: Permission[];
+}
+
+class Permission {
+  @IsNumber()
+  id: number;
+
+  @IsString()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsBoolean()
+  isActive: boolean;
 }

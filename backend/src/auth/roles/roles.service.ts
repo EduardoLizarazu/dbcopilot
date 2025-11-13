@@ -1,25 +1,51 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Role } from './entities/role.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Permission } from '../permissions/entities/permission.entity';
 
 @Injectable()
 export class RolesService {
   constructor(
     @InjectRepository(Role)
     private rolesRepository: Repository<Role>,
+    private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
   async create(createRoleDto: CreateRoleDto) {
-    if ((await this.findByName(createRoleDto.name)).length > 0)
-      throw new Error('Role already exists');
-    const role = this.rolesRepository.create(createRoleDto);
-    return await this.rolesRepository.save(role);
+    try {
+      if ((await this.findByName(createRoleDto.name)).length > 0)
+        throw new BadRequestException('Role already exists');
+
+      const role = await this.rolesRepository.save({
+        name: createRoleDto.name,
+        description: createRoleDto.description,
+      });
+
+      await this.rolesRepository
+        .createQueryBuilder()
+        .relation(Role, 'permissions')
+        .of(role)
+        .add(createRoleDto.permissions || []);
+
+      return this.rolesRepository.findOne({
+        where: { id: role.id },
+        relations: ['permissions'],
+      });
+    } catch (error) {
+      throw new BadRequestException('Error creating role');
+    }
   }
 
   async findAll(): Promise<Role[]> {
-    return await this.rolesRepository.find();
+    return await this.rolesRepository.find({
+      relations: ['permissions'],
+    });
   }
 
   async findOne(id: number): Promise<Role> {
@@ -53,12 +79,43 @@ export class RolesService {
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
-    await this.findOne(id);
-    if (updateRoleDto.name) {
-      if ((await this.findByName(updateRoleDto.name)).length > 0)
-        throw new Error('Role already exists');
+    try {
+      const previousRole = await this.findOne(id);
+      if (updateRoleDto.name) {
+        if (
+          (await this.findByName(updateRoleDto.name)).length > 0 &&
+          previousRole.name !== updateRoleDto.name
+        )
+          throw new BadRequestException('Role already exists');
+      }
+      await this.rolesRepository.update(id, {
+        name: updateRoleDto.name,
+        description: updateRoleDto.description,
+      });
+
+      if (updateRoleDto.permissions) {
+        // Remove all existing permissions and add the new ones
+        // const role = await this.findOne(id);
+        const currentPermissions = await this.rolesRepository
+          .createQueryBuilder()
+          .relation(Role, 'permissions')
+          .of(previousRole)
+          .loadMany();
+
+        await this.rolesRepository
+          .createQueryBuilder()
+          .relation(Role, 'permissions')
+          .of(previousRole)
+          .addAndRemove(
+            updateRoleDto.permissions,
+            currentPermissions.map((p: { id: number }) => p.id),
+          );
+      }
+
+      return await this.findOne(id);
+    } catch (error) {
+      throw new BadRequestException('Error creating role');
     }
-    return await this.rolesRepository.update(id, updateRoleDto);
   }
 
   // Update the permissions of the role
@@ -113,18 +170,28 @@ export class RolesService {
     return await this.findOneWithUsers(id);
   }
 
-  async remove(id: number, forceDelete: boolean = false) {
-    const roleWithUsers = await this.findOneWithUsers(id);
-    if (roleWithUsers.users && roleWithUsers.users.length > 0 && !forceDelete)
-      throw new Error('Cannot delete role with users, set forceDelete to true');
+  async remove(id: number) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const role = await queryRunner.manager.findOne(Role, {
+        where: { id: id },
+      });
 
-    // remove the relation with users
-    await this.rolesRepository
-      .createQueryBuilder()
-      .relation(Role, 'users')
-      .of(roleWithUsers)
-      .remove(roleWithUsers.users);
+      if (!role) {
+        throw new NotFoundException(`Role with ID ${id} not found.`); // Or throw a custom error
+      }
+      // Remove the role
+      await queryRunner.manager.remove(Role, role);
 
-    return await this.rolesRepository.delete(id);
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error(`Error deleting role: ${error}`);
+      throw new BadRequestException('Error deleting role');
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

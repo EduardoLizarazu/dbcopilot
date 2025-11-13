@@ -2,19 +2,19 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { User } from '../../users/entities/user.entity';
-import { ROLES_METEDATA_KEY } from '../decorators/roles.decorator';
+import { ROLES_METADATA_KEY } from '../decorators/roles.decorator';
 import { ClientRole } from '../enums/role.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private refector: Reflector) {}
+  constructor(private reflector: Reflector) {}
 
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const requiredClientRoles = this.refector.getAllAndOverride<
+    const requiredClientRoles = this.reflector.getAllAndOverride<
       ClientRole[] | undefined
-    >(ROLES_METEDATA_KEY, [context.getHandler(), context.getClass()]);
+    >(ROLES_METADATA_KEY, [context.getHandler(), context.getClass()]);
 
     if (!requiredClientRoles || requiredClientRoles.length === 0) {
       return true;

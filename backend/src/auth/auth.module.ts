@@ -9,6 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
+import { SchemaGraphModule } from './schema-graph/schema-graph.module';
 
 @Module({
   controllers: [AuthController],
@@ -26,6 +27,7 @@ import { PermissionsModule } from './permissions/permissions.module';
     UsersModule,
     RolesModule,
     PermissionsModule,
+    SchemaGraphModule,
   ],
 })
 export class AuthModule {}

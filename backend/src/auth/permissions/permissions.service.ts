@@ -1,15 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entities/permission.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class PermissionsService {
   constructor(
     @InjectRepository(Permission)
     private permissionRepository: Repository<Permission>,
+    private dataSource: DataSource, // Inject the DataSource for transaction management
   ) {}
 
   async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
@@ -61,12 +66,19 @@ export class PermissionsService {
   }
 
   async update(id: number, updatePermissionDto: UpdatePermissionDto) {
-    await this.findOne(id);
-    if (updatePermissionDto.name) {
-      if ((await this.findByName(updatePermissionDto.name)).length > 0)
-        throw new Error('Permission already exists');
+    try {
+      const previousPerm = await this.findOne(id);
+      if (updatePermissionDto.name) {
+        if (
+          (await this.findByName(updatePermissionDto.name)).length > 0 &&
+          previousPerm.name !== updatePermissionDto.name
+        )
+          throw new Error('Permission already exists');
+      }
+      return await this.permissionRepository.update(id, updatePermissionDto);
+    } catch (error) {
+      throw new NotFoundException(`Permission with ID ${id} not found.`);
     }
-    return await this.permissionRepository.update(id, updatePermissionDto);
   }
 
   // Update the roles of the permission
@@ -154,41 +166,45 @@ export class PermissionsService {
     return await this.findOneWithUsers(id);
   }
 
-  async remove(id: number, forceDelete: boolean = false) {
-    // Check if the permission has roles
-    const permissionWithRoles = await this.findOneWithRoles(id);
-    if (permissionWithRoles.roles && permissionWithRoles.roles.length > 0) {
-      if (!forceDelete) {
-        throw new Error(
-          'Permission has roles. Use forceDelete option to remove it along with its roles.',
-        );
+  async remove(id: number) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const entity = await queryRunner.manager.findOne(Permission, {
+        where: { id: id },
+      });
+
+      if (!entity) {
+        throw new NotFoundException(`Permission with ID ${id} not found.`); // Or throw a custom error
       }
+      console.log('permission entity to delete', entity);
 
-      // Remove the roles associated with the permission
-      await this.permissionRepository
-        .createQueryBuilder()
-        .relation(Permission, 'roles')
-        .of(permissionWithRoles)
-        .remove(permissionWithRoles.roles);
+      // Remove the entity by sql query with its relations
+      // Delete related entries in user_permission table
+      await queryRunner.manager.query(
+        `DELETE FROM user_permission WHERE permission_id = $1`,
+        [id],
+      );
+
+      // Delete related entries in
+      await queryRunner.manager.query(
+        `DELETE FROM role_permissions_permission WHERE "permissionId" = $1`,
+        [id],
+      );
+
+      // Delete the permission from the Permission table
+      await queryRunner.manager.query(`DELETE FROM permission WHERE id = $1`, [
+        id,
+      ]);
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error('Error deleting permission: ', error);
+      throw new BadRequestException('Error deleting permission');
+    } finally {
+      await queryRunner.release();
     }
-
-    // Check if the permission has users
-    const permissionWithUsers = await this.findOneWithUsers(id);
-    if (permissionWithUsers.users && permissionWithUsers.users.length > 0) {
-      if (!forceDelete) {
-        throw new Error(
-          'Permission has users. Use forceDelete option to remove it along with its users.',
-        );
-      }
-
-      // Remove the users associated with the permission
-      await this.permissionRepository
-        .createQueryBuilder()
-        .relation(Permission, 'users')
-        .of(permissionWithUsers)
-        .remove(permissionWithUsers.users);
-    }
-
-    return await this.permissionRepository.delete(id);
   }
 }
