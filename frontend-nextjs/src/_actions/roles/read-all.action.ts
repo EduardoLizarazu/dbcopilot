@@ -21,13 +21,19 @@ export async function ReadAllRolesAction(): Promise<
       "Error fetching roles:",
       errorData.message || rolesRes.statusText
     );
-    throw new Error(
-      `Failed to fetch roles: ${errorData.message || rolesRes.statusText}`
-    );
+    return {
+      ok: false,
+      data: [],
+      message: errorData.message || "Failed to fetch roles.",
+    };
   }
   const rolesData = await rolesRes.json();
   console.log("Fetched roles:", rolesData);
-  return rolesData;
+  return {
+    ok: true,
+    data: rolesData.data || [],
+    message: rolesData.message,
+  };
 }
 
 import { adminDb } from "@/infrastructure/providers/firebase/firebase-admin";

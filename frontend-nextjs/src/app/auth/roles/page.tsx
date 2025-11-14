@@ -49,17 +49,17 @@ export default function RolesPage() {
     const run = async () => {
       setLoading(true);
       setError(null);
-      try {
-        const data = await ReadAllRolesAction();
+      const data = await ReadAllRolesAction();
+      if (data.ok) {
         if (!active) return;
         setRoles(data.data);
         console.log(data);
-      } catch (e: any) {
-        if (!active) return;
-        setError(e?.message ?? "Failed to load roles.");
-      } finally {
-        if (active) setLoading(false);
       }
+      if (!data.ok) {
+        if (!active) return;
+        setError(data.message || "Failed to load roles.");
+      }
+      if (active) setLoading(false);
     };
 
     (async () => run())();
