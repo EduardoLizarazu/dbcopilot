@@ -28,20 +28,18 @@ export default function CreateRolePage() {
     setError(null);
     setSuccess(null);
     setLoading(true);
-    try {
-      const res = await CreateRoleAction({ name, description });
-      console.log("Role created:", res);
 
-      if (res) {
-        setSuccess("Role created successfully. Redirecting to list…");
-        // short delay so user sees feedback, then go back to list
-        setTimeout(() => router.replace("/auth/roles"), 800);
-      }
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to create role.");
-    } finally {
-      setLoading(false);
+    const res = await CreateRoleAction({ name, description });
+    console.log("Role created:", res);
+    if (res.ok) {
+      setSuccess(res.message || "Role created successfully.");
+      // short delay so user sees feedback, then go back to list
+      setTimeout(() => router.replace("/auth/roles"), 800);
     }
+    if (!res.ok) {
+      setError(res.message || "Failed to create role.");
+    }
+    setLoading(false);
   };
 
   return (

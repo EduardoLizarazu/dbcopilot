@@ -24,18 +24,23 @@ export async function CreateRoleAction(
 
   if (!roleRes.ok) {
     const errorData = await roleRes.json();
-    console.error("Error creating role:", errorData);
     console.error(
       "Error creating role:",
       errorData.message || roleRes.statusText
     );
-    throw new Error(
-      `Failed to create role: ${errorData.message || roleRes.statusText}`
-    );
+    return {
+      ok: false,
+      message: errorData.message || "Failed to create role",
+      data: null,
+    };
   }
 
   const roleData = await roleRes.json();
   console.log("Created role:", roleData);
 
-  return roleData;
+  return {
+    ok: true,
+    message: "Role created successfully",
+    data: roleData,
+  };
 }

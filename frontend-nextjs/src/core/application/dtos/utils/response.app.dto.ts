@@ -6,6 +6,7 @@ export type TResponseDto<T> = {
 };
 
 export type TResOutContent<T> = {
+  ok: boolean;
   message: string | null;
   data: T | null;
 } | null;
