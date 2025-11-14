@@ -61,24 +61,22 @@ export default function UserEditClient({
     setError(null);
     setSuccess(null);
     setLoading(true);
-    try {
-      const res = await UpdateUserAction({
-        id: initialUser.id,
-        email,
-        name,
-        lastname,
-        roles: selectedRoleIds,
-        password, // ✅ will be empty if user left blank
-      });
-      if (res.data) {
-        setSuccess("User updated successfully. Redirecting to list…");
-        setTimeout(() => router.replace("/auth/users"), 800);
-      }
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to update user.");
-    } finally {
-      setLoading(false);
+    const res = await UpdateUserAction({
+      id: initialUser.id,
+      email,
+      name,
+      lastname,
+      roles: selectedRoleIds,
+      password, // ✅ will be empty if user left blank
+    });
+    if (res.ok && res.data) {
+      setSuccess("User updated successfully. Redirecting to list…");
+      setTimeout(() => router.replace("/auth/users"), 800);
     }
+    if (!res.ok) {
+      setError(res.message || "Failed to update user.");
+    }
+    setLoading(false);
   };
 
   return (

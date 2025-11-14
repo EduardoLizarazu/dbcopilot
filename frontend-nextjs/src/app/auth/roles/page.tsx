@@ -101,6 +101,7 @@ export default function RolesPage() {
       setSuccess(null);
       setLoading(false);
       markDeleting(id, false);
+      setDeleteBusy(new Set());
     }, 2000);
   };
 

@@ -86,7 +86,9 @@ export class ReadAllUserController implements IController {
       const users = await this.readAllUserUseCase.execute();
       if (!users.success) {
         this.logger.error("[ReadAllUserController] No users found");
-        const error = this.httpErrors.error_404("No users found");
+        const error = this.httpErrors.error_404(
+          users.message || "No users found"
+        );
         return new HttpResponse(error.statusCode, error.body);
       }
       //   ==== OUTPUT ====
@@ -95,13 +97,18 @@ export class ReadAllUserController implements IController {
         users
       );
       const response = this.httpSuccess.success_200({
-        message: "Users retrieved successfully",
+        message: users.message || "Users retrieved successfully",
         data: users.data,
       });
       return new HttpResponse(response.statusCode, response.body);
     } catch (err) {
-      this.logger.error("[ReadAllUserController] Internal server error:", err);
-      const error = this.httpErrors.error_500("Internal server error");
+      this.logger.error(
+        "[ReadAllUserController] Internal server error:",
+        err.message
+      );
+      const error = this.httpErrors.error_500(
+        err.message || "Internal server error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

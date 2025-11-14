@@ -33,11 +33,11 @@ export class CreateUserUseCase implements ICreateUserUseCase {
       if (!valid.success) {
         this.logger.error(
           "[CreateUserUseCase] Invalid input:",
-          valid.error.format()._errors
+          valid.error.errors
         );
         return {
           success: false,
-          message: valid.error.format()._errors.join(", "),
+          message: valid.error.errors.map((e) => e.message).join(", "),
           data: null,
         };
       }

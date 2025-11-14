@@ -49,23 +49,21 @@ export default function UsersCreateClient({
     setError(null);
     setSuccess(null);
     setLoading(true);
-    try {
-      const res = await CreateUserAction({
-        email,
-        name,
-        lastname,
-        password,
-        roles: selectedRoleIds,
-      });
-      if (res.data) {
-        setSuccess("User created successfully. Redirecting to list…");
-        setTimeout(() => router.replace("/auth/users"), 800);
-      }
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to create user.");
-    } finally {
-      setLoading(false);
+    const res = await CreateUserAction({
+      email,
+      name,
+      lastname,
+      password,
+      roles: selectedRoleIds,
+    });
+    if (res.ok && res.data) {
+      setSuccess(res.message ?? "User created successfully.");
+      setTimeout(() => router.replace("/auth/users"), 800);
     }
+    if (!res.ok) {
+      setError(res.message ?? "Failed to create user.");
+    }
+    setLoading(false);
   };
 
   return (

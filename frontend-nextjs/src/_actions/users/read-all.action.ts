@@ -23,13 +23,19 @@ export async function ReadAllUserAction(): Promise<
       "Error creating user:",
       errorData.message || userRes.statusText
     );
-    throw new Error(
-      `Failed to read users: ${errorData.message || userRes.statusText}`
-    );
+    return {
+      ok: false,
+      message: errorData.message || "Error reading users",
+      data: null,
+    };
   }
 
   const userData = await userRes.json();
   console.log("Fetched users:", userData);
 
-  return userData;
+  return {
+    ok: true,
+    message: userData.message || "Users fetched successfully",
+    data: userData.data,
+  };
 }

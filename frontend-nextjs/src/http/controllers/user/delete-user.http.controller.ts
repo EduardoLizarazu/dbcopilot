@@ -92,27 +92,39 @@ export class DeleteUserController implements IController {
         return new HttpResponse(error.statusCode, error.body);
       }
 
-      const user = await this.deleteUserUseCase.execute(httpRequest.params.id);
+      const useCase = await this.deleteUserUseCase.execute(
+        httpRequest.params.id
+      );
 
-      if (!user.success) {
-        this.logger.error("[DeleteUserController] User deletion failed:", user);
-        const error = this.httpErrors.error_404("User deletion failed");
+      if (!useCase.success) {
+        this.logger.error(
+          "[DeleteUserController] User deletion failed:",
+          useCase
+        );
+        const error = this.httpErrors.error_404(
+          useCase.message || "User deletion failed"
+        );
         return new HttpResponse(error.statusCode, error.body);
       }
 
       this.logger.info(
         "[DeleteUserController] User deleted successfully:",
-        user
+        useCase
       );
 
       const response = this.httpSuccess.success_200({
-        message: "User deleted successfully",
-        data: user,
+        message: useCase.message || "User deleted successfully",
+        data: useCase.data,
       });
       return new HttpResponse(response.statusCode, response.body);
     } catch (err) {
-      this.logger.error("[DeleteUserController] Internal server error:", err);
-      const error = this.httpErrors.error_500("Internal server error");
+      this.logger.error(
+        "[DeleteUserController] Internal server error:",
+        err.message
+      );
+      const error = this.httpErrors.error_500(
+        err.message || "Internal server error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

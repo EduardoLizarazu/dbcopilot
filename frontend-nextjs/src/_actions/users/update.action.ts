@@ -28,13 +28,19 @@ export async function UpdateUserAction(
       "Error updating user:",
       errorData.message || userRes.statusText
     );
-    throw new Error(
-      `Failed to update user: ${errorData.message || userRes.statusText}`
-    );
+    return {
+      ok: false,
+      message: errorData.message || "Failed to update user",
+      data: null,
+    };
   }
 
   const userData = await userRes.json();
   console.log("Updated user:", userData);
 
-  return userData;
+  return {
+    ok: true,
+    message: userData.message || "User updated successfully",
+    data: userData.data,
+  };
 }

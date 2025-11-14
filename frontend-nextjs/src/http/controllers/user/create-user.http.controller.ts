@@ -100,7 +100,7 @@ export class CreateUserController implements IController {
       );
 
       const body = httpRequest.body;
-      const user = await this.createUserUseCase.execute({
+      const useCase = await this.createUserUseCase.execute({
         email: body.email,
         password: body.password,
         lastname: body.lastname,
@@ -108,25 +108,35 @@ export class CreateUserController implements IController {
         roles: body.roles,
       });
 
-      if (!user.success) {
-        this.logger.error("[CreateUserController] User creation failed:", user);
-        const error = this.httpErrors.error_400("User creation failed");
+      if (!useCase.success) {
+        this.logger.error(
+          "[CreateUserController] User creation failed:",
+          useCase
+        );
+        const error = this.httpErrors.error_400(
+          useCase.message || "User creation failed"
+        );
         return new HttpResponse(error.statusCode, error.body);
       }
 
       this.logger.info(
         "[CreateUserController] User created successfully:",
-        user
+        useCase.data
       );
 
       const response = this.httpSuccess.success_201({
-        message: "User created successfully",
-        data: user,
+        message: useCase.message || "User created successfully",
+        data: useCase.data,
       });
       return new HttpResponse(response.statusCode, response.body);
     } catch (err) {
-      this.logger.error("[CreateUserController] Internal server error:", err);
-      const error = this.httpErrors.error_500("Internal server error");
+      this.logger.error(
+        "[CreateUserController] Internal server error:",
+        err.message
+      );
+      const error = this.httpErrors.error_500(
+        err.message || "Internal server error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

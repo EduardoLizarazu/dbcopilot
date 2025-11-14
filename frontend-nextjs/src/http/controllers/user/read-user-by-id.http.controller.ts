@@ -100,32 +100,39 @@ export class ReadUserByIdController implements IController {
         "[ReadByIdRoleController] Received params:",
         httpRequest.params
       );
-      const user = await this.readUserByIdUseCase.execute(
+      const useCase = await this.readUserByIdUseCase.execute(
         httpRequest.params.id
       );
 
-      if (!user.success) {
+      if (!useCase.success) {
         this.logger.error(
           "[ReadUserByIdController] User retrieval failed:",
-          user
+          useCase
         );
-        const error = this.httpErrors.error_404("User retrieval failed");
+        const error = this.httpErrors.error_404(
+          useCase.message || "User retrieval failed"
+        );
         return new HttpResponse(error.statusCode, error.body);
       }
 
       this.logger.info(
         "[ReadUserByIdController] User retrieved successfully:",
-        user
+        useCase
       );
 
       const response = this.httpSuccess.success_200({
-        message: user.message,
-        data: user.data,
+        message: useCase.message,
+        data: useCase.data,
       });
       return new HttpResponse(response.statusCode, response.body);
     } catch (err) {
-      this.logger.error("[ReadUserByIdController] Internal server error:", err);
-      const error = this.httpErrors.error_500("Internal server error");
+      this.logger.error(
+        "[ReadUserByIdController] Internal server error:",
+        err.message
+      );
+      const error = this.httpErrors.error_500(
+        err.message || "Internal server error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

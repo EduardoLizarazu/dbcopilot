@@ -102,7 +102,7 @@ export class UpdateUserController implements IController {
       const body = httpRequest.body;
 
       // ==== BUSINESS LOGIC ==== USE CASES ====
-      const user = await this.updateUserUseCase.execute(body.id, {
+      const useCase = await this.updateUserUseCase.execute(body.id, {
         id: body.id,
         email: body.email,
         password: body.password,
@@ -111,25 +111,35 @@ export class UpdateUserController implements IController {
         roles: body.roles,
       });
 
-      if (!user.success) {
-        this.logger.error("[UpdateUserController] User update failed:", user);
-        const error = this.httpErrors.error_400("User update failed");
+      if (!useCase.success) {
+        this.logger.error(
+          "[UpdateUserController] User update failed:",
+          useCase
+        );
+        const error = this.httpErrors.error_400(
+          useCase.message || "User update failed"
+        );
         return new HttpResponse(error.statusCode, error.body);
       }
 
       this.logger.info(
         "[UpdateUserController] User updated successfully:",
-        user
+        useCase
       );
 
       const response = this.httpSuccess.success_200({
-        message: "User updated successfully",
-        data: user,
+        message: useCase.message || "User updated successfully",
+        data: useCase.data,
       });
       return new HttpResponse(response.statusCode, response.body);
     } catch (err) {
-      this.logger.error("[UpdateUserController] Internal server error:", err);
-      const error = this.httpErrors.error_500("Internal server error");
+      this.logger.error(
+        "[UpdateUserController] Internal server error:",
+        err.message
+      );
+      const error = this.httpErrors.error_500(
+        err.message || "Internal server error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

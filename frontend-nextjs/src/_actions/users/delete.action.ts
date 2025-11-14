@@ -22,12 +22,18 @@ export async function DeleteUserAction(
       "Error deleting user:",
       errorData.message || userRes.statusText
     );
-    throw new Error(
-      `Failed to delete user: ${errorData.message || userRes.statusText}`
-    );
+    return {
+      ok: false,
+      message: errorData.message || "Failed to delete user",
+      data: null,
+    };
   }
 
   const userData = await userRes.json();
   console.log("Deleted user:", userData);
-  return userData;
+  return {
+    ok: true,
+    message: userData.message || "User deleted successfully",
+    data: null,
+  };
 }

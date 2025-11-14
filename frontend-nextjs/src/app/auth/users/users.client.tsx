@@ -36,7 +36,17 @@ export default function UsersClient({
     React.useState<TUserOutRequestWithRoles[]>(initialUsers);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
   const [q, setQ] = React.useState("");
+
+  const markDeleting = (id: string, on: boolean) => {
+    setDeleteBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
 
   // Filter users based on the query
   const filteredUsers = users.filter((user) => {
@@ -56,13 +66,28 @@ export default function UsersClient({
   const onDelete = async (id: string) => {
     const yes = window.confirm("Remove this user? This cannot be undone.");
     if (!yes) return;
-    try {
-      await DeleteUserAction(id);
+
+    setLoading(false);
+    setError(null);
+    setSuccess(null);
+    markDeleting(id, true);
+    const res = await DeleteUserAction(id);
+    if (res.ok) {
       const data = await ReadAllUserAction();
       setUsers(data.data || []);
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to remove user.");
+      setSuccess("User removed successfully.");
+      setLoading(true);
     }
+    if (!res.ok) {
+      setError(res.message || "Failed to remove user.");
+    }
+    setTimeout(() => {
+      setError(null);
+      setSuccess(null);
+      markDeleting(id, false);
+      setDeleteBusy(new Set());
+      setLoading(false);
+    }, 2000);
   };
 
   return (
@@ -94,11 +119,8 @@ export default function UsersClient({
           />
         </Box>
 
-        {error && (
-          <Alert color="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
+        {error && <Alert color="error">{error}</Alert>}
+        {success && <Alert color="success">{success}</Alert>}
 
         {loading && (
           <Box className="flex items-center justify-center py-8">
@@ -140,38 +162,43 @@ export default function UsersClient({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredUsers.map((u) => (
-                  <TableRow key={u.id} hover>
-                    <TableCell>
-                      {u.lastname ? `${u.name} ${u.lastname}` : u.name || "—"}
-                    </TableCell>
-                    <TableCell>{u.email || "—"}</TableCell>
-                    <TableCell>
-                      {u.rolesDetail.map((role) => role.name).join(", ") || "—"}
-                    </TableCell>
-                    <TableCell align="right">
-                      <Tooltip title="Edit">
-                        <IconButton
-                          component={Link}
-                          href={`/auth/users/${u.id}`}
-                          aria-label="Edit user"
-                          size="small"
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Remove">
-                        <IconButton
-                          onClick={() => onDelete(u.id)}
-                          aria-label="Remove user"
-                          size="small"
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {filteredUsers.map((u) => {
+                  const isDeleting = deleteBusy.has(u.id);
+                  return (
+                    <TableRow key={u.id} hover>
+                      <TableCell>
+                        {u.lastname ? `${u.name} ${u.lastname}` : u.name || "—"}
+                      </TableCell>
+                      <TableCell>{u.email || "—"}</TableCell>
+                      <TableCell>
+                        {u.rolesDetail.map((role) => role.name).join(", ") ||
+                          "—"}
+                      </TableCell>
+                      <TableCell align="right">
+                        <Tooltip title="Edit">
+                          <IconButton
+                            component={Link}
+                            href={`/auth/users/${u.id}`}
+                            aria-label="Edit user"
+                            size="small"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <IconButton
+                            onClick={() => onDelete(u.id)}
+                            aria-label="Remove user"
+                            size="small"
+                            loading={isDeleting}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

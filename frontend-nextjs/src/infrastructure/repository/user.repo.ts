@@ -129,8 +129,8 @@ export class UserRepository implements IUserRepository {
 
       return userRecord.uid;
     } catch (error) {
-      this.logger.error("[UserRepository] Error creating user:", error);
-      throw new Error("Error creating user");
+      this.logger.error("[UserRepository] Error creating user:", error.message);
+      throw new Error(error.message || "Error creating user");
     }
   }
 
