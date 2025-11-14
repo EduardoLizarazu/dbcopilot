@@ -107,20 +107,25 @@ export class DeleteRoleController implements IController {
           ...useCase,
         });
         const error = this.httpErrors.error_400(
-          "Error deleting role: " + useCase.message
+          useCase.message || "Error deleting role"
         );
         return new HttpResponse(error.statusCode, error.body);
       }
 
       // ==== OUTPUT RESPONSE ====
       const success = this.httpSuccess.success_200({
-        message: "Role deleted successfully",
+        message: useCase.message,
         data: useCase.data,
       });
       return new HttpResponse(success.statusCode, success.body);
     } catch (error) {
-      this.logger.error("[DeleteRoleController] Internal server error:", error);
-      const httpError = this.httpErrors.error_500("Internal server error");
+      this.logger.error(
+        "[DeleteRoleController] Internal server error:",
+        error.message
+      );
+      const httpError = this.httpErrors.error_500(
+        error.message || "Internal server error"
+      );
       return new HttpResponse(httpError.statusCode, httpError.body);
     }
   }

@@ -17,23 +17,31 @@ import {
   TableContainer,
   CircularProgress,
   Tooltip,
+  Alert,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import {
-  listRolesAction,
-  ReadAllRolesAction,
-} from "@/_actions/roles/read-all.action";
+import { ReadAllRolesAction } from "@/_actions/roles/read-all.action";
 import { DeleteRoleAction } from "@/_actions/roles/delete.action";
 import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
 
 export default function RolesPage() {
   const [roles, setRoles] = React.useState<TRoleOutRequestDto[] | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
   const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
   const [q, setQ] = React.useState("");
+
+  const markDeleting = (id: string, on: boolean) => {
+    setDeleteBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
 
   React.useEffect(() => {
     let active = true;
@@ -73,14 +81,27 @@ export default function RolesPage() {
   const onDelete = async (id: string) => {
     const yes = window.confirm("Remove this role? This cannot be undone.");
     if (!yes) return;
-    try {
-      await DeleteRoleAction(id);
-      // Re-query with current search
+
+    setError(null);
+    setSuccess(null);
+    markDeleting(id, true);
+
+    const res = await DeleteRoleAction(id);
+    if (res.ok) {
+      setSuccess(res.message || "Role removed successfully.");
       const data = await ReadAllRolesAction();
+      setLoading(true);
       setRoles(data.data);
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to remove role.");
+    } else {
+      setError(res.message || "Failed to remove role.");
     }
+
+    setTimeout(() => {
+      setError(null);
+      setSuccess(null);
+      setLoading(false);
+      markDeleting(id, false);
+    }, 2000);
   };
 
   return (
@@ -112,20 +133,16 @@ export default function RolesPage() {
           />
         </Box>
 
+        {error && <Alert security="error">{error}</Alert>}
+        {success && <Alert security="success">{success}</Alert>}
+
         {loading && (
           <Box className="flex items-center justify-center py-12">
             <CircularProgress />
           </Box>
         )}
-
-        {error && (
-          <Typography color="error" sx={{ mb: 2 }}>
-            {error}
-          </Typography>
-        )}
-
         {!loading && filteredRoles && filteredRoles.length === 0 && (
-          <Box className="text-center py-16">
+          <Box className="text-center py-1">
             <Typography variant="h6" fontWeight={700} gutterBottom>
               No roles found
             </Typography>
@@ -157,33 +174,39 @@ export default function RolesPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredRoles.map((r) => (
-                  <TableRow key={r.id} hover>
-                    <TableCell>{r.name}</TableCell>
-                    <TableCell>{r.description || "—"}</TableCell>
-                    <TableCell align="right">
-                      <Tooltip title="Edit">
-                        <IconButton
-                          component={Link}
-                          href={`/auth/roles/${r.id}`}
-                          aria-label="Edit role"
-                          size="small"
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Remove">
-                        <IconButton
-                          onClick={() => onDelete(r.id)}
-                          aria-label="Remove role"
-                          size="small"
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {filteredRoles.map((r) => {
+                  const isDeleting = deleteBusy.has(r.id);
+                  return (
+                    <TableRow key={r.id} hover>
+                      <TableCell>{r.name}</TableCell>
+                      <TableCell>{r.description || "—"}</TableCell>
+                      <TableCell align="right">
+                        <Tooltip title="Edit">
+                          <IconButton
+                            component={Link}
+                            href={`/auth/roles/${r.id}`}
+                            aria-label="Edit role"
+                            size="small"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <IconButton
+                            onClick={() => {
+                              onDelete(r.id);
+                            }}
+                            aria-label="Remove role"
+                            size="small"
+                            loading={isDeleting}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>
