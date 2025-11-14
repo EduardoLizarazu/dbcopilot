@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
     // !! WARN !!
     ignoreBuildErrors: process.env.NODE_ENV === "production",
   },
-  hideServerErrors: false,
 };
 
 export default nextConfig;

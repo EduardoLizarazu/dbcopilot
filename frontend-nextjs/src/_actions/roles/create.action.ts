@@ -24,6 +24,7 @@ export async function CreateRoleAction(
 
   if (!roleRes.ok) {
     const errorData = await roleRes.json();
+    console.error("Error creating role:", errorData);
     console.error(
       "Error creating role:",
       errorData.message || roleRes.statusText
