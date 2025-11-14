@@ -109,9 +109,7 @@ export class ReadRoleByIdController implements IController {
         this.logger.error("[ReadByIdRoleController] Error retrieving role: ", {
           ...useCase,
         });
-        const error = this.httpErrors.error_400(
-          "Error retrieving role: " + useCase.message
-        );
+        const error = this.httpErrors.error_400(useCase.message);
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -124,9 +122,11 @@ export class ReadRoleByIdController implements IController {
     } catch (error) {
       this.logger.error(
         "[ReadByIdRoleController] Internal server error:",
-        error
+        error.message
       );
-      const httpError = this.httpErrors.error_500("Internal server error");
+      const httpError = this.httpErrors.error_500(
+        error.message || "Internal server error"
+      );
       return new HttpResponse(httpError.statusCode, httpError.body);
     }
   }

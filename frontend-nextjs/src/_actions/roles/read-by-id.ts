@@ -24,13 +24,19 @@ export async function ReadRoleByIdAction(
       "Error reading role:",
       errorData.message || roleRes.statusText
     );
-    throw new Error(
-      `Failed to read role: ${errorData.message || roleRes.statusText}`
-    );
+    return {
+      ok: false,
+      message: errorData.message || "Failed to read role",
+      data: null,
+    };
   }
 
   const roleData = await roleRes.json();
   console.log("Read role:", roleData);
 
-  return roleData;
+  return {
+    ok: true,
+    message: roleData.message || "Role read successfully",
+    data: roleData.data,
+  };
 }

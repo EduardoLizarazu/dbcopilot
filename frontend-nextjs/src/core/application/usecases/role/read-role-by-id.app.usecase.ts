@@ -17,16 +17,19 @@ export class ReadRoleByIdUseCase implements IReadByIdRoleUseCase {
   async execute(id: string): Promise<TResponseDto<TRoleOutRequestDto>> {
     try {
       const role = await this.roleRepository.findById(id);
-      this.logger.info("ReadRoleByIdUseCase: Role found:", role);
+      this.logger.info("[ReadRoleByIdUseCase] Role found:", role);
       return {
         success: true,
-        message: !role
+        message: role
           ? RoleAppEnum.roleFoundSuccessfully
           : RoleAppEnum.roleNotFound,
         data: role,
       };
     } catch (error) {
-      console.error(error);
+      this.logger.error(
+        "[ReadRoleByIdUseCase] Error reading role by ID:",
+        error.message
+      );
       return {
         success: false,
         message: error instanceof Error ? error.message : String(error),
