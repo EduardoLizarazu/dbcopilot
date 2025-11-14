@@ -35,21 +35,19 @@ export default function EditRoleClient({
     setError(null);
     setSuccess(null);
     setLoading(true);
-    try {
-      const res = await UpdateRoleAction({
-        id: initialRole.id,
-        name,
-        description,
-      });
-      if (res.data) {
-        setSuccess("Role updated successfully. Redirecting to list…");
-        setTimeout(() => router.replace("/auth/roles"), 800);
-      }
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to update role.");
-    } finally {
-      setLoading(false);
+    const res = await UpdateRoleAction({
+      id: initialRole.id,
+      name,
+      description,
+    });
+    if (res.ok) {
+      setSuccess(res.message || "Role updated successfully.");
+      setTimeout(() => router.replace("/auth/roles"), 800);
     }
+    if (!res.ok) {
+      setError(res.message || "Failed to update role.");
+    }
+    setLoading(false);
   };
 
   return (

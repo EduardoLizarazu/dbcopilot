@@ -32,13 +32,19 @@ export async function UpdateRoleAction(
       "Error updating role:",
       errorData.message || roleRes.statusText
     );
-    throw new Error(
-      `Failed to update role: ${errorData.message || roleRes.statusText}`
-    );
+    return {
+      ok: false,
+      message: errorData.message || roleRes.statusText || "Error updating role",
+      data: null,
+    };
   }
 
   const roleData = await roleRes.json();
   console.log("Updated role:", roleData);
 
-  return roleData;
+  return {
+    ok: true,
+    message: roleData.message || "Role updated successfully",
+    data: roleData.data,
+  };
 }
