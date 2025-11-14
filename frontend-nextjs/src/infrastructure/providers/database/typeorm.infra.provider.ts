@@ -48,8 +48,10 @@ export class TypeOrmProvider {
       migrations: [], // No migrations
       subscribers: [], // No subscribers
       extra: {
-        encrypt: false,
-        trustServerCertificate: true,
+        encrypt: true,
+        trustServerCertificate: false,
+        rejectUnauthorized: false,
+        ssl: { rejectUnauthorized: false },
       },
     };
     return await new DataSource(this.config);

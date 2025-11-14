@@ -20,7 +20,7 @@ export class WinstonLoggerProvider implements ILogger {
       ),
       transports: [
         new winston.transports.Console(),
-        new winston.transports.File({ filename: "logs/app.log" }),
+        // new winston.transports.File({ filename: "logs/app.log" }),
       ],
     });
   }

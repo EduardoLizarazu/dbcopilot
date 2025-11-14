@@ -1,0 +1,203 @@
+PROMPT:
+
+You are a SQL expert specialized in oracle19c databases. 
+            Generate a SELECT query that answers the user's question using ONLY the provided database schema and the help of the similar questions with its sql and score to guide you.
+    
+            ### Database Type:
+            oracle19c
+     
+            ### Database Schema SQL:
+            [{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"NNR300","COLUMN_NAME":"NNR_COD","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"NNR300","COLUMN_NAME":"NNR_DESCRI","DATA_TYPE":"VARCHAR2(256)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_CHOFER","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_CLIENTE","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_DATA","DATA_TYPE":"DATE"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_DOCUME","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_DSAIDA","DATA_TYPE":"DATE"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_FILIAL","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_ITEMPV","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_LOCENT","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_OBSERV","DATA_TYPE":"VARCHAR2(128)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_PBRUTO","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_PEDIDO","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_PLACA","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_PRODUT","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_PTARA","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_QTDE","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_SEQUEN","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_STATUS","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_TELEFO","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_XDESP","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_XOBS","DATA_TYPE":"VARCHAR2(128)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"PB7300","COLUMN_NAME":"PB7_XZAFRA","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SA1300","COLUMN_NAME":"A1_CGC","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SA1300","COLUMN_NAME":"A1_COD","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SA1300","COLUMN_NAME":"A1_LOJA","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SA1300","COLUMN_NAME":"A1_NOME","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SA1300","COLUMN_NAME":"A1_UTPCLI","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SB1300","COLUMN_NAME":"B1_COD","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SB1300","COLUMN_NAME":"B1_DESC","DATA_TYPE":"VARCHAR2(128)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SB1300","COLUMN_NAME":"B1_UM","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC5300","COLUMN_NAME":"C5_CLIENTE","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC5300","COLUMN_NAME":"C5_EMISSAO","DATA_TYPE":"DATE"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC5300","COLUMN_NAME":"C5_LOJACLI","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC5300","COLUMN_NAME":"C5_MOEDA","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC5300","COLUMN_NAME":"C5_NUM","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC5300","COLUMN_NAME":"C5_XTIPO","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_CLI","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_DESCRI","DATA_TYPE":"VARCHAR2(128)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_FILIAL","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_ID","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_ITEM","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_LOCAL","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_LOCALDEST","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_LOJA","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_NUM","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_PRCVEN","DATA_TYPE":"NUMBER(38,2)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_PRODUTO","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_QTDENT","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_QTDVEN","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_TES","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_UM","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC6300","COLUMN_NAME":"C6_VALOR","DATA_TYPE":"NUMBER(38,14)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC9300","COLUMN_NAME":"C9_CLIENTE","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC9300","COLUMN_NAME":"C9_DATALIB","DATA_TYPE":"DATE"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC9300","COLUMN_NAME":"C9_FILIAL","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC9300","COLUMN_NAME":"C9_ID","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC9300","COLUMN_NAME":"C9_ITEM","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC9300","COLUMN_NAME":"C9_LOCAL","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC9300","COLUMN_NAME":"C9_PEDIDO","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC9300","COLUMN_NAME":"C9_PRODUTO","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC9300","COLUMN_NAME":"C9_SEQUEN","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SC9300","COLUMN_NAME":"C9_STATUS","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_CLIENTE","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_COD","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_CONTA","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_CUSTO1","DATA_TYPE":"NUMBER(38,3)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_DOC","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_DTDIGIT","DATA_TYPE":"DATE"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_EMISSAO","DATA_TYPE":"DATE"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_FILIAL","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_GRUPO","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_ITEM","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_ITEMPV","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_ITEMREM","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_LOCAL","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_LOJA","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_PEDIDO","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_PRCVEN","DATA_TYPE":"NUMBER(38,2)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_QTSEGUM","DATA_TYPE":"NUMBER(38,15)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_QUANT","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_REMITO","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_SEQUEN","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_SERIE","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_SERIREM","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_TES","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_TIPODOC","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_TOTAL","DATA_TYPE":"NUMBER(38,13)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_UM","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD2300","COLUMN_NAME":"D2_VALIMP5","DATA_TYPE":"NUMBER(38,14)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_ALMDEST","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_COD","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_DOC","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_EMISSAO","DATA_TYPE":"DATE"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_ESTORNO","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_FILIAL","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_LOCAL","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_QTSEGUM","DATA_TYPE":"NUMBER(38,14)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_QUANT","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_TM","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_UM","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_USUARIO","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_XNROTRA","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SD3300","COLUMN_NAME":"D3_XORIGEN","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SE4300","COLUMN_NAME":"E4_CODIGO","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SE4300","COLUMN_NAME":"E4_DESCRI","DATA_TYPE":"VARCHAR2(128)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SE4300","COLUMN_NAME":"E4_TIPO","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_CLIENTE","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_CODCTR","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_COND","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_DOC","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_DTDIGIT","DATA_TYPE":"DATE"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_EMISSAO","DATA_TYPE":"DATE"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_LOJA","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_MOEDA","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_NUMAUT","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_SERIE","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_UGLOSA","DATA_TYPE":"VARCHAR2(128)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_UNIT","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_UNOME","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_UPEDIDO","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SF2300","COLUMN_NAME":"F2_VALBRUT","DATA_TYPE":"NUMBER(38,14)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_CLICIUD","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_CLICOMPNOM...","DATA_TYPE":"VARCHAR2(128)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_CLICONT...","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_CLICONTAT","DATA_TYPE":"VARCHAR2(128)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_CLIDIRECC","DATA_TYPE":"VARCHAR2(128)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_CLIENPOST","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_CLREG","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_CUSTOCOD","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_CUSTPAI","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_FA","DATA_TYPE":"VARCHAR2(128)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZA300","COLUMN_NAME":"SZ_TELF","DATA_TYPE":"VARCHAR2(26)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZG300","COLUMN_NAME":"ZG_CODIGO","DATA_TYPE":"NUMBER(38,0)"},{"SCHEMA_NAME":"TMPRD","TABLE_NAME":"SZG300","COLUMN_NAME":"ZG_DESC","DATA_TYPE":"VARCHAR2(26)"}]
+    
+            ### User Question:
+            "\nEntre el 01/01/25 y el 16/02/25, por cliente y producto, decime cuánto se pidió, \ncuánto se facturó, cuánto queda pendiente de facturar, \ny cuántos viajes de embarque hubo con sus primeras/últimas fechas\n"
+    
+            ### Similar Questions with SQL:
+            [
+  {
+    "id": "2d3069ac-84a4-452e-8362-f298ca3a5989",
+    "score": 0.742146492,
+    "question": "Entre el 01/01/25 y el 16/02/25, por producto, ¿cuánto se pidió vs. cuánto tiene embarque asociado, y cuánta cantidad queda pendiente de embarcar, ordenado por mayor pendiente?",
+    "query": "SELECT\n  c6.C6_PRODUTO                               AS producto_id,\n  b1.B1_DESC                                  AS producto_desc,\n  SUM(c6.C6_QTDVEN)                           AS cant_pedida,\n  SUM(NVL(entregado.cant, 0))                 AS cant_embarcada,\n  SUM(c6.C6_QTDVEN) - SUM(NVL(entregado.cant,0)) AS pendiente_embarque\nFROM TMPRD.SC6300 c6\nJOIN TMPRD.SC5300 c5 ON c5.C5_NUM = c6.C6_NUM\nLEFT JOIN (\n  SELECT pb.PB7_PEDIDO AS pedido, COUNT(*) AS cant\n  FROM TMPRD.PB7300 pb\n  GROUP BY pb.PB7_PEDIDO\n) entregado ON entregado.pedido = c6.C6_NUM\nLEFT JOIN TMPRD.SB1300 b1 ON b1.B1_COD = c6.C6_PRODUTO\nWHERE c5.C5_EMISSAO BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')\nGROUP BY c6.C6_PRODUTO, b1.B1_DESC\nHAVING SUM(c6.C6_QTDVEN) - SUM(NVL(entregado.cant,0)) > 0\nORDER BY pendiente_embarque DESC"
+  },
+  {
+    "id": "2cdd8709-d31c-4583-b2ba-17a16aa23a03",
+    "score": 0.675365508,
+    "question": "¿Cuáles son los pedidos emitidos entre el 01/01/25 y el 16/02/25 que ya tienen un embarque asociado, mostrando el número de pedido junto con la placa del vehículo, el nombre del chofer y la fecha de salida registrada para cada uno?",
+    "query": "SELECT\n  c5.C5_NUM             AS pedido,\n  pb.PB7_PLACA          AS placa,\n  pb.PB7_CHOFER         AS chofer,\n  pb.PB7_DSAIDA         AS fecha_salida\nFROM TMPRD.SC5300 c5\nJOIN TMPRD.PB7300 pb ON pb.PB7_PEDIDO = c5.C5_NUM\nWHERE c5.C5_EMISSAO BETWEEN '01/01/25' AND '16/02/25'"
+  },
+  {
+    "id": "56cebccb-604b-4964-aa9a-107644fc129b",
+    "score": 0.663564742,
+    "question": "Entre el 01/01/25 y el 16/02/25, ¿qué clientes tienen muchos pedidos emitidos pero bajo monto facturado de 10.000 Bs., mostrando cliente, nombre, numero de pedidos y monto facturado, ordenado por más pedidos y menor monto?",
+    "query": "SELECT\n  p.cliente,\n  a1.A1_NOME                  AS cliente_nombre,\n  p.n_pedidos,\n  NVL(f.monto, 0)             AS monto_facturado\nFROM (\n  SELECT c5.C5_CLIENTE AS cliente, COUNT(DISTINCT c5.C5_NUM) AS n_pedidos\n  FROM TMPRD.SC5300 c5\n  WHERE c5.C5_EMISSAO BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')\n  GROUP BY c5.C5_CLIENTE\n) p\nLEFT JOIN (\n  SELECT f2.F2_CLIENTE AS cliente, SUM(d2.D2_TOTAL) AS monto\n  FROM TMPRD.SF2300 f2\n  JOIN TMPRD.SD2300 d2\n    ON d2.D2_DOC = f2.F2_DOC\n   AND d2.D2_SERIE = f2.F2_SERIE\n   AND d2.D2_LOJA = f2.F2_LOJA\n  WHERE f2.F2_EMISSAO BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')\n  GROUP BY f2.F2_CLIENTE\n) f\n  ON f.cliente = p.cliente\nLEFT JOIN TMPRD.SA1300 a1\n  ON a1.A1_COD = p.cliente\nWHERE NVL(f.monto, 0) < 10000\nORDER BY p.n_pedidos DESC, monto_facturado ASC"
+  },
+  {
+    "id": "64bdeda1-c2a5-40a2-84a5-7a97ff34c981",
+    "score": 0.660938323,
+    "question": "¿Podés mostrarme el detalle de todos los pedidos emitidos entre el 01/01/25 y el 16/02/25, incluyendo el número de pedido, el código y nombre del cliente, el código y la descripción de cada producto solicitado, la cantidad pedida y el estado de aprobación correspondiente a cada ítem?",
+    "query": "SELECT\n  c5.C5_NUM                     AS pedido,\n  c5.C5_CLIENTE                 AS cliente_id,\n  a1.A1_NOME                    AS cliente_nombre,\n  c6.C6_PRODUTO                 AS producto_id,\n  b1.B1_DESC                    AS producto_desc,\n  c6.C6_QTDVEN                  AS cant_pedida,\n  c9.C9_STATUS                  AS estado_aprob\nFROM TMPRD.SC5300 c5\nJOIN TMPRD.SC6300 c6 ON c6.C6_NUM = c5.C5_NUM AND c6.C6_LOJA = c5.C5_LOJACLI\nLEFT JOIN TMPRD.SC9300 c9 ON c9.C9_PEDIDO = c5.C5_NUM AND c9.C9_ITEM = c6.C6_ITEM\nLEFT JOIN TMPRD.SA1300 a1 ON a1.A1_COD = c5.C5_CLIENTE\nLEFT JOIN TMPRD.SB1300 b1 ON b1.B1_COD = c6.C6_PRODUTO\nWHERE c5.C5_EMISSAO BETWEEN '01/01/25' AND '16/02/25'"
+  },
+  {
+    "id": "7669778e-b64e-47b3-9bbc-d62016257306",
+    "score": 0.654996932,
+    "question": "¿Cuántos viajes realizó cada placa y cuáles fueron su primera y última fecha de salida entre el 01/01/25 y el 16/02/25, ordenando de mayor a menor cantidad de viajes?",
+    "query": "SELECT\n  pb.PB7_PLACA       AS placa,\n  COUNT(*)           AS viajes,\n  MIN(pb.PB7_DSAIDA) AS primera_salida,\n  MAX(pb.PB7_DSAIDA) AS ultima_salida\nFROM TMPRD.PB7300 pb\nWHERE pb.PB7_DSAIDA BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')\nGROUP BY pb.PB7_PLACA\nORDER BY viajes DESC"
+  },
+  {
+    "id": "974b9883-02ff-4349-bffe-e8acf42493ea",
+    "score": 0.652875,
+    "question": "¿Cuál es el total de ventas facturadas por cada cliente, mostrando su código y su nombre, considerando únicamente las facturas emitidas entre el 01/01/25 y el 16/02/25, y ordenando los resultados de mayor a menor monto total vendido?",
+    "query": "SELECT\n  f2.F2_CLIENTE        AS cliente_id,\n  a1.A1_NOME           AS cliente_nombre,\n  SUM(d2.D2_TOTAL)     AS total_venta\nFROM TMPRD.SF2300 f2\nJOIN TMPRD.SD2300 d2 ON d2.D2_DOC = f2.F2_DOC AND d2.D2_SERIE = f2.F2_SERIE AND d2.D2_LOJA = f2.F2_LOJA\nLEFT JOIN TMPRD.SA1300 a1 ON a1.A1_COD = f2.F2_CLIENTE AND a1.A1_LOJA = f2.F2_LOJA\nWHERE f2.F2_EMISSAO BETWEEN '01/01/25' AND '16/02/25'\nGROUP BY f2.F2_CLIENTE, a1.A1_NOME\nORDER BY total_venta DESC"
+  },
+  {
+    "id": "72e68dd1-bec4-4bef-b449-828d672a9cb1",
+    "score": 0.651049674,
+    "question": "¿Cuál fue el ingreso total facturado por día, mostrando la fecha y la suma del monto de todas las facturas emitidas entre el 01/01/25 y el 16/02/25, ordenando los resultados cronológicamente?",
+    "query": "SELECT\n  f2.F2_EMISSAO                       AS fecha,\n  SUM(d2.D2_TOTAL)                    AS ingreso_dia\nFROM TMPRD.SF2300 f2\nJOIN TMPRD.SD2300 d2 ON d2.D2_DOC = f2.F2_DOC AND d2.D2_SERIE = f2.F2_SERIE AND d2.D2_LOJA = f2.F2_LOJA\nWHERE f2.F2_EMISSAO BETWEEN '01/01/25' AND '16/02/25'\nGROUP BY f2.F2_EMISSAO\nORDER BY fecha"
+  },
+  {
+    "id": "a4fdfe5b-288d-4aef-b11c-7fce1d0e488f",
+    "score": 0.647045195,
+    "question": "¿Podés mostrar la diferencia entre la cantidad pedida y la cantidad facturada de cada producto en los pedidos emitidos entre el 01/01/25 y el 16/02/25, indicando el código del producto, su descripción, la cantidad total solicitada, la cantidad total facturada y la diferencia resultante, ordenando los resultados de mayor a menor diferencia?",
+    "query": "SELECT\n  COALESCE(ped.prod, fac.prod) AS producto_id,\n  b1.B1_DESC                   AS producto_desc,\n  NVL(ped.cant_pedida, 0)      AS cant_pedida,\n  NVL(fac.cant_facturada, 0)   AS cant_facturada,\n  NVL(ped.cant_pedida, 0) - NVL(fac.cant_facturada, 0) AS diferencia\nFROM (\n  SELECT \n    c6.C6_PRODUTO AS prod,\n    SUM(c6.C6_QTDVEN) AS cant_pedida\n  FROM TMPRD.SC6300 c6\n  JOIN TMPRD.SC5300 c5 \n    ON c5.C5_NUM = c6.C6_NUM \n   AND c5.C5_LOJACLI = c6.C6_LOJA\n  WHERE c5.C5_EMISSAO BETWEEN '01/01/25' AND '16/02/25'\n  GROUP BY c6.C6_PRODUTO\n) ped\nFULL OUTER JOIN (\n  SELECT \n    d2.D2_COD AS prod,\n    SUM(d2.D2_QUANT) AS cant_facturada\n  FROM TMPRD.SD2300 d2\n  JOIN TMPRD.SF2300 f2 \n    ON f2.F2_DOC = d2.D2_DOC \n   AND f2.F2_SERIE = d2.D2_SERIE \n   AND f2.F2_LOJA = d2.D2_LOJA\n  WHERE f2.F2_EMISSAO BETWEEN '01/01/25' AND '16/02/25'\n  GROUP BY d2.D2_COD\n) fac\n  ON fac.prod = ped.prod\nLEFT JOIN TMPRD.SB1300 b1 \n  ON b1.B1_COD = COALESCE(ped.prod, fac.prod)\nORDER BY diferencia DESC"
+  },
+  {
+    "id": "4557f23c-9048-4907-b201-0c288fa62769",
+    "score": 0.6392079,
+    "question": "¿Cuál es el promedio de días entre la fecha del pedido y la fecha de la factura por cliente, considerando pedidos y facturas dentro del 01/01/25 al 16/02/25, ordenado por ese promedio?",
+    "query": "SELECT\n  ped.C5_CLIENTE                                   AS cliente_id,\n  a1.A1_NOME                                       AS cliente_nombre,\n  AVG(fac.fecha_factura - ped.fecha_pedido)        AS dias_promedio\nFROM (\n  SELECT C5_NUM, C5_CLIENTE, MIN(C5_EMISSAO) AS fecha_pedido\n  FROM TMPRD.SC5300\n  WHERE C5_EMISSAO BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')\n  GROUP BY C5_NUM, C5_CLIENTE\n) ped\nJOIN (\n  SELECT d2.D2_PEDIDO, MIN(f2.F2_EMISSAO) AS fecha_factura\n  FROM TMPRD.SD2300 d2\n  JOIN TMPRD.SF2300 f2\n    ON f2.F2_DOC = d2.D2_DOC\n   AND f2.F2_SERIE = d2.D2_SERIE\n   AND f2.F2_LOJA = d2.D2_LOJA\n  WHERE f2.F2_EMISSAO BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')\n  GROUP BY d2.D2_PEDIDO\n) fac\n  ON fac.D2_PEDIDO = ped.C5_NUM\nLEFT JOIN TMPRD.SA1300 a1\n  ON a1.A1_COD = ped.C5_CLIENTE\nGROUP BY ped.C5_CLIENTE, a1.A1_NOME\nORDER BY dias_promedio"
+  },
+  {
+    "id": "2f968ba7-7d85-4113-97e8-bb27c59d9829",
+    "score": 0.635549605,
+    "question": "Entre el 01/01/25 y el 16/02/25, ¿qué clientes realizaron pedidos pero no registraron compras (facturas) en ese mismo período, mostrando el código y nombre del cliente?",
+    "query": "SELECT\n  cp.cliente,\n  a1.A1_NOME AS cliente_nombre\nFROM (\n  SELECT DISTINCT c5.C5_CLIENTE AS cliente\n  FROM TMPRD.SC5300 c5\n  WHERE c5.C5_EMISSAO BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')\n) cp\nLEFT JOIN (\n  SELECT DISTINCT f2.F2_CLIENTE AS cliente\n  FROM TMPRD.SF2300 f2\n  WHERE f2.F2_EMISSAO BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')\n) cf\n  ON cf.cliente = cp.cliente\nLEFT JOIN TMPRD.SA1300 a1\n  ON a1.A1_COD = cp.cliente\nWHERE cf.cliente IS NULL"
+  }
+]
+    
+            ### Instructions:
+            A) Scope & Validation
+            1) Use ONLY the tables and columns present in the provided schema list.
+            2) Build an internal map: schema.table -> {columns, datatypes}; validate every referenced column.
+            3) Qualify tables as TABLE_SCHEMA.TABLE_NAME and use table aliases; qualify selected/filtered columns.
+    
+    
+            B) Dialect: mssql
+            5) Use standard T-SQL for SELECT/JOIN/WHERE/ORDER BY. Avoid vendor-specific features from other engines.
+    
+            C) Query Construction
+            6) Always use explicit JOINs inferred from columns that exist on both sides (e.g., *_ID ↔ ID). Do not invent columns.
+            7) Add necessary WHERE clauses implied by the question; respect datatypes (no quoting numerics; use parameters for strings/dates).
+            8) Use table aliases; format the query with indentation and line breaks.
+            9) When “top/latest/best” is implied, add a deterministic ORDER BY and (if needed) OFFSET … FETCH.
+            10) Limit the query to SELECT statements only. Do not generate data-modifying queries.
+            11) Answer only the sql query, do not add any explanations and without ";" at the end.
+            12) Ignore D_E_L_E_T_E columns in all tables when constructing queries.
+    
+            D) Similarity Enforcement (STRICT)
+            13) Let similarity_threshold = 0.95:
+                - Validate the candidate SQL against the current schema map.
+                - If score is greater than similarity_threshold, then, reuse it as-is, do not modify anything, generate it as it is. Do not add anything else!.
+                - If score is less than similarity_threshold, then, minimally adapt invalid identifiers or may have to combine multiple similar items; if still invalid, return NOT_ANSWERED.
+    
+            E) Output & Fallback
+            14) Return ONLY the SQL query, inside a code block, with no extra text and no trailing semicolon.
+    
+    
+            ### Response Format, if you know the answer:
+            Return ONLY the SQL query inside a code block:
+            ```sql
+              SELECT ...
+              FROM schema.table AS t
+              JOIN schema.other AS o ON ...
+              WHERE ...
+              ORDER BY ...
+            ```
+    
+            ### Response Format, if you don't know the answer:
+            ```NOT_ANSWERED
+              I don't know because ...
+            ```
+
+
+
+RESPONSE:
+
+```sql
+SELECT
+  c5.C5_CLIENTE                 AS cliente_id,
+  a1.A1_NOME                    AS cliente_nombre,
+  c6.C6_PRODUTO                 AS producto_id,
+  b1.B1_DESC                    AS producto_desc,
+  SUM(c6.C6_QTDVEN)             AS cant_pedida,
+  SUM(NVL(fac.cant_facturada, 0)) AS cant_facturada,
+  SUM(c6.C6_QTDVEN) - SUM(NVL(fac.cant_facturada, 0)) AS pendiente_facturar,
+  COUNT(DISTINCT pb.PB7_DOCUME) AS viajes,
+  MIN(pb.PB7_DATA)              AS primera_fecha_viaje,
+  MAX(pb.PB7_DATA)              AS ultima_fecha_viaje
+FROM TMPRD.SC5300 c5
+JOIN TMPRD.SC6300 c6 ON c6.C6_NUM = c5.C5_NUM
+LEFT JOIN TMPRD.SA1300 a1 ON a1.A1_COD = c5.C5_CLIENTE
+LEFT JOIN TMPRD.SB1300 b1 ON b1.B1_COD = c6.C6_PRODUTO
+LEFT JOIN (
+  SELECT
+    d2.D2_PEDIDO,
+    d2.D2_COD,
+    SUM(d2.D2_QUANT) AS cant_facturada
+  FROM TMPRD.SD2300 d2
+  JOIN TMPRD.SF2300 f2 ON f2.F2_DOC = d2.D2_DOC AND f2.F2_SERIE = d2.D2_SERIE AND f2.F2_LOJA = d2.D2_LOJA
+  WHERE f2.F2_EMISSAO BETWEEN TO_DATE('01/01/25', 'DD/MM/RR') AND TO_DATE('16/02/25', 'DD/MM/RR')
+  GROUP BY d2.D2_PEDIDO, d2.D2_COD
+) fac ON fac.D2_PEDIDO = c5.C5_NUM AND fac.D2_COD = c6.C6_PRODUTO
+LEFT JOIN TMPRD.PB7300 pb ON pb.PB7_PEDIDO = c5.C5_NUM
+WHERE c5.C5_EMISSAO BETWEEN TO_DATE('01/01/25', 'DD/MM/RR') AND TO_DATE('16/02/25', 'DD/MM/RR')
+GROUP BY c5.C5_CLIENTE, a1.A1_NOME, c6.C6_PRODUTO, b1.B1_DESC
+```
+
+IDEAL: 
+
+```
+SELECT
+  c5.C5_CLIENTE                 AS cliente_id,
+  a1.A1_NOME                    AS cliente_nombre,
+  c6.C6_PRODUTO                 AS producto_id,
+  b1.B1_DESC                    AS producto_desc,
+  SUM(c6.C6_QTDVEN)             AS cant_pedida,
+  SUM(NVL(fac.cant_facturada, 0)) AS cant_facturada,
+  SUM(c6.C6_QTDVEN) - SUM(NVL(fac.cant_facturada, 0)) AS pendiente_facturar,
+  COUNT(DISTINCT pb.PB7_DOCUME) AS viajes,
+  MIN(pb.PB7_DSAIDA)            AS primera_fecha_viaje,
+  MAX(pb.PB7_DSAIDA)            AS ultima_fecha_viaje
+FROM TMPRD.SC5300 c5
+JOIN TMPRD.SC6300 c6
+  ON c6.C6_NUM = c5.C5_NUM
+ AND c6.C6_LOJA = c5.C5_LOJACLI
+LEFT JOIN TMPRD.SA1300 a1
+  ON a1.A1_COD = c5.C5_CLIENTE
+ AND a1.A1_LOJA = c5.C5_LOJACLI
+LEFT JOIN TMPRD.SB1300 b1
+  ON b1.B1_COD = c6.C6_PRODUTO
+LEFT JOIN (
+  SELECT
+    d2.D2_PEDIDO,
+    d2.D2_COD,
+    SUM(d2.D2_QUANT) AS cant_facturada
+  FROM TMPRD.SD2300 d2
+  JOIN TMPRD.SF2300 f2
+    ON f2.F2_DOC   = d2.D2_DOC
+   AND f2.F2_SERIE = d2.D2_SERIE
+   AND f2.F2_LOJA  = d2.D2_LOJA
+  WHERE f2.F2_EMISSAO BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')
+  GROUP BY d2.D2_PEDIDO, d2.D2_COD
+) fac
+  ON fac.D2_PEDIDO = c5.C5_NUM
+ AND fac.D2_COD    = c6.C6_PRODUTO
+LEFT JOIN TMPRD.PB7300 pb
+  ON pb.PB7_PEDIDO = c5.C5_NUM
+ AND pb.PB7_PRODUT = c6.C6_PRODUTO
+ AND pb.PB7_DSAIDA BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')
+WHERE c5.C5_EMISSAO BETWEEN TO_DATE('01/01/25','DD/MM/RR') AND TO_DATE('16/02/25','DD/MM/RR')
+GROUP BY c5.C5_CLIENTE, a1.A1_NOME, c6.C6_PRODUTO, b1.B1_DESC
+
+```
