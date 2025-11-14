@@ -1,12 +1,14 @@
 "use server";
 import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
-import { CreateRoleInput } from "@/controller/_actions/role/create";
-import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
+import {
+  TCreateRoleDto,
+  TRoleOutRequestDto,
+} from "@/core/application/dtos/role.app.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function CreateRoleAction(
-  input: CreateRoleInput
+  input: TCreateRoleDto
 ): Promise<TResOutContent<TRoleOutRequestDto[]>> {
   console.log("Creating role (test)...", input);
 
