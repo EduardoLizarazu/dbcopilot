@@ -277,7 +277,7 @@ export class NlqQaKnowledgeAdapter implements INlqQaKnowledgePort {
         .namespace(namespace)
         .query({
           vector: embedding,
-          topK: 5,
+          topK: 15,
           includeMetadata: true,
         });
 
