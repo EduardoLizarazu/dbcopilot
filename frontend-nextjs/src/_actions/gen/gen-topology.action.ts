@@ -28,15 +28,19 @@ export async function GenTopologyAction(
       "[GenTopologyAction] Failed response:",
       errorData.message || nlqQaRes.statusText
     );
-    throw new Error(
-      `[GenTopologyAction] Failed to create NLQ QA: ${
-        errorData.message || nlqQaRes.statusText
-      }`
-    );
+    return {
+      ok: false,
+      data: null,
+      message: errorData.message || "Failed to create NLQ QA",
+    };
   }
 
   const nlqQaData = await nlqQaRes.json();
   console.log("[GenTopologyAction] Created NLQ QA:", nlqQaData);
 
-  return nlqQaData;
+  return {
+    ok: true,
+    data: nlqQaData.data,
+    message: nlqQaData.message || "NLQ QA created successfully",
+  };
 }

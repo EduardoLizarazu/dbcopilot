@@ -45,21 +45,19 @@ export default function VbdSplitterClient({
     setError(null);
     setSuccess(null);
     setLoading(true);
-    try {
-      const formattedName = formatName(name); // Apply formatting to the name
-      const res = await CreateVbdSplitterAction({ name: formattedName });
-      console.log("VBD Splitter created:", res);
 
-      if (res) {
-        setSuccess("VBD Splitter created successfully. Redirecting to list…");
-        // short delay so user sees feedback, then go back to list
-        setTimeout(() => router.replace("/vbd-splitter"), 800);
-      }
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to create VBD Splitter.");
-    } finally {
-      setLoading(false);
+    const formattedName = formatName(name); // Apply formatting to the name
+    const res = await CreateVbdSplitterAction({ name: formattedName });
+
+    if (res.ok) {
+      console.log("VBD Splitter created:", res);
+      setSuccess("VBD Splitter created successfully. Redirecting to list…");
+      setTimeout(() => router.replace("/vbd-splitter"), 800);
     }
+    if (!res.ok) {
+      setError(res?.message ?? "Failed to create VBD Splitter.");
+    }
+    setLoading(false);
   };
 
   const onUpdate = async (e: React.FormEvent) => {
@@ -67,25 +65,24 @@ export default function VbdSplitterClient({
     setError(null);
     setSuccess(null);
     setLoading(true);
-    try {
-      const formattedName = formatName(name); // Apply formatting to the name
-      // Assuming UpdateVbdSplitterAction is imported and available
-      const res = await UpdateVbdSplitterAction(initial!.id, {
-        id: initial!.id,
-        name: formattedName,
-      });
-      if (res) {
-        setSuccess("VBD Splitter updated successfully. Redirecting to list…");
-        // short delay so user sees feedback, then go back to list
-        setTimeout(() => router.replace("/vbd-splitter"), 800);
-      }
+    const formattedName = formatName(name); // Apply formatting to the name
+    // Assuming UpdateVbdSplitterAction is imported and available
+    const res = await UpdateVbdSplitterAction(initial!.id, {
+      id: initial!.id,
+      name: formattedName,
+    });
 
-      console.log("VBD Splitter updated:", res);
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to update VBD Splitter.");
-    } finally {
-      setLoading(false);
+    if (res.ok) {
+      setSuccess("VBD Splitter updated successfully. Redirecting to list…");
+      // short delay so user sees feedback, then go back to list
+      setTimeout(() => router.replace("/vbd-splitter"), 800);
     }
+
+    if (!res.ok) {
+      setError(res?.message ?? "Failed to update VBD Splitter.");
+    }
+    console.log("VBD Splitter updated:", res);
+    setLoading(false);
   };
 
   // Add a function to format the name

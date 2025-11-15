@@ -25,15 +25,21 @@ export async function GenDetailQuestionAction(input: {
       "[GenDetailQuestionAction] Failed response:",
       errorData.message || nlqQaRes.statusText
     );
-    throw new Error(
-      `[GenDetailQuestionAction] Failed to create NLQ QA: ${
-        errorData.message || nlqQaRes.statusText
-      }`
-    );
+    return {
+      ok: false,
+      data: null,
+      message: errorData.message || "Failed to create NLQ QA",
+    };
   }
 
   const nlqQaData = await nlqQaRes.json();
   console.log("[GenDetailQuestionAction] Created NLQ QA:", nlqQaData);
 
-  return nlqQaData;
+  return {
+    ok: true,
+    data: {
+      detailQuestion: nlqQaData.detailQuestion,
+    },
+    message: "NLQ QA created successfully",
+  };
 }

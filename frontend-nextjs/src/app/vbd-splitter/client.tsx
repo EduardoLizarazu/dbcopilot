@@ -56,19 +56,20 @@ export default function VbdSplitterClient({
 
   const refresh = async () => {
     setLoading(true);
-    try {
-      const data = await ReadAllVbdSplitterAction();
-      setRows(data.data || []);
-    } catch (error) {
-      console.error("Error fetching VBD Splitters:", error);
+    const r = await ReadAllVbdSplitterAction();
+    if (r.ok) {
+      setRows(r.data || []);
+    }
+
+    if (!r.ok) {
+      console.error("Error fetching VBD Splitters:", r.message);
       setFeedback({
         message: "Error fetching VBD Splitters",
         severity: "error",
         isActive: true,
       });
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   const filteredRows = rows.filter((row) => {
@@ -99,24 +100,26 @@ export default function VbdSplitterClient({
 
   const onDelete = async (id: string) => {
     setDeleteLoading({ id, loading: true });
-    try {
-      await DeleteVbdSplitterAction(id);
+    const r = await DeleteVbdSplitterAction(id);
+
+    if (r.ok) {
       setFb({
         message: "VBD Splitter deleted successfully",
         severity: "success",
         isActive: true,
       });
       await refresh();
-    } catch (error) {
-      console.error("Error deleting VBD Splitter:", error);
+    }
+
+    if (!r.ok) {
+      console.error("Error deleting VBD Splitter:", r.message);
       setFb({
-        message: error.message || "Error deleting VBD Splitter",
+        message: "Error deleting VBD Splitter",
         severity: "error",
         isActive: true,
       });
-    } finally {
-      setDeleteLoading({ id: "", loading: false });
     }
+    setDeleteLoading({ id: "", loading: false });
   };
 
   return (
