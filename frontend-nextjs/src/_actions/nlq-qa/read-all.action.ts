@@ -23,9 +23,11 @@ export async function ReadAllNlqAction(): Promise<
       "Error fetching NLQ:",
       errorData.message || nlqRes.statusText
     );
-    throw new Error(
-      `Failed to fetch NLQ: ${errorData.message || nlqRes.statusText}`
-    );
+    return {
+      ok: false,
+      message: errorData.message || "Failed to fetch NLQ",
+      data: null,
+    };
   }
   const nlqData = await nlqRes.json();
   console.log("Fetched NLQ:", nlqData);
@@ -35,5 +37,9 @@ export async function ReadAllNlqAction(): Promise<
 export async function ReadAllNlqQaForBad() {
   const nlq = await ReadAllNlqAction();
   const nlqBad = nlq.data.filter((item) => item.isGood === false);
-  return nlqBad;
+  return {
+    ok: nlq.ok,
+    message: nlq.message,
+    data: nlqBad,
+  };
 }

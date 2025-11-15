@@ -20,15 +20,18 @@ export async function ReadNlqQaHistoryById(data: {
   console.log("Response:", nlqRes);
   if (!nlqRes.ok) {
     const errorData = await nlqRes.json();
-    console.error(
-      "Error fetching NLQ:",
-      errorData.message || nlqRes.statusText
-    );
-    throw new Error(
-      `Failed to fetch NLQ: ${errorData.message || nlqRes.statusText}`
-    );
+    console.warn("Error fetching NLQ:", errorData.message || nlqRes.statusText);
+    return {
+      ok: false,
+      message: errorData.message || "Failed to fetch NLQ history",
+      data: null,
+    };
   }
   const nlqData = await nlqRes.json();
   console.log("Fetched NLQ:", nlqData);
-  return nlqData;
+  return {
+    ok: true,
+    message: nlqData.message || "NLQ history fetched successfully",
+    data: nlqData.data,
+  };
 }

@@ -25,16 +25,21 @@ export async function CreateNlqQaAction(
   console.log("Response:", nlqQaRes);
 
   if (!nlqQaRes.ok) {
-    console.error("Failed to create NLQ QA:", nlqQaRes.statusText);
     const errorData = await nlqQaRes.json();
-    console.error("Error details:", errorData);
-    throw new Error(
-      `Failed to create NLQ QA: ${errorData.message || nlqQaRes.statusText}`
-    );
+    console.warn("Error details:", errorData.message);
+    return {
+      ok: false,
+      message: errorData.message || "Failed to create NLQ QA",
+      data: null,
+    };
   }
 
   const nlqQaData = await nlqQaRes.json();
   console.log("Created NLQ QA:", nlqQaData);
 
-  return nlqQaData;
+  return {
+    ok: true,
+    message: nlqQaData.message || "NLQ QA created successfully",
+    data: nlqQaData.data,
+  };
 }

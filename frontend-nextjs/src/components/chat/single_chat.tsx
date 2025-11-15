@@ -16,8 +16,6 @@ import {
 import { ChatBtnAction } from "@/components/chat/prompt/chatBtnAction";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { ChatFeedbackBtn } from "@/components/chat/chatFeedbackBtn";
-import { useFeedbackContext } from "@/contexts/feedback.context";
-import { useRouter } from "next/navigation";
 import { CreateNlqQaAction } from "@/_actions/nlq-qa/create.action";
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
@@ -34,31 +32,25 @@ export function SingleChat({ props = null }: Props = { props: null }) {
   >([]);
   const [dbConnId, setDbConnId] = React.useState<string | null>(null);
 
-  // CONTEXT
-  const { setFeedback } = useFeedbackContext();
-
   // STATE
   const [promptId, setPromptId] = React.useState<string | null>(null);
   const [prompt, setPrompt] = React.useState<string>(props?.prompt || "");
-  const [result, setResult] = React.useState<{
-    error?: string | null;
-    data: Record<string, unknown>[];
-  }>({ data: [], error: null });
+  const [result, setResult] = React.useState<Record<string, unknown>[]>([]);
 
   const [isResetHf, setIsResetHf] = React.useState<boolean>(false);
   const [submitting, setSubmitting] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+  const [warn, setWarn] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     (async () => {
-      try {
-        const dbConnData = await ReadAllDbConnectionAction();
+      const dbConnData = await ReadAllDbConnectionAction();
+      if (dbConnData.ok) {
         setDbConn(dbConnData.data || []);
-      } catch (error) {
-        setFeedback({
-          isActive: true,
-          message: `Error: ${error.message}`,
-          severity: "error",
-        });
+      }
+      if (!dbConnData.ok) {
+        setError(dbConnData.message || "Failed to load DB connections");
       }
     })();
   }, []);
@@ -68,40 +60,50 @@ export function SingleChat({ props = null }: Props = { props: null }) {
     if (!prompt.trim()) return;
     setIsResetHf(true);
     setSubmitting(true);
+    setError(null);
+    setSuccess(null);
+    setWarn(null);
 
-    try {
-      const response = await CreateNlqQaAction({
-        question: prompt,
-        dbConnectionId: dbConnId,
-      });
+    const response = await CreateNlqQaAction({
+      question: prompt,
+      dbConnectionId: dbConnId,
+    });
 
-      const hasError = response.data === null;
-      if (hasError) {
-        setResult({ data: [], error: response.message ?? "Unknown error" });
+    if (response.ok) {
+      if (!response.data.results || response.data.results.length === 0) {
+        setResult([]);
+        setWarn("No results found for the given prompt.");
         return;
       }
 
-      setResult({ data: response.data.results || [], error: null });
+      setResult(response.data.results || []);
       setPromptId(response.data.id ?? null);
-
-      setFeedback({
-        isActive: true,
-        message: "Prompt submitted successfully",
-        severity: "success",
-      });
-    } catch (error) {
-      setResult({ data: [], error: `Error: ${error}` });
-    } finally {
-      setSubmitting(false);
-      setIsResetHf(false);
+      setSuccess("Prompt submitted successfully");
     }
+
+    if (!response.ok) {
+      setResult([]);
+      setError(response.message || "Failed to submit prompt");
+    }
+
+    setSubmitting(false);
+    setIsResetHf(false);
+
+    setTimeout(() => {
+      setSuccess(null);
+      setError(null);
+      setWarn(null);
+    }, 2000);
   }
 
   function handleReset() {
     setPrompt("");
     setPromptId(null);
-    setResult({ data: [], error: null });
+    setResult([]);
     setIsResetHf(true);
+    setError(null);
+    setWarn(null);
+    setSuccess(null);
   }
 
   return (
@@ -164,16 +166,15 @@ export function SingleChat({ props = null }: Props = { props: null }) {
             )}
           </Box>
 
-          {/* Error (inline) */}
-          {result?.error ? (
-            <Alert severity="error">{result.error}</Alert>
-          ) : null}
-
           {/* Actions */}
           <ChatBtnAction
             handleSubmitPrompt={handleSubmitPrompt}
             handleReset={handleReset}
           />
+          {/* Error (inline) */}
+          {success ? <Alert severity="success">{success}</Alert> : null}
+          {error ? <Alert severity="error">{error}</Alert> : null}
+          {warn ? <Alert severity="warning">{warn}</Alert> : null}
 
           {/* Results (no tabs — just the table) */}
           {submitting ? (
@@ -181,7 +182,7 @@ export function SingleChat({ props = null }: Props = { props: null }) {
               <CircularProgress />
             </Box>
           ) : (
-            <ChatResultTable data={result?.data || []} />
+            <ChatResultTable data={result || []} />
           )}
         </Stack>
       </Suspense>
