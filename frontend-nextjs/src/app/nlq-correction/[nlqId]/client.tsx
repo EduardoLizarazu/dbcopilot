@@ -44,71 +44,70 @@ export default function NlqCorrectionClient({
   const [loadingNew, setLoadingNew] = React.useState(false);
   const [loadingSave, setLoadingSave] = React.useState(false);
 
-  const [runError, setRunError] = React.useState<string | null>(null);
+  const [runErrorPrev, setRunErrorPrev] = React.useState<string | null>(null);
+  const [runErrorNew, setRunErrorNew] = React.useState<string | null>(null);
   const [saveError, setSaveError] = React.useState<string | null>(null);
   const [saveOk, setSaveOk] = React.useState<string | null>(null);
 
   const runPrev = async () => {
     setLoadingPrev(true);
-    setRunError(null);
+    setRunErrorPrev(null);
     setPrevRows(null);
-    try {
-      const r = await InfoExtractorAction({
-        query: prevSql,
-        connId: initial.dbConnection?.id || "",
-      });
+    const r = await InfoExtractorAction({
+      query: prevSql,
+      connId: initial.dbConnection?.id || "",
+    });
+
+    if (r.ok) {
       setPrevRows(r.data.data || []);
-    } catch (e: any) {
-      setRunError(e?.message ?? "Failed to run previous SQL");
-    } finally {
-      setLoadingPrev(false);
     }
+
+    if (!r.ok) {
+      setRunErrorPrev(r.message ?? "Failed to run previous SQL");
+    }
+    setLoadingPrev(false);
   };
 
   const runNew = async () => {
     setLoadingNew(true);
-    setRunError(null);
+    setRunErrorNew(null);
     setNewRows(null);
-    try {
-      const r = await InfoExtractorAction({
-        query: newSql,
-        connId: initial.dbConnection?.id || "",
-      });
+    const r = await InfoExtractorAction({
+      query: newSql,
+      connId: initial.dbConnection?.id || "",
+    });
+    if (r.ok) {
       setNewRows(r.data.data || []);
-    } catch (e: any) {
-      setRunError(e?.message ?? "Failed to run corrected SQL");
-    } finally {
-      setLoadingNew(false);
     }
+
+    if (!r.ok) {
+      setRunErrorNew(r.message ?? "Failed to run corrected SQL");
+    }
+    setLoadingNew(false);
   };
 
   const saveCorrection = async () => {
     setSaveError(null);
     setSaveOk(null);
     setLoadingSave(true);
-    try {
-      const res = await CreateNlqQaGoodAction({
-        originId: initial.id,
-        question: initial.question,
-        query: newSql.trimStart().trimEnd().toLowerCase(),
-        questionBy: initial.user?.id || "",
-        dbConnectionId: initial.dbConnection?.id || "",
-        isOnKnowledgeSource: true,
-      });
-      setSaveOk("Everything was OK — correction saved and NLQ marked as good.");
-      setFeedback({
-        isActive: true,
-        severity: "success",
-        message: "Correction saved.",
-      });
+    const res = await CreateNlqQaGoodAction({
+      originId: initial.id,
+      question: initial.question,
+      query: newSql.trimStart().trimEnd().toLowerCase(),
+      questionBy: initial.user?.id || "",
+      dbConnectionId: initial.dbConnection?.id || "",
+      isOnKnowledgeSource: true,
+    });
+
+    if (res.ok) {
+      setSaveOk(res.message || "Everything was OK ");
       router.push("/nlq-correction");
-    } catch (e: any) {
-      const msg = e?.message ?? "Save failed";
-      setSaveError(msg);
-      setFeedback({ isActive: true, severity: "error", message: msg });
-    } finally {
-      setLoadingSave(false);
     }
+
+    if (!res.ok) {
+      setSaveError(res.message || "Save failed");
+    }
+    setLoadingSave(false);
   };
 
   return (
@@ -278,9 +277,9 @@ export default function NlqCorrectionClient({
               </Button>
             </Stack>
 
-            {runError && (
+            {runErrorPrev && (
               <Alert severity="error" sx={{ mt: 2 }}>
-                {runError}
+                {runErrorPrev}
               </Alert>
             )}
 
@@ -330,6 +329,11 @@ export default function NlqCorrectionClient({
             {saveOk && (
               <Alert severity="success" sx={{ mt: 2 }}>
                 {saveOk}
+              </Alert>
+            )}
+            {runErrorNew && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                {runErrorNew}
               </Alert>
             )}
             {saveError && (

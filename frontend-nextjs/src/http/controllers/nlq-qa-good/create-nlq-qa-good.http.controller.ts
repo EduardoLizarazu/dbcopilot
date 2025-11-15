@@ -9,10 +9,7 @@ import { IHttpSuccess } from "@/http/helpers/IHttpSuccess.http";
 import { HttpSuccess } from "@/http/helpers/HttpSuccess.http";
 import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
 import { IHttpResponse } from "@/http/helpers/IHttResponse.http";
-import {
-  TCreateNlqQaGoodDto,
-  TNlqQaGoodInRequestDto,
-} from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import { TNlqQaGoodInRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { HttpResponse } from "@/http/helpers/HttpResponse.http";
 import { ROLE } from "@/http/utils/role.enum";
 
@@ -108,20 +105,22 @@ export class CreateNlqQaGoodController implements IController {
           ...useCase,
         });
         const error = this.httpErrors.error_400(
-          "Error creating NLQ QA Good: " + useCase.message
+          useCase.message || "Error creating NLQ QA Good"
         );
         return new HttpResponse(error.statusCode, error.body);
       }
 
       // ==== OUTPUT OF RESPONSE ====
       const success = this.httpSuccess.success_201({
-        message: "Nlq Qa Good created successfully",
+        message: useCase.message || "NLQ QA Good created successfully",
         data: useCase.data,
       });
       return new HttpResponse(success.statusCode, success.body);
     } catch (error) {
-      this.logger.error("[CreateNlqQaGoodController] Error:", error);
-      const httpError = this.httpErrors.error_500("Internal server error");
+      this.logger.error("[CreateNlqQaGoodController] Error:", error.message);
+      const httpError = this.httpErrors.error_500(
+        error.message || "Internal server error"
+      );
       return new HttpResponse(httpError.statusCode, httpError.body);
     }
   }

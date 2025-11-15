@@ -100,7 +100,7 @@ export class InfoExtractorController implements IController {
           }
         );
         const error = this.httpErrors.error_400(
-          "Error extracting information: " + useCase.message
+          useCase.message || "Error extracting information"
         );
         return new HttpResponse(error.statusCode, error.body);
       }
@@ -113,7 +113,9 @@ export class InfoExtractorController implements IController {
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
       this.logger.error("[InfoExtractorController] Unexpected error", err);
-      const error = this.httpErrors.error_500("Unexpected error");
+      const error = this.httpErrors.error_500(
+        err.message || "Unexpected error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

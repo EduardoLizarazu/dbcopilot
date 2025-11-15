@@ -28,13 +28,19 @@ export async function CreateNlqQaGoodAction(
   if (!nlqQaRes.ok) {
     const errorData = await nlqQaRes.json();
     console.log("Failed response:", errorData.message || nlqQaRes.statusText);
-    throw new Error(
-      `Failed to create NLQ QA: ${errorData.message || nlqQaRes.statusText}`
-    );
+    return {
+      data: null,
+      ok: false,
+      message: errorData.message || "Failed to create NLQ QA",
+    };
   }
 
   const nlqQaData = await nlqQaRes.json();
   console.log("Created NLQ QA:", nlqQaData);
 
-  return nlqQaData;
+  return {
+    ok: true,
+    data: nlqQaData.data,
+    message: nlqQaData.message || "NLQ QA created successfully",
+  };
 }

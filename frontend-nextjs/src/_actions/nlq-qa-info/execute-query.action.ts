@@ -28,9 +28,11 @@ export async function InfoExtractorAction(
       "[InfoExtractorAction] Error during information extraction:",
       errorData.message || dbConnectionRes.statusText
     );
-    throw new Error(
-      `Failed to extract information: ${errorData.message || dbConnectionRes.statusText}`
-    );
+    return {
+      ok: false,
+      message: errorData.message || "Failed to extract information",
+      data: null,
+    };
   }
 
   const dbConnectionData = await dbConnectionRes.json();
@@ -39,5 +41,9 @@ export async function InfoExtractorAction(
     dbConnectionData
   );
 
-  return dbConnectionData;
+  return {
+    ok: true,
+    message: dbConnectionData.message || "Information extracted successfully",
+    data: dbConnectionData.data,
+  };
 }

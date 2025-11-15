@@ -24,11 +24,17 @@ export async function ReadAllNlqQaBadAction(
       "Error fetching NLQ:",
       errorData.message || nlqRes.statusText
     );
-    throw new Error(
-      `Failed to fetch NLQ: ${errorData.message || nlqRes.statusText}`
-    );
+    return {
+      data: [],
+      message: errorData.message || "Failed to fetch NLQ data",
+      ok: false,
+    };
   }
   const nlqData = await nlqRes.json();
   console.log("Fetched NLQ:", nlqData);
-  return nlqData;
+  return {
+    ok: true,
+    data: nlqData.data,
+    message: nlqData.message || "NLQ data fetched successfully",
+  };
 }
