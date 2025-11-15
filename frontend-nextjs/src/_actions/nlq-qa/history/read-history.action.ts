@@ -22,11 +22,17 @@ export async function ReadAllNlqHistoryAction(): Promise<
       "Error fetching NLQ:",
       errorData.message || nlqRes.statusText
     );
-    throw new Error(
-      `Failed to fetch NLQ: ${errorData.message || nlqRes.statusText}`
-    );
+    return {
+      ok: false,
+      message: errorData.message || "Failed to fetch NLQ history",
+      data: [],
+    };
   }
   const nlqData = await nlqRes.json();
   console.log("Fetched NLQ:", nlqData);
-  return nlqData;
+  return {
+    ok: true,
+    message: nlqData.message || "NLQ history fetched successfully",
+    data: nlqData.data || [],
+  };
 }

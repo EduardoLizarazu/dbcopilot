@@ -102,8 +102,13 @@ export class ReadNlqQaHistoryController implements IController {
       });
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
-      this.logger.error("[ReadNlqQaHistoryController] Unexpected error", err);
-      const error = this.httpErrors.error_500("Unexpected error");
+      this.logger.error(
+        "[ReadNlqQaHistoryController] Unexpected error",
+        err.message
+      );
+      const error = this.httpErrors.error_500(
+        err.message || "Unexpected error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

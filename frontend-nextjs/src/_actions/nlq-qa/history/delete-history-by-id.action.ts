@@ -18,13 +18,15 @@ export async function DeleteHistoryByIdAction(
 
   if (!historyRes.ok) {
     const errorData = await historyRes.json();
-    console.error(
+    console.warn(
       "[DeleteHistoryByIdAction] Error during history deletion:",
       errorData.message || historyRes.statusText
     );
-    throw new Error(
-      `Failed to delete history: ${errorData.message || historyRes.statusText}`
-    );
+    return {
+      ok: false,
+      message: errorData.message || "Failed to delete history entry",
+      data: null,
+    };
   }
 
   const historyData = await historyRes.json();
@@ -33,5 +35,9 @@ export async function DeleteHistoryByIdAction(
     historyData
   );
 
-  return historyData;
+  return {
+    ok: true,
+    message: "History entry deleted successfully",
+    data: null,
+  };
 }

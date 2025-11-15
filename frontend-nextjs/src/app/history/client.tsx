@@ -20,6 +20,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Alert,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -27,16 +28,19 @@ import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { DeleteHistoryByIdAction } from "@/_actions/nlq-qa/history/delete-history-by-id.action";
+import { ReadAllNlqHistoryAction } from "@/_actions/nlq-qa/history/read-history.action";
 
 export default function HistoryClient({
   initialRows,
 }: {
   initialRows: TNlqQaWitFeedbackOutRequestDto[];
 }) {
-  const { setFeedback } = useFeedbackContext();
   const [rows, setRows] =
     React.useState<TNlqQaWitFeedbackOutRequestDto[]>(initialRows);
   const [query, setQuery] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
 
   const filtered = React.useMemo(() => {
@@ -85,30 +89,43 @@ export default function HistoryClient({
     });
   };
 
+  const refresh = async () => {
+    setLoading(true);
+    const res = await ReadAllNlqHistoryAction();
+    if (res.ok) {
+      setRows(res.data);
+    }
+    if (!res.ok) {
+      setError(res.message || "Failed to refresh data");
+    }
+    setLoading(false);
+  };
+
   const onDelete = async (id: string) => {
     const yes = window.confirm(
       "Delete this item? This action cannot be undone."
     );
     if (!yes) return;
     markDeleting(id, true);
-    try {
-      // For now perform optimistic local delete. Integrate backend delete call if available.
-      await DeleteHistoryByIdAction(id);
-      setRows((prev) => prev.filter((r) => r.id !== id));
-      setFeedback({
-        isActive: true,
-        severity: "success",
-        message: "Item deleted.",
-      });
-    } catch (e: any) {
-      setFeedback({
-        isActive: true,
-        severity: "error",
-        message: e?.message ?? "Delete failed",
-      });
-    } finally {
+    setSuccess(null);
+    setError(null);
+    const res = await DeleteHistoryByIdAction(id);
+    if (res.ok) {
+      setSuccess(res.message || "Item deleted.");
       markDeleting(id, false);
     }
+
+    if (!res.ok) {
+      setError(res.message || "Delete failed");
+      markDeleting(id, false);
+    }
+
+    setTimeout(async () => {
+      setSuccess(null);
+      setError(null);
+      setDeleteBusy(new Set());
+      await refresh();
+    }, 2000);
   };
 
   return (
@@ -141,108 +158,123 @@ export default function HistoryClient({
         </Box>
       </Paper>
 
-      <TableContainer component={Paper} elevation={1}>
-        <Table size="small" aria-label="nlq history table">
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Created At</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700 }}>
-                Actions
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {displayed.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  align="center"
-                  sx={{ py: 6, color: "text.secondary" }}
-                >
-                  No results found.
-                </TableCell>
-              </TableRow>
-            ) : (
-              displayed.map((r) => (
-                <TableRow key={r.id} hover>
-                  <TableCell sx={{ maxWidth: 640 }}>
-                    <div
-                      style={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {r.user?.email || "—"}
-                    </div>
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 640 }}>
-                    <div
-                      style={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {r.question
-                        ? r.question.length > 100
-                          ? `${r.question.slice(0, 100)}...`
-                          : r.question
-                        : "—"}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {r.createdAt ? (
-                      <LocalTime
-                        fb_date={
-                          r.createdAt
-                            ? (r.createdAt as unknown as {
-                                _seconds: number;
-                                _nanoseconds: number;
-                              })
-                            : undefined
-                        }
-                      />
-                    ) : (
-                      "—"
-                    )}
-                  </TableCell>
-                  <TableCell align="right">
-                    <Tooltip title="Edit">
-                      <IconButton
-                        component={Link}
-                        href={`/chat/${r.id}`}
-                        size="small"
-                        aria-label="edit"
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                      <span>
-                        <IconButton
-                          onClick={() => onDelete(r.id)}
-                          size="small"
-                          aria-label="delete"
-                          disabled={deleteBusy.has(r.id)}
-                        >
-                          {deleteBusy.has(r.id) ? (
-                            <CircularProgress size={16} />
-                          ) : (
-                            <DeleteIcon fontSize="small" />
-                          )}
-                        </IconButton>
-                      </span>
-                    </Tooltip>
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      <Paper elevation={1}>
+        {loading ? (
+          <Box className="flex items-center justify-center py-10">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <TableContainer>
+            <Table size="small" aria-label="nlq history table">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Created At</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    Actions
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              </TableHead>
+              <TableBody>
+                {displayed.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      align="center"
+                      sx={{ py: 6, color: "text.secondary" }}
+                    >
+                      No results found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  displayed.map((r) => (
+                    <TableRow key={r.id} hover>
+                      <TableCell sx={{ maxWidth: 640 }}>
+                        <div
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {r.user?.email || "—"}
+                        </div>
+                      </TableCell>
+                      <TableCell sx={{ maxWidth: 640 }}>
+                        <div
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {r.question
+                            ? r.question.length > 100
+                              ? `${r.question.slice(0, 100)}...`
+                              : r.question
+                            : "—"}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {r.createdAt ? (
+                          <LocalTime
+                            fb_date={
+                              r.createdAt
+                                ? (r.createdAt as unknown as {
+                                    _seconds: number;
+                                    _nanoseconds: number;
+                                  })
+                                : undefined
+                            }
+                          />
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                      <TableCell align="right">
+                        <Tooltip title="Edit">
+                          <IconButton
+                            component={Link}
+                            href={`/chat/${r.id}`}
+                            size="small"
+                            aria-label="edit"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <span>
+                            <IconButton
+                              onClick={() => onDelete(r.id)}
+                              size="small"
+                              aria-label="delete"
+                              loading={deleteBusy.has(r.id)}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Paper>
     </Box>
   );
 }
