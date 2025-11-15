@@ -26,7 +26,7 @@ export async function ReadDbConnectionByIdAction(
 
   if (!dbConnectionRes.ok) {
     const errorData = await dbConnectionRes.json();
-    console.error(
+    console.warn(
       "[ReadDbConnectionByIdAction] Error during DB Connection retrieval:",
       errorData.message || dbConnectionRes.statusText
     );
