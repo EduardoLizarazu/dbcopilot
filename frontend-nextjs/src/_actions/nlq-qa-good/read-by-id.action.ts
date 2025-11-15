@@ -24,13 +24,19 @@ export async function ReadNlqQaGoodByIdAction(
       "Failed response:",
       errorData.message || nlqQaGoodRes.statusText
     );
-    throw new Error(
-      `Failed to read NLQ QA Good: ${errorData.message || nlqQaGoodRes.statusText}`
-    );
+    return {
+      ok: false,
+      data: null,
+      message: errorData?.message || "Failed to read NLQ QA Good",
+    };
   }
 
   const nlqQaGoodData = await nlqQaGoodRes.json();
   console.log("Read NLQ QA Good:", nlqQaGoodData);
 
-  return nlqQaGoodData;
+  return {
+    ok: true,
+    data: nlqQaGoodData.data,
+    message: nlqQaGoodData.message || "Successfully read NLQ QA Good",
+  };
 }

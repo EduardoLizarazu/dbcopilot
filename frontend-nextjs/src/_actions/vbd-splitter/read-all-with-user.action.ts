@@ -28,13 +28,15 @@ export async function ReadAllVbdSplitterWithUserAction(): Promise<
 
   if (!vbdRes.ok) {
     const errorData = await vbdRes.json();
-    console.error(
+    console.warn(
       "[ReadAllVbdSplitterWithUserAction] Error during retrieval of VBD Splitters:",
       errorData || vbdRes.statusText
     );
-    throw new Error(
-      `Failed to retrieve VBD Splitters: ${errorData || vbdRes.statusText}`
-    );
+    return {
+      ok: false,
+      data: null,
+      message: errorData.message || "Failed to retrieve VBD Splitters",
+    };
   }
 
   const vbdData = await vbdRes.json();
@@ -43,5 +45,9 @@ export async function ReadAllVbdSplitterWithUserAction(): Promise<
     vbdData
   );
 
-  return vbdData;
+  return {
+    ok: true,
+    data: vbdData.data,
+    message: vbdData.message || "VBD Splitters retrieved successfully",
+  };
 }

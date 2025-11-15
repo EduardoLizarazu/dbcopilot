@@ -28,13 +28,15 @@ export async function UpdateVbdSplitterAction(
 
   if (!vbdSplitterRes.ok) {
     const errorData = await vbdSplitterRes.json();
-    console.error(
+    console.warn(
       "[UpdateVbdSplitterAction] Error updating VBD Splitter:",
       errorData.message || vbdSplitterRes.statusText
     );
-    throw new Error(
-      `Failed to update VBD Splitter: ${errorData.message || vbdSplitterRes.statusText}`
-    );
+    return {
+      ok: false,
+      data: null,
+      message: errorData.message || "Failed to update VBD Splitter",
+    };
   }
 
   const vbdSplitterData = await vbdSplitterRes.json();
@@ -43,5 +45,9 @@ export async function UpdateVbdSplitterAction(
     vbdSplitterData
   );
 
-  return vbdSplitterData;
+  return {
+    ok: true,
+    data: vbdSplitterData.data,
+    message: vbdSplitterData.message || "VBD Splitter updated successfully",
+  };
 }

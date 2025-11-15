@@ -82,15 +82,11 @@ export default function NlqClient({
     TDbConnectionOutRequestDtoWithVbAndUser[]
   >([]);
 
-  const [feedback, setFeedback] = React.useState<{
-    isActive: boolean;
-    message: string;
-    severity: "error" | "success" | "info" | "warning";
-  }>({ isActive: false, message: "", severity: "info" });
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
 
   const [running, setRunning] = React.useState(false);
   const [ranOk, setRanOk] = React.useState(false);
-  const [runErr, setRunErr] = React.useState<string | null>(null);
   const [rows, setRows] = React.useState<any[] | null>(null);
 
   const [saving, setSaving] = React.useState(false);
@@ -99,15 +95,13 @@ export default function NlqClient({
 
   React.useEffect(() => {
     (async () => {
-      try {
-        const dbConnData = await ReadAllDbConnectionAction();
-        setDbConn(dbConnData.data || []);
-      } catch (error) {
-        setFeedback({
-          isActive: true,
-          message: `Error: ${error.message}`,
-          severity: "error",
-        });
+      const res = await ReadAllDbConnectionAction();
+
+      if (res.ok) {
+        setDbConn(res.data || []);
+      }
+      if (!res.ok) {
+        setError(res?.message || "Failed to load DB Connections");
       }
     })();
   }, []);
@@ -115,103 +109,80 @@ export default function NlqClient({
   const onRun = async () => {
     if (disabledRun) return;
     setRunning(true);
-    setRunErr(null);
     setRanOk(false);
     setRows(null);
-    try {
-      const r = await InfoExtractorAction({
-        query: nlq?.query?.trim() || "",
-        connId: nlq?.dbConnectionId || "",
-      });
+    setError(null);
+    setSuccess(null);
+    const r = await InfoExtractorAction({
+      query: nlq?.query?.trim() || "",
+      connId: nlq?.dbConnectionId || "",
+    });
+
+    if (r.ok) {
       setRows(r.data.data || []);
       setRanOk(true);
-      setFeedback({
-        isActive: true,
-        severity: "success",
-        message: "SQL executed successfully.",
-      });
-    } catch (e: any) {
-      const msg = e?.message ?? "Failed to run SQL";
-      setRunErr(msg);
-      setFeedback({ isActive: true, severity: "error", message: msg });
-    } finally {
-      setRunning(false);
+      setSuccess("SQL ran successfully");
     }
+
+    if (!r.ok) {
+      setError(r.message || "Failed to run SQL");
+    }
+    setRunning(false);
   };
 
   const onSave = async () => {
     if (disabledSave) return;
     setSaving(true);
-    try {
-      await CreateNlqQaGoodAction({
-        question: nlq?.question?.trimStart().trimEnd().toLowerCase() || "",
-        query: nlq?.query?.trimStart().trimEnd().toLowerCase() || "",
-        dbConnectionId: nlq?.dbConnectionId || "",
-        isOnKnowledgeSource: nlq?.isOnKnowledgeSource || false,
-      });
-      setFeedback({
-        isActive: true,
-        severity: "success",
-        message: "NLQ created & uploaded.",
-      });
+    const r = await CreateNlqQaGoodAction({
+      question: nlq?.question?.trimStart().trimEnd().toLowerCase() || "",
+      query: nlq?.query?.trimStart().trimEnd().toLowerCase() || "",
+      dbConnectionId: nlq?.dbConnectionId || "",
+      isOnKnowledgeSource: nlq?.isOnKnowledgeSource || false,
+    });
+
+    if (r.ok) {
+      setSuccess("NLQ created & uploaded.");
       router.push("/nlq-good");
-    } catch (e: any) {
-      setFeedback({
-        isActive: true,
-        severity: "error",
-        message: e?.message ?? "Save failed",
-      });
-    } finally {
-      setSaving(false);
     }
+    if (!r.ok) {
+      setError(r?.message ?? "Creation failed");
+    }
+    setSaving(false);
   };
 
   const onUpdate = async () => {
     if (disabledSave) return;
     setSaving(true);
-    try {
-      await UpdateNlqQaGoodAction({
-        id: nlq?.id || "",
-        question: nlq?.question?.trimStart().trimEnd().toLowerCase() || "",
-        query: nlq?.query?.trimStart().trimEnd().toLowerCase() || "",
-        dbConnectionId: nlq?.dbConnectionId || "",
-        isOnKnowledgeSource: nlq?.isOnKnowledgeSource || false,
-      });
-      setFeedback({
-        isActive: true,
-        severity: "success",
-        message: "NLQ updated & uploaded.",
-      });
+    const r = await UpdateNlqQaGoodAction({
+      id: nlq?.id || "",
+      question: nlq?.question?.trimStart().trimEnd().toLowerCase() || "",
+      query: nlq?.query?.trimStart().trimEnd().toLowerCase() || "",
+      dbConnectionId: nlq?.dbConnectionId || "",
+      isOnKnowledgeSource: nlq?.isOnKnowledgeSource || false,
+    });
+
+    if (r.ok) {
+      setSuccess("NLQ updated.");
       router.push("/nlq-good");
-    } catch (e: any) {
-      setFeedback({
-        isActive: true,
-        severity: "error",
-        message: e?.message ?? "Update failed",
-      });
-    } finally {
-      setSaving(false);
     }
+
+    if (!r.ok) {
+      setError(r?.message ?? "Update failed");
+    }
+    setSaving(false);
   };
 
   const onCancel = () => router.push("/nlq-good");
 
   const onSubmit = async () => {
-    try {
-      if (!nlq) return;
+    if (!nlq) return;
+    setError(null);
+    setSuccess(null);
 
-      if (initial) {
-        await onUpdate();
-      } else {
-        // Create logic
-        await onSave();
-      }
-    } catch (error) {
-      setFeedback({
-        isActive: true,
-        severity: "error",
-        message: `Error: ${error.message || "Submission failed"}`,
-      });
+    if (initial) {
+      await onUpdate();
+    } else {
+      await onSave();
     }
   };
 
@@ -220,12 +191,6 @@ export default function NlqClient({
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
         {initial ? `Update ` : `Create `} NLQ (Admin)
       </Typography>
-
-      {feedback.isActive && (
-        <Alert sx={{ mb: 2 }} severity={feedback.severity}>
-          {feedback.message}
-        </Alert>
-      )}
 
       <Paper className="p-4" elevation={1}>
         <Stack spacing={2}>
@@ -313,7 +278,8 @@ export default function NlqClient({
             <Button onClick={onCancel}>Cancel</Button>
           </Stack>
 
-          {runErr && <Alert severity="error">{runErr}</Alert>}
+          {error && <Alert severity="error">{error}</Alert>}
+          {success && <Alert severity="success">{success}</Alert>}
 
           <Divider sx={{ my: 2 }} />
 

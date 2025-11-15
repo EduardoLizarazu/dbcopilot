@@ -27,7 +27,11 @@ export async function ReadVbdSplitterByIdAction(
       "[ReadVbdSplitterByIdAction] Error reading VBD Splitter:",
       errorData.message || vbdSplitterRes.statusText
     );
-    return errorData;
+    return {
+      ok: false,
+      data: null,
+      message: errorData.message || "Failed to read VBD Splitter",
+    };
   }
 
   const vbdSplitterData = await vbdSplitterRes.json();
@@ -36,5 +40,9 @@ export async function ReadVbdSplitterByIdAction(
     vbdSplitterData
   );
 
-  return vbdSplitterData;
+  return {
+    ok: true,
+    data: vbdSplitterData.data,
+    message: vbdSplitterData.message || "VBD Splitter retrieved successfully",
+  };
 }

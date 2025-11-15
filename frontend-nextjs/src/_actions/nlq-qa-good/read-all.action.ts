@@ -18,15 +18,22 @@ export async function ReadAllNlqQaGoodAction(): Promise<
   console.log("Response status:", nlqQaGoodRes.status);
   if (!nlqQaGoodRes.ok) {
     const errorData = await nlqQaGoodRes.json();
-    console.error(
+    console.warn(
       "Error fetching NLQ QA Good entries:",
       errorData || nlqQaGoodRes.statusText
     );
-    throw new Error(
-      `Failed to fetch NLQ QA Good entries: ${errorData.message || "Unknown error occurred"}`
-    );
+    return {
+      ok: false,
+      data: null,
+      message: errorData?.message || "Failed to fetch NLQ QA Good entries",
+    };
   }
   const nlqQaGoodData = await nlqQaGoodRes.json();
   console.log("Fetched NLQ QA Good entries:", nlqQaGoodData);
-  return nlqQaGoodData;
+  return {
+    ok: true,
+    data: nlqQaGoodData.data,
+    message:
+      nlqQaGoodData.message || "Successfully fetched NLQ QA Good entries",
+  };
 }

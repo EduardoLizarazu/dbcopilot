@@ -25,11 +25,11 @@ export async function DeleteNqlQaGoodByIdAction(
       "[DeleteNqlQaGoodByIdAction] Failed response:",
       errorData.message || nlqQaGoodRes.statusText
     );
-    throw new Error(
-      `[DeleteNqlQaGoodByIdAction] Failed to delete NLQ QA Good: ${
-        errorData.message || nlqQaGoodRes.statusText
-      }`
-    );
+    return {
+      ok: false,
+      data: null,
+      message: errorData?.message || "Failed to delete NLQ QA Good",
+    };
   }
 
   const nlqQaGoodData = await nlqQaGoodRes.json();
@@ -38,5 +38,9 @@ export async function DeleteNqlQaGoodByIdAction(
     nlqQaGoodData
   );
 
-  return nlqQaGoodData;
+  return {
+    ok: true,
+    data: null,
+    message: nlqQaGoodData.message || "Successfully deleted NLQ QA Good",
+  };
 }

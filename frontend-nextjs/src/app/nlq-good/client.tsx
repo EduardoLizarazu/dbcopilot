@@ -21,6 +21,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Alert,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useFeedbackContext } from "@/contexts/feedback.context";
@@ -37,6 +38,7 @@ import { ReadAllNlqQaGoodAction } from "@/_actions/nlq-qa-good/read-all.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
 import { DeleteNqlQaGoodByIdAction } from "@/_actions/nlq-qa-good/delete.action";
+import { set } from "zod";
 
 type TOnKnowledgeSource = {
   nlqId: string;
@@ -60,24 +62,30 @@ export default function NlqGoodClient({
   const [vbdTo, setVbdTo] = React.useState("");
   const [sortDir, setSortDir] = React.useState<"desc" | "asc">("desc");
 
+  // Feedback
+  const [success, setSuccess] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+
   // Per-row busy states (no dialogs)
   const [uploadBusy, setUploadBusy] = React.useState<Set<string>>(new Set());
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
 
   const refresh = async () => {
     setLoading(true);
-    try {
-      const data = await ReadAllNlqQaGoodAction();
-      setRows(data.data || []);
-    } catch (e: any) {
-      setFeedback({
-        isActive: true,
-        severity: "error",
-        message: e?.message ?? "Failed to load",
-      });
-    } finally {
-      setLoading(false);
+    setError(null);
+
+    const res = await ReadAllNlqQaGoodAction();
+
+    if (res.ok) {
+      setRows(res?.data || []);
     }
+
+    if (!res.ok) {
+      setError(res?.message || "Failed to fetch NLQ Goods.");
+    }
+    setLoading(false);
+    setUploadBusy(new Set());
+    setDeleteBusy(new Set());
   };
 
   const markUploading = (id: string, on: boolean) => {
@@ -100,78 +108,69 @@ export default function NlqGoodClient({
 
   const onUpload = async (data: TOnKnowledgeSource) => {
     markUploading(data.nlqId, true);
-    try {
-      await UpdateNlqQaGoodAction({
-        id: data.nlqId,
-        dbConnectionId: data.dbConnectionId,
-        isOnKnowledgeSource: true,
-        question: data.question,
-        query: data.query,
-      });
-      setFeedback({
-        isActive: true,
-        severity: "success",
-        message: "Uploaded to Pinecone & VBD.",
-      });
+    setSuccess(null);
+    setError(null);
+
+    const res = await UpdateNlqQaGoodAction({
+      id: data.nlqId,
+      dbConnectionId: data.dbConnectionId,
+      isOnKnowledgeSource: true,
+      question: data.question,
+      query: data.query,
+    });
+
+    if (res.ok) {
+      setSuccess(res.message || "Uploaded to successfully.");
       await refresh();
-    } catch (e: any) {
-      setFeedback({
-        isActive: true,
-        severity: "error",
-        message: e?.message ?? "Upload failed",
-      });
-    } finally {
-      markUploading(data.nlqId, false);
     }
+    if (!res.ok) {
+      setError(res?.message ?? "Upload failed");
+    }
+    markUploading(data.nlqId, false);
   };
 
-  // DELETE: immediate (no confirm)
-  const onDelete = async (data: TOnKnowledgeSource) => {
+  // DELETE:from knowledge source
+  const onRemove = async (data: TOnKnowledgeSource) => {
+    setSuccess(null);
+    setError(null);
     markDeleting(data.nlqId, true);
-    try {
-      await UpdateNlqQaGoodAction({
-        id: data.nlqId,
-        isOnKnowledgeSource: false,
-        dbConnectionId: data.dbConnectionId,
-        question: data.question,
-        query: data.query,
-      });
-      setFeedback({
-        isActive: true,
-        severity: "success",
-        message: "Removed from Pinecone/VBD and NLQ updated.",
-      });
+    const res = await UpdateNlqQaGoodAction({
+      id: data.nlqId,
+      isOnKnowledgeSource: false,
+      dbConnectionId: data.dbConnectionId,
+      question: data.question,
+      query: data.query,
+    });
+
+    if (res.ok) {
+      setSuccess(res.message || "Deleted from Pinecone & VBD successfully.");
       await refresh();
-    } catch (e: any) {
-      setFeedback({
-        isActive: true,
-        severity: "error",
-        message: e?.message ?? "Delete failed",
-      });
-    } finally {
-      markDeleting(data.nlqId, false);
     }
+
+    if (!res.ok) {
+      setError(res?.message ?? "Delete failed");
+    }
+    markDeleting(data.nlqId, false);
   };
 
-  const onRemoveItem = async (id: string) => {
+  // REMOVE ITEM from everything
+  const onDelete = async (id: string) => {
     markDeleting(id, true);
-    try {
-      await DeleteNqlQaGoodByIdAction(id);
-      setFeedback({
-        isActive: true,
-        severity: "success",
-        message: "Item deleted successfully.",
-      });
+    setSuccess(null);
+    setError(null);
+
+    const res = await DeleteNqlQaGoodByIdAction(id);
+
+    if (res.ok) {
+      setSuccess(res.message || "Deleted successfully.");
       await refresh();
-    } catch (e: any) {
-      setFeedback({
-        isActive: true,
-        severity: "error",
-        message: e?.message ?? "Delete failed",
-      });
-    } finally {
-      markDeleting(id, false);
     }
+
+    if (!res.ok) {
+      setError(res?.message ?? "Delete failed");
+    }
+
+    markDeleting(id, false);
   };
 
   // Apply VBD date filters + ordering on the client
@@ -283,6 +282,9 @@ export default function NlqGoodClient({
         </Stack>
       </Paper>
 
+      {error && <Alert severity="error">{error}</Alert>}
+      {success && <Alert severity="success">{success}</Alert>}
+
       {/* Table */}
       <Paper elevation={1}>
         {loading ? (
@@ -390,7 +392,7 @@ export default function NlqGoodClient({
                         )}
                       </TableCell>
                       <TableCell align="right">
-                        <Tooltip title="Edit NLQ">
+                        <Tooltip title="Edit">
                           <IconButton
                             component={Link}
                             href={`/nlq-good/${r.id}`}
@@ -403,17 +405,11 @@ export default function NlqGoodClient({
                         </Tooltip>
                         {r.isOnKnowledgeSource ? (
                           <>
-                            <Tooltip
-                              title={
-                                isDeleting
-                                  ? "Deleting..."
-                                  : "Delete from Pinecone & VBD"
-                              }
-                            >
+                            <Tooltip title="Remove">
                               <span>
                                 <IconButton
                                   onClick={() =>
-                                    onDelete({
+                                    onRemove({
                                       nlqId: r.id,
                                       dbConnectionId: r.dbConnectionId,
                                       question: r.question,
@@ -421,26 +417,16 @@ export default function NlqGoodClient({
                                     })
                                   }
                                   size="small"
-                                  aria-label="delete"
-                                  disabled={isDeleting}
+                                  aria-label="remove"
+                                  loading={isUploading}
                                 >
-                                  {isDeleting ? (
-                                    <CircularProgress size={16} />
-                                  ) : (
-                                    <CloudDoneIcon fontSize="small" />
-                                  )}
+                                  <CloudDoneIcon fontSize="small" />
                                 </IconButton>
                               </span>
                             </Tooltip>
                           </>
                         ) : (
-                          <Tooltip
-                            title={
-                              isUploading
-                                ? "Uploading..."
-                                : "Upload to Pinecone & VBD"
-                            }
-                          >
+                          <Tooltip title="Upload">
                             <span>
                               <IconButton
                                 onClick={() =>
@@ -453,31 +439,23 @@ export default function NlqGoodClient({
                                 }
                                 size="small"
                                 aria-label="upload"
-                                disabled={isUploading}
+                                loading={isUploading}
                               >
-                                {isUploading ? (
-                                  <CircularProgress size={16} />
-                                ) : (
-                                  <CloudOffIcon fontSize="small" />
-                                )}
+                                <CloudOffIcon fontSize="small" />
                               </IconButton>
                             </span>
                           </Tooltip>
                         )}
-                        <Tooltip title="Delete item">
+                        <Tooltip title="Delete">
                           <span>
                             <IconButton
                               size="small"
                               aria-label="delete"
                               sx={{ ml: 0.5 }}
-                              onClick={() => onRemoveItem(r.id)}
-                              disabled={deleteBusy.has(r.id)}
+                              onClick={() => onDelete(r.id)}
+                              loading={isDeleting}
                             >
-                              {deleteBusy.has(r.id) ? (
-                                <CircularProgress size={16} />
-                              ) : (
-                                <DeleteIcon fontSize="small" />
-                              )}
+                              <DeleteIcon fontSize="small" />
                             </IconButton>
                           </span>
                         </Tooltip>

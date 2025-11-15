@@ -27,13 +27,15 @@ export async function CreateVbdSplitterAction(
 
   if (!vbdRes.ok) {
     const errorData = await vbdRes.json();
-    console.error(
+    console.warn(
       "[CreateVbdSplitterAction] Error during VBD Splitter creation:",
       errorData.message || vbdRes.statusText
     );
-    throw new Error(
-      `Failed to create VBD Splitter: ${errorData.message || vbdRes.statusText}`
-    );
+    return {
+      ok: false,
+      data: null,
+      message: errorData.message || "Failed to create VBD Splitter",
+    };
   }
 
   const vbdData = await vbdRes.json();
@@ -42,5 +44,9 @@ export async function CreateVbdSplitterAction(
     vbdData
   );
 
-  return vbdData;
+  return {
+    ok: true,
+    data: vbdData.data,
+    message: vbdData.message || "VBD Splitter created successfully",
+  };
 }

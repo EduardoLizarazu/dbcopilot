@@ -28,13 +28,19 @@ export async function UpdateNlqQaGoodAction(
       "NLQ QA Good update error:",
       nlqQaGoodDateError.message || nlqQaGoodRes.statusText
     );
-    throw new Error(
-      `Failed to update NLQ QA Good: ${nlqQaGoodDateError.message || nlqQaGoodRes.statusText}`
-    );
+    return {
+      ok: false,
+      data: null,
+      message: nlqQaGoodDateError?.message || "Failed to update NLQ QA Good",
+    };
   }
 
   const nlqQaGoodData = await nlqQaGoodRes.json();
   console.log("Updated NLQ QA Good:", nlqQaGoodData);
 
-  return nlqQaGoodData;
+  return {
+    ok: true,
+    data: nlqQaGoodData.data,
+    message: nlqQaGoodData.message || "Successfully updated NLQ QA Good",
+  };
 }

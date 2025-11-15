@@ -25,12 +25,20 @@ export async function DeleteVbdSplitterAction(
       "[DeleteVbdSplitterAction] Error deleting VBD Splitter:",
       errorData.message || vbdSplitterRes.statusText
     );
-    throw new Error(
-      `Failed to delete VBD Splitter: ${errorData.message || vbdSplitterRes.statusText}`
-    );
+    return {
+      ok: false,
+      data: null,
+      message: errorData.message || "Failed to delete VBD Splitter",
+    };
   }
 
   console.log("[DeleteVbdSplitterAction] Successfully deleted VBD Splitter.");
+  const res = await vbdSplitterRes.json();
+  console.log("[DeleteVbdSplitterAction] Response data:", res);
 
-  return null;
+  return {
+    ok: true,
+    data: res.data,
+    message: res.message || "VBD Splitter deleted successfully",
+  };
 }
