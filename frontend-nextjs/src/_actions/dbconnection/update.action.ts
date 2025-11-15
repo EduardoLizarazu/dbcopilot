@@ -35,9 +35,14 @@ export async function UpdateDbConnectionAction(
       "[UpdateDbConnectionAction] Error during DB Connection update:",
       errorData.message || dbConnectionRes.statusText
     );
-    throw new Error(
-      `Failed to update DB Connection: ${errorData.message || dbConnectionRes.statusText}`
-    );
+    return {
+      ok: false,
+      message:
+        errorData.message ||
+        dbConnectionRes.statusText ||
+        "Error updating DB Connection",
+      data: null,
+    };
   }
 
   const dbConnectionData = await dbConnectionRes.json();
@@ -46,5 +51,9 @@ export async function UpdateDbConnectionAction(
     dbConnectionData
   );
 
-  return dbConnectionData;
+  return {
+    ok: true,
+    message: dbConnectionData.message || "DB Connection updated successfully",
+    data: dbConnectionData.data,
+  };
 }

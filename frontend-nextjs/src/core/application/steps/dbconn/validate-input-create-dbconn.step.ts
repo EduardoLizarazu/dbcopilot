@@ -31,12 +31,10 @@ export class ValidateInputCreateDbConnStep
       if (!vData.success) {
         this.logger.error(
           `[ValidateInputCreateDbConnStep] Invalid input data: ${JSON.stringify(
-            vData.error.issues
+            vData.error.errors
           )}`
         );
-        throw new Error(
-          `Invalid input data: ${JSON.stringify(vData.error.message)}`
-        );
+        throw new Error(vData.error.errors.map((e) => e.message).join(", "));
       }
 
       this.logger.info(

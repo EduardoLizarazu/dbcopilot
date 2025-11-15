@@ -71,33 +71,36 @@ export default function DbConnectionClient({
     setError(null);
     setRows(null);
     setSchemaLoading(true);
-    try {
-      const res = await ExtractSchemaAction({
-        type: ["mysql", "postgres", "mssql", "oracle"].includes(
-          dbConn?.type as string
-        )
-          ? (dbConn?.type as "mysql" | "postgres" | "mssql" | "oracle")
-          : "mysql",
-        host: dbConn?.host.trim() || "",
-        port: dbConn?.port || 0,
-        database: dbConn?.database.trim() || "",
-        username: dbConn?.username.trim() || "",
-        password: dbConn?.password.trim() || "",
-        sid: dbConn?.sid || null,
-        schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
-      });
+    setSchemaSuccess(false);
+
+    const res = await ExtractSchemaAction({
+      type: ["mysql", "postgres", "mssql", "oracle"].includes(
+        dbConn?.type as string
+      )
+        ? (dbConn?.type as "mysql" | "postgres" | "mssql" | "oracle")
+        : "mysql",
+      host: dbConn?.host.trim() || "",
+      port: dbConn?.port || 0,
+      database: dbConn?.database.trim() || "",
+      username: dbConn?.username.trim() || "",
+      password: dbConn?.password.trim() || "",
+      sid: dbConn?.sid || null,
+      schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
+    });
+
+    if (res.ok && res.data) {
+      setRows(res.data || null);
       console.log("DB Connection run:", res);
-      if (res) {
-        setRows(res.data || null);
-      }
       setSchemaSuccess(true);
-    } catch (error) {
-      console.warn("Error running DB Connection:", error.message);
-      setError(`Failed to run DB Connection: ${error.message}`);
-      setSchemaSuccess(false);
-    } finally {
-      setSchemaLoading(false);
+      setSuccess("Schema extracted successfully.");
     }
+
+    if (!res.ok) {
+      setError(res.message || "Failed to extract schema.");
+      setSchemaSuccess(false);
+    }
+
+    setSchemaLoading(false);
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -114,62 +117,68 @@ export default function DbConnectionClient({
 
   const onCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const res = await CreateDbConnectionAction({
-        name: dbConn?.name || "",
-        description: dbConn?.description || "",
-        type: dbConn?.type || "mysql",
-        host: dbConn?.host || "",
-        port: dbConn?.port || 0,
-        database: dbConn?.database || "",
-        username: dbConn?.username || "",
-        password: dbConn?.password || "",
-        sid: dbConn?.sid || "",
-        schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
-        id_vbd_splitter: vbdSplitterId,
-      });
-      console.log("DB Connection created:", res);
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+    const res = await CreateDbConnectionAction({
+      name: dbConn?.name || "",
+      description: dbConn?.description || "",
+      type: dbConn?.type || "mysql",
+      host: dbConn?.host || "",
+      port: dbConn?.port || 0,
+      database: dbConn?.database || "",
+      username: dbConn?.username || "",
+      password: dbConn?.password || "",
+      sid: dbConn?.sid || "",
+      schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
+      id_vbd_splitter: vbdSplitterId,
+    });
+    console.log("DB Connection created:", res);
 
-      if (res) {
-        setSuccess("DB Connection created successfully. Redirecting to list…");
-        setTimeout(() => router.replace("/dbconnection"), 800);
-      }
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to create DB Connection.");
-    } finally {
-      setLoading(false);
+    if (res.ok) {
+      setSuccess(res.message || "DB Connection created successfully.");
+      setTimeout(() => router.replace("/dbconnection"), 800);
     }
+
+    if (!res.ok) {
+      setError(res.message || "Failed to create DB Connection.");
+    }
+
+    setLoading(false);
   };
 
   const onUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const res = await UpdateDbConnectionAction(initial!.id, {
-        id: initial!.id,
-        name: dbConn?.name.toLowerCase().trim() || "",
-        description:
-          dbConn?.description.toLowerCase().trimStart().trimEnd() || "",
-        type: dbConn?.type || "mysql",
-        host: dbConn?.host.trim() || "",
-        port: dbConn?.port || 0,
-        database: dbConn?.database.trim() || "",
-        username: dbConn?.username.trim() || "",
-        password: dbConn?.password.trim() || "",
-        sid: dbConn?.sid.trim() || "",
-        schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
-        id_vbd_splitter: vbdSplitterId,
-      });
-      console.log("DB Connection updated:", res);
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+    const res = await UpdateDbConnectionAction(initial!.id, {
+      id: initial!.id,
+      name: dbConn?.name.toLowerCase().trim() || "",
+      description:
+        dbConn?.description.toLowerCase().trimStart().trimEnd() || "",
+      type: dbConn?.type || "mysql",
+      host: dbConn?.host.trim() || "",
+      port: dbConn?.port || 0,
+      database: dbConn?.database.trim() || "",
+      username: dbConn?.username.trim() || "",
+      password: dbConn?.password.trim() || "",
+      sid: dbConn?.sid.trim() || "",
+      schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
+      id_vbd_splitter: vbdSplitterId,
+    });
+    console.log("DB Connection updated:", res);
 
-      if (res) {
-        setSuccess("DB Connection updated successfully. Redirecting to list…");
-        setTimeout(() => router.replace("/dbconnection"), 800);
-      }
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to update DB Connection.");
-    } finally {
-      setLoading(false);
+    if (res.ok) {
+      setSuccess("DB Connection updated successfully. Redirecting to list…");
+      setTimeout(() => router.replace("/dbconnection"), 800);
     }
+
+    if (!res.ok) {
+      setError(res.message || "Failed to update DB Connection.");
+    }
+
+    setLoading(false);
   };
 
   return (

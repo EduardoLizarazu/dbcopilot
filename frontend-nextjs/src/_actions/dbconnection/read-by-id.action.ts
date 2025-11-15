@@ -30,9 +30,14 @@ export async function ReadDbConnectionByIdAction(
       "[ReadDbConnectionByIdAction] Error during DB Connection retrieval:",
       errorData.message || dbConnectionRes.statusText
     );
-    throw new Error(
-      `Failed to retrieve DB Connection: ${errorData.message || dbConnectionRes.statusText}`
-    );
+    return {
+      ok: false,
+      message:
+        errorData.message ||
+        dbConnectionRes.statusText ||
+        "Error retrieving DB Connection",
+      data: null,
+    };
   }
 
   const dbConnectionData = await dbConnectionRes.json();
@@ -41,5 +46,9 @@ export async function ReadDbConnectionByIdAction(
     dbConnectionData
   );
 
-  return dbConnectionData;
+  return {
+    ok: true,
+    message: dbConnectionData.message || "DB Connection retrieved successfully",
+    data: dbConnectionData.data,
+  };
 }

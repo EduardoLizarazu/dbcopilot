@@ -117,9 +117,7 @@ export class UpdateDbConnectionController implements IController {
             ...useCase,
           }
         );
-        const error = this.httpErrors.error_400(
-          "Error updating DB Connection: " + useCase.message
-        );
+        const error = this.httpErrors.error_400(useCase.message);
         return new HttpResponse(error.statusCode, error.body);
       }
 

@@ -34,9 +34,14 @@ export async function CreateDbConnectionAction(
       "[CreateDbConnectionAction] Error during DB Connection creation:",
       errorData.message || dbConnectionRes.statusText
     );
-    throw new Error(
-      `Failed to create DB Connection - ${errorData.message || dbConnectionRes.statusText}`
-    );
+    return {
+      ok: false,
+      message:
+        errorData.message ||
+        dbConnectionRes.statusText ||
+        "Error creating DB Connection",
+      data: null,
+    };
   }
 
   const dbConnectionData = await dbConnectionRes.json();
@@ -45,5 +50,9 @@ export async function CreateDbConnectionAction(
     dbConnectionData
   );
 
-  return dbConnectionData;
+  return {
+    ok: true,
+    message: dbConnectionData.message || "DB Connection created successfully",
+    data: dbConnectionData.data,
+  };
 }

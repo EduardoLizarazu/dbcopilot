@@ -29,9 +29,14 @@ export async function ReadAllDbConnectionAction(): Promise<
       "[ReadAllDbConnectionAction] Error during DB Connections retrieval:",
       errorData.message || dbConnectionRes.statusText
     );
-    throw new Error(
-      `Failed to retrieve DB Connections: ${errorData.message || dbConnectionRes.statusText}`
-    );
+    return {
+      ok: false,
+      message:
+        errorData.message ||
+        dbConnectionRes.statusText ||
+        "Error retrieving DB Connections",
+      data: null,
+    };
   }
 
   const dbConnectionData = await dbConnectionRes.json();
@@ -40,5 +45,10 @@ export async function ReadAllDbConnectionAction(): Promise<
     dbConnectionData
   );
 
-  return dbConnectionData;
+  return {
+    ok: true,
+    message:
+      dbConnectionData.message || "DB Connections retrieved successfully",
+    data: dbConnectionData.data,
+  };
 }

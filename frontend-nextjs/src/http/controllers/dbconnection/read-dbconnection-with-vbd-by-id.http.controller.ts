@@ -103,9 +103,7 @@ export class ReadDbConnectionWithVbdByIdController implements IController {
             ...useCase,
           }
         );
-        const error = this.httpErrors.error_400(
-          "Error reading DB Connection: " + useCase.message
-        );
+        const error = this.httpErrors.error_400(useCase.message);
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -116,8 +114,13 @@ export class ReadDbConnectionWithVbdByIdController implements IController {
       });
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
-      this.logger.error("[DeleteDbConnectionController] Unexpected error", err);
-      const error = this.httpErrors.error_500("Unexpected error");
+      this.logger.error(
+        "[ReadDbConnectionWithVbdByIdController] Unexpected error",
+        err.message
+      );
+      const error = this.httpErrors.error_500(
+        err.message || "Unexpected error"
+      );
       return new HttpResponse(error.statusCode, error.body);
     }
   }

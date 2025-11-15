@@ -38,7 +38,7 @@ export class ExtractSchemaDbConnectionUseCase
         return {
           success: false,
           data: null,
-          message: "Invalid connection data",
+          message: validConn.error.errors.map((e) => e.message).join(", "),
         };
       }
 
@@ -71,7 +71,7 @@ export class ExtractSchemaDbConnectionUseCase
       return {
         success: false,
         data: null,
-        message: `Error executing use case: ${error.message}`,
+        message: error.message || "Error extracting schema from connection",
       };
     }
   }

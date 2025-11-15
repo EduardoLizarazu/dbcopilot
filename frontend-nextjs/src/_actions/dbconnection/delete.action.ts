@@ -29,9 +29,14 @@ export async function DeleteDbConnectionAction(
       "[DeleteDbConnectionAction] Error during DB Connection deletion:",
       errorData.message || dbConnectionRes.statusText
     );
-    throw new Error(
-      `Failed to delete DB Connection: ${errorData.message || dbConnectionRes.statusText}`
-    );
+    return {
+      ok: false,
+      message:
+        errorData.message ||
+        dbConnectionRes.statusText ||
+        "Error deleting DB Connection",
+      data: null,
+    };
   }
 
   const dbConnectionData = await dbConnectionRes.json();
@@ -40,5 +45,9 @@ export async function DeleteDbConnectionAction(
     dbConnectionData
   );
 
-  return dbConnectionData;
+  return {
+    ok: true,
+    message: dbConnectionData.message || "DB Connection deleted successfully",
+    data: dbConnectionData.data,
+  };
 }

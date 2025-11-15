@@ -28,9 +28,9 @@ export class ValidateInputUpdateDbConnStep
       if (!vData.success) {
         this.logger.error(
           "[ValidateInputUpdateDbConnStep] Validation failed:",
-          vData.error.errors
+          JSON.stringify(vData.error.errors)
         );
-        throw new Error("Invalid input data: " + vData.error.message);
+        throw new Error(vData.error.errors.map((e) => e.message).join(", "));
       }
       return vData.data;
     } catch (error) {

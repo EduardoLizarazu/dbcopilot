@@ -31,9 +31,14 @@ export async function ExtractSchemaAction(
       "[ExtractSchemaAction] Error during schema extraction:",
       errorData.message || dbConnectionRes.statusText
     );
-    throw new Error(
-      `Failed to extract schema: ${errorData.message || dbConnectionRes.statusText}`
-    );
+    return {
+      ok: false,
+      message:
+        errorData.message ||
+        dbConnectionRes.statusText ||
+        "Error extracting schema",
+      data: null,
+    };
   }
 
   const dbConnectionData = await dbConnectionRes.json();
@@ -42,5 +47,9 @@ export async function ExtractSchemaAction(
     dbConnectionData
   );
 
-  return dbConnectionData;
+  return {
+    ok: true,
+    message: dbConnectionData.message || "Schema extracted successfully",
+    data: dbConnectionData.data,
+  };
 }

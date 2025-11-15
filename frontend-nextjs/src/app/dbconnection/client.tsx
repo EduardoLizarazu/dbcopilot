@@ -17,6 +17,7 @@ import {
   Chip,
   Tooltip,
   IconButton,
+  Alert,
 } from "@mui/material";
 import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
@@ -25,6 +26,9 @@ import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { DeleteDbConnectionAction } from "@/_actions/dbconnection/delete.action";
+import React from "react";
+import { set } from "zod";
+import { ok } from "assert";
 
 export default function DbConnectionClient({
   initialData,
@@ -35,26 +39,38 @@ export default function DbConnectionClient({
     initialData || []
   );
   const [loading, setLoading] = useState(false);
+  const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
   const [nameFilter, setNameFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const { setFeedback } = useFeedbackContext();
 
+  const markDeleting = (id: string, on: boolean) => {
+    setDeleteBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
+
   const refresh = async () => {
     setLoading(true);
-    try {
-      const data = await ReadAllDbConnectionAction();
-      setRows(data.data || []);
-    } catch (error) {
-      console.error("Error fetching DB Connections:", error);
-      setFeedback({
-        message: "Error fetching DB Connections",
-        severity: "error",
-        isActive: true,
-      });
-    } finally {
-      setLoading(false);
+    setError(null);
+    setSuccess(null);
+
+    const res = await ReadAllDbConnectionAction();
+
+    if (res.ok) {
+      setRows(res.data || []);
     }
+
+    if (!res.ok) {
+      setError(res.message || "Failed to fetch DB Connections.");
+    }
+
+    setLoading(false);
   };
 
   const filteredRows = rows.filter((row) => {
@@ -79,27 +95,23 @@ export default function DbConnectionClient({
   });
 
   const onDelete = async (id: string) => {
-    setLoading(true);
-    try {
-      // Replace with actual delete action
-      await DeleteDbConnectionAction(id);
-
-      setFeedback({
-        message: "DB Connection deleted successfully",
-        severity: "success",
-        isActive: true,
-      });
-      await refresh();
-    } catch (error) {
-      console.error("Error deleting DB Connection:", error);
-      setFeedback({
-        message: "Error deleting DB Connection",
-        severity: "error",
-        isActive: true,
-      });
-    } finally {
-      setLoading(false);
+    markDeleting(id, true);
+    const res = await DeleteDbConnectionAction(id);
+    if (res.ok) {
+      setSuccess(res.message || "DB Connection deleted successfully.");
     }
+    if (!res.ok) {
+      console.log("error", res);
+      setError(res.message || "Failed to delete DB Connection.");
+    }
+
+    setTimeout(async () => {
+      markDeleting(id, false);
+      setSuccess(null);
+      setError(null);
+      setDeleteBusy(new Set());
+      await refresh();
+    }, 2000);
   };
 
   return (
@@ -146,6 +158,9 @@ export default function DbConnectionClient({
         </Box>
       </Paper>
 
+      {error && <Alert severity="error">{error}</Alert>}
+      {success && <Alert severity="success">{success}</Alert>}
+
       {/* Table */}
       <Paper elevation={1}>
         {loading ? (
@@ -179,68 +194,72 @@ export default function DbConnectionClient({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredRows.map((row) => (
-                    <TableRow key={row.id} hover>
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>
-                        {row.description
-                          ? row.description.length > 50
-                            ? `${row.description.substring(0, 50)}...`
-                            : row.description
-                          : "-"}
-                      </TableCell>
-                      <TableCell>{row.type}</TableCell>
-                      <TableCell>{row.host}</TableCell>
-                      <TableCell>{row.port}</TableCell>
-                      <TableCell>{row.username}</TableCell>
-                      <TableCell>
-                        {row.id_vbd_splitter ? (
-                          <Chip
-                            label="Associated"
-                            color="success"
-                            size="small"
-                          />
-                        ) : (
-                          <Chip
-                            label="Not Associated"
-                            color="error"
-                            size="small"
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Stack direction="row" spacing={1}>
-                          <Tooltip title="Edit">
-                            <IconButton
-                              component={Link}
-                              href={`/dbconnection/${row.id}`}
-                              aria-label="Edit DB Connection"
+                  filteredRows.map((row) => {
+                    const isDeleting = deleteBusy.has(row.id);
+                    return (
+                      <TableRow key={row.id} hover>
+                        <TableCell>{row.name}</TableCell>
+                        <TableCell>
+                          {row.description
+                            ? row.description.length > 50
+                              ? `${row.description.substring(0, 50)}...`
+                              : row.description
+                            : "-"}
+                        </TableCell>
+                        <TableCell>{row.type}</TableCell>
+                        <TableCell>{row.host}</TableCell>
+                        <TableCell>{row.port}</TableCell>
+                        <TableCell>{row.username}</TableCell>
+                        <TableCell>
+                          {row.id_vbd_splitter ? (
+                            <Chip
+                              label="Associated"
+                              color="success"
                               size="small"
-                            >
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Delete">
-                            <IconButton
-                              aria-label="Delete DB Connection"
+                            />
+                          ) : (
+                            <Chip
+                              label="Not Associated"
+                              color="error"
                               size="small"
-                              onClick={() => {
-                                if (
-                                  confirm(
-                                    "Are you sure you want to delete this item?"
-                                  )
-                                ) {
-                                  onDelete(row.id);
-                                }
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={1}>
+                            <Tooltip title="Edit">
+                              <IconButton
+                                component={Link}
+                                href={`/dbconnection/${row.id}`}
+                                aria-label="Edit DB Connection"
+                                size="small"
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <IconButton
+                                aria-label="Delete DB Connection"
+                                size="small"
+                                onClick={() => {
+                                  if (
+                                    confirm(
+                                      "Are you sure you want to delete this item?"
+                                    )
+                                  ) {
+                                    onDelete(row.id);
+                                  }
+                                }}
+                                loading={isDeleting}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
