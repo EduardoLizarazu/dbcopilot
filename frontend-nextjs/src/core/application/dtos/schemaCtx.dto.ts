@@ -72,6 +72,7 @@ export const schemaCtxBase = z.object({
   dbConnectionIds: z.array(z.string().min(1)),
   schemaCtx: z.array(schemaCtxSchema).default([]),
 });
+
 export type TSchemaCtxBaseDto = z.infer<typeof schemaCtxBase>;
 
 export const schemaCtxDiffBase = schemaCtxBase
