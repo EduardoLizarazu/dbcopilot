@@ -12,18 +12,20 @@ export class WinstonLoggerProvider implements ILogger {
   private logger: winston.Logger;
 
   constructor() {
+    const transports = [
+      new winston.transports.Console(),
+      process.env.NEXT_ENVIRONMENT === "development"
+        ? new winston.transports.File({ filename: "logs/app.log" })
+        : null,
+    ].filter(Boolean);
+
     this.logger = winston.createLogger({
       level: "info",
       format: winston.format.combine(
         winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        logFormat // Usa el formato personalizado
+        logFormat
       ),
-      transports: [
-        new winston.transports.Console(),
-        process.env.NEXT_ENVIRONMENT === "development"
-          ? new winston.transports.File({ filename: "logs/app.log" })
-          : undefined,
-      ],
+      transports,
     });
   }
 
