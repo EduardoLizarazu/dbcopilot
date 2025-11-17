@@ -26,7 +26,7 @@ export const dbConnectionSchema = baseConn.extend({
   createdAt: z.date().default(() => new Date()),
   updatedAt: z.date().default(() => new Date()),
 });
-
+export type TDbConnectionDto = z.infer<typeof dbConnectionSchema>;
 export const createDbConnectionSchema = dbConnectionSchema.omit({ id: true });
 export type TCreateDbConnectionDto = z.infer<typeof createDbConnectionSchema>;
 
