@@ -11,7 +11,7 @@ import { IAuthorizationRepository } from "@/core/application/interfaces/auth/aut
 import { ROLE } from "@/http/utils/role.enum";
 import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
 import { ICreateSchemaCtxUseCase } from "@/core/application/usecases/schemaCtx/create-schema-ctx.usecase";
-import { TCreateSchemaCtxBaseInReqDto } from "@/core/application/dtos/schemaCtx.dto";
+import { TCreateSchemaCtxBaseDto } from "@/core/application/dtos/schemaCtx.dto";
 
 export class CreateSchemaCtxController implements IController {
   constructor(
@@ -24,7 +24,7 @@ export class CreateSchemaCtxController implements IController {
   ) {}
 
   async handle(
-    httpRequest: IHttpRequest<TCreateSchemaCtxBaseInReqDto>
+    httpRequest: IHttpRequest<TCreateSchemaCtxBaseDto>
   ): Promise<IHttpResponse> {
     try {
       // ==== INPUT OF REQUEST ====
