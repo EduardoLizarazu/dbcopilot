@@ -1,14 +1,14 @@
 "use server";
 import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
 import {
-  TCreateSchemaCtxBaseInReqDto,
+  TCreateSchemaCtxBaseDto,
   TSchemaCtxBaseDto,
 } from "@/core/application/dtos/schemaCtx.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function CreateSchemaCtxAction(
-  input: TCreateSchemaCtxBaseInReqDto
+  input: TCreateSchemaCtxBaseDto
 ): Promise<TResOutContent<TSchemaCtxBaseDto>> {
   console.log("Creating schema context (test)...", input);
 

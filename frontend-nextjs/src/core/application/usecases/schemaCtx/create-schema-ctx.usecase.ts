@@ -17,7 +17,7 @@ import { IFormatSchemaCtxStep } from "../../steps/schemaCtx/format-schema-ctx.st
 
 export interface ICreateSchemaCtxUseCase {
   execute(
-    data: TCreateSchemaCtxBaseInReqDto
+    data: TCreateSchemaCtxBaseDto
   ): Promise<TResponseDto<TSchemaCtxBaseDto>>;
 }
 
@@ -28,22 +28,15 @@ export class CreateSchemaCtxUseCase implements ICreateSchemaCtxUseCase {
     private readonly createSchemaCtxStep: ICreateSchemaCtxStep
   ) {}
   async execute(
-    data: TCreateSchemaCtxBaseInReqDto
+    data: TCreateSchemaCtxBaseDto
   ): Promise<TResponseDto<TSchemaCtxBaseDto>> {
     try {
       this.logger.info(
         `[CreateSchemaCtxUseCase] Executing create schema context use case with data: ${JSON.stringify(data)}`
       );
 
-      // 1. Format and validate input data
-      const formatData = await this.formatSchemaCtxStep.run(data);
-      this.logger.info(
-        `[CreateSchemaCtxUseCase] Successfully formatted input data`,
-        formatData
-      );
-
       // 2. Create schema context
-      const createdSchemaCtx = await this.createSchemaCtxStep.run(formatData);
+      const createdSchemaCtx = await this.createSchemaCtxStep.run(data);
       this.logger.info(
         `[CreateSchemaCtxUseCase] Successfully created schema context with id: ${createdSchemaCtx.id}`
       );
