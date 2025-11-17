@@ -125,7 +125,15 @@ export function SchemaCtxClient({
     setTableLoading(false);
   };
 
-  const onProfile = async () => {};
+  const onProfile = async () => {
+    setError(null);
+    setSuccess(null);
+    setTableLoading(true);
+    const res = await ProfileSchemaCtxAction(dbConnectionIds);
+    if (res.ok) setSchemaCtx(res.data.schemaCtx || []);
+    if (!res.ok) setError(res.message || "Failed to profile schema context.");
+    setTableLoading(false);
+  };
 
   return (
     <Box>
