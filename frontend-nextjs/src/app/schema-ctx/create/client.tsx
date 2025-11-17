@@ -12,6 +12,7 @@ import {
   Button,
   Checkbox,
   CircularProgress,
+  IconButton,
   Link,
   Paper,
   Stack,
@@ -22,11 +23,19 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
+import EditIcon from "@mui/icons-material/Edit";
 
-export function SchemaCtxClient({ initial }: { initial?: TSchemaCtxBaseDto }) {
+export function SchemaCtxClient({
+  initial,
+  dbConnections,
+}: {
+  initial?: TSchemaCtxBaseDto;
+  dbConnections: TDbConnectionDto[];
+}) {
   const router = useRouter();
   const [name, setName] = React.useState(initial?.name || "");
   const [description, setDescription] = React.useState(
@@ -36,7 +45,7 @@ export function SchemaCtxClient({ initial }: { initial?: TSchemaCtxBaseDto }) {
     initial?.dbConnectionIds || []
   );
   const [dbConnection, setDbConnection] = React.useState<TDbConnectionDto[]>(
-    []
+    dbConnections || []
   );
   const [schemaCtx, setSchemaCtx] = React.useState<
     TSchemaCtxSchemaDto[] | null
@@ -172,7 +181,7 @@ export function SchemaCtxClient({ initial }: { initial?: TSchemaCtxBaseDto }) {
                                 checked={checked}
                                 onChange={() => toggleConn(r.id)}
                                 inputProps={{
-                                  "aria-label": `select role ${r.name}`,
+                                  "aria-label": `select connection ${r.name}`,
                                 }}
                               />
                             </TableCell>
@@ -190,7 +199,7 @@ export function SchemaCtxClient({ initial }: { initial?: TSchemaCtxBaseDto }) {
                 </Table>
               </TableContainer>
             </Box>
-
+            {/* Actions buttons */}
             <Box>
               <Stack
                 direction="row"
@@ -247,6 +256,46 @@ export function SchemaCtxClient({ initial }: { initial?: TSchemaCtxBaseDto }) {
                 </Button>
               </Stack>
             </Box>
+            {/* Table Schema */}
+            <TableContainer component={Paper} elevation={0}>
+              <Table size="small" aria-label="schema context table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 700 }}>Schema</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Table</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Column</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      Actions
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {schemaCtx.map((r) => {
+                    const isDeleting = deleteBusy.has(r.id);
+                    return (
+                      <TableRow key={r.id} hover>
+                        <TableCell>{r.name}</TableCell>
+                        <TableCell>{r.table || "—"}</TableCell>
+                        <TableCell>{r.column || "—"}</TableCell>
+                        <TableCell>{r.type || "—"}</TableCell>
+                        <TableCell align="right">
+                          <Tooltip title="edit">
+                            <IconButton
+                              aria-label="Edit schema context"
+                              size="small"
+                              onClick={() => {}}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Box>
         </form>
       </Paper>

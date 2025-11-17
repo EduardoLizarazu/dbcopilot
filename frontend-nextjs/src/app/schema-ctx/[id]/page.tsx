@@ -1,6 +1,7 @@
 import { ReadByIdSchemaCtxAction } from "@/_actions/schemaCtx/read-by-id.action";
 import { SchemaCtxClient } from "../create/client";
 import { NotFound } from "@/components/shared/notFound";
+import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
 
 export default async function EditSchemaCtxPage({
   params,
@@ -13,5 +14,12 @@ export default async function EditSchemaCtxPage({
     return <NotFound />;
   }
 
-  return <SchemaCtxClient initial={initial.data} />;
+  const dbConnections = await ReadAllDbConnectionAction();
+
+  return (
+    <SchemaCtxClient
+      initial={initial.data}
+      dbConnections={dbConnections.data}
+    />
+  );
 }
