@@ -14,6 +14,7 @@ import {
   CircularProgress,
   Link,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -190,25 +191,61 @@ export function SchemaCtxClient({ initial }: { initial?: TSchemaCtxBaseDto }) {
               </TableContainer>
             </Box>
 
-            <Box display="flex" gap={1} sx={{ mt: 2 }}>
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={loading}
-                sx={{ textTransform: "none" }}
+            <Box>
+              <Stack
+                direction="row"
+                spacing={2}
+                justifyContent="flex-start"
+                sx={{ mt: 2 }}
               >
-                {loading ? <CircularProgress size={22} /> : "Create"}
-              </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={loading}
+                  sx={{ textTransform: "none" }}
+                >
+                  {loading ? <CircularProgress size={22} /> : "Save"}
+                </Button>
 
-              <Button
-                component={Link}
-                href="/auth/users"
-                variant="outlined"
-                disabled={loading}
-                sx={{ textTransform: "none" }}
+                <Button
+                  component={Link}
+                  href="/schema-ctx/"
+                  variant="outlined"
+                  disabled={loading}
+                  sx={{ textTransform: "none" }}
+                >
+                  Cancel
+                </Button>
+              </Stack>
+              <Stack
+                direction="row"
+                spacing={2}
+                justifyContent="flex-end"
+                sx={{ mt: 2 }}
               >
-                Cancel
-              </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={loading}
+                  sx={{ textTransform: "none" }}
+                >
+                  {loading ? <CircularProgress size={22} /> : "Search Schema"}
+                </Button>
+
+                <Button
+                  component={Link}
+                  href="/schema-ctx/"
+                  variant="outlined"
+                  disabled={loading}
+                  sx={{ textTransform: "none" }}
+                >
+                  {loading ? (
+                    <CircularProgress size={22} />
+                  ) : (
+                    "Changes detected"
+                  )}
+                </Button>
+              </Stack>
             </Box>
           </Box>
         </form>
