@@ -7,6 +7,6 @@ import { IGenericMutationRepository } from "./generic.app.inter";
 export interface ISchemaCtxRepository
   extends IGenericMutationRepository<
     TCreateSchemaCtxBaseDto,
-    TSchemaCtxBaseDto,
+    Partial<TSchemaCtxBaseDto>,
     TSchemaCtxBaseDto
   > {}
