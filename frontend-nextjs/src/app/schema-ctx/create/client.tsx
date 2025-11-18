@@ -501,7 +501,10 @@ export function SchemaCtxClient({
         <DialogContent dividers={true}>
           <Box display="grid" gap={2}>
             <Grid container spacing={3}>
-              <Grid size={7}>
+              <Grid size={6}>
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
+                  Schema Differences
+                </Typography>
                 <TableContainer component={Paper} elevation={0}>
                   <Table size="small" aria-label="schema context table">
                     <TableHead>
@@ -576,7 +579,62 @@ export function SchemaCtxClient({
                   </Table>
                 </TableContainer>
               </Grid>
-              <Grid size={"grow"}></Grid>
+              <Grid size={6}>
+                <Box sx={{ mt: 1 }}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={700}
+                    sx={{ mb: 1 }}
+                  >
+                    To change schema
+                  </Typography>
+                  <TableContainer component={Paper} elevation={0}>
+                    <Table size="small" aria-label="to change selection">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 700 }}>Select</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>
+                            To change
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>
+                            Description
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {dbConnection.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3}>
+                              <Typography color="text.secondary">
+                                No delete schema available.
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          dbConnection.map((r) => {
+                            const checked = dbConnectionIds.includes(r.id);
+                            return (
+                              <TableRow key={r.id} hover>
+                                <TableCell width={90}>
+                                  <Checkbox
+                                    checked={checked}
+                                    onChange={() => toggleConn(r.id)}
+                                    inputProps={{
+                                      "aria-label": `select connection ${r.name}`,
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell>{r.name}</TableCell>
+                                <TableCell>{r.description || "—"}</TableCell>
+                              </TableRow>
+                            );
+                          })
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              </Grid>
             </Grid>
           </Box>
         </DialogContent>
@@ -585,7 +643,7 @@ export function SchemaCtxClient({
             type="button"
             variant="outlined"
             color="error"
-            disabled={isBusy("submit")}
+            disabled={true}
             sx={{ textTransform: "none" }}
             onClick={() => {}}
           >
