@@ -758,7 +758,85 @@ export function SchemaCtxClient({
                   </Typography>
                   <Box display="grid" gap={2}>
                     <Grid container spacing={3}>
-                      <Grid size={6}></Grid>
+                      <Grid size={6}>
+                        <TableContainer component={Paper} elevation={0}>
+                          <Table
+                            size="small"
+                            aria-label="knowledge source table"
+                          >
+                            <TableHead>
+                              <TableRow>
+                                <TableCell sx={{ fontWeight: 700 }}>
+                                  Previous Question
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 700 }}>
+                                  Previous Consult
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 700 }}>
+                                  New Question
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 700 }}>
+                                  New Consult
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 700 }}>
+                                  Status
+                                </TableCell>
+                                <TableCell
+                                  align="right"
+                                  sx={{ fontWeight: 700 }}
+                                >
+                                  Actions
+                                </TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {schemaCtxDiff && schemaCtxDiff.length > 0 ? (
+                                schemaCtxDiff.map((schema) =>
+                                  schema.tables.map((table) =>
+                                    table.columns.map((col) => (
+                                      <TableRow
+                                        key={`${schema.id}-${table.id}-${col.id}`}
+                                        hover
+                                      >
+                                        <TableCell>{schema.name}</TableCell>
+                                        <TableCell>
+                                          {table.name || "—"}
+                                        </TableCell>
+                                        <TableCell>{col.name || "—"}</TableCell>
+                                        <TableCell>
+                                          {col.dataType || "—"}
+                                        </TableCell>
+                                        <TableCell>{"—"}</TableCell>
+                                        <TableCell align="right">
+                                          <Stack direction="row" spacing={1}>
+                                            <Tooltip title="watch">
+                                              <IconButton
+                                                aria-label="watch"
+                                                size="small"
+                                                onClick={() => {}}
+                                              >
+                                                <AddIcon fontSize="small" />
+                                              </IconButton>
+                                            </Tooltip>
+                                          </Stack>
+                                        </TableCell>
+                                      </TableRow>
+                                    ))
+                                  )
+                                )
+                              ) : (
+                                <TableRow>
+                                  <TableCell colSpan={6}>
+                                    <Typography color="text.secondary">
+                                      No knowledge source rows available.
+                                    </Typography>
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </Grid>
                       <Grid size={6}></Grid>
                     </Grid>
                   </Box>
