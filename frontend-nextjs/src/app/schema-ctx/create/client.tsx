@@ -549,7 +549,31 @@ export function SchemaCtxClient({
           sx: { width: "70%", maxWidth: "none", overflow: "hidden" },
         }}
       >
-        <DialogTitle>Single Difference</DialogTitle>
+        <DialogTitle>
+          <Box sx={{ flex: "0 0 auto", overflow: "hidden" }}>
+            <Stepper activeStep={activeStep}>
+              {steps.map((label, index) => {
+                const stepProps: { completed?: boolean } = {};
+                const labelProps: {
+                  optional?: React.ReactNode;
+                } = {};
+                if (isStepOptional(index)) {
+                  labelProps.optional = (
+                    <Typography variant="caption">Optional</Typography>
+                  );
+                }
+                if (isStepSkipped(index)) {
+                  stepProps.completed = false;
+                }
+                return (
+                  <Step key={label} {...stepProps}>
+                    <StepLabel {...labelProps}>{label}</StepLabel>
+                  </Step>
+                );
+              })}
+            </Stepper>
+          </Box>
+        </DialogTitle>
         <DialogContent
           dividers={true}
           sx={{
@@ -568,29 +592,6 @@ export function SchemaCtxClient({
               overflow: "hidden",
             }}
           >
-            <Box sx={{ flex: "0 0 auto", overflow: "hidden" }}>
-              <Stepper activeStep={activeStep}>
-                {steps.map((label, index) => {
-                  const stepProps: { completed?: boolean } = {};
-                  const labelProps: {
-                    optional?: React.ReactNode;
-                  } = {};
-                  if (isStepOptional(index)) {
-                    labelProps.optional = (
-                      <Typography variant="caption">Optional</Typography>
-                    );
-                  }
-                  if (isStepSkipped(index)) {
-                    stepProps.completed = false;
-                  }
-                  return (
-                    <Step key={label} {...stepProps}>
-                      <StepLabel {...labelProps}>{label}</StepLabel>
-                    </Step>
-                  );
-                })}
-              </Stepper>
-            </Box>
             <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
               {activeStep === steps.length ? (
                 <React.Fragment>
