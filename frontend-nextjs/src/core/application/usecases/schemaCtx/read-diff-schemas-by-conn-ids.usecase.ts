@@ -8,7 +8,7 @@ import { IFormatSchemaCtxStep } from "../../steps/schemaCtx/format-schema-ctx.st
 import { IMergeSchemaCtxRawStep } from "../../steps/schemaCtx/merge-schema-ctx-raw.step";
 import { IReadByIdSchemaCtxStep } from "../../steps/schemaCtx/read-by-id-schema-ctx.step";
 
-export interface IReadSchemasByConnIdsUseCase {
+export interface IReadDiffSchemasByConnIdsUseCase {
   execute(data: {
     schemaCtxId: string;
     connIds: string[];
@@ -16,7 +16,7 @@ export interface IReadSchemasByConnIdsUseCase {
 }
 
 export class ReadDiffSchemasByConnIdsUseCase
-  implements IReadSchemasByConnIdsUseCase
+  implements IReadDiffSchemasByConnIdsUseCase
 {
   constructor(
     private readonly logger: ILogger,
