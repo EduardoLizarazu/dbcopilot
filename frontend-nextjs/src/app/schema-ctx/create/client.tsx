@@ -13,6 +13,7 @@ import {
   Checkbox,
   CircularProgress,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
@@ -330,7 +331,7 @@ export function SchemaCtxClient({
           </TableContainer>
         </Box>
       </Paper>
-      <Dialog open={false}>
+      <Dialog open={true} maxWidth="sm" fullWidth={true}>
         <DialogTitle>Single Schema Editor</DialogTitle>
         <DialogContent dividers={true}>
           <Box display="grid" gap={2}>
@@ -428,20 +429,21 @@ export function SchemaCtxClient({
               fullWidth
               disabled={true}
             />
-            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
-              Profile
-            </Typography>
-            <TextField
-              label="Column type"
-              type="column-type"
-              value={""}
-              required
-              onChange={(e) => {}}
-              fullWidth
-              disabled={true}
-            />
           </Box>
         </DialogContent>
+        <DialogActions>
+          <Button
+            type="submit"
+            variant="outlined"
+            color="error"
+            disabled={loading}
+            sx={{ textTransform: "none" }}
+            onClick={() => {}}
+            loading={loading}
+          >
+            Close
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );
