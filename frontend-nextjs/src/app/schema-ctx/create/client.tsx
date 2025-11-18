@@ -11,7 +11,6 @@ import {
   Box,
   Button,
   Checkbox,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -61,6 +60,8 @@ export function SchemaCtxClient({
 
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
+  const [openSingleSchemaEditor, setOpenSingleSchemaEditor] =
+    React.useState(false);
 
   const toggleConn = (id: string) => {
     setDbConnectionIds((prev) =>
@@ -357,7 +358,7 @@ export function SchemaCtxClient({
           </TableContainer>
         </Box>
       </Paper>
-      <Dialog open={true} maxWidth="sm" fullWidth={true}>
+      <Dialog open={openSingleSchemaEditor} maxWidth="sm" fullWidth={true}>
         <DialogTitle>Single Schema Editor</DialogTitle>
         <DialogContent dividers={true}>
           <Box display="grid" gap={2}>
@@ -464,7 +465,7 @@ export function SchemaCtxClient({
             color="error"
             disabled={isBusy("submit")}
             sx={{ textTransform: "none" }}
-            onClick={() => {}}
+            onClick={() => setOpenSingleSchemaEditor(false)}
           >
             Close
           </Button>
