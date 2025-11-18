@@ -9,6 +9,10 @@ import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-informati
 import { OracleProvider } from "@/infrastructure/providers/database/oracle.infra.provider";
 import { TypeOrmProvider } from "../providers/database/typeorm.infra.provider";
 import { DataSource, QueryRunner } from "typeorm";
+import {
+  TSchemaCtxColumnProfileDto,
+  TSchemaCtxSchemaDto,
+} from "@/core/application/dtos/schemaCtx.dto";
 
 export class NlqQaInformationAdapter implements INlqQaInformationPort {
   constructor(
@@ -16,6 +20,124 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
     private readonly oracleProvider: OracleProvider,
     private readonly typeOrmProvider: TypeOrmProvider
   ) {}
+  async _BasicProfileQuery(data: {
+    schemaName: string;
+    tableName: string;
+    columnName: string;
+  }) {
+    return {
+      maxValue: `SELECT MAX(${data.columnName}) AS max_value FROM ${data.schemaName}.${data.tableName}`,
+      minValue: `SELECT MIN(${data.columnName}) AS min_value FROM ${data.schemaName}.${data.tableName}`,
+      countNulls: `SELECT COUNT(*) AS count_nulls FROM ${data.schemaName}.${data.tableName} WHERE ${data.columnName} IS NULL`,
+      countUnique: `SELECT COUNT(DISTINCT ${data.columnName}) AS count_unique FROM ${data.schemaName}.${data.tableName}`,
+    };
+  }
+  async _SampleUniqueQuery(data: {
+    dbType: string;
+    schemaName: string;
+    tableName: string;
+    columnName: string;
+    limit: number;
+  }) {
+    if (data.dbType === "oracle") {
+      return `SELECT DISTINCT ${data.columnName} as sample_unique FROM ${data.schemaName}.${data.tableName} WHERE ${data.columnName} IS NOT NULL AND ROWNUM <= ${data.limit}`;
+    }
+    if (data.dbType === "postgres") {
+      return `SELECT DISTINCT ${data.columnName} as sample_unique FROM ${data.schemaName}.${data.tableName} WHERE ${data.columnName} IS NOT NULL LIMIT ${data.limit}`;
+    }
+    if (data.dbType === "mysql") {
+      return `SELECT DISTINCT ${data.columnName} as sample_unique FROM ${data.schemaName}.${data.tableName} WHERE ${data.columnName} IS NOT NULL LIMIT ${data.limit}`;
+    }
+    if (data.dbType === "mssql") {
+      return `SELECT DISTINCT TOP(${data.limit}) ${data.columnName} as sample_unique FROM ${data.schemaName}.${data.tableName} WHERE ${data.columnName} IS NOT NULL`;
+    }
+  }
+  async _DataTypeProfileQueryNotAllow(dataType: string) {
+    const notAllowTypes = ["TEXT", "BLOB", "CLOB", "NCLOB", "IMAGE", "BYTEA"];
+    return notAllowTypes.includes(dataType.toUpperCase());
+  }
+  async extractProfile(data: {
+    connection: TNlqInfoConnDto;
+    schema: {
+      schemaName: string;
+      tableName: string;
+      columnName: string;
+      dataType: string;
+    };
+    top: number;
+  }): Promise<TSchemaCtxColumnProfileDto | null> {
+    let queryRunner: QueryRunner | null = null;
+    let dataSource: DataSource | null = null;
+    try {
+      this.logger.info(
+        "[NlqQaInformationAdapter] Extracting schema from connection",
+        JSON.stringify(data.connection)
+      );
+      dataSource = await this.typeOrmProvider.createDataSource({
+        type: data.connection.type,
+        host: data.connection.host,
+        port: data.connection.port,
+        username: data.connection.username,
+        password: data.connection.password,
+        database: data.connection.database,
+        sid: data.connection.sid,
+      });
+      await dataSource.initialize();
+      // check if dataSource is initialized
+      if (!dataSource.isInitialized) {
+        this.logger.error(
+          "[NlqQaInformationAdapter] DataSource is not initialized on extract query"
+        );
+        throw new Error("DataSource is not initialized on extract query");
+      }
+
+      queryRunner = dataSource.createQueryRunner();
+
+      const basicQueries = await this._BasicProfileQuery({
+        schemaName: data.schema.schemaName,
+        tableName: data.schema.tableName,
+        columnName: data.schema.columnName,
+      });
+
+      const sampleUniqueQuery = await this._SampleUniqueQuery({
+        dbType: data.connection.type,
+        schemaName: data.schema.schemaName,
+        tableName: data.schema.tableName,
+        columnName: data.schema.columnName,
+        limit: data.top,
+      });
+
+      const maxValue = await queryRunner.query(basicQueries.maxValue);
+      const minValue = await queryRunner.query(basicQueries.minValue);
+      const countNulls = await queryRunner.query(basicQueries.countNulls);
+      const countUnique = await queryRunner.query(basicQueries.countUnique);
+      const sampleUnique = await queryRunner.query(sampleUniqueQuery);
+
+      const result: TSchemaCtxColumnProfileDto = {
+        maxValue: maxValue[0]?.MAX_VALUE || null,
+        minValue: minValue[0]?.MIN_VALUE || null,
+        countNulls: countNulls[0]?.COUNT_NULLS || 0,
+        countUnique: countUnique[0]?.COUNT_UNIQUE || 0,
+        sampleUnique: sampleUnique.map((row: any) => row.SAMPLE_UNIQUE) || [],
+      };
+
+      this.logger.info(
+        "[NlqQaInformationAdapter] Schema extracted from connection",
+        JSON.stringify({ result: result })
+      );
+
+      return result;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaInformationAdapter] Error extracting profile",
+        error.message
+      );
+      throw new Error(error.message || "Error extracting profile");
+    } finally {
+      if (queryRunner) await queryRunner.release();
+      if (dataSource) await dataSource.destroy();
+    }
+  }
   async extractSchemaFromConnection(
     connection: TNlqInfoConnDto
   ): Promise<TNlqQaInformationSchemaExtractionDto> {

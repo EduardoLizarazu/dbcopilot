@@ -107,3 +107,18 @@ export const updateSchemaCtxBaseInReq = schemaCtxBase
 export type TUpdateSchemaCtxBaseInReqDto = z.infer<
   typeof updateSchemaCtxBaseInReq
 >;
+
+// ======== EXTRA TYPES ========
+export const schemaCtxSimpleTableDto = schemaCtxTable
+  .omit({ columns: true })
+  .extend({
+    column: schemaCtxColumn,
+  });
+export const schemaCtxSimpleSchemaDto = schemaCtxSchema
+  .omit({ tables: true })
+  .extend({
+    table: schemaCtxSimpleTableDto,
+  });
+export type TSchemaCtxSimpleSchemaDto = z.infer<
+  typeof schemaCtxSimpleSchemaDto
+>;
