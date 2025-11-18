@@ -33,7 +33,6 @@ import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
 import EditIcon from "@mui/icons-material/Edit";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
-import { ok } from "assert";
 
 export function SchemaCtxClient({
   initial,
@@ -143,11 +142,12 @@ export function SchemaCtxClient({
     setSuccess(null);
     setBusyFlag("table", true);
     try {
-      const res = await ReadDiffSchemaCtxAction({
-        connIds: dbConnectionIds,
-      });
-      if (res.ok) setSchemaCtx(res.data || []);
-      if (!res.ok) setError(res.message || "Failed to search schema context.");
+      //   const res = await ReadDiffSchemaCtxAction({
+      //     schemaCtxId: initial?.id || null,
+      //     connIds: dbConnectionIds,
+      //   });
+      //   if (res.ok) setSchemaCtx(res.data || []);
+      //   if (!res.ok) setError(res.message || "Failed to search schema context.");
     } finally {
       setBusyFlag("table", false);
     }
@@ -195,6 +195,8 @@ export function SchemaCtxClient({
             required
             onChange={(e) => setDescription(e.target.value)}
             fullWidth
+            multiline
+            minRows={4}
           />
 
           {/* Connection selection table */}
@@ -333,7 +335,7 @@ export function SchemaCtxClient({
                                 aria-label="Edit schema context"
                                 size="small"
                                 onClick={() => {
-                                  /* TODO: open editor for this column */
+                                  setOpenSingleSchemaEditor(true);
                                 }}
                               >
                                 <EditIcon fontSize="small" />
