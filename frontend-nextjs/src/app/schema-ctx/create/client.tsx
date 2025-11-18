@@ -262,6 +262,7 @@ export function SchemaCtxClient({
             >
               <Button
                 type="submit"
+                color="secondary"
                 variant="contained"
                 disabled={loading}
                 sx={{ textTransform: "none" }}
