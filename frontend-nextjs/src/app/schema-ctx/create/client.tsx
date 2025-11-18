@@ -872,6 +872,16 @@ export function SchemaCtxClient({
                           disabled
                           sx={{ mb: 2 }}
                         />
+                        <Button
+                          variant="outlined"
+                          onClick={() => {}}
+                          disabled={false}
+                          loading={false}
+                          sx={{ mb: 2 }}
+                        >
+                          old run
+                        </Button>
+
                         <TextField
                           label="New question"
                           type="new-question"
@@ -894,7 +904,15 @@ export function SchemaCtxClient({
                           minRows={4}
                           sx={{ mb: 2 }}
                         />
-                        <Stack></Stack>
+                        <Button
+                          variant="outlined"
+                          onClick={() => {}}
+                          disabled={false}
+                          loading={false}
+                          sx={{ mb: 2 }}
+                        >
+                          new run
+                        </Button>
                       </Grid>
                     </Grid>
                   </Box>
