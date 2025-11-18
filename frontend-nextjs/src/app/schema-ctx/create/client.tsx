@@ -209,13 +209,14 @@ export function SchemaCtxClient({
           schemaCtxId: initial?.id || null,
           connIds: dbConnectionIds,
         });
+        if (res.ok) setSchemaCtxDiff(res.data || []);
       } else {
         res = await ReadNewSchemaCtxAction({
           connIds: dbConnectionIds,
         });
+        if (res.ok) setSchemaCtx(res.data || []);
       }
 
-      if (res.ok) setSchemaCtxDiff(res.data || []);
       if (!res.ok) setError(res.message || "Failed to search schema context.");
     } finally {
       setBusyFlag("table", false);

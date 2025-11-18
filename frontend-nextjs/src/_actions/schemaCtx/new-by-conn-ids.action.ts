@@ -1,12 +1,12 @@
 "use server";
 import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
-import { TSchemaCtxDiffBaseDto } from "@/core/application/dtos/schemaCtx.dto";
+import { TSchemaCtxSchemaDto } from "@/core/application/dtos/schemaCtx.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function ReadNewSchemaCtxAction(input: {
   connIds: string[];
-}): Promise<TResOutContent<TSchemaCtxDiffBaseDto[]>> {
+}): Promise<TResOutContent<TSchemaCtxSchemaDto[]>> {
   console.log("Reading new schema context (test)...", input);
 
   const res = await fetch(`${domain}/api/schema-ctx/diff`, {
