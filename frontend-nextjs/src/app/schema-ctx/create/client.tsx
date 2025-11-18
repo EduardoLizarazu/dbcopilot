@@ -577,7 +577,7 @@ export function SchemaCtxClient({
         <DialogContent
           dividers={true}
           sx={{
-            height: "70vh",
+            height: "30vh",
             minHeight: 420,
             display: "flex",
             flexDirection: "column",
@@ -804,9 +804,6 @@ export function SchemaCtxClient({
                   )}
                   {activeStep === 1 && (
                     <>
-                      <Typography sx={{ mt: 2, mb: 1 }}>
-                        Step 2: Knowledge Source Content
-                      </Typography>
                       <Box
                         display="grid"
                         gap={2}
