@@ -1,5 +1,6 @@
 import { TNlqSchemaProfileBasicsDto } from "../../dtos/nlq/nlq-qa-information.app.dto";
 import { TSchemaCtxColumnProfileDto } from "../../dtos/schemaCtx.dto";
+import { TResponseDto } from "../../dtos/utils/response.app.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IReadDbConnByIdStep } from "../../steps/dbconn/read-dbconn-by-id.step";
 import { IExecuteProfileOnInfoStep } from "../../steps/infoBased/execute-profile-on-info.step";
@@ -9,7 +10,7 @@ export interface IProfileExtractorUseCase {
   execute(data: {
     connectionIds: string[];
     schema: TNlqSchemaProfileBasicsDto;
-  }): Promise<TSchemaCtxColumnProfileDto | null>;
+  }): Promise<TResponseDto<TSchemaCtxColumnProfileDto | null>>;
 }
 
 export class ProfileExtractorUseCase implements IProfileExtractorUseCase {
@@ -23,7 +24,7 @@ export class ProfileExtractorUseCase implements IProfileExtractorUseCase {
   async execute(data: {
     connectionIds: string[];
     schema: TNlqSchemaProfileBasicsDto;
-  }): Promise<TSchemaCtxColumnProfileDto | null> {
+  }): Promise<TResponseDto<TSchemaCtxColumnProfileDto | null>> {
     try {
       this.logger.info(
         "[ProfileExtractorUseCase] Executing profile extraction with data:",
@@ -81,13 +82,21 @@ export class ProfileExtractorUseCase implements IProfileExtractorUseCase {
         },
         schema: data.schema,
       });
-      return profileResult;
+      return {
+        success: true,
+        data: profileResult,
+        message: "Profile extraction successful",
+      };
     } catch (error) {
       this.logger.error(
         "[ProfileExtractorUseCase] Error executing profile extraction:",
         error.message
       );
-      throw new Error(error.message || "Error executing profile extraction");
+      return {
+        success: false,
+        message: error.message || "Error executing profile extraction",
+        data: null,
+      };
     }
   }
 }
