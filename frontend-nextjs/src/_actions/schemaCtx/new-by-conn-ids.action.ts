@@ -4,34 +4,30 @@ import { TSchemaCtxDiffBaseDto } from "@/core/application/dtos/schemaCtx.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
-export async function ReadDiffSchemaCtxAction(input: {
-  schemaCtxId: string;
+export async function ReadNewSchemaCtxAction(input: {
   connIds: string[];
 }): Promise<TResOutContent<TSchemaCtxDiffBaseDto[]>> {
-  console.log("Reading diff schema context (test)...", input);
+  console.log("Reading new schema context (test)...", input);
 
-  const res = await fetch(
-    `${domain}/api/schema-ctx/diff/${input.schemaCtxId}`,
-    {
-      method: "POST",
-      body: JSON.stringify(input),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
-      },
-    }
-  );
+  const res = await fetch(`${domain}/api/schema-ctx/diff`, {
+    method: "POST",
+    body: JSON.stringify(input),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
+    },
+  });
   console.log("Response:", res);
 
   if (!res.ok) {
     const errorData = await res.json();
     console.error(
-      "Error reading diff schema context:",
+      "Error reading new schema context:",
       errorData.message || res.statusText
     );
     return {
       ok: false,
-      message: errorData.message || "Failed to read diff schema context",
+      message: errorData.message || "Failed to read new schema context",
       data: null,
     };
   }

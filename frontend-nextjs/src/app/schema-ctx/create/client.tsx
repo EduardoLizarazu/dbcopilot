@@ -542,7 +542,7 @@ export function SchemaCtxClient({
       </Dialog>
       {/* DIFF DIALOG */}
       <Dialog
-        open={true}
+        open={false}
         maxWidth="lg"
         fullWidth
         PaperProps={{

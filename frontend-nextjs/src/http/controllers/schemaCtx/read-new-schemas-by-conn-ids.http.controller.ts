@@ -10,12 +10,12 @@ import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
 import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
 import { ROLE } from "@/http/utils/role.enum";
 import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
-import { IReadDiffSchemasByConnIdsUseCase } from "@/core/application/usecases/schemaCtx/read-diff-schemas-by-conn-ids.usecase";
+import { IReadNewSchemasByConnIdsUseCase } from "@/core/application/usecases/schemaCtx/read-new-schemas-by-conn-ids.usecase";
 
-export class ReadDiffSchemaCtxByConnIdsController implements IController {
+export class ReadNewSchemaCtxByConnIdsController implements IController {
   constructor(
     private readonly logger: ILogger,
-    private readonly readDiffSchemasByConnIdsUseCase: IReadDiffSchemasByConnIdsUseCase,
+    private readonly readNewSchemasByConnIdsUseCase: IReadNewSchemasByConnIdsUseCase,
     private readonly decodeTokenAdapter: IDecodeTokenPort,
     private readonly accessRepo: IAuthorizationRepository,
     private httpErrors: IHttpErrors = new HttpErrors(),
@@ -31,14 +31,14 @@ export class ReadDiffSchemaCtxByConnIdsController implements IController {
     try {
       // ==== INPUT OF REQUEST ====
       this.logger.info(
-        "[ReadDiffSchemaCtxController] Handling request",
+        "[ReadNewSchemasByConnIdsController] Handling request",
         httpRequest
       );
 
       //   ==== INPUT HEADERS ====
       //   1. Check headers
       const headers = httpRequest.header as Record<string, string>;
-      this.logger.info("[ReadDiffSchemaCtxController] Headers:", headers);
+      this.logger.info("[ReadNewSchemasByConnIdsController] Headers:", headers);
       //   2. Check authorization
       const authHeader =
         headers["Authorization"] || headers["authorization"] || "";
@@ -53,13 +53,13 @@ export class ReadDiffSchemaCtxByConnIdsController implements IController {
         return new HttpResponse(error.statusCode, error.body);
       }
       const token = authHeader.replace("Bearer ", "");
-      this.logger.info("[ReadDiffSchemaCtxController] Token:", token);
+      this.logger.info("[ReadNewSchemasByConnIdsController] Token:", token);
 
       //   3. Decode token
       const decoded = await this.decodeTokenAdapter.decodeToken(token);
       if (!decoded) {
         this.logger.error(
-          "[ReadDiffSchemaCtxController] Invalid authorization token",
+          "[ReadNewSchemasByConnIdsController] Invalid authorization token",
           httpRequest
         );
         const error = this.httpErrors.error_401("Invalid authorization token");
@@ -70,7 +70,7 @@ export class ReadDiffSchemaCtxByConnIdsController implements IController {
         decoded.uid
       );
       this.logger.info(
-        "[ReadDiffSchemaCtxController] User roles names:",
+        "[ReadNewSchemasByConnIdsController] User roles names:",
         roleNames.roleNames
       );
       //   5. Check roles permissions
@@ -81,7 +81,7 @@ export class ReadDiffSchemaCtxByConnIdsController implements IController {
 
       if (!hasAuth) {
         this.logger.error(
-          "[ReadDiffSchemaCtxController] User does not have the required roles",
+          "[ReadNewSchemasByConnIdsController] User does not have the required roles",
           httpRequest
         );
         const error = this.httpErrors.error_401(
@@ -93,7 +93,7 @@ export class ReadDiffSchemaCtxByConnIdsController implements IController {
       //   ==== INPUT BODY ====
       if (!httpRequest.body) {
         this.logger.error(
-          "[ReadDiffSchemaCtxController] No body provided",
+          "[ReadNewSchemasByConnIdsController] No body provided",
           httpRequest
         );
         const error = this.httpErrors.error_400("No body provided");
@@ -101,17 +101,17 @@ export class ReadDiffSchemaCtxByConnIdsController implements IController {
       }
 
       this.logger.info(
-        "[ReadDiffSchemaCtxController] Received body:",
+        "[ReadNewSchemasByConnIdsController] Received body:",
         httpRequest.body
       );
 
       const body = httpRequest.body;
 
-      const response = await this.readDiffSchemasByConnIdsUseCase.execute(body);
+      const response = await this.readNewSchemasByConnIdsUseCase.execute(body);
 
       if (!response.success) {
         this.logger.error(
-          "[ReadDiffSchemaCtxController] Failed to read diff schemas by connection ids:",
+          "[ReadNewSchemasByConnIdsController] Failed to read new schemas by connection ids:",
           response
         );
         const error = this.httpErrors.error_400(response.message);
@@ -119,7 +119,7 @@ export class ReadDiffSchemaCtxByConnIdsController implements IController {
       }
 
       this.logger.info(
-        "[ReadDiffSchemaCtxController] Read diff schemas result:",
+        "[ReadNewSchemasByConnIdsController] Read new schemas result:",
         response.data
       );
 
@@ -130,7 +130,7 @@ export class ReadDiffSchemaCtxByConnIdsController implements IController {
       return new HttpResponse(success.statusCode, success.body);
     } catch (err) {
       this.logger.error(
-        "[ReadDiffSchemaCtxController] Unexpected error:",
+        "[ReadNewSchemasByConnIdsController] Unexpected error:",
         err.message
       );
       const error = this.httpErrors.error_500(
