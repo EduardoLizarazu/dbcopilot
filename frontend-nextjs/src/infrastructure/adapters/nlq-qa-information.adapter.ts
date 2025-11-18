@@ -94,6 +94,18 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
         "[NlqQaInformationAdapter] Extracting schema from connection",
         JSON.stringify(data.connection)
       );
+
+      // Check if data type is allowed for profiling
+      const isNotAllow = await this._DataTypeProfileQueryNotAllow(
+        data.schema.dataType
+      );
+      if (isNotAllow) {
+        this.logger.warn(
+          `[NlqQaInformationAdapter] Data type ${data.schema.dataType} is not allowed for profiling. Skipping profile extraction.`
+        );
+        return null;
+      }
+
       dataSource = await this.typeOrmProvider.createDataSource({
         type: data.connection.type,
         host: data.connection.host,
