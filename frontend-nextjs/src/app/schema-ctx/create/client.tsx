@@ -3,6 +3,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import {
   TSchemaCtxBaseDto,
+  TSchemaCtxDiffSchemaDto,
   TSchemaCtxSchemaDto,
 } from "@/core/application/dtos/schemaCtx.dto";
 import { CreateSchemaCtxAction } from "@/_actions/schemaCtx/create.action";
@@ -57,6 +58,10 @@ export function SchemaCtxClient({
   const [schemaCtx, setSchemaCtx] = React.useState<
     TSchemaCtxSchemaDto[] | null
   >(initial?.schemaCtx || null);
+
+  const [schemaCtxDiff, setSchemaCtxDiff] = React.useState<
+    TSchemaCtxDiffSchemaDto[] | null
+  >(null);
 
   const [busy, setBusy] = React.useState<Set<string>>(new Set());
 
@@ -144,13 +149,18 @@ export function SchemaCtxClient({
     setSuccess(null);
     setBusyFlag("table", true);
     try {
-      // NEED TO FIX THIS ON THE SCHEMA ID CREATION FIRST
+      // NEED TO FIX THIS ON THE SCHEMA ID CREATION FIRST AND RETURN SCHEMA DIFF SCHEMA DTO
       //   const res = await ReadDiffSchemaCtxAction({
       //     schemaCtxId: initial?.id || null,
       //     connIds: dbConnectionIds,
       //   });
-      //   if (res.ok) setSchemaCtx(res.data || []);
-      //   if (!res.ok) setError(res.message || "Failed to search schema context.");
+      const res = {
+        ok: false,
+        message: "Not implemented",
+        data: null,
+      };
+      if (res.ok) setSchemaCtxDiff(res.data || []);
+      if (!res.ok) setError(res.message || "Failed to search schema context.");
     } finally {
       setBusyFlag("table", false);
     }
