@@ -6,12 +6,12 @@
  * [ { TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE }, ... ]
  */
 
-import { TNlqQaInformationSchemaExtractionDto } from "../../dtos/nlq/nlq-qa-information.app.dto";
 import {
-  createSchemaCtxBase,
-  createSchemaCtxBaseInReq,
-  TCreateSchemaCtxBaseDto,
-  TCreateSchemaCtxBaseInReqDto,
+  nlqQaInformationSchemaExtraction,
+  TNlqQaInformationSchemaExtractionDto,
+} from "../../dtos/nlq/nlq-qa-information.app.dto";
+import {
+  schemaCtxSchema,
   TSchemaCtxColumnDto,
   TSchemaCtxSchemaDto,
   TSchemaCtxTableDto,
@@ -19,21 +19,23 @@ import {
 import { ILogger } from "../../interfaces/ilog.app.inter";
 
 export interface IFormatSchemaCtxStep {
-  run(data: TCreateSchemaCtxBaseInReqDto): Promise<TCreateSchemaCtxBaseDto>;
+  run(
+    data: TNlqQaInformationSchemaExtractionDto
+  ): Promise<TSchemaCtxSchemaDto[]>;
 }
 
 export class FormatSchemaCtxStep implements IFormatSchemaCtxStep {
   constructor(private readonly logger: ILogger) {}
 
   async run(
-    data: TCreateSchemaCtxBaseInReqDto
-  ): Promise<TCreateSchemaCtxBaseDto> {
+    data: TNlqQaInformationSchemaExtractionDto
+  ): Promise<TSchemaCtxSchemaDto[]> {
     try {
       this.logger.info(
         `[FormatSchemaCtxStep] Formatting schema context data: ${JSON.stringify(data)}`
       );
 
-      const vData = await createSchemaCtxBaseInReq.safeParseAsync(data);
+      const vData = await nlqQaInformationSchemaExtraction.safeParseAsync(data);
       if (!vData.success) {
         this.logger.error(
           `[FormatSchemaCtxStep] Validation errors: ${JSON.stringify(vData.error.issues)}`
@@ -44,18 +46,15 @@ export class FormatSchemaCtxStep implements IFormatSchemaCtxStep {
         );
       }
       const rawData = vData.data;
-      const formatSchemaCtx = _mapRawSchemaToOrganizationSchema(
-        rawData.schemaCtx
-      );
+      const formatSchemaCtx = _mapRawSchemaToOrganizationSchema(rawData);
 
       // Build a transformed object matching the `createSchemaCtxBase` shape
-      const transformed: TCreateSchemaCtxBaseDto = {
-        ...rawData,
-        schemaCtx: formatSchemaCtx,
-      };
+      const transformed: TSchemaCtxSchemaDto[] = formatSchemaCtx;
 
       // Validate transformed data against the createSchemaCtxBase schema
-      const finalData = await createSchemaCtxBase.safeParseAsync(transformed);
+      const finalData = await schemaCtxSchema
+        .array()
+        .safeParseAsync(transformed);
       if (!finalData.success) {
         this.logger.error(
           `[FormatSchemaCtxStep] Final validation errors: ${JSON.stringify(

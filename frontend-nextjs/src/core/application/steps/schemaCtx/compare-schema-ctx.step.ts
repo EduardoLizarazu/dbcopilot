@@ -1,25 +1,25 @@
 import {
   SchemaCtxDiffStatus,
   schemaCtxSchema,
-  TSchemaCtxDiffBaseDto,
+  TSchemaCtxDiffSchemaDto,
   TSchemaCtxSchemaDto,
 } from "../../dtos/schemaCtx.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 
 export interface ICompareSchemaCtxStep {
-  execute(
+  run(
     oldSchema: TSchemaCtxSchemaDto[],
     newSchema: TSchemaCtxSchemaDto[]
-  ): Promise<TSchemaCtxDiffBaseDto[]>;
+  ): Promise<TSchemaCtxDiffSchemaDto[]>;
 }
 
 export class CompareSchemaCtxStep implements ICompareSchemaCtxStep {
   constructor(private readonly logger: ILogger) {}
 
-  async execute(
+  async run(
     oldSchema: TSchemaCtxSchemaDto[],
     newSchema: TSchemaCtxSchemaDto[]
-  ): Promise<TSchemaCtxDiffBaseDto[]> {
+  ): Promise<TSchemaCtxDiffSchemaDto[]> {
     try {
       this.logger.info(
         `[CompareSchemaCtxStep] Comparing old and new schema contexts`
@@ -59,6 +59,7 @@ export class CompareSchemaCtxStep implements ICompareSchemaCtxStep {
       const oldData = vDataSchemaCtxOld.map((v) => v.data);
 
       const schemaDiff = _compareSchemas(newData, oldData);
+
       return schemaDiff;
     } catch (error) {
       this.logger.error(
@@ -107,7 +108,7 @@ function _getDataTypeName(dt) {
 function _compareSchemas(
   newSchemas: TSchemaCtxSchemaDto[],
   oldSchemas: TSchemaCtxSchemaDto[]
-): TSchemaCtxDiffBaseDto[] {
+): TSchemaCtxDiffSchemaDto[] {
   // Build maps by schema name
   const newMap = new Map();
   for (const s of newSchemas || []) {
