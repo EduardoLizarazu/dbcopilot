@@ -497,12 +497,9 @@ export function SchemaCtxClient({
         fullWidth
         PaperProps={{ sx: { width: "70%", maxWidth: "none" } }}
       >
-        <DialogTitle>Single Schema Editor</DialogTitle>
+        <DialogTitle>Single Difference</DialogTitle>
         <DialogContent dividers={true}>
           <Box display="grid" gap={2}>
-            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
-              Schema Diff
-            </Typography>
             <Grid container spacing={3}>
               <Grid size={7}>
                 <TableContainer component={Paper} elevation={0}>
