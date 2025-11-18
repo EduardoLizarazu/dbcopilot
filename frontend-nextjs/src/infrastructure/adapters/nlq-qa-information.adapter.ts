@@ -53,8 +53,29 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
     }
   }
   async _DataTypeProfileQueryNotAllow(dataType: string) {
-    const notAllowTypes = ["TEXT", "BLOB", "CLOB", "NCLOB", "IMAGE", "BYTEA"];
-    return notAllowTypes.includes(dataType.toUpperCase());
+    // Common large / binary / unindexable types across Oracle, Postgres, MySQL/MariaDB, MSSQL
+    const notAllowTypes = [
+      // Text / large text
+      "TEXT",
+      "MEDIUMTEXT",
+      "LONGTEXT",
+      "CLOB",
+      "NCLOB",
+      "NTEXT",
+      // Binary / blob
+      "BLOB",
+      "MEDIUMBLOB",
+      "LONGBLOB",
+      "BYTEA",
+      "IMAGE",
+      // JSON/XML/geospatial (optionally skip depending on needs)
+      "JSON",
+      "JSONB",
+      "XML",
+      "GEOMETRY",
+      "GEOGRAPHY",
+    ];
+    return notAllowTypes.includes(String(dataType || "").toUpperCase());
   }
   async extractProfile(data: {
     connection: TNlqInfoConnDto;
@@ -113,12 +134,33 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
       const countUnique = await queryRunner.query(basicQueries.countUnique);
       const sampleUnique = await queryRunner.query(sampleUniqueQuery);
 
+      const getValue = (row: any, alias: string) => {
+        if (!row) return null;
+        // try common casings
+        return (
+          row[alias.toUpperCase()] ??
+          row[alias.toLowerCase()] ??
+          row[alias] ??
+          // camel case
+          row[alias.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] ??
+          // fallback to first column value
+          Object.values(row)[0]
+        );
+      };
+
       const result: TSchemaCtxColumnProfileDto = {
-        maxValue: maxValue[0]?.MAX_VALUE || null,
-        minValue: minValue[0]?.MIN_VALUE || null,
-        countNulls: countNulls[0]?.COUNT_NULLS || 0,
-        countUnique: countUnique[0]?.COUNT_UNIQUE || 0,
-        sampleUnique: sampleUnique.map((row: any) => row.SAMPLE_UNIQUE) || [],
+        maxValue: getValue(maxValue && maxValue[0], "max_value") ?? null,
+        minValue: getValue(minValue && minValue[0], "min_value") ?? null,
+        countNulls: Number(
+          getValue(countNulls && countNulls[0], "count_nulls") ?? 0
+        ),
+        countUnique: Number(
+          getValue(countUnique && countUnique[0], "count_unique") ?? 0
+        ),
+        sampleUnique: (Array.isArray(sampleUnique)
+          ? sampleUnique.map((row: any) => getValue(row, "sample_unique"))
+          : []
+        ).filter((v) => v !== undefined && v !== null),
       };
 
       this.logger.info(
