@@ -32,6 +32,7 @@ import {
 import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
 import EditIcon from "@mui/icons-material/Edit";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
+import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
 
 export function SchemaCtxClient({
   initial,
@@ -115,13 +116,16 @@ export function SchemaCtxClient({
     setLoading(false);
   };
 
-  const onSearchSchema = async (e: React.FormEvent) => {
+  const onSearchDiffSchema = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
     setTableLoading(true);
-    const res = await SearchSchemaCtxAction(dbConnectionIds);
-    if (res.ok) setSchemaCtx(res.data.schemaCtx || []);
+    const res = await ReadDiffSchemaCtxAction({
+      schemaCtxId: initial?.id || "",
+      connIds: dbConnectionIds,
+    });
+    if (res.ok) setSchemaCtx(res.data || []);
     if (!res.ok) setError(res.message || "Failed to search schema context.");
     setTableLoading(false);
   };
@@ -130,7 +134,12 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     setTableLoading(true);
-    const res = await ProfileSchemaCtxAction(dbConnectionIds);
+    // const res = await ProfileSchemaCtxAction(dbConnectionIds);
+    const res = {
+      ok: false,
+      message: "Not implemented",
+      data: null,
+    };
     if (res.ok) setSchemaCtx(res.data.schemaCtx || []);
     if (!res.ok) setError(res.message || "Failed to profile schema context.");
     setTableLoading(false);
