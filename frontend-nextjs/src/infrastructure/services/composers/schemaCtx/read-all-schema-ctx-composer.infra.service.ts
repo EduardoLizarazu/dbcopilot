@@ -1,7 +1,7 @@
-import { ReadByIdSchemaCtxStep } from "@/core/application/steps/schemaCtx/read-by-id-schema-ctx.step";
-import { ReadByIdSchemaCtxUseCase } from "@/core/application/usecases/schemaCtx/read-by-id-schema-ctx.usecase";
+import { ReadAllSchemaCtxStep } from "@/core/application/steps/schemaCtx/read-all-schema-ctx.step";
+import { ReadAllSchemaCtxUseCase } from "@/core/application/usecases/schemaCtx/read-all-schema-ctx.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
-import { ReadByIdSchemaCtxController } from "@/http/controllers/schemaCtx/read-by-id-schema-ctx.http.controller";
+import { ReadAllSchemaCtxController } from "@/http/controllers/schemaCtx/read-all-schema-ctx.http.controller";
 import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
@@ -28,19 +28,19 @@ export function ReadAllSchemaCtxComposer(): IController {
   );
 
   // STEPS
-  const readByIdSchemaCtxStep = new ReadByIdSchemaCtxStep(
+  const readAllSchemaCtxStep = new ReadAllSchemaCtxStep(
     loggerProvider,
     schemaRepo
   );
 
   // USE CASES
-  const useCase = new ReadByIdSchemaCtxUseCase(
+  const useCase = new ReadAllSchemaCtxUseCase(
     loggerProvider,
-    readByIdSchemaCtxStep
+    readAllSchemaCtxStep
   );
 
   // CONTROLLER
-  const controller = new ReadByIdSchemaCtxController(
+  const controller = new ReadAllSchemaCtxController(
     loggerProvider,
     useCase,
     decodeTokenAdapter,

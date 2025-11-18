@@ -10,8 +10,6 @@ import { IHttpRequest } from "@/http/helpers/IHttpRequest.http";
 import { IAuthorizationRepository } from "@/core/application/interfaces/auth/auth.app.inter";
 import { ROLE } from "@/http/utils/role.enum";
 import { IDecodeTokenPort } from "@/core/application/ports/decode-token.port";
-import { ICreateSchemaCtxUseCase } from "@/core/application/usecases/schemaCtx/create-schema-ctx.usecase";
-import { TCreateSchemaCtxBaseDto } from "@/core/application/dtos/schemaCtx.dto";
 import { IReadDiffSchemasByConnIdsUseCase } from "@/core/application/usecases/schemaCtx/read-diff-schemas-by-conn-ids.usecase";
 
 export class ReadDiffSchemaCtxController implements IController {
