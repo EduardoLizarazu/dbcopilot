@@ -24,7 +24,6 @@ export interface ICreateSchemaCtxUseCase {
 export class CreateSchemaCtxUseCase implements ICreateSchemaCtxUseCase {
   constructor(
     private readonly logger: ILogger,
-    private readonly formatSchemaCtxStep: IFormatSchemaCtxStep,
     private readonly createSchemaCtxStep: ICreateSchemaCtxStep
   ) {}
   async execute(
