@@ -22,7 +22,7 @@ export const nlqQaInformationSchemaExtraction = z.array(
     TABLE_NAME: z.string(),
     COLUMN_NAME: z.string(),
     DATA_TYPE: z.string(),
-    DATA_LENGTH: z.number().nullable(),
+    DATA_LENGTH: z.number().nullable().optional(),
     DATA_PRECISION: z.number().nullable().optional(),
     DATA_SCALE: z.number().nullable().optional(),
     NULLABLE: z.string().nullable().optional(),

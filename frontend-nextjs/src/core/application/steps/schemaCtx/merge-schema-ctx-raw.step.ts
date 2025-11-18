@@ -12,32 +12,39 @@ export class MergeSchemaCtxRawStep implements IMergeSchemaCtxRawStep {
   async run(data: TSchemaCtxRaw[]): Promise<TSchemaCtxRaw> {
     try {
       this.logger.info(
-        `[MergeSchemaCtxRawStep] Merging schema context raw data: ${JSON.stringify(
-          data
-        )}`
+        `[MergeSchemaCtxRawStep] Merging schema context raw data:`,
+        data
       );
 
-      let vData = null;
-      for (const schema of data) {
-        const vSchema =
-          await nlqQaInformationSchemaExtraction.safeParseAsync(schema);
-        if (!vSchema.success) {
-          this.logger.error(
-            `[MergeSchemaCtxRawStep] Validation errors in one of the schemas: ${JSON.stringify(vSchema.error.issues)}`
-          );
-          throw new Error(
-            vSchema.error.errors.map((e) => e.message).join(", ") ||
-              "Invalid schema context raw data"
-          );
-        }
-        vData = vSchema.data;
+      const vSchema = await nlqQaInformationSchemaExtraction
+        .array()
+        .safeParseAsync(data);
+      if (!vSchema.success) {
+        this.logger.error(
+          `[MergeSchemaCtxRawStep] Validation errors in one of the schemas: ${JSON.stringify(vSchema.error.issues)}`
+        );
+        throw new Error(
+          vSchema.error.issues.map((e) => e.message).join(", ") ||
+            "Invalid schema context raw data"
+        );
       }
 
-      const mergedData: TSchemaCtxRaw = _joinSchemas(data);
+      const mergedData: TSchemaCtxRaw = _joinSchemas(vSchema.data);
 
       const finalData =
-        await nlqQaInformationSchemaExtraction.parseAsync(mergedData);
-      return finalData;
+        await nlqQaInformationSchemaExtraction.safeParseAsync(mergedData);
+
+      if (!finalData.success) {
+        this.logger.error(
+          `[MergeSchemaCtxRawStep] Validation errors after merging: ${JSON.stringify(finalData.error.issues)}`
+        );
+        throw new Error(
+          finalData.error.issues.map((e) => e.message).join(", ") ||
+            "Invalid merged schema context raw data"
+        );
+      }
+
+      return finalData.data;
     } catch (error) {
       this.logger.error(
         `[MergeSchemaCtxRawStep] Error merging schema context raw data: `,

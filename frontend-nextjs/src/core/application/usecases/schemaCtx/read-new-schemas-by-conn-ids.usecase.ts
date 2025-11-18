@@ -48,6 +48,10 @@ export class ReadNewSchemasByConnIdsUseCase
         return conn;
       });
       const resolvedNewConnections = await Promise.all(newConnections);
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Retrieved new connections:`,
+        resolvedNewConnections
+      );
 
       // Retrieve schemas from connections
       const newRawSchemas = resolvedNewConnections.map(async (conn) => {
@@ -58,17 +62,29 @@ export class ReadNewSchemasByConnIdsUseCase
         return schemaInfo;
       });
       const resolvedNewRawSchemas = await Promise.all(newRawSchemas);
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Retrieved new raw schemas:`,
+        resolvedNewRawSchemas
+      );
 
       // WHAT CHANGES BETWEEN OLD AND NEW SCHEMAS
       // Merge raw schemas
       const mergeNewRawSchema = await this.mergeSchemaCtxRawStep.run(
         resolvedNewRawSchemas.filter((s) => s !== null)
       );
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Merged new raw schemas:`,
+        mergeNewRawSchema
+      );
 
       // Format Schema
 
       const formatNewSchema =
         await this.formatSchemaCtxStep.run(mergeNewRawSchema);
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Retrieved formatted new schemas:`,
+        formatNewSchema
+      );
 
       return {
         success: true,
