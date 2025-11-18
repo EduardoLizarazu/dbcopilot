@@ -74,6 +74,8 @@ export function SchemaCtxClient({
   const [schemaCtx, setSchemaCtx] = React.useState<
     TSchemaCtxSchemaDto[] | null
   >(initial?.schemaCtx || null);
+  const [singleSchemaCtx, setSingleSchemaCtx] =
+    React.useState<TSchemaCtxSchemaDto | null>(null);
 
   const [schemaCtxDiff, setSchemaCtxDiff] = React.useState<
     TSchemaCtxDiffSchemaDto[] | null
@@ -202,7 +204,7 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     setBusyFlag("table", true);
-    setSchemaCtxDiff([]);
+    setSchemaCtxDiff(null);
     try {
       let res = null;
       if (initial) {
