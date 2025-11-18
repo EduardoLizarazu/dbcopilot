@@ -604,29 +604,6 @@ export function SchemaCtxClient({
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                    <Button
-                      color="inherit"
-                      disabled={activeStep === 0}
-                      onClick={handleBack}
-                      sx={{ mr: 1 }}
-                    >
-                      Back
-                    </Button>
-                    <Box sx={{ flex: "1 1 auto" }} />
-                    {isStepOptional(activeStep) && (
-                      <Button
-                        color="inherit"
-                        onClick={handleSkip}
-                        sx={{ mr: 1 }}
-                      >
-                        Skip
-                      </Button>
-                    )}
-                    <Button onClick={handleNext}>
-                      {activeStep === steps.length - 1 ? "Finish" : "Next"}
-                    </Button>
-                  </Box>
                   {activeStep === 0 && (
                     <>
                       <Box display="grid" gap={2} sx={{ height: "100%" }}>
@@ -1028,6 +1005,32 @@ export function SchemaCtxClient({
           </Box>
         </DialogContent>
         <DialogActions>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              width: "100%",
+            }}
+          >
+            <Button
+              color="inherit"
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              sx={{ mr: 1 }}
+            >
+              Back
+            </Button>
+            <Box sx={{ flex: "1 1 auto" }} />
+            {isStepOptional(activeStep) && (
+              <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
+                Skip
+              </Button>
+            )}
+            <Button onClick={handleNext}>
+              {activeStep === steps.length - 1 ? "Finish" : "Next"}
+            </Button>
+          </Box>
           <Button
             type="button"
             variant="outlined"
