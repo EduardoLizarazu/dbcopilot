@@ -33,6 +33,7 @@ import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
 import EditIcon from "@mui/icons-material/Edit";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
+import { ok } from "assert";
 
 export function SchemaCtxClient({
   initial,
@@ -130,9 +131,9 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     if (initial) {
-      await onUpdate();
+      //   await onUpdate();
     } else {
-      await onCreate();
+      //   await onCreate();
     }
   };
 
@@ -143,7 +144,6 @@ export function SchemaCtxClient({
     setBusyFlag("table", true);
     try {
       const res = await ReadDiffSchemaCtxAction({
-        schemaCtxId: initial?.id || "",
         connIds: dbConnectionIds,
       });
       if (res.ok) setSchemaCtx(res.data || []);

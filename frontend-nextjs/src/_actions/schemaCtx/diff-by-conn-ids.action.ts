@@ -10,17 +10,14 @@ export async function ReadDiffSchemaCtxAction(input: {
 }): Promise<TResOutContent<TSchemaCtxDiffBaseDto[]>> {
   console.log("Reading diff schema context (test)...", input);
 
-  const res = await fetch(
-    `${domain}/api/schema-ctx/${input.schemaCtxId}/diff`,
-    {
-      method: "POST",
-      body: JSON.stringify(input),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
-      },
-    }
-  );
+  const res = await fetch(`${domain}/api/schema-ctx/diff`, {
+    method: "POST",
+    body: JSON.stringify(input),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
+    },
+  });
   console.log("Response:", res);
 
   if (!res.ok) {

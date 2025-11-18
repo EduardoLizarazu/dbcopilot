@@ -2,11 +2,12 @@ import { nextAdapter } from "@/http/adapters/next-adapter.http";
 import { ReadDiffSchemasByConnIdsComposer } from "@/infrastructure/services/composers/schemaCtx/read-diff-schemas-by-conn-ids-composer.infra.service";
 import { NextRequest, NextResponse } from "next/server";
 
+// POST /api/schema-ctx/diff
 export async function POST(req: NextRequest) {
-  console.log("API: Read schemaCtx request...", req);
+  console.log("API: Creating schemaCtx request...", req);
   const adapter = await nextAdapter(req, ReadDiffSchemasByConnIdsComposer(), {
     isTokenRequired: true,
   });
-  console.log("API: SchemaCtx read response:", adapter);
+  console.log("API: SchemaCtx creation response:", adapter);
   return NextResponse.json(adapter.body, { status: adapter.statusCode });
 }

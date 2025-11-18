@@ -1,9 +1,6 @@
 "use server";
 import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
-import {
-  TCreateSchemaCtxBaseInReqDto,
-  TSchemaCtxBaseDto,
-} from "@/core/application/dtos/schemaCtx.dto";
+import { TSchemaCtxBaseDto } from "@/core/application/dtos/schemaCtx.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
