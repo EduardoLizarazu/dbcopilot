@@ -881,7 +881,9 @@ export function SchemaCtxClient({
                         >
                           old run
                         </Button>
-
+                        <Box sx={{ mb: 2 }}>
+                          {/* <ChatResultTable data={rows} /> */}
+                        </Box>
                         <TextField
                           label="New question"
                           type="new-question"
@@ -913,6 +915,9 @@ export function SchemaCtxClient({
                         >
                           new run
                         </Button>
+                        <Box sx={{ mb: 2 }}>
+                          {/* <ChatResultTable data={rows} /> */}
+                        </Box>
                       </Grid>
                     </Grid>
                   </Box>
