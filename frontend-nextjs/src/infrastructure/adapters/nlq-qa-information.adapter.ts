@@ -3,6 +3,7 @@ import {
   TNlqInformationData,
   TNlqInfoConnDto,
   TNlqInfoExtractorDto,
+  TNlqSchemaProfileBasicsDto,
 } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-information.port";
@@ -76,13 +77,7 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
   }
   async extractProfile(data: {
     connection: TNlqInfoConnDto;
-    schema: {
-      schemaName: string;
-      tableName: string;
-      columnName: string;
-      dataType: string;
-    };
-    top: number;
+    schema: TNlqSchemaProfileBasicsDto;
   }): Promise<TSchemaCtxColumnProfileDto | null> {
     let queryRunner: QueryRunner | null = null;
     let dataSource: DataSource | null = null;
@@ -134,7 +129,7 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
         schemaName: data.schema.schemaName,
         tableName: data.schema.tableName,
         columnName: data.schema.columnName,
-        limit: data.top,
+        limit: data.schema.top,
       });
 
       const maxValue = await queryRunner.query(basicQueries.maxValue);

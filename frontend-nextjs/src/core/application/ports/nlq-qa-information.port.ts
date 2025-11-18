@@ -3,6 +3,7 @@ import {
   TNlqInfoExtractorDto,
   TNlqInformationData,
   TNlqQaInformationSchemaExtractionDto,
+  TNlqSchemaProfileBasicsDto,
 } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
 import {
   TSchemaCtxColumnProfileDto,
@@ -26,12 +27,6 @@ export interface INlqQaInformationPort {
   ): Promise<TNlqInformationData>;
   extractProfile(data: {
     connection: TNlqInfoConnDto;
-    schema: {
-      schemaName: string;
-      tableName: string;
-      columnName: string;
-      dataType: string;
-    };
-    top: number;
+    schema: TNlqSchemaProfileBasicsDto;
   }): Promise<TSchemaCtxColumnProfileDto | null>;
 }

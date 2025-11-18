@@ -71,3 +71,12 @@ export const nlqQaInfoExtractorInRequestSchema = z.object({
 export type TNlqQaInfoExtractorInRequestDto = z.infer<
   typeof nlqQaInfoExtractorInRequestSchema
 >;
+
+export const schemaProfileBasics = z.object({
+  schemaName: z.string().min(1, "Schema name is required"),
+  tableName: z.string().min(1, "Table name is required"),
+  columnName: z.string().min(1, "Column name is required"),
+  dataType: z.string().min(1, "Data type is required"),
+  top: z.number().min(1, "Top N rows is required"),
+});
+export type TNlqSchemaProfileBasicsDto = z.infer<typeof schemaProfileBasics>;
