@@ -9,10 +9,7 @@ import { INlqQaInformationPort } from "@/core/application/ports/nlq-qa-informati
 import { OracleProvider } from "@/infrastructure/providers/database/oracle.infra.provider";
 import { TypeOrmProvider } from "../providers/database/typeorm.infra.provider";
 import { DataSource, QueryRunner } from "typeorm";
-import {
-  TSchemaCtxColumnProfileDto,
-  TSchemaCtxSchemaDto,
-} from "@/core/application/dtos/schemaCtx.dto";
+import { TSchemaCtxColumnProfileDto } from "@/core/application/dtos/schemaCtx.dto";
 
 export class NlqQaInformationAdapter implements INlqQaInformationPort {
   constructor(
