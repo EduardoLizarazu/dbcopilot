@@ -577,7 +577,7 @@ export function SchemaCtxClient({
         <DialogContent
           dividers={true}
           sx={{
-            height: "30vh",
+            height: "60vh",
             minHeight: 420,
             display: "flex",
             flexDirection: "column",
@@ -621,13 +621,6 @@ export function SchemaCtxClient({
                               overflow: "auto",
                             }}
                           >
-                            <Typography
-                              variant="subtitle1"
-                              fontWeight={700}
-                              sx={{ mb: 1 }}
-                            >
-                              Schema Differences
-                            </Typography>
                             <TableContainer component={Paper} elevation={0}>
                               <Table
                                 size="small"
@@ -733,14 +726,7 @@ export function SchemaCtxClient({
                               overflow: "auto",
                             }}
                           >
-                            <Box sx={{ mt: 1 }}>
-                              <Typography
-                                variant="subtitle1"
-                                fontWeight={700}
-                                sx={{ mb: 1 }}
-                              >
-                                To change schema
-                              </Typography>
+                            <Box>
                               <TableContainer component={Paper} elevation={0}>
                                 <Table
                                   size="small"
