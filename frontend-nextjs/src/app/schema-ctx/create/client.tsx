@@ -52,6 +52,8 @@ export function SchemaCtxClient({
   const [dbConnection, setDbConnection] = React.useState<TDbConnectionDto[]>(
     dbConnections || []
   );
+
+  //   FIX: NOT KNOW HOW TO DO THE SINGLE SCHEMA EDITOR PART
   const [schemaCtx, setSchemaCtx] = React.useState<
     TSchemaCtxSchemaDto[] | null
   >(initial?.schemaCtx || null);
@@ -142,6 +144,7 @@ export function SchemaCtxClient({
     setSuccess(null);
     setBusyFlag("table", true);
     try {
+      // NEED TO FIX THIS ON THE SCHEMA ID CREATION FIRST
       //   const res = await ReadDiffSchemaCtxAction({
       //     schemaCtxId: initial?.id || null,
       //     connIds: dbConnectionIds,
