@@ -16,6 +16,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Grid2 as Grid,
   IconButton,
   Link,
   Paper,
@@ -502,79 +503,84 @@ export function SchemaCtxClient({
             <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
               Schema Diff
             </Typography>
-            <TableContainer component={Paper} elevation={0}>
-              <Table size="small" aria-label="schema context table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>Schema</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Table</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Column</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      Actions
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {schemaCtxDiff && schemaCtxDiff.length > 0 ? (
-                    schemaCtxDiff.map((schema) =>
-                      schema.tables.map((table) =>
-                        table.columns.map((col) => (
-                          <TableRow
-                            key={`${schema.id}-${table.id}-${col.id}`}
-                            hover
-                          >
-                            <TableCell>{schema.name}</TableCell>
-                            <TableCell>{table.name || "—"}</TableCell>
-                            <TableCell>{col.name || "—"}</TableCell>
-                            <TableCell>{col.dataType || "—"}</TableCell>
-                            <TableCell align="right">
-                              <Stack direction="row" spacing={1}>
-                                <Tooltip title="new">
-                                  <IconButton
-                                    aria-label="New"
-                                    size="small"
-                                    onClick={() => {}}
-                                  >
-                                    <AddIcon fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="change">
-                                  <IconButton
-                                    aria-label="Change"
-                                    size="small"
-                                    onClick={() => {}}
-                                  >
-                                    <EditIcon fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Remove">
-                                  <IconButton
-                                    aria-label="Remove"
-                                    size="small"
-                                    onClick={() => {}}
-                                  >
-                                    <DeleteIcon fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
-                              </Stack>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )
-                    )
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5}>
-                        <Typography color="text.secondary">
-                          No schema rows available.
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <Grid container spacing={3}>
+              <Grid size={7}>
+                <TableContainer component={Paper} elevation={0}>
+                  <Table size="small" aria-label="schema context table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 700 }}>Schema</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Table</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Column</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {schemaCtxDiff && schemaCtxDiff.length > 0 ? (
+                        schemaCtxDiff.map((schema) =>
+                          schema.tables.map((table) =>
+                            table.columns.map((col) => (
+                              <TableRow
+                                key={`${schema.id}-${table.id}-${col.id}`}
+                                hover
+                              >
+                                <TableCell>{schema.name}</TableCell>
+                                <TableCell>{table.name || "—"}</TableCell>
+                                <TableCell>{col.name || "—"}</TableCell>
+                                <TableCell>{col.dataType || "—"}</TableCell>
+                                <TableCell align="right">
+                                  <Stack direction="row" spacing={1}>
+                                    <Tooltip title="new">
+                                      <IconButton
+                                        aria-label="New"
+                                        size="small"
+                                        onClick={() => {}}
+                                      >
+                                        <AddIcon fontSize="small" />
+                                      </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="change">
+                                      <IconButton
+                                        aria-label="Change"
+                                        size="small"
+                                        onClick={() => {}}
+                                      >
+                                        <EditIcon fontSize="small" />
+                                      </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Remove">
+                                      <IconButton
+                                        aria-label="Remove"
+                                        size="small"
+                                        onClick={() => {}}
+                                      >
+                                        <DeleteIcon fontSize="small" />
+                                      </IconButton>
+                                    </Tooltip>
+                                  </Stack>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )
+                        )
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={5}>
+                            <Typography color="text.secondary">
+                              No schema rows available.
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Grid>
+              <Grid size={"grow"}></Grid>
+            </Grid>
           </Box>
         </DialogContent>
         <DialogActions>
