@@ -69,13 +69,9 @@ export function SchemaCtxClient({
   const [dbConnection, setDbConnection] = React.useState<TDbConnectionDto[]>(
     dbConnections || []
   );
-
-  //   FIX: NOT KNOW HOW TO DO THE SINGLE SCHEMA EDITOR PART
   const [schemaCtx, setSchemaCtx] = React.useState<
     TSchemaCtxSchemaDto[] | null
   >(initial?.schemaCtx || null);
-  const [singleSchemaCtx, setSingleSchemaCtx] =
-    React.useState<TSchemaCtxSchemaDto | null>(null);
 
   const [schemaCtxDiff, setSchemaCtxDiff] = React.useState<
     TSchemaCtxDiffSchemaDto[] | null
@@ -87,6 +83,118 @@ export function SchemaCtxClient({
   const [success, setSuccess] = React.useState<string | null>(null);
   const [openSingleSchemaEditor, setOpenSingleSchemaEditor] =
     React.useState(false);
+  // ================ SINGLE SCHEMA EDITOR STATES =================
+  // Single-item selection state (which schema/table/column we're editing)
+  const [selectedSchemaId, setSelectedSchemaId] = React.useState<string | null>(
+    null
+  );
+  const [selectedTableId, setSelectedTableId] = React.useState<string | null>(
+    null
+  );
+  const [selectedColumnId, setSelectedColumnId] = React.useState<string | null>(
+    null
+  );
+
+  // Fields shown in the single editor dialog
+  const [schemaName, setSchemaName] = React.useState("");
+  const [schemaDescription, setSchemaDescription] = React.useState("");
+  const [schemaAliases, setSchemaAliases] = React.useState<string[]>([]);
+
+  const [tableName, setTableName] = React.useState("");
+  const [tableDescription, setTableDescription] = React.useState("");
+  const [tableAliases, setTableAliases] = React.useState<string[]>([]);
+
+  const [columnName, setColumnName] = React.useState("");
+  const [columnDescription, setColumnDescription] = React.useState("");
+  const [columnType, setColumnType] = React.useState("");
+  const [columnAliases, setColumnAliases] = React.useState<string[]>([]);
+
+  const resetSingleEditorState = () => {
+    setSelectedSchemaId(null);
+    setSelectedTableId(null);
+    setSelectedColumnId(null);
+    setSchemaName("");
+    setSchemaDescription("");
+    setSchemaAliases([]);
+    setTableName("");
+    setTableDescription("");
+    setTableAliases([]);
+    setColumnName("");
+    setColumnDescription("");
+    setColumnType("");
+    setColumnAliases([]);
+  };
+
+  const openSingleEditor = (
+    schemaId: string,
+    tableId: string,
+    columnId: string
+  ) => {
+    if (!schemaCtx) return;
+    const s = schemaCtx.find((x) => x.id === schemaId);
+    if (!s) return;
+    const t = s.tables.find((x) => x.id === tableId);
+    if (!t) return;
+    const c = t.columns.find((x) => x.id === columnId);
+    if (!c) return;
+
+    setSelectedSchemaId(schemaId);
+    setSelectedTableId(tableId);
+    setSelectedColumnId(columnId);
+
+    setSchemaName(s.name);
+    setSchemaDescription(s.description || "");
+    setSchemaAliases(Array.isArray(s.aliases) ? [...s.aliases] : []);
+
+    setTableName(t.name);
+    setTableDescription(t.description || "");
+    setTableAliases(Array.isArray(t.aliases) ? [...t.aliases] : []);
+
+    setColumnName(c.name);
+    setColumnDescription(c.description || "");
+    setColumnType(c.dataType || "");
+    setColumnAliases(Array.isArray(c.aliases) ? [...c.aliases] : []);
+
+    setOpenSingleSchemaEditor(true);
+  };
+
+  const saveSingleEditor = () => {
+    if (
+      !schemaCtx ||
+      !selectedSchemaId ||
+      !selectedTableId ||
+      !selectedColumnId
+    )
+      return;
+    const updated = schemaCtx.map((s) => {
+      if (s.id !== selectedSchemaId) return s;
+      return {
+        ...s,
+        description: schemaDescription,
+        aliases: schemaAliases,
+        tables: s.tables.map((t) => {
+          if (t.id !== selectedTableId) return t;
+          return {
+            ...t,
+            description: tableDescription,
+            aliases: tableAliases,
+            columns: t.columns.map((col) => {
+              if (col.id !== selectedColumnId) return col;
+              return {
+                ...col,
+                description: columnDescription,
+                aliases: columnAliases,
+              };
+            }),
+          };
+        }),
+      };
+    });
+    setSchemaCtx(updated);
+    setOpenSingleSchemaEditor(false);
+    resetSingleEditorState();
+  };
+  // ===========================================================
 
   const toggleConn = (id: string) => {
     setDbConnectionIds((prev) =>
@@ -407,9 +515,9 @@ export function SchemaCtxClient({
                               <IconButton
                                 aria-label="Edit schema context"
                                 size="small"
-                                onClick={() => {
-                                  setOpenSingleSchemaEditor(true);
-                                }}
+                                onClick={() =>
+                                  openSingleEditor(schema.id, table.id, col.id)
+                                }
                               >
                                 <EditIcon fontSize="small" />
                               </IconButton>
@@ -445,25 +553,58 @@ export function SchemaCtxClient({
               label="Schema Name"
               type="schema-name"
               disabled={true}
-              value={""}
+              value={schemaName}
               required
-              onChange={(e) => {}}
+              onChange={(e) => setSchemaName(e.target.value)}
               fullWidth
             />
-            <TextField
-              label="Schema Aliases"
-              type="schema-aliases"
-              value={""}
-              required
-              onChange={(e) => {}}
-              fullWidth
-            />
+            <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Typography variant="subtitle2">Schema Aliases</Typography>
+                <Button
+                  size="small"
+                  onClick={() => setSchemaAliases((s) => [...s, ""])}
+                  startIcon={<AddIcon />}
+                >
+                  Add
+                </Button>
+              </Box>
+              {schemaAliases.length === 0 && (
+                <Typography color="text.secondary">
+                  No aliases defined.
+                </Typography>
+              )}
+              {schemaAliases.map((alias, idx) => (
+                <Box key={idx} sx={{ display: "flex", gap: 1 }}>
+                  <TextField
+                    label={`Alias ${idx + 1}`}
+                    value={alias}
+                    onChange={(e) =>
+                      setSchemaAliases((s) =>
+                        s.map((v, i) => (i === idx ? e.target.value : v))
+                      )
+                    }
+                    fullWidth
+                    size="small"
+                  />
+                  <IconButton
+                    aria-label="remove-alias"
+                    size="small"
+                    onClick={() =>
+                      setSchemaAliases((s) => s.filter((_, i) => i !== idx))
+                    }
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ))}
+            </Box>
             <TextField
               label="Schema Description"
               type="schema-description"
-              value={""}
+              value={schemaDescription}
               required
-              onChange={(e) => {}}
+              onChange={(e) => setSchemaDescription(e.target.value)}
               fullWidth
             />
 
@@ -473,78 +614,166 @@ export function SchemaCtxClient({
             <TextField
               label="Table Name"
               type="table-name"
-              value={""}
+              value={tableName}
               disabled={true}
               required
-              onChange={(e) => {}}
+              onChange={(e) => setTableName(e.target.value)}
               fullWidth
             />
             <TextField
               label="Table Description"
               type="table-description"
-              value={""}
+              value={tableDescription}
               required
-              onChange={(e) => {}}
+              onChange={(e) => setTableDescription(e.target.value)}
               fullWidth
             />
-            <TextField
-              label="Table aliases"
-              type="table-aliases"
-              value={""}
-              required
-              onChange={(e) => {}}
-              fullWidth
-            />
+            <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Typography variant="subtitle2">Table Aliases</Typography>
+                <Button
+                  size="small"
+                  onClick={() => setTableAliases((s) => [...s, ""])}
+                  startIcon={<AddIcon />}
+                >
+                  Add
+                </Button>
+              </Box>
+              {tableAliases.length === 0 && (
+                <Typography color="text.secondary">
+                  No aliases defined.
+                </Typography>
+              )}
+              {tableAliases.map((alias, idx) => (
+                <Box key={idx} sx={{ display: "flex", gap: 1 }}>
+                  <TextField
+                    label={`Alias ${idx + 1}`}
+                    value={alias}
+                    onChange={(e) =>
+                      setTableAliases((s) =>
+                        s.map((v, i) => (i === idx ? e.target.value : v))
+                      )
+                    }
+                    fullWidth
+                    size="small"
+                  />
+                  <IconButton
+                    aria-label="remove-alias"
+                    size="small"
+                    onClick={() =>
+                      setTableAliases((s) => s.filter((_, i) => i !== idx))
+                    }
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ))}
+            </Box>
             <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
               Column
             </Typography>
             <TextField
               label="Column name"
               type="column-name"
-              value={""}
+              value={columnName}
               required
-              onChange={(e) => {}}
+              onChange={(e) => setColumnName(e.target.value)}
               fullWidth
               disabled={true}
             />
-            <TextField
-              label="Column aliases"
-              type="column-aliases"
-              value={""}
-              required
-              onChange={(e) => {}}
-              fullWidth
-            />
+            <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Typography variant="subtitle2">Column Aliases</Typography>
+                <Button
+                  size="small"
+                  onClick={() => setColumnAliases((s) => [...s, ""])}
+                  startIcon={<AddIcon />}
+                >
+                  Add
+                </Button>
+              </Box>
+              {columnAliases.length === 0 && (
+                <Typography color="text.secondary">
+                  No aliases defined.
+                </Typography>
+              )}
+              {columnAliases.map((alias, idx) => (
+                <Box key={idx} sx={{ display: "flex", gap: 1 }}>
+                  <TextField
+                    label={`Alias ${idx + 1}`}
+                    value={alias}
+                    onChange={(e) =>
+                      setColumnAliases((s) =>
+                        s.map((v, i) => (i === idx ? e.target.value : v))
+                      )
+                    }
+                    fullWidth
+                    size="small"
+                  />
+                  <IconButton
+                    aria-label="remove-alias"
+                    size="small"
+                    onClick={() =>
+                      setColumnAliases((s) => s.filter((_, i) => i !== idx))
+                    }
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ))}
+            </Box>
             <TextField
               label="Column description"
               type="column-description"
-              value={""}
+              value={columnDescription}
               required
-              onChange={(e) => {}}
+              onChange={(e) => setColumnDescription(e.target.value)}
               fullWidth
             />
             <TextField
               label="Column type"
               type="column-type"
-              value={""}
+              value={columnType}
               required
-              onChange={(e) => {}}
+              onChange={(e) => setColumnType(e.target.value)}
               fullWidth
               disabled={true}
             />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button
-            type="button"
-            variant="outlined"
-            color="error"
-            disabled={isBusy("submit")}
-            sx={{ textTransform: "none" }}
-            onClick={() => setOpenSingleSchemaEditor(false)}
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ width: "100%", justifyContent: "space-between" }}
           >
-            Close
-          </Button>
+            <Box>
+              <Button
+                type="button"
+                variant="contained"
+                disabled={isBusy("submit")}
+                sx={{ textTransform: "none" }}
+                onClick={() => saveSingleEditor()}
+              >
+                Save
+              </Button>
+            </Box>
+            <Box>
+              <Button
+                type="button"
+                variant="outlined"
+                color="error"
+                disabled={isBusy("submit")}
+                sx={{ textTransform: "none" }}
+                onClick={() => {
+                  setOpenSingleSchemaEditor(false);
+                  resetSingleEditorState();
+                }}
+              >
+                Close
+              </Button>
+            </Box>
+          </Stack>
         </DialogActions>
       </Dialog>
       {/* DIFF DIALOG */}
