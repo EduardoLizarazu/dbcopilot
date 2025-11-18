@@ -548,7 +548,10 @@ export function SchemaCtxClient({
         PaperProps={{ sx: { width: "70%", maxWidth: "none" } }}
       >
         <DialogTitle>Single Difference</DialogTitle>
-        <DialogContent dividers={true}>
+        <DialogContent
+          dividers={true}
+          sx={{ height: "70vh", minHeight: 420, overflow: "auto" }}
+        >
           <Stepper activeStep={activeStep}>
             {steps.map((label, index) => {
               const stepProps: { completed?: boolean } = {};
@@ -582,11 +585,30 @@ export function SchemaCtxClient({
             </React.Fragment>
           ) : (
             <React.Fragment>
+              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                <Button
+                  color="inherit"
+                  disabled={activeStep === 0}
+                  onClick={handleBack}
+                  sx={{ mr: 1 }}
+                >
+                  Back
+                </Button>
+                <Box sx={{ flex: "1 1 auto" }} />
+                {isStepOptional(activeStep) && (
+                  <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
+                    Skip
+                  </Button>
+                )}
+                <Button onClick={handleNext}>
+                  {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                </Button>
+              </Box>
               {activeStep === 0 && (
                 <>
-                  <Box display="grid" gap={2}>
-                    <Grid container spacing={3}>
-                      <Grid size={6}>
+                  <Box display="grid" gap={2} sx={{ height: "100%" }}>
+                    <Grid container spacing={3} sx={{ height: "100%" }}>
+                      <Grid size={6} sx={{ height: "100%", overflow: "auto" }}>
                         <Typography
                           variant="subtitle1"
                           fontWeight={700}
@@ -683,7 +705,7 @@ export function SchemaCtxClient({
                           </Table>
                         </TableContainer>
                       </Grid>
-                      <Grid size={6}>
+                      <Grid size={6} sx={{ height: "100%", overflow: "auto" }}>
                         <Box sx={{ mt: 1 }}>
                           <Typography
                             variant="subtitle1"
@@ -757,9 +779,9 @@ export function SchemaCtxClient({
                   <Typography sx={{ mt: 2, mb: 1 }}>
                     Step 2: Knowledge Source Content
                   </Typography>
-                  <Box display="grid" gap={2}>
-                    <Grid container spacing={3}>
-                      <Grid size={6}>
+                  <Box display="grid" gap={2} sx={{ height: "100%" }}>
+                    <Grid container spacing={3} sx={{ height: "100%" }}>
+                      <Grid size={6} sx={{ height: "100%", overflow: "auto" }}>
                         <TableContainer component={Paper} elevation={0}>
                           <Table
                             size="small"
@@ -847,7 +869,7 @@ export function SchemaCtxClient({
                           </Table>
                         </TableContainer>
                       </Grid>
-                      <Grid size={6}>
+                      <Grid size={6} sx={{ height: "100%", overflow: "auto" }}>
                         <TextField
                           label="Old Question"
                           type="old-question"
@@ -923,25 +945,6 @@ export function SchemaCtxClient({
                   </Box>
                 </>
               )}
-              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                <Button
-                  color="inherit"
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  sx={{ mr: 1 }}
-                >
-                  Back
-                </Button>
-                <Box sx={{ flex: "1 1 auto" }} />
-                {isStepOptional(activeStep) && (
-                  <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-                    Skip
-                  </Button>
-                )}
-                <Button onClick={handleNext}>
-                  {activeStep === steps.length - 1 ? "Finish" : "Next"}
-                </Button>
-              </Box>
             </React.Fragment>
           )}
         </DialogContent>
