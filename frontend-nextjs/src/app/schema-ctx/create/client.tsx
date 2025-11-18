@@ -32,6 +32,8 @@ import {
 } from "@mui/material";
 import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
 import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
 
@@ -373,6 +375,7 @@ export function SchemaCtxClient({
           </TableContainer>
         </Box>
       </Paper>
+      {/* SINGLE SCHEMA EDITOR DIALOG */}
       <Dialog open={openSingleSchemaEditor} maxWidth="sm" fullWidth={true}>
         <DialogTitle>Single Schema Editor</DialogTitle>
         <DialogContent dividers={true}>
@@ -481,6 +484,107 @@ export function SchemaCtxClient({
             disabled={isBusy("submit")}
             sx={{ textTransform: "none" }}
             onClick={() => setOpenSingleSchemaEditor(false)}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* DIFF DIALOG */}
+      <Dialog
+        open={true}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{ sx: { width: "70%", maxWidth: "none" } }}
+      >
+        <DialogTitle>Single Schema Editor</DialogTitle>
+        <DialogContent dividers={true}>
+          <Box display="grid" gap={2}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
+              Schema Diff
+            </Typography>
+            <TableContainer component={Paper} elevation={0}>
+              <Table size="small" aria-label="schema context table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 700 }}>Schema</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Table</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Column</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      Actions
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {schemaCtxDiff && schemaCtxDiff.length > 0 ? (
+                    schemaCtxDiff.map((schema) =>
+                      schema.tables.map((table) =>
+                        table.columns.map((col) => (
+                          <TableRow
+                            key={`${schema.id}-${table.id}-${col.id}`}
+                            hover
+                          >
+                            <TableCell>{schema.name}</TableCell>
+                            <TableCell>{table.name || "—"}</TableCell>
+                            <TableCell>{col.name || "—"}</TableCell>
+                            <TableCell>{col.dataType || "—"}</TableCell>
+                            <TableCell align="right">
+                              <Stack direction="row" spacing={1}>
+                                <Tooltip title="new">
+                                  <IconButton
+                                    aria-label="New"
+                                    size="small"
+                                    onClick={() => {}}
+                                  >
+                                    <AddIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="change">
+                                  <IconButton
+                                    aria-label="Change"
+                                    size="small"
+                                    onClick={() => {}}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Remove">
+                                  <IconButton
+                                    aria-label="Remove"
+                                    size="small"
+                                    onClick={() => {}}
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )
+                    )
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5}>
+                        <Typography color="text.secondary">
+                          No schema rows available.
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            type="button"
+            variant="outlined"
+            color="error"
+            disabled={isBusy("submit")}
+            sx={{ textTransform: "none" }}
+            onClick={() => {}}
           >
             Close
           </Button>
