@@ -59,6 +59,15 @@ export function SchemaCtxClient({
 
   const [busy, setBusy] = React.useState<Set<string>>(new Set());
 
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const toggleConn = (id: string) => {
+    setDbConnectionIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
   const setBusyFlag = (key: string, on: boolean) => {
     setBusy((prev) => {
       const s = new Set(prev);
@@ -69,14 +78,6 @@ export function SchemaCtxClient({
   };
 
   const isBusy = (key: string) => busy.has(key);
-  const [error, setError] = React.useState<string | null>(null);
-  const [success, setSuccess] = React.useState<string | null>(null);
-
-  const toggleConn = (id: string) => {
-    setDbConnectionIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
 
   const onCreate = async () => {
     setBusyFlag("submit", true);
