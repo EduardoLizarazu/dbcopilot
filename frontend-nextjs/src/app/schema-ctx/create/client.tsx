@@ -202,6 +202,7 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     setBusyFlag("table", true);
+    setSchemaCtxDiff([]);
     try {
       let res = null;
       if (initial) {
