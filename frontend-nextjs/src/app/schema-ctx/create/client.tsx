@@ -31,6 +31,7 @@ import {
 } from "@mui/material";
 import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
 import EditIcon from "@mui/icons-material/Edit";
+import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 
 export function SchemaCtxClient({
   initial,
@@ -84,7 +85,7 @@ export function SchemaCtxClient({
   };
 
   const onUpdate = async () => {
-    const res = await UpdateCreateCtxAction(initial?.id, {
+    const res = await UpdateSchemaCtxAction(initial?.id, {
       id: initial?.id,
       name,
       description,
