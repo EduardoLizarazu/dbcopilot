@@ -593,7 +593,7 @@ export function SchemaCtxClient({
             }}
           >
             <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
-              {activeStep === steps.length ? (
+              {activeStep === 3 ? (
                 <React.Fragment>
                   <Typography sx={{ mt: 2, mb: 1 }}>
                     All steps completed - you&apos;re finished
