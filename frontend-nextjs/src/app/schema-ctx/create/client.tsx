@@ -41,6 +41,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
+import { ReadNewSchemaCtxAction } from "@/_actions/schemaCtx/new-by-conn-ids.action";
 
 const steps = ["Schema Differences", "Knowledge source", "Confirm"];
 
@@ -202,16 +203,18 @@ export function SchemaCtxClient({
     setSuccess(null);
     setBusyFlag("table", true);
     try {
-      // NEED TO FIX THIS ON THE SCHEMA ID CREATION FIRST AND RETURN SCHEMA DIFF SCHEMA DTO
-      //   const res = await ReadDiffSchemaCtxAction({
-      //     schemaCtxId: initial?.id || null,
-      //     connIds: dbConnectionIds,
-      //   });
-      const res = {
-        ok: false,
-        message: "Not implemented",
-        data: null,
-      };
+      let res = null;
+      if (initial) {
+        res = await ReadDiffSchemaCtxAction({
+          schemaCtxId: initial?.id || null,
+          connIds: dbConnectionIds,
+        });
+      } else {
+        res = await ReadNewSchemaCtxAction({
+          connIds: dbConnectionIds,
+        });
+      }
+
       if (res.ok) setSchemaCtxDiff(res.data || []);
       if (!res.ok) setError(res.message || "Failed to search schema context.");
     } finally {
