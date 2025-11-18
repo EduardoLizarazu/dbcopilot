@@ -545,408 +545,487 @@ export function SchemaCtxClient({
         open={true}
         maxWidth="lg"
         fullWidth
-        PaperProps={{ sx: { width: "70%", maxWidth: "none" } }}
+        PaperProps={{
+          sx: { width: "70%", maxWidth: "none", overflow: "hidden" },
+        }}
       >
         <DialogTitle>Single Difference</DialogTitle>
         <DialogContent
           dividers={true}
-          sx={{ height: "70vh", minHeight: 420, overflow: "auto" }}
+          sx={{
+            height: "70vh",
+            minHeight: 420,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
         >
-          <Stepper activeStep={activeStep}>
-            {steps.map((label, index) => {
-              const stepProps: { completed?: boolean } = {};
-              const labelProps: {
-                optional?: React.ReactNode;
-              } = {};
-              if (isStepOptional(index)) {
-                labelProps.optional = (
-                  <Typography variant="caption">Optional</Typography>
-                );
-              }
-              if (isStepSkipped(index)) {
-                stepProps.completed = false;
-              }
-              return (
-                <Step key={label} {...stepProps}>
-                  <StepLabel {...labelProps}>{label}</StepLabel>
-                </Step>
-              );
-            })}
-          </Stepper>
-          {activeStep === steps.length ? (
-            <React.Fragment>
-              <Typography sx={{ mt: 2, mb: 1 }}>
-                All steps completed - you&apos;re finished
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                <Box sx={{ flex: "1 1 auto" }} />
-                <Button onClick={handleReset}>Reset</Button>
-              </Box>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                <Button
-                  color="inherit"
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  sx={{ mr: 1 }}
-                >
-                  Back
-                </Button>
-                <Box sx={{ flex: "1 1 auto" }} />
-                {isStepOptional(activeStep) && (
-                  <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-                    Skip
-                  </Button>
-                )}
-                <Button onClick={handleNext}>
-                  {activeStep === steps.length - 1 ? "Finish" : "Next"}
-                </Button>
-              </Box>
-              {activeStep === 0 && (
-                <>
-                  <Box display="grid" gap={2} sx={{ height: "100%" }}>
-                    <Grid container spacing={3} sx={{ height: "100%" }}>
-                      <Grid size={6} sx={{ height: "100%", overflow: "auto" }}>
-                        <Typography
-                          variant="subtitle1"
-                          fontWeight={700}
-                          sx={{ mb: 1 }}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              overflow: "hidden",
+            }}
+          >
+            <Box sx={{ flex: "0 0 auto", overflow: "hidden" }}>
+              <Stepper activeStep={activeStep}>
+                {steps.map((label, index) => {
+                  const stepProps: { completed?: boolean } = {};
+                  const labelProps: {
+                    optional?: React.ReactNode;
+                  } = {};
+                  if (isStepOptional(index)) {
+                    labelProps.optional = (
+                      <Typography variant="caption">Optional</Typography>
+                    );
+                  }
+                  if (isStepSkipped(index)) {
+                    stepProps.completed = false;
+                  }
+                  return (
+                    <Step key={label} {...stepProps}>
+                      <StepLabel {...labelProps}>{label}</StepLabel>
+                    </Step>
+                  );
+                })}
+              </Stepper>
+            </Box>
+            <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+              {activeStep === steps.length ? (
+                <React.Fragment>
+                  <Typography sx={{ mt: 2, mb: 1 }}>
+                    All steps completed - you&apos;re finished
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                    <Box sx={{ flex: "1 1 auto" }} />
+                    <Button onClick={handleReset}>Reset</Button>
+                  </Box>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                    <Button
+                      color="inherit"
+                      disabled={activeStep === 0}
+                      onClick={handleBack}
+                      sx={{ mr: 1 }}
+                    >
+                      Back
+                    </Button>
+                    <Box sx={{ flex: "1 1 auto" }} />
+                    {isStepOptional(activeStep) && (
+                      <Button
+                        color="inherit"
+                        onClick={handleSkip}
+                        sx={{ mr: 1 }}
+                      >
+                        Skip
+                      </Button>
+                    )}
+                    <Button onClick={handleNext}>
+                      {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                    </Button>
+                  </Box>
+                  {activeStep === 0 && (
+                    <>
+                      <Box display="grid" gap={2} sx={{ height: "100%" }}>
+                        <Grid
+                          container
+                          spacing={3}
+                          sx={{ height: "100%", minHeight: 0 }}
                         >
-                          Schema Differences
-                        </Typography>
-                        <TableContainer component={Paper} elevation={0}>
-                          <Table size="small" aria-label="schema context table">
-                            <TableHead>
-                              <TableRow>
-                                <TableCell sx={{ fontWeight: 700 }}>
-                                  Schema
-                                </TableCell>
-                                <TableCell sx={{ fontWeight: 700 }}>
-                                  Table
-                                </TableCell>
-                                <TableCell sx={{ fontWeight: 700 }}>
-                                  Column
-                                </TableCell>
-                                <TableCell sx={{ fontWeight: 700 }}>
-                                  Type
-                                </TableCell>
-                                <TableCell
-                                  align="right"
-                                  sx={{ fontWeight: 700 }}
-                                >
-                                  Actions
-                                </TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {schemaCtxDiff && schemaCtxDiff.length > 0 ? (
-                                schemaCtxDiff.map((schema) =>
-                                  schema.tables.map((table) =>
-                                    table.columns.map((col) => (
-                                      <TableRow
-                                        key={`${schema.id}-${table.id}-${col.id}`}
-                                        hover
-                                      >
-                                        <TableCell>{schema.name}</TableCell>
-                                        <TableCell>
-                                          {table.name || "—"}
-                                        </TableCell>
-                                        <TableCell>{col.name || "—"}</TableCell>
-                                        <TableCell>
-                                          {col.dataType || "—"}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                          <Stack direction="row" spacing={1}>
-                                            <Tooltip title="new">
-                                              <IconButton
-                                                aria-label="New"
-                                                size="small"
-                                                onClick={() => {}}
-                                              >
-                                                <AddIcon fontSize="small" />
-                                              </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="change">
-                                              <IconButton
-                                                aria-label="Change"
-                                                size="small"
-                                                onClick={() => {}}
-                                              >
-                                                <EditIcon fontSize="small" />
-                                              </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Remove">
-                                              <IconButton
-                                                aria-label="Remove"
-                                                size="small"
-                                                onClick={() => {}}
-                                              >
-                                                <DeleteIcon fontSize="small" />
-                                              </IconButton>
-                                            </Tooltip>
-                                          </Stack>
-                                        </TableCell>
-                                      </TableRow>
-                                    ))
-                                  )
-                                )
-                              ) : (
-                                <TableRow>
-                                  <TableCell colSpan={5}>
-                                    <Typography color="text.secondary">
-                                      No schema rows available.
-                                    </Typography>
-                                  </TableCell>
-                                </TableRow>
-                              )}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      </Grid>
-                      <Grid size={6} sx={{ height: "100%", overflow: "auto" }}>
-                        <Box sx={{ mt: 1 }}>
-                          <Typography
-                            variant="subtitle1"
-                            fontWeight={700}
-                            sx={{ mb: 1 }}
+                          <Grid
+                            size={6}
+                            sx={{
+                              height: "100%",
+                              minHeight: 0,
+                              overflow: "auto",
+                            }}
                           >
-                            To change schema
-                          </Typography>
-                          <TableContainer component={Paper} elevation={0}>
-                            <Table
-                              size="small"
-                              aria-label="to change selection"
+                            <Typography
+                              variant="subtitle1"
+                              fontWeight={700}
+                              sx={{ mb: 1 }}
                             >
-                              <TableHead>
-                                <TableRow>
-                                  <TableCell sx={{ fontWeight: 700 }}>
-                                    Select
-                                  </TableCell>
-                                  <TableCell sx={{ fontWeight: 700 }}>
-                                    To change
-                                  </TableCell>
-                                  <TableCell sx={{ fontWeight: 700 }}>
-                                    Description
-                                  </TableCell>
-                                </TableRow>
-                              </TableHead>
-                              <TableBody>
-                                {dbConnection.length === 0 ? (
+                              Schema Differences
+                            </Typography>
+                            <TableContainer component={Paper} elevation={0}>
+                              <Table
+                                size="small"
+                                aria-label="schema context table"
+                              >
+                                <TableHead>
                                   <TableRow>
-                                    <TableCell colSpan={3}>
-                                      <Typography color="text.secondary">
-                                        No delete schema available.
-                                      </Typography>
+                                    <TableCell sx={{ fontWeight: 700 }}>
+                                      Schema
+                                    </TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>
+                                      Table
+                                    </TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>
+                                      Column
+                                    </TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>
+                                      Type
+                                    </TableCell>
+                                    <TableCell
+                                      align="right"
+                                      sx={{ fontWeight: 700 }}
+                                    >
+                                      Actions
                                     </TableCell>
                                   </TableRow>
-                                ) : (
-                                  dbConnection.map((r) => {
-                                    const checked = dbConnectionIds.includes(
-                                      r.id
-                                    );
-                                    return (
-                                      <TableRow key={r.id} hover>
-                                        <TableCell width={90}>
-                                          <Checkbox
-                                            checked={checked}
-                                            onChange={() => toggleConn(r.id)}
-                                            inputProps={{
-                                              "aria-label": `select connection ${r.name}`,
-                                            }}
-                                          />
-                                        </TableCell>
-                                        <TableCell>{r.name}</TableCell>
-                                        <TableCell>
-                                          {r.description || "—"}
-                                        </TableCell>
-                                      </TableRow>
-                                    );
-                                  })
-                                )}
-                              </TableBody>
-                            </Table>
-                          </TableContainer>
-                        </Box>
-                      </Grid>
-                    </Grid>
-                  </Box>
-                </>
-              )}
-              {activeStep === 1 && (
-                <>
-                  <Typography sx={{ mt: 2, mb: 1 }}>
-                    Step 2: Knowledge Source Content
-                  </Typography>
-                  <Box display="grid" gap={2} sx={{ height: "100%" }}>
-                    <Grid container spacing={3} sx={{ height: "100%" }}>
-                      <Grid size={6} sx={{ height: "100%", overflow: "auto" }}>
-                        <TableContainer component={Paper} elevation={0}>
-                          <Table
-                            size="small"
-                            aria-label="knowledge source table"
+                                </TableHead>
+                                <TableBody>
+                                  {schemaCtxDiff && schemaCtxDiff.length > 0 ? (
+                                    schemaCtxDiff.map((schema) =>
+                                      schema.tables.map((table) =>
+                                        table.columns.map((col) => (
+                                          <TableRow
+                                            key={`${schema.id}-${table.id}-${col.id}`}
+                                            hover
+                                          >
+                                            <TableCell>{schema.name}</TableCell>
+                                            <TableCell>
+                                              {table.name || "—"}
+                                            </TableCell>
+                                            <TableCell>
+                                              {col.name || "—"}
+                                            </TableCell>
+                                            <TableCell>
+                                              {col.dataType || "—"}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                              <Stack
+                                                direction="row"
+                                                spacing={1}
+                                              >
+                                                <Tooltip title="new">
+                                                  <IconButton
+                                                    aria-label="New"
+                                                    size="small"
+                                                    onClick={() => {}}
+                                                  >
+                                                    <AddIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="change">
+                                                  <IconButton
+                                                    aria-label="Change"
+                                                    size="small"
+                                                    onClick={() => {}}
+                                                  >
+                                                    <EditIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Remove">
+                                                  <IconButton
+                                                    aria-label="Remove"
+                                                    size="small"
+                                                    onClick={() => {}}
+                                                  >
+                                                    <DeleteIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Tooltip>
+                                              </Stack>
+                                            </TableCell>
+                                          </TableRow>
+                                        ))
+                                      )
+                                    )
+                                  ) : (
+                                    <TableRow>
+                                      <TableCell colSpan={5}>
+                                        <Typography color="text.secondary">
+                                          No schema rows available.
+                                        </Typography>
+                                      </TableCell>
+                                    </TableRow>
+                                  )}
+                                </TableBody>
+                              </Table>
+                            </TableContainer>
+                          </Grid>
+                          <Grid
+                            size={6}
+                            sx={{
+                              height: "100%",
+                              minHeight: 0,
+                              overflow: "auto",
+                            }}
                           >
-                            <TableHead>
-                              <TableRow>
-                                <TableCell sx={{ fontWeight: 700 }}>
-                                  Old Question
-                                </TableCell>
-                                <TableCell sx={{ fontWeight: 700 }}>
-                                  Old Consult
-                                </TableCell>
-                                <TableCell sx={{ fontWeight: 700 }}>
-                                  New Question
-                                </TableCell>
-                                <TableCell sx={{ fontWeight: 700 }}>
-                                  New Consult
-                                </TableCell>
-                                <TableCell sx={{ fontWeight: 700 }}>
-                                  Status
-                                </TableCell>
-                                <TableCell
-                                  align="right"
-                                  sx={{ fontWeight: 700 }}
+                            <Box sx={{ mt: 1 }}>
+                              <Typography
+                                variant="subtitle1"
+                                fontWeight={700}
+                                sx={{ mb: 1 }}
+                              >
+                                To change schema
+                              </Typography>
+                              <TableContainer component={Paper} elevation={0}>
+                                <Table
+                                  size="small"
+                                  aria-label="to change selection"
                                 >
-                                  Actions
-                                </TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {schemaCtxDiff && schemaCtxDiff.length > 0 ? (
-                                schemaCtxDiff.map((schema) =>
-                                  schema.tables.map((table) =>
-                                    table.columns.map((col) => (
-                                      <TableRow
-                                        key={`${schema.id}-${table.id}-${col.id}`}
-                                        hover
-                                      >
-                                        <TableCell>{schema.name}</TableCell>
-                                        <TableCell>
-                                          {table.name || "—"}
-                                        </TableCell>
-                                        <TableCell>{col.name || "—"}</TableCell>
-                                        <TableCell>
-                                          {col.dataType || "—"}
-                                        </TableCell>
-                                        <TableCell>{"—"}</TableCell>
-                                        <TableCell align="right">
-                                          <Stack direction="row" spacing={1}>
-                                            <Tooltip title="watch">
-                                              <IconButton
-                                                aria-label="watch"
-                                                size="small"
-                                                onClick={() => {}}
-                                              >
-                                                <VisibilityIcon fontSize="small" />
-                                              </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="delete">
-                                              <IconButton
-                                                aria-label="delete"
-                                                size="small"
-                                                onClick={() => {}}
-                                              >
-                                                <DeleteIcon fontSize="small" />
-                                              </IconButton>
-                                            </Tooltip>
-                                          </Stack>
+                                  <TableHead>
+                                    <TableRow>
+                                      <TableCell sx={{ fontWeight: 700 }}>
+                                        Select
+                                      </TableCell>
+                                      <TableCell sx={{ fontWeight: 700 }}>
+                                        To change
+                                      </TableCell>
+                                      <TableCell sx={{ fontWeight: 700 }}>
+                                        Description
+                                      </TableCell>
+                                    </TableRow>
+                                  </TableHead>
+                                  <TableBody>
+                                    {dbConnection.length === 0 ? (
+                                      <TableRow>
+                                        <TableCell colSpan={3}>
+                                          <Typography color="text.secondary">
+                                            No delete schema available.
+                                          </Typography>
                                         </TableCell>
                                       </TableRow>
-                                    ))
-                                  )
-                                )
-                              ) : (
-                                <TableRow>
-                                  <TableCell colSpan={6}>
-                                    <Typography color="text.secondary">
-                                      No knowledge source rows available.
-                                    </Typography>
-                                  </TableCell>
-                                </TableRow>
-                              )}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      </Grid>
-                      <Grid size={6} sx={{ height: "100%", overflow: "auto" }}>
-                        <TextField
-                          label="Old Question"
-                          type="old-question"
-                          value={name}
-                          required
-                          disabled
-                          onChange={(e) => {}}
-                          fullWidth
-                          multiline
-                          minRows={2}
-                          sx={{ mb: 2 }}
-                        />
-                        <TextField
-                          label="Old Consult"
-                          type="old-consult"
-                          value={name}
-                          required
-                          onChange={(e) => {}}
-                          fullWidth
-                          multiline
-                          minRows={4}
-                          disabled
-                          sx={{ mb: 2 }}
-                        />
-                        <Button
-                          variant="outlined"
-                          onClick={() => {}}
-                          disabled={false}
-                          loading={false}
-                          sx={{ mb: 2 }}
+                                    ) : (
+                                      dbConnection.map((r) => {
+                                        const checked =
+                                          dbConnectionIds.includes(r.id);
+                                        return (
+                                          <TableRow key={r.id} hover>
+                                            <TableCell width={90}>
+                                              <Checkbox
+                                                checked={checked}
+                                                onChange={() =>
+                                                  toggleConn(r.id)
+                                                }
+                                                inputProps={{
+                                                  "aria-label": `select connection ${r.name}`,
+                                                }}
+                                              />
+                                            </TableCell>
+                                            <TableCell>{r.name}</TableCell>
+                                            <TableCell>
+                                              {r.description || "—"}
+                                            </TableCell>
+                                          </TableRow>
+                                        );
+                                      })
+                                    )}
+                                  </TableBody>
+                                </Table>
+                              </TableContainer>
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    </>
+                  )}
+                  {activeStep === 1 && (
+                    <>
+                      <Typography sx={{ mt: 2, mb: 1 }}>
+                        Step 2: Knowledge Source Content
+                      </Typography>
+                      <Box
+                        display="grid"
+                        gap={2}
+                        sx={{ height: "100%", minHeight: 0 }}
+                      >
+                        <Grid
+                          container
+                          spacing={3}
+                          sx={{ height: "100%", minHeight: 0 }}
                         >
-                          old run
-                        </Button>
-                        <Box sx={{ mb: 2 }}>
-                          {/* <ChatResultTable data={rows} /> */}
-                        </Box>
-                        <TextField
-                          label="New question"
-                          type="new-question"
-                          value={name}
-                          required
-                          onChange={(e) => {}}
-                          fullWidth
-                          multiline
-                          minRows={2}
-                          sx={{ mb: 2 }}
-                        />
-                        <TextField
-                          label="New Consult"
-                          type="new-consult"
-                          value={name}
-                          required
-                          onChange={(e) => {}}
-                          fullWidth
-                          multiline
-                          minRows={4}
-                          sx={{ mb: 2 }}
-                        />
-                        <Button
-                          variant="outlined"
-                          onClick={() => {}}
-                          disabled={false}
-                          loading={false}
-                          sx={{ mb: 2 }}
-                        >
-                          new run
-                        </Button>
-                        <Box sx={{ mb: 2 }}>
-                          {/* <ChatResultTable data={rows} /> */}
-                        </Box>
-                      </Grid>
-                    </Grid>
-                  </Box>
-                </>
+                          <Grid
+                            size={6}
+                            sx={{
+                              height: "100%",
+                              minHeight: 0,
+                              overflow: "auto",
+                            }}
+                          >
+                            <TableContainer component={Paper} elevation={0}>
+                              <Table
+                                size="small"
+                                aria-label="knowledge source table"
+                              >
+                                <TableHead>
+                                  <TableRow>
+                                    <TableCell sx={{ fontWeight: 700 }}>
+                                      Old Question
+                                    </TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>
+                                      Old Consult
+                                    </TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>
+                                      New Question
+                                    </TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>
+                                      New Consult
+                                    </TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>
+                                      Status
+                                    </TableCell>
+                                    <TableCell
+                                      align="right"
+                                      sx={{ fontWeight: 700 }}
+                                    >
+                                      Actions
+                                    </TableCell>
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                  {schemaCtxDiff && schemaCtxDiff.length > 0 ? (
+                                    schemaCtxDiff.map((schema) =>
+                                      schema.tables.map((table) =>
+                                        table.columns.map((col) => (
+                                          <TableRow
+                                            key={`${schema.id}-${table.id}-${col.id}`}
+                                            hover
+                                          >
+                                            <TableCell>{schema.name}</TableCell>
+                                            <TableCell>
+                                              {table.name || "—"}
+                                            </TableCell>
+                                            <TableCell>
+                                              {col.name || "—"}
+                                            </TableCell>
+                                            <TableCell>
+                                              {col.dataType || "—"}
+                                            </TableCell>
+                                            <TableCell>{"—"}</TableCell>
+                                            <TableCell align="right">
+                                              <Stack
+                                                direction="row"
+                                                spacing={1}
+                                              >
+                                                <Tooltip title="watch">
+                                                  <IconButton
+                                                    aria-label="watch"
+                                                    size="small"
+                                                    onClick={() => {}}
+                                                  >
+                                                    <VisibilityIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="delete">
+                                                  <IconButton
+                                                    aria-label="delete"
+                                                    size="small"
+                                                    onClick={() => {}}
+                                                  >
+                                                    <DeleteIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Tooltip>
+                                              </Stack>
+                                            </TableCell>
+                                          </TableRow>
+                                        ))
+                                      )
+                                    )
+                                  ) : (
+                                    <TableRow>
+                                      <TableCell colSpan={6}>
+                                        <Typography color="text.secondary">
+                                          No knowledge source rows available.
+                                        </Typography>
+                                      </TableCell>
+                                    </TableRow>
+                                  )}
+                                </TableBody>
+                              </Table>
+                            </TableContainer>
+                          </Grid>
+                          <Grid
+                            size={6}
+                            sx={{
+                              height: "100%",
+                              minHeight: 0,
+                              overflow: "auto",
+                            }}
+                          >
+                            <TextField
+                              label="Old Question"
+                              type="old-question"
+                              value={name}
+                              required
+                              disabled
+                              onChange={(e) => {}}
+                              fullWidth
+                              multiline
+                              minRows={2}
+                              sx={{ mb: 2 }}
+                            />
+                            <TextField
+                              label="Old Consult"
+                              type="old-consult"
+                              value={name}
+                              required
+                              onChange={(e) => {}}
+                              fullWidth
+                              multiline
+                              minRows={4}
+                              disabled
+                              sx={{ mb: 2 }}
+                            />
+                            <Button
+                              variant="outlined"
+                              onClick={() => {}}
+                              disabled={false}
+                              loading={false}
+                              sx={{ mb: 2 }}
+                            >
+                              old run
+                            </Button>
+                            <Box sx={{ mb: 2 }}>
+                              {/* <ChatResultTable data={rows} /> */}
+                            </Box>
+                            <TextField
+                              label="New question"
+                              type="new-question"
+                              value={name}
+                              required
+                              onChange={(e) => {}}
+                              fullWidth
+                              multiline
+                              minRows={2}
+                              sx={{ mb: 2 }}
+                            />
+                            <TextField
+                              label="New Consult"
+                              type="new-consult"
+                              value={name}
+                              required
+                              onChange={(e) => {}}
+                              fullWidth
+                              multiline
+                              minRows={4}
+                              sx={{ mb: 2 }}
+                            />
+                            <Button
+                              variant="outlined"
+                              onClick={() => {}}
+                              disabled={false}
+                              loading={false}
+                              sx={{ mb: 2 }}
+                            >
+                              new run
+                            </Button>
+                            <Box sx={{ mb: 2 }}>
+                              {/* <ChatResultTable data={rows} /> */}
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    </>
+                  )}
+                </React.Fragment>
               )}
-            </React.Fragment>
-          )}
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button
