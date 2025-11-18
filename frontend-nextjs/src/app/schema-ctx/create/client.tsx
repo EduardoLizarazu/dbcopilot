@@ -38,6 +38,7 @@ import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
 
@@ -767,10 +768,10 @@ export function SchemaCtxClient({
                             <TableHead>
                               <TableRow>
                                 <TableCell sx={{ fontWeight: 700 }}>
-                                  Previous Question
+                                  Old Question
                                 </TableCell>
                                 <TableCell sx={{ fontWeight: 700 }}>
-                                  Previous Consult
+                                  Old Consult
                                 </TableCell>
                                 <TableCell sx={{ fontWeight: 700 }}>
                                   New Question
@@ -815,7 +816,16 @@ export function SchemaCtxClient({
                                                 size="small"
                                                 onClick={() => {}}
                                               >
-                                                <AddIcon fontSize="small" />
+                                                <VisibilityIcon fontSize="small" />
+                                              </IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="delete">
+                                              <IconButton
+                                                aria-label="delete"
+                                                size="small"
+                                                onClick={() => {}}
+                                              >
+                                                <DeleteIcon fontSize="small" />
                                               </IconButton>
                                             </Tooltip>
                                           </Stack>
@@ -837,7 +847,55 @@ export function SchemaCtxClient({
                           </Table>
                         </TableContainer>
                       </Grid>
-                      <Grid size={6}></Grid>
+                      <Grid size={6}>
+                        <TextField
+                          label="Old Question"
+                          type="old-question"
+                          value={name}
+                          required
+                          disabled
+                          onChange={(e) => {}}
+                          fullWidth
+                          multiline
+                          minRows={2}
+                          sx={{ mb: 2 }}
+                        />
+                        <TextField
+                          label="Old Consult"
+                          type="old-consult"
+                          value={name}
+                          required
+                          onChange={(e) => {}}
+                          fullWidth
+                          multiline
+                          minRows={4}
+                          disabled
+                          sx={{ mb: 2 }}
+                        />
+                        <TextField
+                          label="New question"
+                          type="new-question"
+                          value={name}
+                          required
+                          onChange={(e) => {}}
+                          fullWidth
+                          multiline
+                          minRows={2}
+                          sx={{ mb: 2 }}
+                        />
+                        <TextField
+                          label="New Consult"
+                          type="new-consult"
+                          value={name}
+                          required
+                          onChange={(e) => {}}
+                          fullWidth
+                          multiline
+                          minRows={4}
+                          sx={{ mb: 2 }}
+                        />
+                        <Stack></Stack>
+                      </Grid>
                     </Grid>
                   </Box>
                 </>
