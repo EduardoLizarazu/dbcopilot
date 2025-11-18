@@ -57,8 +57,18 @@ export function SchemaCtxClient({
     TSchemaCtxSchemaDto[] | null
   >(initial?.schemaCtx || null);
 
-  const [loading, setLoading] = React.useState(false);
-  const [tableLoading, setTableLoading] = React.useState(false);
+  const [busy, setBusy] = React.useState<Set<string>>(new Set());
+
+  const setBusyFlag = (key: string, on: boolean) => {
+    setBusy((prev) => {
+      const s = new Set(prev);
+      if (on) s.add(key);
+      else s.delete(key);
+      return s;
+    });
+  };
+
+  const isBusy = (key: string) => busy.has(key);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
 
@@ -69,38 +79,47 @@ export function SchemaCtxClient({
   };
 
   const onCreate = async () => {
-    const res = await CreateSchemaCtxAction({
-      name,
-      description,
-      dbConnectionIds,
-      schemaCtx: schemaCtx || [],
-    });
-    if (res.ok) {
-      setSuccess(res.message ?? "Schema Context created successfully.");
-      router.push("/schema-ctx");
-    }
+    setBusyFlag("submit", true);
+    try {
+      const res = await CreateSchemaCtxAction({
+        name,
+        description,
+        dbConnectionIds,
+        schemaCtx: schemaCtx || [],
+      });
+      if (res.ok) {
+        setSuccess(res.message ?? "Schema Context created successfully.");
+        router.push("/schema-ctx");
+      }
 
-    if (!res.ok) {
-      setError(res.message || "Failed to create Schema Context.");
+      if (!res.ok) {
+        setError(res.message || "Failed to create Schema Context.");
+      }
+    } finally {
+      setBusyFlag("submit", false);
     }
-    setLoading(false);
   };
 
   const onUpdate = async () => {
-    const res = await UpdateSchemaCtxAction(initial?.id, {
-      id: initial?.id,
-      name,
-      description,
-      dbConnectionIds,
-      schemaCtx: schemaCtx || [],
-    });
-    if (res.ok) {
-      setSuccess(res.message ?? "Schema Context update successfully.");
-      router.push("/schema-ctx");
-    }
+    setBusyFlag("submit", true);
+    try {
+      const res = await UpdateSchemaCtxAction(initial?.id, {
+        id: initial?.id,
+        name,
+        description,
+        dbConnectionIds,
+        schemaCtx: schemaCtx || [],
+      });
+      if (res.ok) {
+        setSuccess(res.message ?? "Schema Context update successfully.");
+        router.push("/schema-ctx");
+      }
 
-    if (!res.ok) {
-      setError(res.message || "Failed to update Schema Context.");
+      if (!res.ok) {
+        setError(res.message || "Failed to update Schema Context.");
+      }
+    } finally {
+      setBusyFlag("submit", false);
     }
   };
 
@@ -108,42 +127,46 @@ export function SchemaCtxClient({
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    setLoading(true);
     if (initial) {
       await onUpdate();
     } else {
       await onCreate();
     }
-    setLoading(false);
   };
 
   const onSearchDiffSchema = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    setTableLoading(true);
-    const res = await ReadDiffSchemaCtxAction({
-      schemaCtxId: initial?.id || "",
-      connIds: dbConnectionIds,
-    });
-    if (res.ok) setSchemaCtx(res.data || []);
-    if (!res.ok) setError(res.message || "Failed to search schema context.");
-    setTableLoading(false);
+    setBusyFlag("table", true);
+    try {
+      const res = await ReadDiffSchemaCtxAction({
+        schemaCtxId: initial?.id || "",
+        connIds: dbConnectionIds,
+      });
+      if (res.ok) setSchemaCtx(res.data || []);
+      if (!res.ok) setError(res.message || "Failed to search schema context.");
+    } finally {
+      setBusyFlag("table", false);
+    }
   };
 
   const onProfile = async () => {
     setError(null);
     setSuccess(null);
-    setTableLoading(true);
+    setBusyFlag("profile", true);
     // const res = await ProfileSchemaCtxAction(dbConnectionIds);
     const res = {
       ok: false,
       message: "Not implemented",
       data: null,
     };
-    if (res.ok) setSchemaCtx(res.data.schemaCtx || []);
-    if (!res.ok) setError(res.message || "Failed to profile schema context.");
-    setTableLoading(false);
+    try {
+      if (res.ok) setSchemaCtx(res.data.schemaCtx || []);
+      if (!res.ok) setError(res.message || "Failed to profile schema context.");
+    } finally {
+      setBusyFlag("profile", false);
+    }
   };
 
   return (
@@ -238,18 +261,19 @@ export function SchemaCtxClient({
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading}
+                disabled={isBusy("submit")}
                 sx={{ textTransform: "none" }}
                 onClick={onSubmit}
+                loading={isBusy("submit")}
               >
-                {loading ? <CircularProgress size={22} /> : "Save"}
+                Save
               </Button>
 
               <Button
                 component={Link}
                 href="/schema-ctx/"
                 variant="outlined"
-                disabled={loading}
+                disabled={isBusy("submit")}
                 sx={{ textTransform: "none" }}
               >
                 Cancel
@@ -265,11 +289,12 @@ export function SchemaCtxClient({
                 type="submit"
                 color="secondary"
                 variant="contained"
-                disabled={loading}
+                disabled={isBusy("table")}
+                loading={isBusy("table")}
                 sx={{ textTransform: "none" }}
                 onClick={onSearchDiffSchema}
               >
-                {loading ? <CircularProgress size={22} /> : "Search Schema"}
+                Search Schema
               </Button>
             </Stack>
           </Box>
@@ -433,13 +458,12 @@ export function SchemaCtxClient({
         </DialogContent>
         <DialogActions>
           <Button
-            type="submit"
+            type="button"
             variant="outlined"
             color="error"
-            disabled={loading}
+            disabled={isBusy("submit")}
             sx={{ textTransform: "none" }}
             onClick={() => {}}
-            loading={loading}
           >
             Close
           </Button>
