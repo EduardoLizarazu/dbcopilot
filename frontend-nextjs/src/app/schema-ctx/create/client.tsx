@@ -231,7 +231,7 @@ export function SchemaCtxClient({
             <Stack
               direction="row"
               spacing={2}
-              justifyContent="flex-start"
+              justifyContent="flex-end"
               sx={{ mt: 2 }}
             >
               <Button
@@ -239,6 +239,7 @@ export function SchemaCtxClient({
                 variant="contained"
                 disabled={loading}
                 sx={{ textTransform: "none" }}
+                onClick={onSubmit}
               >
                 {loading ? <CircularProgress size={22} /> : "Save"}
               </Button>
@@ -256,7 +257,7 @@ export function SchemaCtxClient({
             <Stack
               direction="row"
               spacing={2}
-              justifyContent="flex-end"
+              justifyContent="flex-start"
               sx={{ mt: 2 }}
             >
               <Button
@@ -264,18 +265,9 @@ export function SchemaCtxClient({
                 variant="contained"
                 disabled={loading}
                 sx={{ textTransform: "none" }}
+                onClick={onSearchDiffSchema}
               >
                 {loading ? <CircularProgress size={22} /> : "Search Schema"}
-              </Button>
-
-              <Button
-                component={Link}
-                href="/schema-ctx/"
-                variant="outlined"
-                disabled={loading}
-                sx={{ textTransform: "none" }}
-              >
-                {loading ? <CircularProgress size={22} /> : "Changes detected"}
               </Button>
             </Stack>
           </Box>
