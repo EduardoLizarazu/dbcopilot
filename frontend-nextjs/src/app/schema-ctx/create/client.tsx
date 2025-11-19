@@ -1227,7 +1227,53 @@ export function SchemaCtxClient({
                                           <TableRow key={diff.id} hover>
                                             <TableCell>Schema</TableCell>
                                             <TableCell>{diff.name}</TableCell>
-                                            <TableCell>Action</TableCell>
+                                            <TableCell>
+                                              {diff.status ===
+                                                SchemaCtxDiffStatus.NEW && (
+                                                <>
+                                                  <Tooltip title="new">
+                                                    <IconButton
+                                                      aria-label="new-schema"
+                                                      size="small"
+                                                    >
+                                                      <AddIcon fontSize="small" />
+                                                    </IconButton>
+                                                  </Tooltip>
+                                                  <Tooltip title="update">
+                                                    <IconButton
+                                                      aria-label="update-schema"
+                                                      size="small"
+                                                    >
+                                                      <EditIcon fontSize="small" />
+                                                    </IconButton>
+                                                  </Tooltip>
+                                                </>
+                                              )}
+                                              {diff.status ===
+                                                SchemaCtxDiffStatus.DELETE && (
+                                                <>
+                                                  <Tooltip title="update">
+                                                    <IconButton
+                                                      aria-label="update-schema"
+                                                      size="small"
+                                                    >
+                                                      <EditIcon fontSize="small" />
+                                                    </IconButton>
+                                                  </Tooltip>
+                                                  <Tooltip title="delete">
+                                                    <IconButton
+                                                      aria-label="delete-schema"
+                                                      size="small"
+                                                    >
+                                                      <DeleteIcon fontSize="small" />
+                                                    </IconButton>
+                                                  </Tooltip>
+                                                </>
+                                              )}
+                                              {diff.status ===
+                                                SchemaCtxDiffStatus.UN_CHANGE &&
+                                                "-"}
+                                            </TableCell>
                                           </TableRow>
                                           {diff.tables.map((table) => (
                                             <React.Fragment
@@ -1238,12 +1284,58 @@ export function SchemaCtxClient({
                                                 hover
                                               >
                                                 <TableCell sx={{ pl: 4 }}>
-                                                  Table
+                                                  Action
                                                 </TableCell>
                                                 <TableCell>
                                                   {table.name}
                                                 </TableCell>
-                                                <TableCell>Action</TableCell>
+                                                <TableCell>
+                                                  {table.status ===
+                                                    SchemaCtxDiffStatus.NEW && (
+                                                    <>
+                                                      <Tooltip title="new">
+                                                        <IconButton
+                                                          aria-label="new-schema"
+                                                          size="small"
+                                                        >
+                                                          <AddIcon fontSize="small" />
+                                                        </IconButton>
+                                                      </Tooltip>
+                                                      <Tooltip title="update">
+                                                        <IconButton
+                                                          aria-label="update-schema"
+                                                          size="small"
+                                                        >
+                                                          <EditIcon fontSize="small" />
+                                                        </IconButton>
+                                                      </Tooltip>
+                                                    </>
+                                                  )}
+                                                  {table.status ===
+                                                    SchemaCtxDiffStatus.DELETE && (
+                                                    <>
+                                                      <Tooltip title="update">
+                                                        <IconButton
+                                                          aria-label="update-schema"
+                                                          size="small"
+                                                        >
+                                                          <EditIcon fontSize="small" />
+                                                        </IconButton>
+                                                      </Tooltip>
+                                                      <Tooltip title="delete">
+                                                        <IconButton
+                                                          aria-label="delete-schema"
+                                                          size="small"
+                                                        >
+                                                          <DeleteIcon fontSize="small" />
+                                                        </IconButton>
+                                                      </Tooltip>
+                                                    </>
+                                                  )}
+                                                  {table.status ===
+                                                    SchemaCtxDiffStatus.UN_CHANGE &&
+                                                    "-"}
+                                                </TableCell>
                                               </TableRow>
                                               {table.columns.map((col) => (
                                                 <React.Fragment
@@ -1259,7 +1351,51 @@ export function SchemaCtxClient({
                                                       {col.name}
                                                     </TableCell>
                                                     <TableCell>
-                                                      Action
+                                                      {table.status ===
+                                                        SchemaCtxDiffStatus.NEW && (
+                                                        <>
+                                                          <Tooltip title="new">
+                                                            <IconButton
+                                                              aria-label="new-schema"
+                                                              size="small"
+                                                            >
+                                                              <AddIcon fontSize="small" />
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                          <Tooltip title="update">
+                                                            <IconButton
+                                                              aria-label="update-schema"
+                                                              size="small"
+                                                            >
+                                                              <EditIcon fontSize="small" />
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                        </>
+                                                      )}
+                                                      {table.status ===
+                                                        SchemaCtxDiffStatus.DELETE && (
+                                                        <>
+                                                          <Tooltip title="update">
+                                                            <IconButton
+                                                              aria-label="update-schema"
+                                                              size="small"
+                                                            >
+                                                              <EditIcon fontSize="small" />
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                          <Tooltip title="delete">
+                                                            <IconButton
+                                                              aria-label="delete-schema"
+                                                              size="small"
+                                                            >
+                                                              <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                        </>
+                                                      )}
+                                                      {table.status ===
+                                                        SchemaCtxDiffStatus.UN_CHANGE &&
+                                                        "-"}
                                                     </TableCell>
                                                   </TableRow>
                                                 </React.Fragment>
