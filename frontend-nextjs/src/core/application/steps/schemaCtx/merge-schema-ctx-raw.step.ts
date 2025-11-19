@@ -23,10 +23,7 @@ export class MergeSchemaCtxRawStep implements IMergeSchemaCtxRawStep {
         this.logger.error(
           `[MergeSchemaCtxRawStep] Validation errors in one of the schemas: ${JSON.stringify(vSchema.error.issues)}`
         );
-        throw new Error(
-          vSchema.error.issues.map((e) => e.message).join(", ") ||
-            "Invalid schema context raw data"
-        );
+        throw new Error("Invalid schema context raw data");
       }
 
       const mergedData: TSchemaCtxRaw = _joinSchemas(vSchema.data);
@@ -38,10 +35,7 @@ export class MergeSchemaCtxRawStep implements IMergeSchemaCtxRawStep {
         this.logger.error(
           `[MergeSchemaCtxRawStep] Validation errors after merging: ${JSON.stringify(finalData.error.issues)}`
         );
-        throw new Error(
-          finalData.error.issues.map((e) => e.message).join(", ") ||
-            "Invalid merged schema context raw data"
-        );
+        throw new Error("Invalid merged schema context raw data");
       }
 
       return finalData.data;
