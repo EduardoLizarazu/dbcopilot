@@ -1329,6 +1329,7 @@ export function SchemaCtxClient({
                                                 >
                                                   <TableRow
                                                     key={`${diff.id}-${table.id}-${col.id}`}
+                                                    hover
                                                   >
                                                     <TableCell sx={{ pl: 8 }}>
                                                       Column
