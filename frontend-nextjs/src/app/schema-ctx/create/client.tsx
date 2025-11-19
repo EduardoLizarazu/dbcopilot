@@ -387,33 +387,44 @@ export function SchemaCtxClient({
     try {
       const schemaInfo: TSchemaCtxSimpleSchemaDto = {
         id: selectedSchemaId || "",
-        name: schemaName || "",
-        description: schemaDescription || "",
-        aliases: schemaAliases || [],
+        name: schemaName.toString() || "",
+        description: schemaDescription.toString() || "",
+        aliases: schemaAliases.map((i) => i.toString()) || [],
         table: {
           id: selectedTableId || "",
-          name: tableName || "",
-          description: tableDescription || "",
-          aliases: tableAliases || [],
+          name: tableName.toString() || "",
+          description: tableDescription.toString() || "",
+          aliases: tableAliases.map((i) => i.toString()) || [],
           column: {
             id: selectedColumnId || "",
-            name: columnName || "",
-            description: columnDescription || "",
-            aliases: columnAliases || [],
-            dataType: columnType || "",
-            profile: columnProfile || {},
+            name: columnName.toString() || "",
+            description: columnDescription.toString() || "",
+            aliases: columnAliases.map((i) => i.toString()) || [],
+            dataType: columnType.toString() || "",
+            profile: {
+              maxValue: columnProfile?.maxValue.toString() || "",
+              minValue: columnProfile?.minValue.toString() || "",
+              countNulls: columnProfile?.countNulls || 0,
+              countUnique: columnProfile?.countUnique || 0,
+              sampleUnique:
+                columnProfile?.sampleUnique.map((i) => i.toString()) || [],
+            },
           },
         },
       };
       const res = await GenSchemaCtxAction(schemaInfo);
 
       if (res.ok) {
-        setSchemaDescription(res.data.description || "");
-        setSchemaAliases(res.data.aliases || []);
-        setTableDescription(res.data.table?.description || "");
-        setTableAliases(res.data.table?.aliases || []);
-        setColumnDescription(res.data.table?.column?.description || "");
-        setColumnAliases(res.data.table?.column?.aliases || []);
+        setSchemaDescription(res.data.description.toString() || "");
+        setSchemaAliases(res.data.aliases.map((i) => i.toString()) || []);
+        setTableDescription(res.data.table?.description.toString() || "");
+        setTableAliases(res.data.table?.aliases.map((i) => i.toString()) || []);
+        setColumnDescription(
+          res.data.table?.column?.description.toString() || ""
+        );
+        setColumnAliases(
+          res.data.table?.column?.aliases.map((i) => i.toString()) || []
+        );
       }
 
       if (!res.ok)
