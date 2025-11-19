@@ -358,42 +358,18 @@ export function SchemaCtxClient({
         tableName: selectedTableId ? tableName : "",
         columnName: selectedColumnId ? columnName : "",
         dataType: selectedColumnId ? columnType : "",
-        top: sampleTop || 0,
+        top: sampleTop || 1,
       };
+      console.log("schemaInfo", schemaInfo);
 
       const res = await InfoProfileExtractorAction({
         connectionIds: dbConnectionIds,
         schema: schemaInfo,
       });
+      console.log("profile extractor response", res);
 
       if (res.ok) {
-        // Try common patterns: direct profile in res.data.profile
-        if (res.data && (res.data as any).profile) {
-          setColumnProfile(
-            (res.data as any).profile as TSchemaCtxColumnProfileDto
-          );
-        } else if (res.data && Array.isArray((res.data as any).schemaCtx)) {
-          // try to extract profile from returned schemaCtx structure
-          const returned = (res.data as any).schemaCtx as any[];
-          const found = returned
-            .flatMap((s) => (s.tables || []).map((t) => ({ s, t })))
-            .flatMap(({ s, t }) =>
-              (t.columns || []).map((c: any) => ({ s, t, c }))
-            );
-
-          const match = found.find(
-            (x) =>
-              (x.s?.name || "") === schemaInfo.schemaName &&
-              (x.t?.name || "") === schemaInfo.tableName &&
-              (x.c?.name || "") === schemaInfo.columnName
-          );
-          if (match && match.c.profile) {
-            setColumnProfile(match.c.profile as TSchemaCtxColumnProfileDto);
-          } else if (match && !match.c.profile) {
-            // explicit null
-            setColumnProfile(null);
-          }
-        }
+        setColumnProfile(res.data);
       }
 
       if (!res.ok) setError(res.message || "Failed to profile schema context.");
@@ -1011,7 +987,8 @@ export function SchemaCtxClient({
                 type="button"
                 color="secondary"
                 variant="contained"
-                disabled={isBusy("submit")}
+                disabled={isBusy("profile")}
+                loading={isBusy("profile")}
                 sx={{ textTransform: "none", ml: 1 }}
                 onClick={() => onProfile()}
               >
