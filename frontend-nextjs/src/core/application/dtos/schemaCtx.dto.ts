@@ -142,3 +142,10 @@ export const schemaCtxSimpleSchemaDto = schemaCtxSchema
 export type TSchemaCtxSimpleSchemaDto = z.infer<
   typeof schemaCtxSimpleSchemaDto
 >;
+
+export const schemaCtxCounterDto = z.object({
+  totalUnChanged: z.number().min(0),
+  totalNews: z.number().min(0),
+  totalDeleted: z.number().min(0),
+});
+export type TSchemaCtxCounterDto = z.infer<typeof schemaCtxCounterDto>;

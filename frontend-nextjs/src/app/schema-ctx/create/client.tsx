@@ -414,7 +414,7 @@ export function SchemaCtxClient({
           connIds: dbConnectionIds,
         });
         if (res.ok) {
-          setSchemaCtxDiff(res.data || []);
+          setSchemaCtxDiff(res.data?.diffSchemas || []);
           console.log("diff schemas", res.data);
           setOpenDiffEditor(true);
           setBusyFlag("table-diff", true);

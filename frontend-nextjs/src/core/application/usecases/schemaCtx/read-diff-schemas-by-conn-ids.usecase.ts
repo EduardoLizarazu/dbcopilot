@@ -1,18 +1,24 @@
-import { TSchemaCtxDiffBaseDto } from "../../dtos/schemaCtx.dto";
+import {
+  TSchemaCtxCounterDto,
+  TSchemaCtxDiffBaseDto,
+} from "../../dtos/schemaCtx.dto";
 import { TResponseDto } from "../../dtos/utils/response.app.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IReadDbConnByIdStep } from "../../steps/dbconn/read-dbconn-by-id.step";
 import { IExtractSchemaBasedStep } from "../../steps/infoBased/extract-schemabased.step";
 import { ICompareSchemaCtxStep } from "../../steps/schemaCtx/compare-schema-ctx.step";
+import { ICountDiffSchemaCtxStep } from "../../steps/schemaCtx/count-diff-schema-ctx.step";
 import { IFormatSchemaCtxStep } from "../../steps/schemaCtx/format-schema-ctx.step";
 import { IMergeSchemaCtxRawStep } from "../../steps/schemaCtx/merge-schema-ctx-raw.step";
 import { IReadByIdSchemaCtxStep } from "../../steps/schemaCtx/read-by-id-schema-ctx.step";
 
 export interface IReadDiffSchemasByConnIdsUseCase {
-  execute(data: {
-    schemaCtxId: string;
-    connIds: string[];
-  }): Promise<TResponseDto<TSchemaCtxDiffBaseDto[]>>;
+  execute(data: { schemaCtxId: string; connIds: string[] }): Promise<
+    TResponseDto<{
+      diffSchemas: TSchemaCtxDiffBaseDto[];
+      diffCount: TSchemaCtxCounterDto;
+    }>
+  >;
 }
 
 export class ReadDiffSchemasByConnIdsUseCase
@@ -25,13 +31,16 @@ export class ReadDiffSchemasByConnIdsUseCase
     private readonly extractSchemaBasedStep: IExtractSchemaBasedStep,
     private readonly mergeSchemaCtxRawStep: IMergeSchemaCtxRawStep,
     private readonly formatSchemaCtxStep: IFormatSchemaCtxStep,
-    private readonly compareSchemaCtxStep: ICompareSchemaCtxStep
+    private readonly compareSchemaCtxStep: ICompareSchemaCtxStep,
+    private readonly countDiffSchemaCtxStep: ICountDiffSchemaCtxStep
   ) {}
 
-  async execute(data: {
-    schemaCtxId: string;
-    connIds: string[];
-  }): Promise<TResponseDto<TSchemaCtxDiffBaseDto[]>> {
+  async execute(data: { schemaCtxId: string; connIds: string[] }): Promise<
+    TResponseDto<{
+      diffSchemas: TSchemaCtxDiffBaseDto[];
+      diffCount: TSchemaCtxCounterDto;
+    }>
+  > {
     // Implementation here
     try {
       this.logger.info(
@@ -153,10 +162,19 @@ export class ReadDiffSchemasByConnIdsUseCase
         diffSchema
       );
 
+      const diffSchemaCount = await this.countDiffSchemaCtxStep.run(diffSchema);
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Diff schema count: `,
+        diffSchemaCount
+      );
+
       return {
         success: true,
         message: "Successfully read diff schemas by connection IDs",
-        data: diffSchema,
+        data: {
+          diffSchemas: diffSchema,
+          diffCount: diffSchemaCount,
+        },
       };
     } catch (error) {
       this.logger.error(

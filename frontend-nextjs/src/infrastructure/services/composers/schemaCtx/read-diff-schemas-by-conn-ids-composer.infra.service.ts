@@ -1,6 +1,7 @@
 import { ReadDbConnByIdStep } from "@/core/application/steps/dbconn/read-dbconn-by-id.step";
 import { ExtractSchemaBasedStep } from "@/core/application/steps/infoBased/extract-schemabased.step";
 import { CompareSchemaCtxStep } from "@/core/application/steps/schemaCtx/compare-schema-ctx.step";
+import { CountDiffSchemaCtxStep } from "@/core/application/steps/schemaCtx/count-diff-schema-ctx.step";
 import { FormatSchemaCtxStep } from "@/core/application/steps/schemaCtx/format-schema-ctx.step";
 import { MergeSchemaCtxRawStep } from "@/core/application/steps/schemaCtx/merge-schema-ctx-raw.step";
 import { ReadByIdSchemaCtxStep } from "@/core/application/steps/schemaCtx/read-by-id-schema-ctx.step";
@@ -57,6 +58,7 @@ export function ReadDiffSchemasByConnIdsComposer(): IController {
   const mergeSchemaCtxRawStep = new MergeSchemaCtxRawStep(loggerProvider);
   const formatSchemaCtxStep = new FormatSchemaCtxStep(loggerProvider);
   const compareSchemaCtxStep = new CompareSchemaCtxStep(loggerProvider);
+  const countDiffSchemaCtxStep = new CountDiffSchemaCtxStep(loggerProvider);
 
   // USE CASES
   const useCase = new ReadDiffSchemasByConnIdsUseCase(
@@ -66,7 +68,8 @@ export function ReadDiffSchemasByConnIdsComposer(): IController {
     extractSchemaBasedStep,
     mergeSchemaCtxRawStep,
     formatSchemaCtxStep,
-    compareSchemaCtxStep
+    compareSchemaCtxStep,
+    countDiffSchemaCtxStep
   );
 
   // CONTROLLER
