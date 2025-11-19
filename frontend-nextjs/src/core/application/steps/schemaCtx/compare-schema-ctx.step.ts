@@ -25,38 +25,43 @@ export class CompareSchemaCtxStep implements ICompareSchemaCtxStep {
         `[CompareSchemaCtxStep] Comparing old and new schema contexts`
       );
 
-      const vDataSchemaCtxOld = await Promise.all(
-        oldSchema.map(async (s) => await schemaCtxSchema.safeParseAsync(s))
-      );
-      const vDataSchemaCtxNew = await Promise.all(
-        newSchema.map(async (s) => await schemaCtxSchema.safeParseAsync(s))
-      );
-      if (vDataSchemaCtxOld.some((v) => !v.success)) {
+      const vDataSchemaCtxOld = await schemaCtxSchema
+        .array()
+        .safeParseAsync(oldSchema);
+      const vDataSchemaCtxNew = await schemaCtxSchema
+        .array()
+        .safeParseAsync(newSchema);
+      if (!vDataSchemaCtxOld.success) {
         this.logger.error(
-          `[CompareSchemaCtxStep] Validation errors in old schema context: ${JSON.stringify(vDataSchemaCtxOld.filter((v) => !v.success).map((v) => v.error.errors))}`
+          `[CompareSchemaCtxStep] Validation errors in old schema context: ${JSON.stringify(vDataSchemaCtxOld.error.errors)}`
         );
         throw new Error(
-          vDataSchemaCtxOld
-            .flatMap((v) => (v.success ? [] : v.error.errors))
-            .map((e) => e.message)
-            .join(", ") || "Invalid old schema context data"
+          vDataSchemaCtxOld.error.errors.map((e) => e.message).join(", ") ||
+            "Invalid old schema context data"
         );
       }
 
-      if (vDataSchemaCtxNew.some((v) => !v.success)) {
+      if (!vDataSchemaCtxNew.success) {
         this.logger.error(
-          `[CompareSchemaCtxStep] Validation errors in new schema context: ${JSON.stringify(vDataSchemaCtxNew.filter((v) => !v.success).map((v) => v.error.errors))}`
+          `[CompareSchemaCtxStep] Validation errors in new schema context: ${JSON.stringify(vDataSchemaCtxNew.error.errors)}`
         );
         throw new Error(
-          vDataSchemaCtxNew
-            .flatMap((v) => (v.success ? [] : v.error.errors))
-            .map((e) => e.message)
-            .join(", ") || "Invalid new schema context data"
+          vDataSchemaCtxNew.error.errors.map((e) => e.message).join(", ") ||
+            "Invalid old schema context data"
         );
       }
 
-      const newData = vDataSchemaCtxNew.map((v) => v.data);
-      const oldData = vDataSchemaCtxOld.map((v) => v.data);
+      if (!vDataSchemaCtxNew.success) {
+        this.logger.error(
+          `[CompareSchemaCtxStep] Validation errors in new schema context: ${JSON.stringify(vDataSchemaCtxNew.error)}`
+        );
+        throw new Error(
+          vDataSchemaCtxNew.error || "Invalid new schema context data"
+        );
+      }
+
+      const newData = vDataSchemaCtxNew.data;
+      const oldData = vDataSchemaCtxOld.data;
 
       const schemaDiff = _compareSchemas(newData, oldData);
 
