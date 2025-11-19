@@ -1,6 +1,7 @@
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaTopologyGenerationPort } from "@/core/application/ports/nlq-qa-topology-generation.port";
 import { OpenAIProvider } from "../providers/ai/openai.infra.provider";
+import { TSchemaCtxSimpleSchemaDto } from "@/core/application/dtos/schemaCtx.dto";
 
 export class NlqQaTopologyGenerationAdapter
   implements INlqQaTopologyGenerationPort
@@ -9,6 +10,111 @@ export class NlqQaTopologyGenerationAdapter
     private readonly logger: ILogger,
     private readonly openaiProvider: OpenAIProvider
   ) {}
+  async genSchemaCtx(
+    data: TSchemaCtxSimpleSchemaDto
+  ): Promise<TSchemaCtxSimpleSchemaDto> {
+    try {
+      this.logger.info(
+        `[NlqQaTopologyGenerationAdapter] Generating schema context for schema: `,
+        data
+      );
+
+      /**
+       * type TSchemaCtxSimpleSchemaDto = {
+    id?: string;
+    name?: string;
+    description?: string;
+    aliases?: string[];
+    table?: {
+        id?: string;
+        name?: string;
+        description?: string;
+        aliases?: string[];
+        column?: {
+            id?: string;
+            name?: string;
+            description?: string;
+            aliases?: string[];
+            dataType?: string;
+            profile?: {
+                maxValue?: string;
+                minValue?: string;
+                countNulls?: number;
+                countUnique?: number;
+                sampleUnique?: string[];
+            };
+        };
+    };
+}
+       */
+
+      const prompt = `
+        Given the following schema information,
+        generate a comprehensive summary for each field of the schema context provided.
+
+        ### Schema Context Information:
+        ${JSON.stringify(data)}
+
+
+        ### Response format Schema Context Summary:
+        Return the summary as a JSON object.
+        \`\`\`json
+            {
+                "description": "<summary>",
+                "aliases": ["<summary>"],
+                "table": {
+                    "description": "<summary>",
+                    "aliases": ["<summary>"],
+                    "column": {
+                        "description": "<summary>",
+                        "aliases": ["<summary>"],
+                    }
+                }
+            }
+        \`\`\`
+      `;
+
+      const response = await this.openaiProvider.openai.chat.completions.create(
+        {
+          model: "gpt-4-turbo", // Use "gpt-3.5-turbo" for faster/cheaper results
+          messages: [
+            {
+              role: "system",
+              content:
+                "Generate a comprehensive summary for each field of the schema context provided.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.1, // Low temperature for deterministic output
+          max_tokens: 500,
+          top_p: 0.1,
+        }
+      );
+      const qRes = response.choices[0]?.message?.content?.trim() || "";
+
+      const schemaCtxSummaryExtraction = qRes.match(/```json\n([\s\S]*?)\n```/);
+      if (schemaCtxSummaryExtraction && schemaCtxSummaryExtraction[1]) {
+        const schemaCtxSummary = JSON.parse(
+          schemaCtxSummaryExtraction[1].trim()
+        );
+        this.logger.info(
+          `[NlqQaTopologyGenerationAdapter] Generated schema context summary: ${JSON.stringify(
+            schemaCtxSummary
+          )}`
+        );
+        return schemaCtxSummary;
+      }
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaTopologyGenerationAdapter] Error generating schema context",
+        error.message
+      );
+      throw new Error(error.message || "Error generating schema context");
+    }
+  }
 
   async genDetailQuestion(data: {
     question: string;
