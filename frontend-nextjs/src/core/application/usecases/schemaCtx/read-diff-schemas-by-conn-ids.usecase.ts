@@ -1,4 +1,7 @@
-import { TSchemaCtxDiffBaseDto } from "../../dtos/schemaCtx.dto";
+import {
+  schemaCtxDiffBase,
+  TSchemaCtxDiffBaseDto,
+} from "../../dtos/schemaCtx.dto";
 import { TResponseDto } from "../../dtos/utils/response.app.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { IReadDbConnByIdStep } from "../../steps/dbconn/read-dbconn-by-id.step";
@@ -117,10 +120,22 @@ export class ReadDiffSchemasByConnIdsUseCase
         formatNewSchema
       );
 
+      // Validation and return
+      const vDiffSchema = await schemaCtxDiffBase
+        .array()
+        .safeParseAsync(diffSchema);
+      if (!vDiffSchema.success) {
+        this.logger.error(
+          `[ReadDiffSchemasByConnIdsUseCase] Validation errors in diff schema context: `,
+          vDiffSchema.error.errors
+        );
+        throw new Error("Invalid diff schema context data");
+      }
+
       return {
         success: true,
         message: "Successfully read diff schemas by connection IDs",
-        data: diffSchema,
+        data: vDiffSchema.data,
       };
     } catch (error) {
       this.logger.error(

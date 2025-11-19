@@ -72,7 +72,7 @@ export class CompareSchemaCtxStep implements ICompareSchemaCtxStep {
 }
 
 // Compare two schema arrays and produce a structured diff.
-// Output uses schemaStatus { UNCHANGED:0, NEW:1, NOT_FOUND:2 }
+// Output uses schemaStatus { UN_CHANGED:0, NEW:1, DELETE:2 }
 // Each schema: { schema: { name, status }, tables: [ { name, status, columns: [ { name, status, dataType: { name, status } } ] } ] }
 
 function _getSchemaName(schema) {
