@@ -42,6 +42,7 @@ export const schemaCtxDiffColumn = schemaCtxColumn
     dataType: z.object({
       name: z.string().min(1),
       status: z.nativeEnum(SchemaCtxDiffStatus),
+      oldName: z.string().min(1).default(""),
     }),
   });
 export type TSchemaCtxDiffColumnDto = z.infer<typeof schemaCtxDiffColumn>;
@@ -63,6 +64,7 @@ export const schemaCtxDiffTable = schemaCtxTable
   .extend({
     columns: z.array(schemaCtxDiffColumn).default([]),
     status: z.nativeEnum(SchemaCtxDiffStatus),
+    oldName: z.string().default(""),
   });
 export type TSchemaCtxDiffTableDto = z.infer<typeof schemaCtxDiffTable>;
 
@@ -82,6 +84,7 @@ export const schemaCtxDiffSchema = schemaCtxSchema
   })
   .extend({
     status: z.nativeEnum(SchemaCtxDiffStatus),
+    oldName: z.string().default(""),
     tables: z.array(schemaCtxDiffTable).default([]),
   });
 export type TSchemaCtxDiffSchemaDto = z.infer<typeof schemaCtxDiffSchema>;
