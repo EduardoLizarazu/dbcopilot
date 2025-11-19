@@ -39,6 +39,10 @@ export const schemaCtxDiffColumn = schemaCtxColumn
   })
   .extend({
     status: z.nativeEnum(SchemaCtxDiffStatus),
+    dataType: z.object({
+      name: z.string().min(1),
+      status: z.nativeEnum(SchemaCtxDiffStatus),
+    }),
   });
 export type TSchemaCtxDiffColumnDto = z.infer<typeof schemaCtxDiffColumn>;
 
