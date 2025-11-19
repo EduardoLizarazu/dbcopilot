@@ -82,18 +82,6 @@ export function SchemaCtxClient({
     TSchemaCtxDiffSchemaDto[] | null
   >(null);
 
-  // EDIT / PAIRING state: which diff item is being edited (to pair NEW <-> DELETE)
-  const [editSelection, setEditSelection] = React.useState<{
-    level: "schema" | "table" | "column" | "dataType";
-    schemaId: string;
-    tableId?: string;
-    columnId?: string;
-    status?: SchemaCtxDiffStatus;
-  } | null>(null);
-
-  // track pairings: key -> value mapping where key is `${level}-${newId}` and value is oldId
-  const [pairings, setPairings] = React.useState<Record<string, string>>({});
-
   // INTERNAL STATES
   const [busy, setBusy] = React.useState<Set<string>>(new Set());
   const [error, setError] = React.useState<string | null>(null);
@@ -1206,187 +1194,81 @@ export function SchemaCtxClient({
                             }}
                           >
                             <TableContainer component={Paper} elevation={0}>
-                              <Table
-                                size="small"
-                                aria-label="schema context table"
-                              >
+                              <Table size="small">
                                 <TableHead>
                                   <TableRow>
                                     <TableCell sx={{ fontWeight: 700 }}>
-                                      Schema
+                                      Title
                                     </TableCell>
                                     <TableCell sx={{ fontWeight: 700 }}>
-                                      Table
+                                      Name
                                     </TableCell>
                                     <TableCell sx={{ fontWeight: 700 }}>
-                                      Column
+                                      Action
                                     </TableCell>
-                                    <TableCell sx={{ fontWeight: 700 }}>
-                                      Type
-                                    </TableCell>
-                                    {/* Actions moved inline into each cell */}
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                  {isBusy("table-diff") ? (
-                                    <TableRow>
-                                      <TableCell colSpan={5}>
-                                        <Typography color="text.secondary">
-                                          Loading
-                                        </Typography>
-                                      </TableCell>
-                                    </TableRow>
-                                  ) : schemaCtxDiff &&
-                                    schemaCtxDiff.length > 0 ? (
-                                    schemaCtxDiff.map((schema) =>
-                                      schema.tables.map((table) =>
-                                        table.columns.map((col) => {
-                                          const anyDelete = [
-                                            schema.status,
-                                            table.status,
-                                            col.status,
-                                          ].some(
-                                            (s) =>
-                                              s === SchemaCtxDiffStatus.DELETE
-                                          );
-                                          const anyNew = [
-                                            schema.status,
-                                            table.status,
-                                            col.status,
-                                          ].some(
-                                            (s) => s === SchemaCtxDiffStatus.NEW
-                                          );
-                                          const anyUpdate = [
-                                            schema.status,
-                                            table.status,
-                                            col.status,
-                                          ].some(
-                                            (s) =>
-                                              s === SchemaCtxDiffStatus.UPDATE
-                                          );
-                                          const rowStatus = anyDelete
-                                            ? SchemaCtxDiffStatus.DELETE
-                                            : anyNew
-                                              ? SchemaCtxDiffStatus.NEW
-                                              : anyUpdate
-                                                ? SchemaCtxDiffStatus.UPDATE
-                                                : SchemaCtxDiffStatus.UN_CHANGE;
-
-                                          const renderActionButton = (
-                                            status?: SchemaCtxDiffStatus,
-                                            level?:
-                                              | "schema"
-                                              | "table"
-                                              | "column"
-                                              | "dataType"
-                                          ) => {
-                                            // Per new requirement: if status is NEW or DELETE,
-                                            // show an Edit button only (the user can click Edit to pair/merge).
-                                            // For UPDATE we also allow Edit.
-                                            const handleEditClick = () => {
-                                              setEditSelection({
-                                                level: level!,
-                                                schemaId: schema.id,
-                                                tableId: table.id,
-                                                columnId: col.id,
-                                                status,
-                                              });
-                                            };
-
-                                            if (
-                                              status ===
-                                                SchemaCtxDiffStatus.NEW ||
-                                              status ===
-                                                SchemaCtxDiffStatus.DELETE ||
-                                              status ===
-                                                SchemaCtxDiffStatus.UPDATE
-                                            )
-                                              return (
-                                                <Tooltip title="Edit / Pair">
-                                                  <IconButton
-                                                    aria-label="Edit"
-                                                    size="small"
-                                                    onClick={handleEditClick}
-                                                  >
-                                                    <EditIcon fontSize="small" />
-                                                  </IconButton>
-                                                </Tooltip>
-                                              );
-
-                                            return null;
-                                          };
-
-                                          return (
-                                            <TableRow
-                                              key={`${schema.id}-${table.id}-${col.id}`}
-                                              hover
-                                            >
-                                              <TableCell>
-                                                <Box
-                                                  display="flex"
-                                                  alignItems="center"
-                                                >
-                                                  <Box>{schema.name}</Box>
-                                                  {renderActionButton(
-                                                    schema.status,
-                                                    "schema"
-                                                  )}
-                                                </Box>
-                                              </TableCell>
-                                              <TableCell>
-                                                <Box
-                                                  display="flex"
-                                                  alignItems="center"
-                                                >
-                                                  <Box>{table.name || "—"}</Box>
-                                                  {renderActionButton(
-                                                    table.status,
-                                                    "table"
-                                                  )}
-                                                </Box>
-                                              </TableCell>
-                                              <TableCell>
-                                                <Box
-                                                  display="flex"
-                                                  alignItems="center"
-                                                >
-                                                  <Box>{col.name || "—"}</Box>
-                                                  {renderActionButton(
-                                                    col.status,
-                                                    "column"
-                                                  )}
-                                                </Box>
-                                              </TableCell>
-                                              <TableCell>
-                                                <Box
-                                                  display="flex"
-                                                  alignItems="center"
-                                                >
-                                                  <Box>
-                                                    {col.dataType?.name || "—"}
-                                                  </Box>
-                                                  {col.dataType?.status
-                                                    ? renderActionButton(
-                                                        col.dataType.status,
-                                                        "dataType"
-                                                      )
-                                                    : null}
-                                                </Box>
-                                              </TableCell>
-                                              {/* Actions are now shown inline on each cell */}
-                                            </TableRow>
-                                          );
-                                        })
-                                      )
-                                    )
+                                  {schemaCtxDiff === null ||
+                                  schemaCtxDiff.length === 0 ? (
+                                    <>
+                                      <TableRow>
+                                        <TableCell colSpan={3}>
+                                          <Typography color="text.secondary">
+                                            No schema differences found.
+                                          </Typography>
+                                        </TableCell>
+                                      </TableRow>
+                                    </>
                                   ) : (
-                                    <TableRow>
-                                      <TableCell colSpan={5}>
-                                        <Typography color="text.secondary">
-                                          No schema rows available.
-                                        </Typography>
-                                      </TableCell>
-                                    </TableRow>
+                                    <>
+                                      {schemaCtxDiff.map((diff) => (
+                                        <React.Fragment key={diff.id}>
+                                          <TableRow key={diff.id} hover>
+                                            <TableCell>Schema</TableCell>
+                                            <TableCell>{diff.name}</TableCell>
+                                            <TableCell>Action</TableCell>
+                                          </TableRow>
+                                          {diff.tables.map((table) => (
+                                            <React.Fragment
+                                              key={`${diff.id}-${table.id}`}
+                                            >
+                                              <TableRow
+                                                key={`${diff.id}-${table.id}`}
+                                                hover
+                                              >
+                                                <TableCell sx={{ pl: 4 }}>
+                                                  Table
+                                                </TableCell>
+                                                <TableCell>
+                                                  {table.name}
+                                                </TableCell>
+                                                <TableCell>Action</TableCell>
+                                              </TableRow>
+                                              {table.columns.map((col) => (
+                                                <React.Fragment
+                                                  key={`${diff.id}-${table.id}-${col.id}`}
+                                                >
+                                                  <TableRow
+                                                    key={`${diff.id}-${table.id}-${col.id}`}
+                                                  >
+                                                    <TableCell sx={{ pl: 8 }}>
+                                                      Column
+                                                    </TableCell>
+                                                    <TableCell>
+                                                      {col.name}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                      Action
+                                                    </TableCell>
+                                                  </TableRow>
+                                                </React.Fragment>
+                                              ))}
+                                            </React.Fragment>
+                                          ))}
+                                        </React.Fragment>
+                                      ))}
+                                    </>
                                   )}
                                 </TableBody>
                               </Table>
@@ -1400,541 +1282,7 @@ export function SchemaCtxClient({
                               overflow: "auto",
                             }}
                           >
-                            <Box>
-                              {/* When editing (editSelection != null) show candidates to pair (DELETE items)
-                                  otherwise show connection selection as before */}
-                              {editSelection ? (
-                                <TableContainer component={Paper} elevation={0}>
-                                  <Table size="small" aria-label="candidates">
-                                    <TableHead>
-                                      <TableRow>
-                                        <TableCell sx={{ fontWeight: 700 }}>
-                                          Candidate
-                                        </TableCell>
-                                        <TableCell sx={{ fontWeight: 700 }}>
-                                          Action
-                                        </TableCell>
-                                      </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                      {(() => {
-                                        if (!schemaCtxDiff) return null;
-                                        const rows: Array<any> = [];
-                                        if (editSelection.level === "schema") {
-                                          schemaCtxDiff.forEach((s) => {
-                                            if (
-                                              s.status ===
-                                              SchemaCtxDiffStatus.DELETE
-                                            )
-                                              rows.push({
-                                                id: s.id,
-                                                name: s.name,
-                                                schemaId: s.id,
-                                              });
-                                          });
-                                        }
-                                        if (editSelection.level === "table") {
-                                          schemaCtxDiff.forEach((s) =>
-                                            s.tables.forEach((t) => {
-                                              if (
-                                                t.status ===
-                                                SchemaCtxDiffStatus.DELETE
-                                              )
-                                                rows.push({
-                                                  id: t.id,
-                                                  name: t.name,
-                                                  schemaId: s.id,
-                                                  tableId: t.id,
-                                                });
-                                            })
-                                          );
-                                        }
-                                        if (
-                                          editSelection.level === "column" ||
-                                          editSelection.level === "dataType"
-                                        ) {
-                                          schemaCtxDiff.forEach((s) =>
-                                            s.tables.forEach((t) =>
-                                              t.columns.forEach((c) => {
-                                                if (
-                                                  c.status ===
-                                                  SchemaCtxDiffStatus.DELETE
-                                                )
-                                                  rows.push({
-                                                    id: c.id,
-                                                    name: c.name,
-                                                    schemaId: s.id,
-                                                    tableId: t.id,
-                                                    columnId: c.id,
-                                                  });
-                                              })
-                                            )
-                                          );
-                                        }
-
-                                        if (rows.length === 0)
-                                          return (
-                                            <TableRow>
-                                              <TableCell colSpan={2}>
-                                                <Typography color="text.secondary">
-                                                  No candidates available.
-                                                </Typography>
-                                              </TableCell>
-                                            </TableRow>
-                                          );
-
-                                        return rows.map((r) => {
-                                          const key = `${editSelection.level}-${
-                                            editSelection.level === "schema"
-                                              ? r.id
-                                              : editSelection.level === "table"
-                                                ? r.tableId
-                                                : r.columnId
-                                          }`;
-                                          const pairedWith = pairings[key];
-                                          return (
-                                            <TableRow key={r.id} hover>
-                                              <TableCell>{r.name}</TableCell>
-                                              <TableCell>
-                                                <Button
-                                                  size="small"
-                                                  variant={
-                                                    pairedWith ===
-                                                    (editSelection.level ===
-                                                    "schema"
-                                                      ? r.id
-                                                      : r.id)
-                                                      ? "contained"
-                                                      : "outlined"
-                                                  }
-                                                  onClick={() => {
-                                                    // perform pairing / toggle
-                                                    const newKey = `${editSelection.level}-${
-                                                      editSelection.level ===
-                                                      "schema"
-                                                        ? editSelection.schemaId
-                                                        : editSelection.level ===
-                                                            "table"
-                                                          ? editSelection.tableId
-                                                          : editSelection.columnId
-                                                    }`;
-                                                    const candidateId = r.id;
-                                                    const already =
-                                                      pairings[newKey] ===
-                                                      candidateId;
-                                                    if (already) {
-                                                      // undo pairing
-                                                      setPairings((p) => {
-                                                        const copy = { ...p };
-                                                        delete copy[newKey];
-                                                        return copy;
-                                                      });
-                                                      // revert statuses
-                                                      setSchemaCtxDiff(
-                                                        (prev) => {
-                                                          if (!prev)
-                                                            return prev;
-                                                          const out =
-                                                            JSON.parse(
-                                                              JSON.stringify(
-                                                                prev
-                                                              )
-                                                            );
-                                                          if (
-                                                            editSelection.level ===
-                                                            "schema"
-                                                          ) {
-                                                            const newSchema =
-                                                              out.find(
-                                                                (x: any) =>
-                                                                  x.id ===
-                                                                  editSelection.schemaId
-                                                              );
-                                                            const oldSchema =
-                                                              out.find(
-                                                                (x: any) =>
-                                                                  x.id ===
-                                                                  candidateId
-                                                              );
-                                                            if (newSchema) {
-                                                              newSchema.status =
-                                                                SchemaCtxDiffStatus.NEW;
-                                                              delete newSchema.oldName;
-                                                            }
-                                                            if (oldSchema) {
-                                                              oldSchema.status =
-                                                                SchemaCtxDiffStatus.DELETE;
-                                                            }
-                                                          }
-                                                          if (
-                                                            editSelection.level ===
-                                                            "table"
-                                                          ) {
-                                                            out.forEach(
-                                                              (s: any) => {
-                                                                s.tables.forEach(
-                                                                  (t: any) => {
-                                                                    if (
-                                                                      t.id ===
-                                                                        editSelection.tableId &&
-                                                                      s.id ===
-                                                                        editSelection.schemaId
-                                                                    ) {
-                                                                      t.status =
-                                                                        SchemaCtxDiffStatus.NEW;
-                                                                      delete t.oldName;
-                                                                    }
-                                                                    if (
-                                                                      t.id ===
-                                                                      candidateId
-                                                                    ) {
-                                                                      t.status =
-                                                                        SchemaCtxDiffStatus.DELETE;
-                                                                    }
-                                                                  }
-                                                                );
-                                                              }
-                                                            );
-                                                          }
-                                                          if (
-                                                            editSelection.level ===
-                                                              "column" ||
-                                                            editSelection.level ===
-                                                              "dataType"
-                                                          ) {
-                                                            out.forEach(
-                                                              (s: any) => {
-                                                                s.tables.forEach(
-                                                                  (t: any) => {
-                                                                    t.columns.forEach(
-                                                                      (
-                                                                        c: any
-                                                                      ) => {
-                                                                        if (
-                                                                          c.id ===
-                                                                            editSelection.columnId &&
-                                                                          s.id ===
-                                                                            editSelection.schemaId &&
-                                                                          t.id ===
-                                                                            editSelection.tableId
-                                                                        ) {
-                                                                          c.status =
-                                                                            SchemaCtxDiffStatus.NEW;
-                                                                          delete c.oldName;
-                                                                          if (
-                                                                            c.dataType
-                                                                          )
-                                                                            delete c
-                                                                              .dataType
-                                                                              .oldName;
-                                                                        }
-                                                                        if (
-                                                                          c.id ===
-                                                                          candidateId
-                                                                        ) {
-                                                                          c.status =
-                                                                            SchemaCtxDiffStatus.DELETE;
-                                                                        }
-                                                                      }
-                                                                    );
-                                                                  }
-                                                                );
-                                                              }
-                                                            );
-                                                          }
-                                                          return out;
-                                                        }
-                                                      );
-                                                    } else {
-                                                      // apply pairing: set both statuses to UPDATE and set oldName where available
-                                                      setPairings((p) => ({
-                                                        ...p,
-                                                        [newKey]: candidateId,
-                                                      }));
-                                                      setSchemaCtxDiff(
-                                                        (prev) => {
-                                                          if (!prev)
-                                                            return prev;
-                                                          // deep clone
-                                                          const out =
-                                                            JSON.parse(
-                                                              JSON.stringify(
-                                                                prev
-                                                              )
-                                                            );
-                                                          // find new item (the one from editSelection) and candidate and update
-                                                          if (
-                                                            editSelection.level ===
-                                                            "schema"
-                                                          ) {
-                                                            const newSchema =
-                                                              out.find(
-                                                                (x: any) =>
-                                                                  x.id ===
-                                                                  editSelection.schemaId
-                                                              );
-                                                            const oldSchema =
-                                                              out.find(
-                                                                (x: any) =>
-                                                                  x.id ===
-                                                                  candidateId
-                                                              );
-                                                            if (newSchema) {
-                                                              newSchema.status =
-                                                                SchemaCtxDiffStatus.UPDATE;
-                                                              newSchema.oldName =
-                                                                oldSchema
-                                                                  ? oldSchema.name
-                                                                  : newSchema.oldName ||
-                                                                    "";
-                                                            }
-                                                            if (oldSchema) {
-                                                              oldSchema.status =
-                                                                SchemaCtxDiffStatus.UPDATE;
-                                                            }
-                                                          }
-                                                          if (
-                                                            editSelection.level ===
-                                                            "table"
-                                                          ) {
-                                                            out.forEach(
-                                                              (s: any) => {
-                                                                s.tables.forEach(
-                                                                  (t: any) => {
-                                                                    if (
-                                                                      t.id ===
-                                                                        editSelection.tableId &&
-                                                                      s.id ===
-                                                                        editSelection.schemaId
-                                                                    ) {
-                                                                      t.status =
-                                                                        SchemaCtxDiffStatus.UPDATE;
-                                                                    }
-                                                                    if (
-                                                                      t.id ===
-                                                                      candidateId
-                                                                    ) {
-                                                                      // candidate table
-                                                                      t.status =
-                                                                        SchemaCtxDiffStatus.UPDATE;
-                                                                    }
-                                                                  }
-                                                                );
-                                                              }
-                                                            );
-                                                            // set oldName for new table
-                                                            out.forEach(
-                                                              (s: any) => {
-                                                                s.tables.forEach(
-                                                                  (t: any) => {
-                                                                    if (
-                                                                      t.id ===
-                                                                      editSelection.tableId
-                                                                    ) {
-                                                                      const old =
-                                                                        out
-                                                                          .flatMap(
-                                                                            (
-                                                                              os: any
-                                                                            ) =>
-                                                                              os.tables
-                                                                          )
-                                                                          .find(
-                                                                            (
-                                                                              ot: any
-                                                                            ) =>
-                                                                              ot.id ===
-                                                                              candidateId
-                                                                          );
-                                                                      t.oldName =
-                                                                        old
-                                                                          ? old.name
-                                                                          : t.oldName ||
-                                                                            "";
-                                                                    }
-                                                                  }
-                                                                );
-                                                              }
-                                                            );
-                                                          }
-                                                          if (
-                                                            editSelection.level ===
-                                                              "column" ||
-                                                            editSelection.level ===
-                                                              "dataType"
-                                                          ) {
-                                                            out.forEach(
-                                                              (s: any) => {
-                                                                s.tables.forEach(
-                                                                  (t: any) => {
-                                                                    t.columns.forEach(
-                                                                      (
-                                                                        c: any
-                                                                      ) => {
-                                                                        if (
-                                                                          c.id ===
-                                                                            editSelection.columnId &&
-                                                                          s.id ===
-                                                                            editSelection.schemaId &&
-                                                                          t.id ===
-                                                                            editSelection.tableId
-                                                                        ) {
-                                                                          c.status =
-                                                                            SchemaCtxDiffStatus.UPDATE;
-                                                                          // set oldName on column if possible (best-effort)
-                                                                          c.oldName =
-                                                                            c.oldName ||
-                                                                            "";
-                                                                        }
-                                                                        if (
-                                                                          c.id ===
-                                                                          candidateId
-                                                                        ) {
-                                                                          c.status =
-                                                                            SchemaCtxDiffStatus.UPDATE;
-                                                                        }
-                                                                      }
-                                                                    );
-                                                                  }
-                                                                );
-                                                              }
-                                                            );
-                                                            // if pairing dataType specifically, set dataType.oldName
-                                                            out.forEach(
-                                                              (s: any) => {
-                                                                s.tables.forEach(
-                                                                  (t: any) => {
-                                                                    t.columns.forEach(
-                                                                      (
-                                                                        c: any
-                                                                      ) => {
-                                                                        if (
-                                                                          c.id ===
-                                                                          editSelection.columnId
-                                                                        ) {
-                                                                          const cand =
-                                                                            out
-                                                                              .flatMap(
-                                                                                (
-                                                                                  os: any
-                                                                                ) =>
-                                                                                  os.tables
-                                                                              )
-                                                                              .flatMap(
-                                                                                (
-                                                                                  ot: any
-                                                                                ) =>
-                                                                                  ot.columns
-                                                                              )
-                                                                              .find(
-                                                                                (
-                                                                                  oc: any
-                                                                                ) =>
-                                                                                  oc.id ===
-                                                                                  candidateId
-                                                                              );
-                                                                          if (
-                                                                            cand &&
-                                                                            cand.dataType &&
-                                                                            c.dataType
-                                                                          ) {
-                                                                            c.dataType.oldName =
-                                                                              cand
-                                                                                .dataType
-                                                                                ?.name ||
-                                                                              c
-                                                                                .dataType
-                                                                                .oldName ||
-                                                                              "";
-                                                                          }
-                                                                        }
-                                                                      }
-                                                                    );
-                                                                  }
-                                                                );
-                                                              }
-                                                            );
-                                                          }
-                                                          return out;
-                                                        }
-                                                      );
-                                                    }
-                                                  }}
-                                                >
-                                                  {pairings[
-                                                    `${editSelection.level}-${
-                                                      editSelection.level ===
-                                                      "schema"
-                                                        ? editSelection.schemaId
-                                                        : editSelection.level ===
-                                                            "table"
-                                                          ? editSelection.tableId
-                                                          : editSelection.columnId
-                                                    }`
-                                                  ] === r.id
-                                                    ? "Undo"
-                                                    : "Select"}
-                                                </Button>
-                                              </TableCell>
-                                            </TableRow>
-                                          );
-                                        });
-                                      })()}
-                                    </TableBody>
-                                  </Table>
-                                </TableContainer>
-                              ) : (
-                                <TableContainer component={Paper} elevation={0}>
-                                  <Table
-                                    size="small"
-                                    aria-label="to change selection"
-                                  >
-                                    <TableHead>
-                                      <TableRow>
-                                        <TableCell sx={{ fontWeight: 700 }}>
-                                          Select
-                                        </TableCell>
-                                        <TableCell sx={{ fontWeight: 700 }}>
-                                          To change
-                                        </TableCell>
-                                      </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                      {dbConnection.length === 0 ? (
-                                        <TableRow>
-                                          <TableCell colSpan={2}>
-                                            <Typography color="text.secondary">
-                                              No schema available.
-                                            </Typography>
-                                          </TableCell>
-                                        </TableRow>
-                                      ) : (
-                                        dbConnection.map((r) => {
-                                          const checked =
-                                            dbConnectionIds.includes(r.id);
-                                          return (
-                                            <TableRow key={r.id} hover>
-                                              <TableCell width={90}>
-                                                <Checkbox
-                                                  checked={checked}
-                                                  onChange={() =>
-                                                    toggleConn(r.id)
-                                                  }
-                                                  inputProps={{
-                                                    "aria-label": `select connection ${r.name}`,
-                                                  }}
-                                                />
-                                              </TableCell>
-                                              <TableCell>{r.name}</TableCell>
-                                            </TableRow>
-                                          );
-                                        })
-                                      )}
-                                    </TableBody>
-                                  </Table>
-                                </TableContainer>
-                              )}
-                            </Box>
+                            <Box></Box>
                           </Grid>
                         </Grid>
                       </Box>
