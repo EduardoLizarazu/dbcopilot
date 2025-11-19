@@ -415,6 +415,7 @@ export function SchemaCtxClient({
         });
         if (res.ok) {
           setSchemaCtxDiff(res.data || []);
+          console.log("diff schemas", res.data);
           setOpenDiffEditor(true);
           setBusyFlag("table-diff", true);
         }
@@ -1325,7 +1326,7 @@ export function SchemaCtxClient({
                                                 : SchemaCtxDiffStatus.UN_CHANGE;
 
                                           const renderIndicator = (
-                                            status: SchemaCtxDiffStatus
+                                            status?: SchemaCtxDiffStatus
                                           ) => {
                                             if (
                                               status === SchemaCtxDiffStatus.NEW
@@ -1444,9 +1445,13 @@ export function SchemaCtxClient({
                                                   alignItems="center"
                                                 >
                                                   <Box>
-                                                    {col.dataType || "—"}
+                                                    {col.dataType?.name || "—"}
                                                   </Box>
-                                                  {renderIndicator(col.status)}
+                                                  {col.dataType?.status
+                                                    ? renderIndicator(
+                                                        col.dataType.status
+                                                      )
+                                                    : null}
                                                 </Box>
                                               </TableCell>
                                               <TableCell align="right">
@@ -1674,7 +1679,7 @@ export function SchemaCtxClient({
                                               {col.name || "—"}
                                             </TableCell>
                                             <TableCell>
-                                              {col.dataType || "—"}
+                                              {col.dataType?.name || "—"}
                                             </TableCell>
                                             <TableCell>{"—"}</TableCell>
                                             <TableCell align="right">

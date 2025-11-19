@@ -1,4 +1,5 @@
 import {
+  schemaCtxDiffSchema,
   SchemaCtxDiffStatus,
   schemaCtxSchema,
   TSchemaCtxDiffSchemaDto,
@@ -64,8 +65,20 @@ export class CompareSchemaCtxStep implements ICompareSchemaCtxStep {
       const oldData = vDataSchemaCtxOld.data;
 
       const schemaDiff = _compareSchemas(newData, oldData);
+      this.logger.info(`[CompareSchemaCtxStep] Schema diff:`, schemaDiff);
+      // Validation and return
+      const vDiffSchema = await schemaCtxDiffSchema
+        .array()
+        .safeParseAsync(schemaDiff);
+      if (!vDiffSchema.success) {
+        this.logger.error(
+          `[CompareSchemaCtxStep] Validation errors in diff schema context: `,
+          vDiffSchema.error.errors
+        );
+        throw new Error("Invalid diff schema context data");
+      }
 
-      return schemaDiff;
+      return vDiffSchema.data;
     } catch (error) {
       this.logger.error(
         `[CompareSchemaCtxStep] Error comparing schema contexts: `,
@@ -110,6 +123,29 @@ function _getDataTypeName(dt) {
   return null;
 }
 
+function _getSchemaId(schema) {
+  if (!schema) return null;
+  if (schema.id) return schema.id;
+  if (schema.schema && typeof schema.schema === "object" && schema.schema.id)
+    return schema.schema.id;
+  if (schema.schemaId) return schema.schemaId;
+  return null;
+}
+
+function _getTableId(table) {
+  if (!table) return null;
+  if (table.id) return table.id;
+  if (table.tableId) return table.tableId;
+  return null;
+}
+
+function _getColumnId(col) {
+  if (!col) return null;
+  if (col.id) return col.id;
+  if (col.columnId) return col.columnId;
+  return null;
+}
+
 function _compareSchemas(
   newSchemas: TSchemaCtxSchemaDto[],
   oldSchemas: TSchemaCtxSchemaDto[]
@@ -138,8 +174,11 @@ function _compareSchemas(
   for (const schemaName of orderedSchemaNames) {
     const inNew = newMap.has(schemaName);
     const inOld = oldMap.has(schemaName);
+    const newSchema = newMap.get(schemaName);
+    const oldSchema = oldMap.get(schemaName);
     const schemaEntry = {
       schema: {
+        id: _getSchemaId(newSchema) ?? _getSchemaId(oldSchema),
         name: schemaName,
         status:
           inNew && inOld
@@ -150,9 +189,6 @@ function _compareSchemas(
       },
       tables: [],
     };
-
-    const newSchema = newMap.get(schemaName);
-    const oldSchema = oldMap.get(schemaName);
 
     const newTables = new Map();
     if (newSchema && Array.isArray(newSchema.tables)) {
@@ -179,7 +215,10 @@ function _compareSchemas(
     for (const tableName of orderedTableNames) {
       const tInNew = newTables.has(tableName);
       const tInOld = oldTables.has(tableName);
+      const newTable = newTables.get(tableName);
+      const oldTable = oldTables.get(tableName);
       const tableEntry = {
+        id: _getTableId(newTable) ?? _getTableId(oldTable),
         name: tableName,
         status:
           tInNew && tInOld
@@ -189,9 +228,6 @@ function _compareSchemas(
               : SchemaCtxDiffStatus.DELETE,
         columns: [],
       };
-
-      const newTable = newTables.get(tableName);
-      const oldTable = oldTables.get(tableName);
 
       const newCols = new Map();
       if (newTable && Array.isArray(newTable.columns)) {
@@ -252,6 +288,7 @@ function _compareSchemas(
         }
 
         tableEntry.columns.push({
+          id: _getColumnId(newCol) ?? _getColumnId(oldCol),
           name: colName,
           status: colStatus,
           dataType: {
