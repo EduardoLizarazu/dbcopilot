@@ -82,6 +82,18 @@ export function SchemaCtxClient({
     TSchemaCtxDiffSchemaDto[] | null
   >(null);
 
+  // EDIT / PAIRING state: which diff item is being edited (to pair NEW <-> DELETE)
+  const [editSelection, setEditSelection] = React.useState<{
+    level: "schema" | "table" | "column" | "dataType";
+    schemaId: string;
+    tableId?: string;
+    columnId?: string;
+    status?: SchemaCtxDiffStatus;
+  } | null>(null);
+
+  // track pairings: key -> value mapping where key is `${level}-${newId}` and value is oldId
+  const [pairings, setPairings] = React.useState<Record<string, string>>({});
+
   // INTERNAL STATES
   const [busy, setBusy] = React.useState<Set<string>>(new Set());
   const [error, setError] = React.useState<string | null>(null);
@@ -277,67 +289,7 @@ export function SchemaCtxClient({
         description,
         dbConnectionIds,
         schemaCtx:
-          schemaCtx.map((s) => {
-            return {
-              id: s.id.toString() || "",
-              name: s.name.toString() || "",
-              description: s.description?.toString() || "",
-              aliases: s.aliases?.map((a) => a.toString()) || [],
-              tables:
-                s.tables?.map((t) => {
-                  return {
-                    id: t.id.toString() || "",
-                    name: t.name.toString() || "",
-                    description: t.description?.toString() || "",
-                    aliases: t.aliases?.map((a) => a.toString()) || [],
-                    columns:
-                      t.columns?.map((col) => {
-                        return {
-                          id: col.id.toString() || "",
-                          name: col.name.toString() || "",
-                          description: col.description?.toString() || "",
-                          aliases: col.aliases?.map((a) => a.toString()) || [],
-                          dataType: col.dataType.toString() || "",
-                          profile: {
-                            maxValue: col.profile?.maxValue?.toString() || "",
-                            minValue: col.profile?.minValue?.toString() || "",
-                            countNulls: col.profile?.countNulls || 0,
-                            countUnique: col.profile?.countUnique || 0,
-                            sampleUnique:
-                              col.profile?.sampleUnique?.map((s) =>
-                                s.toString()
-                              ) || [],
-                          },
-                        };
-                      }) || [],
-                  };
-                }) || [],
-            };
-          }) || [],
-      });
-      if (res.ok) {
-        setSuccess(res.message ?? "Schema Context created successfully.");
-        router.push("/schema-ctx");
-      }
-
-      if (!res.ok) {
-        setError(res.message || "Failed to create Schema Context.");
-      }
-    } finally {
-      setBusyFlag("submit", false);
-    }
-  };
-
-  const onUpdate = async () => {
-    setBusyFlag("submit", true);
-    try {
-      const res = await UpdateSchemaCtxAction(initial?.id, {
-        id: initial?.id,
-        name,
-        description,
-        dbConnectionIds,
-        schemaCtx:
-          schemaCtx.map((s) => {
+          schemaCtx?.map((s) => {
             return {
               id: s.id.toString() || "",
               name: s.name.toString() || "",
@@ -1328,77 +1280,39 @@ export function SchemaCtxClient({
                                               | "column"
                                               | "dataType"
                                           ) => {
-                                            const handleClick = (
-                                              action: string
-                                            ) => {
-                                              // lightweight handler for now
-                                              console.log(
-                                                "apply-diff-action",
-                                                action,
-                                                level,
-                                                schema.id,
-                                                table.id,
-                                                col.id
-                                              );
+                                            // Per new requirement: if status is NEW or DELETE,
+                                            // show an Edit button only (the user can click Edit to pair/merge).
+                                            // For UPDATE we also allow Edit.
+                                            const handleEditClick = () => {
+                                              setEditSelection({
+                                                level: level!,
+                                                schemaId: schema.id,
+                                                tableId: table.id,
+                                                columnId: col.id,
+                                                status,
+                                              });
                                             };
 
                                             if (
-                                              status === SchemaCtxDiffStatus.NEW
-                                            )
-                                              return (
-                                                <Tooltip title="Add">
-                                                  <IconButton
-                                                    aria-label="Add"
-                                                    size="small"
-                                                    onClick={() =>
-                                                      handleClick("add")
-                                                    }
-                                                    color="success"
-                                                  >
-                                                    <AddIcon fontSize="small" />
-                                                  </IconButton>
-                                                </Tooltip>
-                                              );
-
-                                            if (
                                               status ===
-                                              SchemaCtxDiffStatus.DELETE
-                                            )
-                                              return (
-                                                <Tooltip title="Delete">
-                                                  <IconButton
-                                                    aria-label="Delete"
-                                                    size="small"
-                                                    onClick={() =>
-                                                      handleClick("delete")
-                                                    }
-                                                    color="error"
-                                                  >
-                                                    <DeleteIcon fontSize="small" />
-                                                  </IconButton>
-                                                </Tooltip>
-                                              );
-
-                                            if (
+                                                SchemaCtxDiffStatus.NEW ||
                                               status ===
-                                              SchemaCtxDiffStatus.UPDATE
+                                                SchemaCtxDiffStatus.DELETE ||
+                                              status ===
+                                                SchemaCtxDiffStatus.UPDATE
                                             )
                                               return (
-                                                <Tooltip title="Update">
+                                                <Tooltip title="Edit / Pair">
                                                   <IconButton
-                                                    aria-label="Update"
+                                                    aria-label="Edit"
                                                     size="small"
-                                                    onClick={() =>
-                                                      handleClick("update")
-                                                    }
-                                                    color="warning"
+                                                    onClick={handleEditClick}
                                                   >
                                                     <EditIcon fontSize="small" />
                                                   </IconButton>
                                                 </Tooltip>
                                               );
 
-                                            // unchanged -> no action button
                                             return null;
                                           };
 
@@ -1487,55 +1401,539 @@ export function SchemaCtxClient({
                             }}
                           >
                             <Box>
-                              <TableContainer component={Paper} elevation={0}>
-                                <Table
-                                  size="small"
-                                  aria-label="to change selection"
-                                >
-                                  <TableHead>
-                                    <TableRow>
-                                      <TableCell sx={{ fontWeight: 700 }}>
-                                        Select
-                                      </TableCell>
-                                      <TableCell sx={{ fontWeight: 700 }}>
-                                        To change
-                                      </TableCell>
-                                    </TableRow>
-                                  </TableHead>
-                                  <TableBody>
-                                    {dbConnection.length === 0 ? (
+                              {/* When editing (editSelection != null) show candidates to pair (DELETE items)
+                                  otherwise show connection selection as before */}
+                              {editSelection ? (
+                                <TableContainer component={Paper} elevation={0}>
+                                  <Table size="small" aria-label="candidates">
+                                    <TableHead>
                                       <TableRow>
-                                        <TableCell colSpan={2}>
-                                          <Typography color="text.secondary">
-                                            No schema available.
-                                          </Typography>
+                                        <TableCell sx={{ fontWeight: 700 }}>
+                                          Candidate
+                                        </TableCell>
+                                        <TableCell sx={{ fontWeight: 700 }}>
+                                          Action
                                         </TableCell>
                                       </TableRow>
-                                    ) : (
-                                      dbConnection.map((r) => {
-                                        const checked =
-                                          dbConnectionIds.includes(r.id);
-                                        return (
-                                          <TableRow key={r.id} hover>
-                                            <TableCell width={90}>
-                                              <Checkbox
-                                                checked={checked}
-                                                onChange={() =>
-                                                  toggleConn(r.id)
-                                                }
-                                                inputProps={{
-                                                  "aria-label": `select connection ${r.name}`,
-                                                }}
-                                              />
-                                            </TableCell>
-                                            <TableCell>{r.name}</TableCell>
-                                          </TableRow>
-                                        );
-                                      })
-                                    )}
-                                  </TableBody>
-                                </Table>
-                              </TableContainer>
+                                    </TableHead>
+                                    <TableBody>
+                                      {(() => {
+                                        if (!schemaCtxDiff) return null;
+                                        const rows: Array<any> = [];
+                                        if (editSelection.level === "schema") {
+                                          schemaCtxDiff.forEach((s) => {
+                                            if (
+                                              s.status ===
+                                              SchemaCtxDiffStatus.DELETE
+                                            )
+                                              rows.push({
+                                                id: s.id,
+                                                name: s.name,
+                                                schemaId: s.id,
+                                              });
+                                          });
+                                        }
+                                        if (editSelection.level === "table") {
+                                          schemaCtxDiff.forEach((s) =>
+                                            s.tables.forEach((t) => {
+                                              if (
+                                                t.status ===
+                                                SchemaCtxDiffStatus.DELETE
+                                              )
+                                                rows.push({
+                                                  id: t.id,
+                                                  name: t.name,
+                                                  schemaId: s.id,
+                                                  tableId: t.id,
+                                                });
+                                            })
+                                          );
+                                        }
+                                        if (
+                                          editSelection.level === "column" ||
+                                          editSelection.level === "dataType"
+                                        ) {
+                                          schemaCtxDiff.forEach((s) =>
+                                            s.tables.forEach((t) =>
+                                              t.columns.forEach((c) => {
+                                                if (
+                                                  c.status ===
+                                                  SchemaCtxDiffStatus.DELETE
+                                                )
+                                                  rows.push({
+                                                    id: c.id,
+                                                    name: c.name,
+                                                    schemaId: s.id,
+                                                    tableId: t.id,
+                                                    columnId: c.id,
+                                                  });
+                                              })
+                                            )
+                                          );
+                                        }
+
+                                        if (rows.length === 0)
+                                          return (
+                                            <TableRow>
+                                              <TableCell colSpan={2}>
+                                                <Typography color="text.secondary">
+                                                  No candidates available.
+                                                </Typography>
+                                              </TableCell>
+                                            </TableRow>
+                                          );
+
+                                        return rows.map((r) => {
+                                          const key = `${editSelection.level}-${
+                                            editSelection.level === "schema"
+                                              ? r.id
+                                              : editSelection.level === "table"
+                                                ? r.tableId
+                                                : r.columnId
+                                          }`;
+                                          const pairedWith = pairings[key];
+                                          return (
+                                            <TableRow key={r.id} hover>
+                                              <TableCell>{r.name}</TableCell>
+                                              <TableCell>
+                                                <Button
+                                                  size="small"
+                                                  variant={
+                                                    pairedWith ===
+                                                    (editSelection.level ===
+                                                    "schema"
+                                                      ? r.id
+                                                      : r.id)
+                                                      ? "contained"
+                                                      : "outlined"
+                                                  }
+                                                  onClick={() => {
+                                                    // perform pairing / toggle
+                                                    const newKey = `${editSelection.level}-${
+                                                      editSelection.level ===
+                                                      "schema"
+                                                        ? editSelection.schemaId
+                                                        : editSelection.level ===
+                                                            "table"
+                                                          ? editSelection.tableId
+                                                          : editSelection.columnId
+                                                    }`;
+                                                    const candidateId = r.id;
+                                                    const already =
+                                                      pairings[newKey] ===
+                                                      candidateId;
+                                                    if (already) {
+                                                      // undo pairing
+                                                      setPairings((p) => {
+                                                        const copy = { ...p };
+                                                        delete copy[newKey];
+                                                        return copy;
+                                                      });
+                                                      // revert statuses
+                                                      setSchemaCtxDiff(
+                                                        (prev) => {
+                                                          if (!prev)
+                                                            return prev;
+                                                          const out =
+                                                            JSON.parse(
+                                                              JSON.stringify(
+                                                                prev
+                                                              )
+                                                            );
+                                                          if (
+                                                            editSelection.level ===
+                                                            "schema"
+                                                          ) {
+                                                            const newSchema =
+                                                              out.find(
+                                                                (x: any) =>
+                                                                  x.id ===
+                                                                  editSelection.schemaId
+                                                              );
+                                                            const oldSchema =
+                                                              out.find(
+                                                                (x: any) =>
+                                                                  x.id ===
+                                                                  candidateId
+                                                              );
+                                                            if (newSchema) {
+                                                              newSchema.status =
+                                                                SchemaCtxDiffStatus.NEW;
+                                                              delete newSchema.oldName;
+                                                            }
+                                                            if (oldSchema) {
+                                                              oldSchema.status =
+                                                                SchemaCtxDiffStatus.DELETE;
+                                                            }
+                                                          }
+                                                          if (
+                                                            editSelection.level ===
+                                                            "table"
+                                                          ) {
+                                                            out.forEach(
+                                                              (s: any) => {
+                                                                s.tables.forEach(
+                                                                  (t: any) => {
+                                                                    if (
+                                                                      t.id ===
+                                                                        editSelection.tableId &&
+                                                                      s.id ===
+                                                                        editSelection.schemaId
+                                                                    ) {
+                                                                      t.status =
+                                                                        SchemaCtxDiffStatus.NEW;
+                                                                      delete t.oldName;
+                                                                    }
+                                                                    if (
+                                                                      t.id ===
+                                                                      candidateId
+                                                                    ) {
+                                                                      t.status =
+                                                                        SchemaCtxDiffStatus.DELETE;
+                                                                    }
+                                                                  }
+                                                                );
+                                                              }
+                                                            );
+                                                          }
+                                                          if (
+                                                            editSelection.level ===
+                                                              "column" ||
+                                                            editSelection.level ===
+                                                              "dataType"
+                                                          ) {
+                                                            out.forEach(
+                                                              (s: any) => {
+                                                                s.tables.forEach(
+                                                                  (t: any) => {
+                                                                    t.columns.forEach(
+                                                                      (
+                                                                        c: any
+                                                                      ) => {
+                                                                        if (
+                                                                          c.id ===
+                                                                            editSelection.columnId &&
+                                                                          s.id ===
+                                                                            editSelection.schemaId &&
+                                                                          t.id ===
+                                                                            editSelection.tableId
+                                                                        ) {
+                                                                          c.status =
+                                                                            SchemaCtxDiffStatus.NEW;
+                                                                          delete c.oldName;
+                                                                          if (
+                                                                            c.dataType
+                                                                          )
+                                                                            delete c
+                                                                              .dataType
+                                                                              .oldName;
+                                                                        }
+                                                                        if (
+                                                                          c.id ===
+                                                                          candidateId
+                                                                        ) {
+                                                                          c.status =
+                                                                            SchemaCtxDiffStatus.DELETE;
+                                                                        }
+                                                                      }
+                                                                    );
+                                                                  }
+                                                                );
+                                                              }
+                                                            );
+                                                          }
+                                                          return out;
+                                                        }
+                                                      );
+                                                    } else {
+                                                      // apply pairing: set both statuses to UPDATE and set oldName where available
+                                                      setPairings((p) => ({
+                                                        ...p,
+                                                        [newKey]: candidateId,
+                                                      }));
+                                                      setSchemaCtxDiff(
+                                                        (prev) => {
+                                                          if (!prev)
+                                                            return prev;
+                                                          // deep clone
+                                                          const out =
+                                                            JSON.parse(
+                                                              JSON.stringify(
+                                                                prev
+                                                              )
+                                                            );
+                                                          // find new item (the one from editSelection) and candidate and update
+                                                          if (
+                                                            editSelection.level ===
+                                                            "schema"
+                                                          ) {
+                                                            const newSchema =
+                                                              out.find(
+                                                                (x: any) =>
+                                                                  x.id ===
+                                                                  editSelection.schemaId
+                                                              );
+                                                            const oldSchema =
+                                                              out.find(
+                                                                (x: any) =>
+                                                                  x.id ===
+                                                                  candidateId
+                                                              );
+                                                            if (newSchema) {
+                                                              newSchema.status =
+                                                                SchemaCtxDiffStatus.UPDATE;
+                                                              newSchema.oldName =
+                                                                oldSchema
+                                                                  ? oldSchema.name
+                                                                  : newSchema.oldName ||
+                                                                    "";
+                                                            }
+                                                            if (oldSchema) {
+                                                              oldSchema.status =
+                                                                SchemaCtxDiffStatus.UPDATE;
+                                                            }
+                                                          }
+                                                          if (
+                                                            editSelection.level ===
+                                                            "table"
+                                                          ) {
+                                                            out.forEach(
+                                                              (s: any) => {
+                                                                s.tables.forEach(
+                                                                  (t: any) => {
+                                                                    if (
+                                                                      t.id ===
+                                                                        editSelection.tableId &&
+                                                                      s.id ===
+                                                                        editSelection.schemaId
+                                                                    ) {
+                                                                      t.status =
+                                                                        SchemaCtxDiffStatus.UPDATE;
+                                                                    }
+                                                                    if (
+                                                                      t.id ===
+                                                                      candidateId
+                                                                    ) {
+                                                                      // candidate table
+                                                                      t.status =
+                                                                        SchemaCtxDiffStatus.UPDATE;
+                                                                    }
+                                                                  }
+                                                                );
+                                                              }
+                                                            );
+                                                            // set oldName for new table
+                                                            out.forEach(
+                                                              (s: any) => {
+                                                                s.tables.forEach(
+                                                                  (t: any) => {
+                                                                    if (
+                                                                      t.id ===
+                                                                      editSelection.tableId
+                                                                    ) {
+                                                                      const old =
+                                                                        out
+                                                                          .flatMap(
+                                                                            (
+                                                                              os: any
+                                                                            ) =>
+                                                                              os.tables
+                                                                          )
+                                                                          .find(
+                                                                            (
+                                                                              ot: any
+                                                                            ) =>
+                                                                              ot.id ===
+                                                                              candidateId
+                                                                          );
+                                                                      t.oldName =
+                                                                        old
+                                                                          ? old.name
+                                                                          : t.oldName ||
+                                                                            "";
+                                                                    }
+                                                                  }
+                                                                );
+                                                              }
+                                                            );
+                                                          }
+                                                          if (
+                                                            editSelection.level ===
+                                                              "column" ||
+                                                            editSelection.level ===
+                                                              "dataType"
+                                                          ) {
+                                                            out.forEach(
+                                                              (s: any) => {
+                                                                s.tables.forEach(
+                                                                  (t: any) => {
+                                                                    t.columns.forEach(
+                                                                      (
+                                                                        c: any
+                                                                      ) => {
+                                                                        if (
+                                                                          c.id ===
+                                                                            editSelection.columnId &&
+                                                                          s.id ===
+                                                                            editSelection.schemaId &&
+                                                                          t.id ===
+                                                                            editSelection.tableId
+                                                                        ) {
+                                                                          c.status =
+                                                                            SchemaCtxDiffStatus.UPDATE;
+                                                                          // set oldName on column if possible (best-effort)
+                                                                          c.oldName =
+                                                                            c.oldName ||
+                                                                            "";
+                                                                        }
+                                                                        if (
+                                                                          c.id ===
+                                                                          candidateId
+                                                                        ) {
+                                                                          c.status =
+                                                                            SchemaCtxDiffStatus.UPDATE;
+                                                                        }
+                                                                      }
+                                                                    );
+                                                                  }
+                                                                );
+                                                              }
+                                                            );
+                                                            // if pairing dataType specifically, set dataType.oldName
+                                                            out.forEach(
+                                                              (s: any) => {
+                                                                s.tables.forEach(
+                                                                  (t: any) => {
+                                                                    t.columns.forEach(
+                                                                      (
+                                                                        c: any
+                                                                      ) => {
+                                                                        if (
+                                                                          c.id ===
+                                                                          editSelection.columnId
+                                                                        ) {
+                                                                          const cand =
+                                                                            out
+                                                                              .flatMap(
+                                                                                (
+                                                                                  os: any
+                                                                                ) =>
+                                                                                  os.tables
+                                                                              )
+                                                                              .flatMap(
+                                                                                (
+                                                                                  ot: any
+                                                                                ) =>
+                                                                                  ot.columns
+                                                                              )
+                                                                              .find(
+                                                                                (
+                                                                                  oc: any
+                                                                                ) =>
+                                                                                  oc.id ===
+                                                                                  candidateId
+                                                                              );
+                                                                          if (
+                                                                            cand &&
+                                                                            cand.dataType &&
+                                                                            c.dataType
+                                                                          ) {
+                                                                            c.dataType.oldName =
+                                                                              cand
+                                                                                .dataType
+                                                                                ?.name ||
+                                                                              c
+                                                                                .dataType
+                                                                                .oldName ||
+                                                                              "";
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    );
+                                                                  }
+                                                                );
+                                                              }
+                                                            );
+                                                          }
+                                                          return out;
+                                                        }
+                                                      );
+                                                    }
+                                                  }}
+                                                >
+                                                  {pairings[
+                                                    `${editSelection.level}-${
+                                                      editSelection.level ===
+                                                      "schema"
+                                                        ? editSelection.schemaId
+                                                        : editSelection.level ===
+                                                            "table"
+                                                          ? editSelection.tableId
+                                                          : editSelection.columnId
+                                                    }`
+                                                  ] === r.id
+                                                    ? "Undo"
+                                                    : "Select"}
+                                                </Button>
+                                              </TableCell>
+                                            </TableRow>
+                                          );
+                                        });
+                                      })()}
+                                    </TableBody>
+                                  </Table>
+                                </TableContainer>
+                              ) : (
+                                <TableContainer component={Paper} elevation={0}>
+                                  <Table
+                                    size="small"
+                                    aria-label="to change selection"
+                                  >
+                                    <TableHead>
+                                      <TableRow>
+                                        <TableCell sx={{ fontWeight: 700 }}>
+                                          Select
+                                        </TableCell>
+                                        <TableCell sx={{ fontWeight: 700 }}>
+                                          To change
+                                        </TableCell>
+                                      </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                      {dbConnection.length === 0 ? (
+                                        <TableRow>
+                                          <TableCell colSpan={2}>
+                                            <Typography color="text.secondary">
+                                              No schema available.
+                                            </Typography>
+                                          </TableCell>
+                                        </TableRow>
+                                      ) : (
+                                        dbConnection.map((r) => {
+                                          const checked =
+                                            dbConnectionIds.includes(r.id);
+                                          return (
+                                            <TableRow key={r.id} hover>
+                                              <TableCell width={90}>
+                                                <Checkbox
+                                                  checked={checked}
+                                                  onChange={() =>
+                                                    toggleConn(r.id)
+                                                  }
+                                                  inputProps={{
+                                                    "aria-label": `select connection ${r.name}`,
+                                                  }}
+                                                />
+                                              </TableCell>
+                                              <TableCell>{r.name}</TableCell>
+                                            </TableRow>
+                                          );
+                                        })
+                                      )}
+                                    </TableBody>
+                                  </Table>
+                                </TableContainer>
+                              )}
                             </Box>
                           </Grid>
                         </Grid>
