@@ -49,28 +49,126 @@ export class NlqQaTopologyGenerationAdapter
        */
 
       const prompt = `
-        Given the following schema information,
-        generate a comprehensive summary for each field of the schema context provided.
+        You are given a schema context in JSON with the following TypeScript shape:
 
-        ### Schema Context Information:
-        ${JSON.stringify(data)}
+        type TSchemaCtxSimpleSchemaDto = {
+          id?: string;
+          name?: string;
+          description?: string;
+          aliases?: string[];
+          table?: {
+            id?: string;
+            name?: string;
+            description?: string;
+            aliases?: string[];
+            column?: {
+              id?: string;
+              name?: string;
+              description?: string;
+              aliases?: string[];
+              dataType?: string;
+              profile?: {
+                maxValue?: string;
+                minValue?: string;
+                countNulls?: number;
+                countUnique?: number;
+                sampleUnique?: string[];
+              };
+            };
+          };
+        };
 
+        The schema, table and column may already contain descriptions and aliases.
+        Use them as a guide and **rewrite or refine** them if you can make them clearer or more informative.
 
-        ### Response format Schema Context Summary:
-        Return the summary as a JSON object.
+        The goal is to enrich the context at three levels:
+
+        - **Level 1: Schema context ("schema ctx")**
+          - \`description\`: High-level, general concept of what the entire schema represents.
+            It should capture the business domain and the overall purpose, remembering that
+            the schema groups multiple tables and columns.
+          - \`aliases\`: At least 10 aliases / synonyms / search phrases that a user might
+            use to refer to this schema. Make them semantically related to the schema name
+            and its purpose.
+
+        - **Level 2: Table context ("table ctx")**
+          - \`description\`: More detailed explanation of what the table represents,
+            including what kind of records it stores and how it fits into the schema.
+            You may infer meaning from the table name, existing description and column profiles.
+          - \`aliases\`: At least 10 aliases / synonyms / search phrases that describe
+            what the table is about. For example, if the table is "PB7300" and it stores
+            delivery orders, use phrases like "delivery orders", "shipment orders", etc.
+
+        - **Level 3: Column context ("column ctx")**
+          - \`description\`: The most detailed level. Explain what each column means,
+            how it is used, and how it relates to the other columns. Use the
+            \`profile\` information (maxValue, minValue, sampleUnique, etc.) to infer the semantics.
+          - \`aliases\`: At least 10 aliases / synonyms / search phrases per column
+            when possible (e.g. "customer id", "client code", "client identifier", etc.).
+
+        **Important rules:**
+
+        1. If there is an existing \`description\`, keep its meaning but improve clarity and detail.
+        2. If there are existing \`aliases\`, keep the good ones and add more, up to
+          at least 10 aliases in total when it makes sense.
+        3. Do **not** invent technical details that contradict obvious semantics
+          (e.g. do not call an ID column a "currency" column).
+        4. Use concise but informative sentences (1–3 sentences per description).
+        5. Use aliases that are realistic search queries for NLQ (natural language query) use cases.
+
+        **Input schema context:**
         \`\`\`json
-            {
-                "description": "<summary>",
-                "aliases": ["<summary>"],
-                "table": {
-                    "description": "<summary>",
-                    "aliases": ["<summary>"],
-                    "column": {
-                        "description": "<summary>",
-                        "aliases": ["<summary>"],
-                    }
-                }
+        ${JSON.stringify(data, null, 2)}
+        \`\`\`
+
+        **Output format (very important):**
+
+        - Return **only** a JSON object, with the **same structure** as the input.
+        - Preserve all existing fields (\`id\`, \`name\`, \`dataType\`, \`profile\`, etc.).
+        - Only modify or fill the \`description\` and \`aliases\` fields at schema, table and column level.
+        - Do not include any prose or explanation, just the JSON.
+
+        Example shape (just to illustrate, not actual values):
+
+        \`\`\`json
+        {
+          "id": "...",
+          "name": "...",
+          "description": "Enriched schema description...",
+          "aliases": [
+            "alias 1",
+            "alias 2",
+            "... at least 10",
+          ],
+          "table": {
+            "id": "...",
+            "name": "...",
+            "description": "Enriched table description...",
+            "aliases": [
+              "alias 1",
+              "alias 2",
+              "... at least 10"
+            ],
+            "column": {
+              "id": "...",
+              "name": "...",
+              "description": "Enriched column description...",
+              "aliases": [
+                "alias 1",
+                "alias 2",
+                "... at least 10"
+              ],
+              "dataType": "...",
+              "profile": {
+                "maxValue": "...",
+                "minValue": "...",
+                "countNulls": 0,
+                "countUnique": 0,
+                "sampleUnique": ["..."]
+              }
             }
+          }
+        }
         \`\`\`
       `;
 
@@ -80,8 +178,18 @@ export class NlqQaTopologyGenerationAdapter
           messages: [
             {
               role: "system",
-              content:
-                "Generate a comprehensive summary for each field of the schema context provided.",
+              content: `
+                You are an assistant that enriches database schema metadata.
+
+                Given a schema context object, you must:
+                - Infer **semantic descriptions** at 3 levels:
+                  - Level 1: Schema context
+                  - Level 2: Table context
+                  - Level 3: Column context
+                - Generate **rich, business-friendly descriptions**.
+                - Generate **at least 10 meaningful aliases** (synonyms / search phrases) whenever possible.
+                - Preserve the original JSON structure and any fields not related to descriptions or aliases.
+              `,
             },
             {
               role: "user",
@@ -89,8 +197,8 @@ export class NlqQaTopologyGenerationAdapter
             },
           ],
           temperature: 0.1, // Low temperature for deterministic output
-          max_tokens: 500,
           top_p: 0.1,
+          max_tokens: 5000,
         }
       );
       const qRes = response.choices[0]?.message?.content?.trim() || "";
