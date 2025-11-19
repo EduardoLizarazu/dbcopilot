@@ -408,6 +408,12 @@ export function SchemaCtxClient({
       const res = await GenSchemaCtxAction(schemaInfo);
 
       if (res.ok) {
+        setSchemaDescription(res.data.description || "");
+        setSchemaAliases(res.data.aliases || []);
+        setTableDescription(res.data.table?.description || "");
+        setTableAliases(res.data.table?.aliases || []);
+        setColumnDescription(res.data.table?.column?.description || "");
+        setColumnAliases(res.data.table?.column?.aliases || []);
       }
 
       if (!res.ok)
@@ -1032,6 +1038,17 @@ export function SchemaCtxClient({
                 onClick={() => onProfile()}
               >
                 Profile
+              </Button>
+              <Button
+                type="button"
+                color="secondary"
+                variant="contained"
+                disabled={isBusy("genSchemaCtx")}
+                loading={isBusy("genSchemaCtx")}
+                sx={{ textTransform: "none", ml: 1 }}
+                onClick={() => onGenSchemaCtx()}
+              >
+                Generate Schema Context
               </Button>
             </Box>
             <Box>
