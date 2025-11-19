@@ -31,19 +31,29 @@ export class CountDiffSchemaCtxStep implements ICountDiffSchemaCtxStep {
       let totalNews = 0;
       let totalDeleted = 0;
       for (const schema of vData.data) {
+        if (schema.status === SchemaCtxDiffStatus.NEW) totalNews += 1;
+        else if (schema.status === SchemaCtxDiffStatus.DELETE)
+          totalDeleted += 1;
+        else if (schema.status === SchemaCtxDiffStatus.UN_CHANGE)
+          totalUnChanged += 1;
         for (const table of schema.tables) {
+          if (table.status === SchemaCtxDiffStatus.NEW) totalNews += 1;
+          else if (table.status === SchemaCtxDiffStatus.DELETE)
+            totalDeleted += 1;
+          else if (table.status === SchemaCtxDiffStatus.UN_CHANGE)
+            totalUnChanged += 1;
           for (const column of table.columns) {
-            switch (column.status) {
-              case SchemaCtxDiffStatus.UN_CHANGE:
-                totalUnChanged++;
-                break;
-              case SchemaCtxDiffStatus.NEW:
-                totalNews++;
-                break;
-              case SchemaCtxDiffStatus.DELETE:
-                totalDeleted++;
-                break;
-            }
+            if (column.status === SchemaCtxDiffStatus.NEW) totalNews += 1;
+            else if (column.status === SchemaCtxDiffStatus.DELETE)
+              totalDeleted += 1;
+            else if (column.status === SchemaCtxDiffStatus.UN_CHANGE)
+              totalUnChanged += 1;
+            if (column.dataType.status === SchemaCtxDiffStatus.NEW)
+              totalNews += 1;
+            else if (column.dataType.status === SchemaCtxDiffStatus.DELETE)
+              totalDeleted += 1;
+            else if (column.dataType.status === SchemaCtxDiffStatus.UN_CHANGE)
+              totalUnChanged += 1;
           }
         }
       }
