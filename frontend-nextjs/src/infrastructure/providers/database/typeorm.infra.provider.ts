@@ -34,6 +34,21 @@ export class TypeOrmProvider {
     database: string;
     sid?: string;
   }) {
+    // Build extra options conditionally: include ssl only when not connecting to localhost
+    const extraBase: any = {
+      encrypt: true,
+      trustServerCertificate: false,
+    };
+
+    const extra =
+      config.host && config.host.toLowerCase() !== "localhost"
+        ? {
+            ...extraBase,
+            rejectUnauthorized: false,
+            ssl: { rejectUnauthorized: false },
+          }
+        : extraBase;
+
     this._config = {
       type: config.type,
       host: config.host,
@@ -47,12 +62,7 @@ export class TypeOrmProvider {
       entities: [], // No entities needed
       migrations: [], // No migrations
       subscribers: [], // No subscribers
-      extra: {
-        encrypt: true,
-        trustServerCertificate: false,
-        rejectUnauthorized: false,
-        ssl: { rejectUnauthorized: false },
-      },
+      extra,
     };
     return await new DataSource(this.config);
   }
