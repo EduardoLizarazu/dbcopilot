@@ -273,7 +273,44 @@ export function SchemaCtxClient({
         name,
         description,
         dbConnectionIds,
-        schemaCtx: schemaCtx || [],
+        schemaCtx:
+          schemaCtx.map((s) => {
+            return {
+              id: s.id.toString() || "",
+              name: s.name.toString() || "",
+              description: s.description?.toString() || "",
+              aliases: s.aliases?.map((a) => a.toString()) || [],
+              tables:
+                s.tables?.map((t) => {
+                  return {
+                    id: t.id.toString() || "",
+                    name: t.name.toString() || "",
+                    description: t.description?.toString() || "",
+                    aliases: t.aliases?.map((a) => a.toString()) || [],
+                    columns:
+                      t.columns?.map((col) => {
+                        return {
+                          id: col.id.toString() || "",
+                          name: col.name.toString() || "",
+                          description: col.description?.toString() || "",
+                          aliases: col.aliases?.map((a) => a.toString()) || [],
+                          dataType: col.dataType.toString() || "",
+                          profile: {
+                            maxValue: col.profile?.maxValue?.toString() || "",
+                            minValue: col.profile?.minValue?.toString() || "",
+                            countNulls: col.profile?.countNulls || 0,
+                            countUnique: col.profile?.countUnique || 0,
+                            sampleUnique:
+                              col.profile?.sampleUnique?.map((s) =>
+                                s.toString()
+                              ) || [],
+                          },
+                        };
+                      }) || [],
+                  };
+                }) || [],
+            };
+          }) || [],
       });
       if (res.ok) {
         setSuccess(res.message ?? "Schema Context created successfully.");
@@ -296,7 +333,44 @@ export function SchemaCtxClient({
         name,
         description,
         dbConnectionIds,
-        schemaCtx: schemaCtx || [],
+        schemaCtx:
+          schemaCtx.map((s) => {
+            return {
+              id: s.id.toString() || "",
+              name: s.name.toString() || "",
+              description: s.description?.toString() || "",
+              aliases: s.aliases?.map((a) => a.toString()) || [],
+              tables:
+                s.tables?.map((t) => {
+                  return {
+                    id: t.id.toString() || "",
+                    name: t.name.toString() || "",
+                    description: t.description?.toString() || "",
+                    aliases: t.aliases?.map((a) => a.toString()) || [],
+                    columns:
+                      t.columns?.map((col) => {
+                        return {
+                          id: col.id.toString() || "",
+                          name: col.name.toString() || "",
+                          description: col.description?.toString() || "",
+                          aliases: col.aliases?.map((a) => a.toString()) || [],
+                          dataType: col.dataType.toString() || "",
+                          profile: {
+                            maxValue: col.profile?.maxValue?.toString() || "",
+                            minValue: col.profile?.minValue?.toString() || "",
+                            countNulls: col.profile?.countNulls || 0,
+                            countUnique: col.profile?.countUnique || 0,
+                            sampleUnique:
+                              col.profile?.sampleUnique?.map((s) =>
+                                s.toString()
+                              ) || [],
+                          },
+                        };
+                      }) || [],
+                  };
+                }) || [],
+            };
+          }) || [],
       });
       if (res.ok) {
         setSuccess(res.message ?? "Schema Context update successfully.");
@@ -318,7 +392,7 @@ export function SchemaCtxClient({
     if (initial) {
       //   await onUpdate();
     } else {
-      //   await onCreate();
+      await onCreate();
     }
   };
 
