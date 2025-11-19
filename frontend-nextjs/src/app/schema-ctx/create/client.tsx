@@ -1272,12 +1272,7 @@ export function SchemaCtxClient({
                                     <TableCell sx={{ fontWeight: 700 }}>
                                       Type
                                     </TableCell>
-                                    <TableCell
-                                      align="right"
-                                      sx={{ fontWeight: 700 }}
-                                    >
-                                      Actions
-                                    </TableCell>
+                                    {/* Actions moved inline into each cell */}
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -1325,82 +1320,86 @@ export function SchemaCtxClient({
                                                 ? SchemaCtxDiffStatus.UPDATE
                                                 : SchemaCtxDiffStatus.UN_CHANGE;
 
-                                          const renderIndicator = (
-                                            status?: SchemaCtxDiffStatus
+                                          const renderActionButton = (
+                                            status?: SchemaCtxDiffStatus,
+                                            level?:
+                                              | "schema"
+                                              | "table"
+                                              | "column"
+                                              | "dataType"
                                           ) => {
+                                            const handleClick = (
+                                              action: string
+                                            ) => {
+                                              // lightweight handler for now
+                                              console.log(
+                                                "apply-diff-action",
+                                                action,
+                                                level,
+                                                schema.id,
+                                                table.id,
+                                                col.id
+                                              );
+                                            };
+
                                             if (
                                               status === SchemaCtxDiffStatus.NEW
                                             )
                                               return (
-                                                <Tooltip title="New">
-                                                  <Box
-                                                    component="span"
-                                                    sx={{
-                                                      display: "inline-flex",
-                                                      ml: 1,
-                                                    }}
+                                                <Tooltip title="Add">
+                                                  <IconButton
+                                                    aria-label="Add"
+                                                    size="small"
+                                                    onClick={() =>
+                                                      handleClick("add")
+                                                    }
+                                                    color="success"
                                                   >
-                                                    <AddIcon
-                                                      color="success"
-                                                      fontSize="small"
-                                                    />
-                                                  </Box>
+                                                    <AddIcon fontSize="small" />
+                                                  </IconButton>
                                                 </Tooltip>
                                               );
+
                                             if (
                                               status ===
                                               SchemaCtxDiffStatus.DELETE
                                             )
                                               return (
                                                 <Tooltip title="Delete">
-                                                  <Box
-                                                    component="span"
-                                                    sx={{
-                                                      display: "inline-flex",
-                                                      ml: 1,
-                                                    }}
+                                                  <IconButton
+                                                    aria-label="Delete"
+                                                    size="small"
+                                                    onClick={() =>
+                                                      handleClick("delete")
+                                                    }
+                                                    color="error"
                                                   >
-                                                    <DeleteIcon
-                                                      color="error"
-                                                      fontSize="small"
-                                                    />
-                                                  </Box>
+                                                    <DeleteIcon fontSize="small" />
+                                                  </IconButton>
                                                 </Tooltip>
                                               );
+
                                             if (
                                               status ===
                                               SchemaCtxDiffStatus.UPDATE
                                             )
                                               return (
                                                 <Tooltip title="Update">
-                                                  <Box
-                                                    component="span"
-                                                    sx={{
-                                                      display: "inline-flex",
-                                                      ml: 1,
-                                                    }}
+                                                  <IconButton
+                                                    aria-label="Update"
+                                                    size="small"
+                                                    onClick={() =>
+                                                      handleClick("update")
+                                                    }
+                                                    color="warning"
                                                   >
-                                                    <EditIcon
-                                                      color="warning"
-                                                      fontSize="small"
-                                                    />
-                                                  </Box>
+                                                    <EditIcon fontSize="small" />
+                                                  </IconButton>
                                                 </Tooltip>
                                               );
-                                            return (
-                                              <Tooltip title="Unchanged">
-                                                <Box
-                                                  component="span"
-                                                  sx={{
-                                                    display: "inline-flex",
-                                                    ml: 1,
-                                                    opacity: 0.4,
-                                                  }}
-                                                >
-                                                  <EditIcon fontSize="small" />
-                                                </Box>
-                                              </Tooltip>
-                                            );
+
+                                            // unchanged -> no action button
+                                            return null;
                                           };
 
                                           return (
@@ -1414,8 +1413,9 @@ export function SchemaCtxClient({
                                                   alignItems="center"
                                                 >
                                                   <Box>{schema.name}</Box>
-                                                  {renderIndicator(
-                                                    schema.status
+                                                  {renderActionButton(
+                                                    schema.status,
+                                                    "schema"
                                                   )}
                                                 </Box>
                                               </TableCell>
@@ -1425,8 +1425,9 @@ export function SchemaCtxClient({
                                                   alignItems="center"
                                                 >
                                                   <Box>{table.name || "—"}</Box>
-                                                  {renderIndicator(
-                                                    table.status
+                                                  {renderActionButton(
+                                                    table.status,
+                                                    "table"
                                                   )}
                                                 </Box>
                                               </TableCell>
@@ -1436,7 +1437,10 @@ export function SchemaCtxClient({
                                                   alignItems="center"
                                                 >
                                                   <Box>{col.name || "—"}</Box>
-                                                  {renderIndicator(col.status)}
+                                                  {renderActionButton(
+                                                    col.status,
+                                                    "column"
+                                                  )}
                                                 </Box>
                                               </TableCell>
                                               <TableCell>
@@ -1448,82 +1452,14 @@ export function SchemaCtxClient({
                                                     {col.dataType?.name || "—"}
                                                   </Box>
                                                   {col.dataType?.status
-                                                    ? renderIndicator(
-                                                        col.dataType.status
+                                                    ? renderActionButton(
+                                                        col.dataType.status,
+                                                        "dataType"
                                                       )
                                                     : null}
                                                 </Box>
                                               </TableCell>
-                                              <TableCell align="right">
-                                                <Stack
-                                                  direction="row"
-                                                  spacing={1}
-                                                >
-                                                  <Tooltip title="New">
-                                                    <span>
-                                                      <IconButton
-                                                        aria-label="New"
-                                                        size="small"
-                                                        onClick={() => {}}
-                                                        disabled={
-                                                          rowStatus ===
-                                                          SchemaCtxDiffStatus.UN_CHANGE
-                                                        }
-                                                        color={
-                                                          rowStatus ===
-                                                          SchemaCtxDiffStatus.NEW
-                                                            ? "success"
-                                                            : undefined
-                                                        }
-                                                      >
-                                                        <AddIcon fontSize="small" />
-                                                      </IconButton>
-                                                    </span>
-                                                  </Tooltip>
-                                                  <Tooltip title="Change">
-                                                    <span>
-                                                      <IconButton
-                                                        aria-label="Change"
-                                                        size="small"
-                                                        onClick={() => {}}
-                                                        disabled={
-                                                          rowStatus ===
-                                                          SchemaCtxDiffStatus.UN_CHANGE
-                                                        }
-                                                        color={
-                                                          rowStatus ===
-                                                          SchemaCtxDiffStatus.UPDATE
-                                                            ? "warning"
-                                                            : undefined
-                                                        }
-                                                      >
-                                                        <EditIcon fontSize="small" />
-                                                      </IconButton>
-                                                    </span>
-                                                  </Tooltip>
-                                                  <Tooltip title="Remove">
-                                                    <span>
-                                                      <IconButton
-                                                        aria-label="Remove"
-                                                        size="small"
-                                                        onClick={() => {}}
-                                                        disabled={
-                                                          rowStatus ===
-                                                          SchemaCtxDiffStatus.UN_CHANGE
-                                                        }
-                                                        color={
-                                                          rowStatus ===
-                                                          SchemaCtxDiffStatus.DELETE
-                                                            ? "error"
-                                                            : undefined
-                                                        }
-                                                      >
-                                                        <DeleteIcon fontSize="small" />
-                                                      </IconButton>
-                                                    </span>
-                                                  </Tooltip>
-                                                </Stack>
-                                              </TableCell>
+                                              {/* Actions are now shown inline on each cell */}
                                             </TableRow>
                                           );
                                         })
