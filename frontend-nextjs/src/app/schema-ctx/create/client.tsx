@@ -1246,7 +1246,7 @@ export function SchemaCtxClient({
                           sx={{ height: "100%", minHeight: 0 }}
                         >
                           <Grid
-                            size={6}
+                            size={8}
                             sx={{
                               height: "100%",
                               minHeight: 0,
@@ -1543,7 +1543,7 @@ export function SchemaCtxClient({
                             </TableContainer>
                           </Grid>
                           <Grid
-                            size={6}
+                            size={3}
                             sx={{
                               height: "100%",
                               minHeight: 0,
@@ -1564,17 +1564,14 @@ export function SchemaCtxClient({
                                       <TableCell sx={{ fontWeight: 700 }}>
                                         To change
                                       </TableCell>
-                                      <TableCell sx={{ fontWeight: 700 }}>
-                                        Description
-                                      </TableCell>
                                     </TableRow>
                                   </TableHead>
                                   <TableBody>
                                     {dbConnection.length === 0 ? (
                                       <TableRow>
-                                        <TableCell colSpan={3}>
+                                        <TableCell colSpan={2}>
                                           <Typography color="text.secondary">
-                                            No delete schema available.
+                                            No schema available.
                                           </Typography>
                                         </TableCell>
                                       </TableRow>
@@ -1596,9 +1593,6 @@ export function SchemaCtxClient({
                                               />
                                             </TableCell>
                                             <TableCell>{r.name}</TableCell>
-                                            <TableCell>
-                                              {r.description || "—"}
-                                            </TableCell>
                                           </TableRow>
                                         );
                                       })
