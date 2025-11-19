@@ -1,9 +1,6 @@
 "use server";
 import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cookie.action";
-import {
-  TNlqInformationData,
-  TNlqSchemaProfileBasicsDto,
-} from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
+import { TNlqSchemaProfileBasicsDto } from "@/core/application/dtos/nlq/nlq-qa-information.app.dto";
 import { TSchemaCtxColumnProfileDto } from "@/core/application/dtos/schemaCtx.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";

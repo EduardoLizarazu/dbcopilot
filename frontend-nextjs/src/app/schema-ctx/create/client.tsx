@@ -42,6 +42,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
 import { ReadNewSchemaCtxAction } from "@/_actions/schemaCtx/new-by-conn-ids.action";
+import { InfoProfileExtractorAction } from "@/_actions/nlq-qa-info/profile-extractor.action";
 
 const steps = ["Schema Differences", "Knowledge source", "Confirm"];
 
@@ -338,14 +339,19 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     setBusyFlag("profile", true);
-    // const res = await ProfileSchemaCtxAction(dbConnectionIds);
-    const res = {
-      ok: false,
-      message: "Not implemented",
-      data: null,
-    };
+    const res = await InfoProfileExtractorAction({
+      connectionIds: dbConnectionIds,
+      schema: {
+        schemaName: "",
+        tableName: "",
+        columnName: "",
+        top: 0,
+      },
+    });
     try {
-      if (res.ok) setSchemaCtx(res.data.schemaCtx || []);
+      if (res.ok) {
+        // setSchemaCtx(res.data.schemaCtx || []);
+      }
       if (!res.ok) setError(res.message || "Failed to profile schema context.");
     } finally {
       setBusyFlag("profile", false);
@@ -756,6 +762,16 @@ export function SchemaCtxClient({
                 onClick={() => saveSingleEditor()}
               >
                 Save
+              </Button>
+              <Button
+                type="button"
+                color="secondary"
+                variant="contained"
+                disabled={isBusy("submit")}
+                sx={{ textTransform: "none", ml: 1 }}
+                onClick={() => onProfile()}
+              >
+                Profile
               </Button>
             </Box>
             <Box>
