@@ -198,7 +198,7 @@ export class NlqQaTopologyGenerationAdapter
           ],
           temperature: 0.1, // Low temperature for deterministic output
           top_p: 0.1,
-          max_tokens: 5000,
+          max_tokens: 1500,
         }
       );
       const qRes = response.choices[0]?.message?.content?.trim() || "";

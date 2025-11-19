@@ -684,6 +684,8 @@ export function SchemaCtxClient({
             <TextField
               label="Schema Description"
               type="schema-description"
+              multiline
+              minRows={2}
               value={schemaDescription}
               required
               onChange={(e) => setSchemaDescription(e.target.value)}
@@ -706,6 +708,8 @@ export function SchemaCtxClient({
               label="Table Description"
               type="table-description"
               value={tableDescription}
+              multiline
+              minRows={2}
               required
               onChange={(e) => setTableDescription(e.target.value)}
               fullWidth
@@ -808,6 +812,8 @@ export function SchemaCtxClient({
               label="Column description"
               type="column-description"
               value={columnDescription}
+              multiline
+              minRows={2}
               required
               onChange={(e) => setColumnDescription(e.target.value)}
               fullWidth
