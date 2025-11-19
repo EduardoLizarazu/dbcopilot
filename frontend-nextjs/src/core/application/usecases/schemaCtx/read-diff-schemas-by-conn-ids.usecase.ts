@@ -1,5 +1,5 @@
 import {
-  schemaCtxDiffBase,
+  schemaCtxDiffSchema,
   TSchemaCtxDiffBaseDto,
 } from "../../dtos/schemaCtx.dto";
 import { TResponseDto } from "../../dtos/utils/response.app.dto";
@@ -66,6 +66,10 @@ export class ReadDiffSchemasByConnIdsUseCase
         return conn;
       });
       const resolvedNewConnections = await Promise.all(newConnections);
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Resolved new connections: `,
+        resolvedNewConnections
+      );
 
       // Retrieve schemas from connections
       const newRawSchemas = resolvedNewConnections.map(async (conn) => {
@@ -76,6 +80,10 @@ export class ReadDiffSchemasByConnIdsUseCase
         return schemaInfo;
       });
       const resolvedNewRawSchemas = await Promise.all(newRawSchemas);
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Resolved new raw schemas: `,
+        resolvedNewRawSchemas
+      );
       // OLD PART
       // Retrieve connections by id
       const oldConnections = schemaCtx.dbConnectionIds.map(async (connId) => {
@@ -88,6 +96,10 @@ export class ReadDiffSchemasByConnIdsUseCase
         return conn;
       });
       const resolvedOldConnections = await Promise.all(oldConnections);
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Resolved old connections: `,
+        resolvedOldConnections
+      );
 
       // Retrieve schemas from connections
       const oldRawSchemas = resolvedOldConnections.map(async (conn) => {
@@ -98,30 +110,54 @@ export class ReadDiffSchemasByConnIdsUseCase
         return schemaInfo;
       });
       const resolvedOldRawSchemas = await Promise.all(oldRawSchemas);
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Resolved old raw schemas: `,
+        resolvedOldRawSchemas
+      );
 
       // WHAT CHANGES BETWEEN OLD AND NEW SCHEMAS
       // Merge raw schemas
       const mergeNewRawSchema = await this.mergeSchemaCtxRawStep.run(
         resolvedNewRawSchemas.filter((s) => s !== null)
       );
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Merged new raw schema: `,
+        mergeNewRawSchema
+      );
       const mergeOldRawSchema = await this.mergeSchemaCtxRawStep.run(
         resolvedOldRawSchemas.filter((s) => s !== null)
+      );
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Merged old raw schema: `,
+        mergeOldRawSchema
       );
 
       // Format Schema
       const formatOldSchema =
         await this.formatSchemaCtxStep.run(mergeOldRawSchema);
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Formatted old schema: `,
+        formatOldSchema
+      );
       const formatNewSchema =
         await this.formatSchemaCtxStep.run(mergeNewRawSchema);
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Formatted new schema: `,
+        formatNewSchema
+      );
 
       // Compare Schemas
       const diffSchema = await this.compareSchemaCtxStep.run(
         formatOldSchema,
         formatNewSchema
       );
+      this.logger.info(
+        `[ReadDiffSchemasByConnIdsUseCase] Diff schema context: `,
+        diffSchema
+      );
 
       // Validation and return
-      const vDiffSchema = await schemaCtxDiffBase
+      const vDiffSchema = await schemaCtxDiffSchema
         .array()
         .safeParseAsync(diffSchema);
       if (!vDiffSchema.success) {

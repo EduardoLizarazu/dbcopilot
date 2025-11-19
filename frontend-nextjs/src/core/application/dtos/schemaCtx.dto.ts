@@ -31,9 +31,15 @@ export const schemaCtxColumn = z.object({
   profile: schemaCtxColumnProfile.default({}),
 });
 export type TSchemaCtxColumnDto = z.infer<typeof schemaCtxColumn>;
-export const schemaCtxDiffColumn = schemaCtxColumn.extend({
-  status: z.nativeEnum(SchemaCtxDiffStatus),
-});
+export const schemaCtxDiffColumn = schemaCtxColumn
+  .omit({
+    profile: true,
+    aliases: true,
+    description: true,
+  })
+  .extend({
+    status: z.nativeEnum(SchemaCtxDiffStatus),
+  });
 export type TSchemaCtxDiffColumnDto = z.infer<typeof schemaCtxDiffColumn>;
 
 // ===== TABLE CTX =====
@@ -45,10 +51,15 @@ export const schemaCtxTable = z.object({
   columns: z.array(schemaCtxColumn).default([]),
 });
 export type TSchemaCtxTableDto = z.infer<typeof schemaCtxTable>;
-export const schemaCtxDiffTable = schemaCtxTable.extend({
-  columns: z.array(schemaCtxDiffColumn).default([]),
-  status: z.nativeEnum(SchemaCtxDiffStatus),
-});
+export const schemaCtxDiffTable = schemaCtxTable
+  .omit({
+    aliases: true,
+    description: true,
+  })
+  .extend({
+    columns: z.array(schemaCtxDiffColumn).default([]),
+    status: z.nativeEnum(SchemaCtxDiffStatus),
+  });
 export type TSchemaCtxDiffTableDto = z.infer<typeof schemaCtxDiffTable>;
 
 // ===== SCHEMA CTX SCHEMA =====
@@ -60,10 +71,15 @@ export const schemaCtxSchema = z.object({
   tables: z.array(schemaCtxTable).default([]),
 });
 export type TSchemaCtxSchemaDto = z.infer<typeof schemaCtxSchema>;
-export const schemaCtxDiffSchema = schemaCtxSchema.extend({
-  status: z.nativeEnum(SchemaCtxDiffStatus),
-  tables: z.array(schemaCtxDiffTable).default([]),
-});
+export const schemaCtxDiffSchema = schemaCtxSchema
+  .omit({
+    aliases: true,
+    description: true,
+  })
+  .extend({
+    status: z.nativeEnum(SchemaCtxDiffStatus),
+    tables: z.array(schemaCtxDiffTable).default([]),
+  });
 export type TSchemaCtxDiffSchemaDto = z.infer<typeof schemaCtxDiffSchema>;
 
 // ===== BASED SCHEMA CTX =====
