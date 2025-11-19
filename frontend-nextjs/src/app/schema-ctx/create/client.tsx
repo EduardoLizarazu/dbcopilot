@@ -404,7 +404,7 @@ export function SchemaCtxClient({
     setSchemaCtxDiff(null);
     try {
       let res = null;
-      if (initial) {
+      if (initial && initial?.dbConnectionIds?.length > 0) {
         res = await ReadDiffSchemaCtxAction({
           schemaCtxId: initial?.id || null,
           connIds: dbConnectionIds,
@@ -635,7 +635,9 @@ export function SchemaCtxClient({
                 sx={{ textTransform: "none" }}
                 onClick={onSearchDiffSchema}
               >
-                Load Schemas
+                {initial && initial?.dbConnectionIds?.length > 0
+                  ? "Load schema"
+                  : "Load & update knowledge"}
               </Button>
             </Stack>
           </Box>
