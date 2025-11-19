@@ -5,6 +5,7 @@ import {
   TSchemaCtxBaseDto,
   TSchemaCtxDiffSchemaDto,
   TSchemaCtxSchemaDto,
+  TSchemaCtxColumnProfileDto,
 } from "@/core/application/dtos/schemaCtx.dto";
 import { CreateSchemaCtxAction } from "@/_actions/schemaCtx/create.action";
 import {
@@ -109,6 +110,11 @@ export function SchemaCtxClient({
   const [columnDescription, setColumnDescription] = React.useState("");
   const [columnType, setColumnType] = React.useState("");
   const [columnAliases, setColumnAliases] = React.useState<string[]>([]);
+  // profile for the selected column (may be null)
+  const [columnProfile, setColumnProfile] =
+    React.useState<TSchemaCtxColumnProfileDto | null>(null);
+  // sample unique top (limit) input
+  const [sampleTop, setSampleTop] = React.useState<number>(10);
 
   const resetSingleEditorState = () => {
     setSelectedSchemaId(null);
@@ -155,6 +161,10 @@ export function SchemaCtxClient({
     setColumnDescription(c.description || "");
     setColumnType(c.dataType || "");
     setColumnAliases(Array.isArray(c.aliases) ? [...c.aliases] : []);
+    // initialize profile from column if present
+    setColumnProfile(
+      c.profile ? (c.profile as TSchemaCtxColumnProfileDto) : null
+    );
 
     setOpenSingleSchemaEditor(true);
   };
@@ -185,6 +195,8 @@ export function SchemaCtxClient({
                 ...col,
                 description: columnDescription,
                 aliases: columnAliases,
+                // persist profile if present (can be null)
+                profile: columnProfile ?? col.profile,
               };
             }),
           };
@@ -339,19 +351,51 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     setBusyFlag("profile", true);
-    const res = await InfoProfileExtractorAction({
-      connectionIds: dbConnectionIds,
-      schema: {
-        schemaName: "",
-        tableName: "",
-        columnName: "",
-        top: 0,
-      },
-    });
     try {
+      // build requested schema info. If single-editor open, use selected values
+      const schemaInfo = {
+        schemaName: selectedSchemaId ? schemaName : "",
+        tableName: selectedTableId ? tableName : "",
+        columnName: selectedColumnId ? columnName : "",
+        dataType: selectedColumnId ? columnType : "",
+        top: sampleTop || 0,
+      };
+
+      const res = await InfoProfileExtractorAction({
+        connectionIds: dbConnectionIds,
+        schema: schemaInfo,
+      });
+
       if (res.ok) {
-        // setSchemaCtx(res.data.schemaCtx || []);
+        // Try common patterns: direct profile in res.data.profile
+        if (res.data && (res.data as any).profile) {
+          setColumnProfile(
+            (res.data as any).profile as TSchemaCtxColumnProfileDto
+          );
+        } else if (res.data && Array.isArray((res.data as any).schemaCtx)) {
+          // try to extract profile from returned schemaCtx structure
+          const returned = (res.data as any).schemaCtx as any[];
+          const found = returned
+            .flatMap((s) => (s.tables || []).map((t) => ({ s, t })))
+            .flatMap(({ s, t }) =>
+              (t.columns || []).map((c: any) => ({ s, t, c }))
+            );
+
+          const match = found.find(
+            (x) =>
+              (x.s?.name || "") === schemaInfo.schemaName &&
+              (x.t?.name || "") === schemaInfo.tableName &&
+              (x.c?.name || "") === schemaInfo.columnName
+          );
+          if (match && match.c.profile) {
+            setColumnProfile(match.c.profile as TSchemaCtxColumnProfileDto);
+          } else if (match && !match.c.profile) {
+            // explicit null
+            setColumnProfile(null);
+          }
+        }
       }
+
       if (!res.ok) setError(res.message || "Failed to profile schema context.");
     } finally {
       setBusyFlag("profile", false);
@@ -745,6 +789,206 @@ export function SchemaCtxClient({
               fullWidth
               disabled={true}
             />
+            {/* Profile section for the selected column */}
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
+                Profile
+              </Typography>
+
+              <TextField
+                label="Sample top"
+                type="number"
+                value={sampleTop}
+                onChange={(e) =>
+                  setSampleTop(
+                    Math.max(1, Math.min(50, Number(e.target.value || 0)))
+                  )
+                }
+                inputProps={{ min: 1, max: 50 }}
+                helperText="Limit for sample unique (min 1, max 50)"
+                size="small"
+                sx={{ mb: 1, width: 200 }}
+              />
+
+              {columnProfile === null ? (
+                <Alert severity="warning">
+                  No profile data. Click Profile to fetch.
+                </Alert>
+              ) : (
+                <Box display="grid" gap={1}>
+                  <TextField
+                    label="Max Value"
+                    value={columnProfile?.maxValue || ""}
+                    onChange={(e) =>
+                      setColumnProfile(
+                        (p) =>
+                          ({
+                            ...(p ?? {
+                              maxValue: "",
+                              minValue: "",
+                              countNulls: 0,
+                              countUnique: 0,
+                              sampleUnique: [],
+                            }),
+                            maxValue: e.target.value,
+                          }) as TSchemaCtxColumnProfileDto
+                      )
+                    }
+                    fullWidth
+                    size="small"
+                  />
+                  <TextField
+                    label="Min Value"
+                    value={columnProfile?.minValue || ""}
+                    onChange={(e) =>
+                      setColumnProfile(
+                        (p) =>
+                          ({
+                            ...(p ?? {
+                              maxValue: "",
+                              minValue: "",
+                              countNulls: 0,
+                              countUnique: 0,
+                              sampleUnique: [],
+                            }),
+                            minValue: e.target.value,
+                          }) as TSchemaCtxColumnProfileDto
+                      )
+                    }
+                    fullWidth
+                    size="small"
+                  />
+                  <TextField
+                    label="Count Nulls"
+                    type="number"
+                    value={columnProfile?.countNulls ?? 0}
+                    onChange={(e) =>
+                      setColumnProfile(
+                        (p) =>
+                          ({
+                            ...(p ?? {
+                              maxValue: "",
+                              minValue: "",
+                              countNulls: 0,
+                              countUnique: 0,
+                              sampleUnique: [],
+                            }),
+                            countNulls: Number(e.target.value || 0),
+                          }) as TSchemaCtxColumnProfileDto
+                      )
+                    }
+                    fullWidth
+                    size="small"
+                  />
+                  <TextField
+                    label="Count Unique"
+                    type="number"
+                    value={columnProfile?.countUnique ?? 0}
+                    onChange={(e) =>
+                      setColumnProfile(
+                        (p) =>
+                          ({
+                            ...(p ?? {
+                              maxValue: "",
+                              minValue: "",
+                              countNulls: 0,
+                              countUnique: 0,
+                              sampleUnique: [],
+                            }),
+                            countUnique: Number(e.target.value || 0),
+                          }) as TSchemaCtxColumnProfileDto
+                      )
+                    }
+                    fullWidth
+                    size="small"
+                  />
+
+                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <Typography variant="subtitle2">Sample Unique</Typography>
+                    <Button
+                      size="small"
+                      onClick={() =>
+                        setColumnProfile(
+                          (p) =>
+                            ({
+                              ...(p ?? {
+                                maxValue: "",
+                                minValue: "",
+                                countNulls: 0,
+                                countUnique: 0,
+                                sampleUnique: [],
+                              }),
+                              sampleUnique: [
+                                ...((p?.sampleUnique as string[]) || []),
+                                "",
+                              ],
+                            }) as TSchemaCtxColumnProfileDto
+                        )
+                      }
+                      startIcon={<AddIcon />}
+                    >
+                      Add
+                    </Button>
+                  </Box>
+
+                  {!(columnProfile?.sampleUnique || []).length && (
+                    <Typography color="text.secondary">
+                      No samples defined.
+                    </Typography>
+                  )}
+                  {(columnProfile?.sampleUnique || []).map((alias, idx) => (
+                    <Box key={idx} sx={{ display: "flex", gap: 1 }}>
+                      <TextField
+                        label={`Sample ${idx + 1}`}
+                        value={alias}
+                        onChange={(e) =>
+                          setColumnProfile(
+                            (p) =>
+                              ({
+                                ...(p ?? {
+                                  maxValue: "",
+                                  minValue: "",
+                                  countNulls: 0,
+                                  countUnique: 0,
+                                  sampleUnique: [],
+                                }),
+                                sampleUnique: (p?.sampleUnique || []).map(
+                                  (v, i) => (i === idx ? e.target.value : v)
+                                ),
+                              }) as TSchemaCtxColumnProfileDto
+                          )
+                        }
+                        fullWidth
+                        size="small"
+                      />
+                      <IconButton
+                        aria-label="remove-sample"
+                        size="small"
+                        onClick={() =>
+                          setColumnProfile(
+                            (p) =>
+                              ({
+                                ...(p ?? {
+                                  maxValue: "",
+                                  minValue: "",
+                                  countNulls: 0,
+                                  countUnique: 0,
+                                  sampleUnique: [],
+                                }),
+                                sampleUnique: (p?.sampleUnique || []).filter(
+                                  (_, i) => i !== idx
+                                ),
+                              }) as TSchemaCtxColumnProfileDto
+                          )
+                        }
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>
