@@ -635,7 +635,7 @@ export function SchemaCtxClient({
                 sx={{ textTransform: "none" }}
                 onClick={onSearchDiffSchema}
               >
-                {initial && initial?.dbConnectionIds?.length > 0
+                {!(initial && initial?.dbConnectionIds?.length > 0)
                   ? "Load schema"
                   : "Load & update knowledge"}
               </Button>
