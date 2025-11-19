@@ -6,6 +6,7 @@ import {
   TSchemaCtxDiffSchemaDto,
   TSchemaCtxSchemaDto,
   TSchemaCtxColumnProfileDto,
+  TSchemaCtxSimpleSchemaDto,
 } from "@/core/application/dtos/schemaCtx.dto";
 import { CreateSchemaCtxAction } from "@/_actions/schemaCtx/create.action";
 import {
@@ -44,6 +45,7 @@ import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
 import { ReadNewSchemaCtxAction } from "@/_actions/schemaCtx/new-by-conn-ids.action";
 import { InfoProfileExtractorAction } from "@/_actions/nlq-qa-info/profile-extractor.action";
+import { GenSchemaCtxAction } from "@/_actions/gen/gen-schema-ctx.action";
 
 const steps = ["Schema Differences", "Knowledge source", "Confirm"];
 
@@ -375,6 +377,43 @@ export function SchemaCtxClient({
       if (!res.ok) setError(res.message || "Failed to profile schema context.");
     } finally {
       setBusyFlag("profile", false);
+    }
+  };
+
+  const onGenSchemaCtx = async () => {
+    setError(null);
+    setSuccess(null);
+    setBusyFlag("genSchemaCtx", true);
+    try {
+      const schemaInfo: TSchemaCtxSimpleSchemaDto = {
+        id: selectedSchemaId || "",
+        name: schemaName || "",
+        description: schemaDescription || "",
+        aliases: schemaAliases || [],
+        table: {
+          id: selectedTableId || "",
+          name: tableName || "",
+          description: tableDescription || "",
+          aliases: tableAliases || [],
+          column: {
+            id: selectedColumnId || "",
+            name: columnName || "",
+            description: columnDescription || "",
+            aliases: columnAliases || [],
+            dataType: columnType || "",
+            profile: columnProfile || {},
+          },
+        },
+      };
+      const res = await GenSchemaCtxAction(schemaInfo);
+
+      if (res.ok) {
+      }
+
+      if (!res.ok)
+        setError(res.message || "Failed to generate schema context.");
+    } finally {
+      setBusyFlag("genSchemaCtx", false);
     }
   };
 
