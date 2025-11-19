@@ -635,7 +635,7 @@ export function SchemaCtxClient({
                 sx={{ textTransform: "none" }}
                 onClick={onSearchDiffSchema}
               >
-                Search Schema
+                Load Schemas
               </Button>
             </Stack>
           </Box>
