@@ -42,6 +42,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import DoneIcon from "@mui/icons-material/Done";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
 import { ReadNewSchemaCtxAction } from "@/_actions/schemaCtx/new-by-conn-ids.action";
@@ -49,6 +50,13 @@ import { InfoProfileExtractorAction } from "@/_actions/nlq-qa-info/profile-extra
 import { GenSchemaCtxAction } from "@/_actions/gen/gen-schema-ctx.action";
 
 const steps = ["Schema Differences", "Knowledge source", "Confirm"];
+
+enum SchemaCtxDiffLevel {
+  SCHEMA = "SCHEMA",
+  TABLE = "TABLE",
+  COLUMN = "COLUMN",
+  DATATYPE = "DATATYPE",
+}
 
 export function SchemaCtxClient({
   initial,
@@ -371,6 +379,102 @@ export function SchemaCtxClient({
       setBusyFlag("table", false);
       setBusyFlag("table-diff", false);
     }
+  };
+  // select the id of the field in the diff schema that I want to update (new)
+  const [updateNewField, setUpdateNewField] = React.useState<{
+    id: string;
+    level: SchemaCtxDiffLevel;
+  } | null>(null);
+  const [displayOldFields, setDisplayOldFields] = React.useState<
+    | {
+        id: string;
+        name: string;
+        extraName?: string;
+      }[]
+    | null
+  >(null);
+  const onSearchDiffSchemaCtxFieldsToUpdate = (
+    id: string,
+    level: SchemaCtxDiffLevel
+  ) => {
+    setUpdateNewField({ id, level });
+    const displayOldFields = schemaCtxDiff?.flatMap((schema) =>
+      schema.tables.flatMap((table) =>
+        table.columns.map((col) => {
+          if (
+            level === SchemaCtxDiffLevel.SCHEMA &&
+            schema.id !== id &&
+            schema.status === SchemaCtxDiffStatus.DELETE
+          ) {
+            return {
+              id: schema.id,
+              name: schema.name,
+            };
+          } else if (
+            level === SchemaCtxDiffLevel.TABLE &&
+            table.id !== id &&
+            schema.status === SchemaCtxDiffStatus.DELETE
+          ) {
+            return {
+              id: table.id,
+              name: table.name,
+            };
+          } else if (
+            level === SchemaCtxDiffLevel.COLUMN &&
+            col.id !== id &&
+            schema.status === SchemaCtxDiffStatus.DELETE
+          ) {
+            return {
+              id: col.id,
+              name: col.name,
+            };
+          }
+          return null;
+        })
+      )
+    );
+
+    setDisplayOldFields(displayOldFields);
+  };
+
+  // selected the id of the field in the diff which is the previous one (old)
+  const onUpdateSchemaCtxFieldByOldField = (id: string, name: string) => {
+    setSchemaCtxDiff((prev) => {
+      return prev.map((schema) => {
+        if (schema.id === id) {
+          return {
+            ...schema,
+            oldName: name,
+            status: SchemaCtxDiffStatus.UN_CHANGE,
+          };
+        }
+        return {
+          ...schema,
+          tables: schema.tables.map((table) => {
+            if (table.id === id) {
+              return {
+                ...table,
+                oldName: name,
+                status: SchemaCtxDiffStatus.UN_CHANGE,
+              };
+            }
+            return {
+              ...table,
+              columns: table.columns.map((col) => {
+                if (col.id === id) {
+                  return {
+                    ...col,
+                    oldName: name,
+                    status: SchemaCtxDiffStatus.UN_CHANGE,
+                  };
+                }
+                return col;
+              }),
+            };
+          }),
+        };
+      });
+    });
   };
 
   const onProfile = async () => {
@@ -1193,6 +1297,7 @@ export function SchemaCtxClient({
                               overflow: "auto",
                             }}
                           >
+                            {/* DIFF SCHEMA TABLE */}
                             <TableContainer component={Paper} elevation={0}>
                               <Table size="small">
                                 <TableHead>
@@ -1237,6 +1342,12 @@ export function SchemaCtxClient({
                                                   <IconButton
                                                     aria-label="update-schema"
                                                     size="small"
+                                                    onClick={() =>
+                                                      onSearchDiffSchemaCtxFieldsToUpdate(
+                                                        diff.id,
+                                                        SchemaCtxDiffLevel.SCHEMA
+                                                      )
+                                                    }
                                                   >
                                                     <EditIcon fontSize="small" />
                                                   </IconButton>
@@ -1292,6 +1403,12 @@ export function SchemaCtxClient({
                                                       <IconButton
                                                         aria-label="update-schema"
                                                         size="small"
+                                                        onClick={() =>
+                                                          onSearchDiffSchemaCtxFieldsToUpdate(
+                                                            table.id,
+                                                            SchemaCtxDiffLevel.TABLE
+                                                          )
+                                                        }
                                                       >
                                                         <EditIcon fontSize="small" />
                                                       </IconButton>
@@ -1347,6 +1464,12 @@ export function SchemaCtxClient({
                                                           <IconButton
                                                             aria-label="update-schema"
                                                             size="small"
+                                                            onClick={() =>
+                                                              onSearchDiffSchemaCtxFieldsToUpdate(
+                                                                col.id,
+                                                                SchemaCtxDiffLevel.COLUMN
+                                                              )
+                                                            }
                                                           >
                                                             <EditIcon fontSize="small" />
                                                           </IconButton>
@@ -1398,7 +1521,61 @@ export function SchemaCtxClient({
                               overflow: "auto",
                             }}
                           >
-                            <Box></Box>
+                            <Box>
+                              <TableContainer component={Paper} elevation={0}>
+                                <Table
+                                  size="small"
+                                  aria-label="old schema table"
+                                >
+                                  <TableHead>
+                                    <TableRow>
+                                      <TableCell sx={{ fontWeight: 700 }}>
+                                        Name
+                                      </TableCell>
+                                      <TableCell sx={{ fontWeight: 700 }}>
+                                        Action
+                                      </TableCell>
+                                    </TableRow>
+                                  </TableHead>
+                                  <TableBody>
+                                    {displayOldFields === null ||
+                                    displayOldFields?.length === 0 ? (
+                                      <TableRow>
+                                        <TableCell colSpan={2}>
+                                          <Typography color="text.secondary">
+                                            No old schema fields.
+                                          </Typography>
+                                        </TableCell>
+                                      </TableRow>
+                                    ) : (
+                                      displayOldFields.map((field) => (
+                                        <TableRow key={field?.id || ""} hover>
+                                          <TableCell>
+                                            {field?.name || "-"}
+                                          </TableCell>
+                                          <TableCell>
+                                            <Tooltip title="select">
+                                              <IconButton
+                                                aria-label="select-field"
+                                                size="small"
+                                                onClick={() =>
+                                                  onUpdateSchemaCtxFieldByOldField(
+                                                    field.id,
+                                                    field.name
+                                                  )
+                                                }
+                                              >
+                                                <DoneIcon fontSize="small" />
+                                              </IconButton>
+                                            </Tooltip>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))
+                                    )}
+                                  </TableBody>
+                                </Table>
+                              </TableContainer>
+                            </Box>
                           </Grid>
                         </Grid>
                       </Box>
