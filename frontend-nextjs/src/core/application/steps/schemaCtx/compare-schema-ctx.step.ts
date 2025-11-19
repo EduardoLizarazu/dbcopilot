@@ -90,8 +90,8 @@ export class CompareSchemaCtxStep implements ICompareSchemaCtxStep {
 }
 
 // Compare two schema arrays and produce a structured diff.
-// Output uses schemaStatus { UN_CHANGED:0, NEW:1, DELETE:2 }
-// Each schema: { schema: { id, name, status }, tables: [ { id, name, status, columns: [ { id, name, status, dataType: { name, status } } ] } ] }
+// Output uses schemaStatus { UN_CHANGE:0, NEW:1, DELETE:2 }
+// Each schema: { id, name, status, tables: [ { id, name, status, columns: [ { id, name, status, dataType: { name, status } } ] } ] }
 
 function _getSchemaName(schema) {
   if (!schema) return null;
@@ -177,16 +177,14 @@ function _compareSchemas(
     const newSchema = newMap.get(schemaName);
     const oldSchema = oldMap.get(schemaName);
     const schemaEntry = {
-      schema: {
-        id: _getSchemaId(newSchema) ?? _getSchemaId(oldSchema),
-        name: schemaName,
-        status:
-          inNew && inOld
-            ? SchemaCtxDiffStatus.UN_CHANGE
-            : inNew
-              ? SchemaCtxDiffStatus.NEW
-              : SchemaCtxDiffStatus.DELETE,
-      },
+      id: _getSchemaId(newSchema) ?? _getSchemaId(oldSchema),
+      name: schemaName,
+      status:
+        inNew && inOld
+          ? SchemaCtxDiffStatus.UN_CHANGE
+          : inNew
+            ? SchemaCtxDiffStatus.NEW
+            : SchemaCtxDiffStatus.DELETE,
       tables: [],
     };
 
