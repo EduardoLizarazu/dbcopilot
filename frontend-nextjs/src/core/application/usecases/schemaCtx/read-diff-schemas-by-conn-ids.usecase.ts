@@ -90,36 +90,7 @@ export class ReadDiffSchemasByConnIdsUseCase
         `[ReadDiffSchemasByConnIdsUseCase] Resolved new raw schemas: `,
         resolvedNewRawSchemas
       );
-      // OLD PART
-      // Retrieve connections by id
-      const oldConnections = schemaCtx.dbConnectionIds.map(async (connId) => {
-        const conn = await this.readByIdDbConnStep.run({ dbConnId: connId });
-        if (!conn) {
-          this.logger.warn(
-            `[ReadDiffSchemasByConnIdsUseCase] DB Connection not found for ID: ${connId}`
-          );
-        }
-        return conn;
-      });
-      const resolvedOldConnections = await Promise.all(oldConnections);
-      this.logger.info(
-        `[ReadDiffSchemasByConnIdsUseCase] Resolved old connections: `,
-        resolvedOldConnections
-      );
-
-      // Retrieve schemas from connections
-      const oldRawSchemas = resolvedOldConnections.map(async (conn) => {
-        if (!conn) return null;
-        const schemaInfo = await this.extractSchemaBasedStep.run({
-          ...conn,
-        });
-        return schemaInfo;
-      });
-      const resolvedOldRawSchemas = await Promise.all(oldRawSchemas);
-      this.logger.info(
-        `[ReadDiffSchemasByConnIdsUseCase] Resolved old raw schemas: `,
-        resolvedOldRawSchemas
-      );
+      // OLD PART /// PARA QUE SACAR LAS VIEJAS CONEXIONES SI NO SE USAN??? DIRECTAMENTE SACAR EL ESQUEMA GUARDADO
 
       // WHAT CHANGES BETWEEN OLD AND NEW SCHEMAS
       // Merge raw schemas
@@ -130,21 +101,8 @@ export class ReadDiffSchemasByConnIdsUseCase
         `[ReadDiffSchemasByConnIdsUseCase] Merged new raw schema: `,
         mergeNewRawSchema
       );
-      const mergeOldRawSchema = await this.mergeSchemaCtxRawStep.run(
-        resolvedOldRawSchemas.filter((s) => s !== null)
-      );
-      this.logger.info(
-        `[ReadDiffSchemasByConnIdsUseCase] Merged old raw schema: `,
-        mergeOldRawSchema
-      );
 
-      // Format Schema
-      const formatOldSchema =
-        await this.formatSchemaCtxStep.run(mergeOldRawSchema);
-      this.logger.info(
-        `[ReadDiffSchemasByConnIdsUseCase] Formatted old schema: `,
-        formatOldSchema
-      );
+      // Format Schemas
       const formatNewSchema =
         await this.formatSchemaCtxStep.run(mergeNewRawSchema);
       this.logger.info(
@@ -154,7 +112,7 @@ export class ReadDiffSchemasByConnIdsUseCase
 
       // Compare Schemas
       const diffSchema = await this.compareSchemaCtxStep.run(
-        formatOldSchema,
+        schemaCtx.schemaCtx,
         formatNewSchema
       );
       this.logger.info(

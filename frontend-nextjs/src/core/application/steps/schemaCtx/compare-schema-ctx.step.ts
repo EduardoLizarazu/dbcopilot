@@ -73,7 +73,7 @@ export class CompareSchemaCtxStep implements ICompareSchemaCtxStep {
       if (!vDiffSchema.success) {
         this.logger.error(
           `[CompareSchemaCtxStep] Validation errors in diff schema context: `,
-          vDiffSchema.error.errors
+          vDiffSchema.error
         );
         throw new Error("Invalid diff schema context data");
       }

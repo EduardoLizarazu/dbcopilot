@@ -42,7 +42,7 @@ export const schemaCtxDiffColumn = schemaCtxColumn
     dataType: z.object({
       name: z.string().min(1),
       status: z.nativeEnum(SchemaCtxDiffStatus),
-      oldName: z.string().min(1).default(""),
+      oldName: z.string().default(""),
     }),
   });
 export type TSchemaCtxDiffColumnDto = z.infer<typeof schemaCtxDiffColumn>;
