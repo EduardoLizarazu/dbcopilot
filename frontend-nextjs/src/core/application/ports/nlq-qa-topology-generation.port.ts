@@ -1,4 +1,9 @@
+import { TSchemaCtxSimpleSchemaDto } from "../dtos/schemaCtx.dto";
+
 export interface INlqQaTopologyGenerationPort {
+  genSchemaCtx(
+    data: TSchemaCtxSimpleSchemaDto
+  ): Promise<TSchemaCtxSimpleSchemaDto>;
   genDetailQuestion(data: {
     question: string;
     query: string;
