@@ -1359,16 +1359,14 @@ export function SchemaCtxClient({
                                                           SchemaCtxDiffLevel.SCHEMA
                                                         )
                                                       }
+                                                      color={
+                                                        diff.status ===
+                                                        SchemaCtxDiffStatus.UPDATE
+                                                          ? "secondary"
+                                                          : "inherit"
+                                                      }
                                                     >
-                                                      <EditIcon
-                                                        fontSize="small"
-                                                        color={
-                                                          diff.status ===
-                                                          SchemaCtxDiffStatus.UPDATE
-                                                            ? "secondary"
-                                                            : "inherit"
-                                                        }
-                                                      />
+                                                      <EditIcon fontSize="small" />
                                                     </IconButton>
                                                   </Tooltip>
                                                 )}
@@ -1378,16 +1376,14 @@ export function SchemaCtxClient({
                                                   <IconButton
                                                     aria-label="new-schema"
                                                     size="small"
+                                                    color={
+                                                      diff.status ===
+                                                      SchemaCtxDiffStatus.NEW
+                                                        ? "success"
+                                                        : "inherit"
+                                                    }
                                                   >
-                                                    <AddIcon
-                                                      fontSize="small"
-                                                      color={
-                                                        diff.status ===
-                                                        SchemaCtxDiffStatus.NEW
-                                                          ? "success"
-                                                          : "inherit"
-                                                      }
-                                                    />
+                                                    <AddIcon fontSize="small" />
                                                   </IconButton>
                                                 </Tooltip>
                                               )}
@@ -1398,16 +1394,14 @@ export function SchemaCtxClient({
                                                     <IconButton
                                                       aria-label="delete-schema"
                                                       size="small"
+                                                      color={
+                                                        diff.status ===
+                                                        SchemaCtxDiffStatus.DELETE
+                                                          ? "error"
+                                                          : "inherit"
+                                                      }
                                                     >
-                                                      <DeleteIcon
-                                                        fontSize="small"
-                                                        color={
-                                                          diff.status ===
-                                                          SchemaCtxDiffStatus.DELETE
-                                                            ? "error"
-                                                            : "inherit"
-                                                        }
-                                                      />
+                                                      <DeleteIcon fontSize="small" />
                                                     </IconButton>
                                                   </Tooltip>
                                                 </>
@@ -1446,16 +1440,14 @@ export function SchemaCtxClient({
                                                               SchemaCtxDiffLevel.TABLE
                                                             )
                                                           }
+                                                          color={
+                                                            table.status ===
+                                                            SchemaCtxDiffStatus.UPDATE
+                                                              ? "secondary"
+                                                              : "inherit"
+                                                          }
                                                         >
-                                                          <EditIcon
-                                                            fontSize="small"
-                                                            color={
-                                                              table.status ===
-                                                              SchemaCtxDiffStatus.UPDATE
-                                                                ? "secondary"
-                                                                : "inherit"
-                                                            }
-                                                          />
+                                                          <EditIcon fontSize="small" />
                                                         </IconButton>
                                                       </Tooltip>
                                                     )}
@@ -1465,16 +1457,14 @@ export function SchemaCtxClient({
                                                       <IconButton
                                                         aria-label="new-schema"
                                                         size="small"
+                                                        color={
+                                                          table.status ===
+                                                          SchemaCtxDiffStatus.NEW
+                                                            ? "success"
+                                                            : "inherit"
+                                                        }
                                                       >
-                                                        <AddIcon
-                                                          fontSize="small"
-                                                          color={
-                                                            table.status ===
-                                                            SchemaCtxDiffStatus.NEW
-                                                              ? "success"
-                                                              : "inherit"
-                                                          }
-                                                        />
+                                                        <AddIcon fontSize="small" />
                                                       </IconButton>
                                                     </Tooltip>
                                                   )}
@@ -1485,16 +1475,14 @@ export function SchemaCtxClient({
                                                         <IconButton
                                                           aria-label="delete-schema"
                                                           size="small"
+                                                          color={
+                                                            table.status ===
+                                                            SchemaCtxDiffStatus.DELETE
+                                                              ? "error"
+                                                              : "inherit"
+                                                          }
                                                         >
-                                                          <DeleteIcon
-                                                            fontSize="small"
-                                                            color={
-                                                              table.status ===
-                                                              SchemaCtxDiffStatus.DELETE
-                                                                ? "error"
-                                                                : "inherit"
-                                                            }
-                                                          />
+                                                          <DeleteIcon fontSize="small" />
                                                         </IconButton>
                                                       </Tooltip>
                                                     </>
@@ -1533,16 +1521,14 @@ export function SchemaCtxClient({
                                                                   SchemaCtxDiffLevel.COLUMN
                                                                 )
                                                               }
+                                                              color={
+                                                                col.status ===
+                                                                SchemaCtxDiffStatus.UPDATE
+                                                                  ? "secondary"
+                                                                  : "inherit"
+                                                              }
                                                             >
-                                                              <EditIcon
-                                                                fontSize="small"
-                                                                color={
-                                                                  col.status ===
-                                                                  SchemaCtxDiffStatus.UPDATE
-                                                                    ? "secondary"
-                                                                    : "inherit"
-                                                                }
-                                                              />
+                                                              <EditIcon fontSize="small" />
                                                             </IconButton>
                                                           </Tooltip>
                                                         )}
@@ -1552,16 +1538,14 @@ export function SchemaCtxClient({
                                                           <IconButton
                                                             aria-label="new-schema"
                                                             size="small"
+                                                            color={
+                                                              col.status ===
+                                                              SchemaCtxDiffStatus.NEW
+                                                                ? "success"
+                                                                : "inherit"
+                                                            }
                                                           >
-                                                            <AddIcon
-                                                              fontSize="small"
-                                                              color={
-                                                                col.status ===
-                                                                SchemaCtxDiffStatus.NEW
-                                                                  ? "success"
-                                                                  : "inherit"
-                                                              }
-                                                            />
+                                                            <AddIcon fontSize="small" />
                                                           </IconButton>
                                                         </Tooltip>
                                                       )}
@@ -1572,16 +1556,14 @@ export function SchemaCtxClient({
                                                             <IconButton
                                                               aria-label="delete-schema"
                                                               size="small"
+                                                              color={
+                                                                col.status ===
+                                                                SchemaCtxDiffStatus.DELETE
+                                                                  ? "error"
+                                                                  : "inherit"
+                                                              }
                                                             >
-                                                              <DeleteIcon
-                                                                fontSize="small"
-                                                                color={
-                                                                  col.status ===
-                                                                  SchemaCtxDiffStatus.DELETE
-                                                                    ? "error"
-                                                                    : "inherit"
-                                                                }
-                                                              />
+                                                              <DeleteIcon fontSize="small" />
                                                             </IconButton>
                                                           </Tooltip>
                                                         </>
