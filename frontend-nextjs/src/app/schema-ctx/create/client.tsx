@@ -1541,6 +1541,27 @@ export function SchemaCtxClient({
                                                   </Tooltip>
                                                 </>
                                               )}
+                                              {diff.oldId && (
+                                                <>
+                                                  <Tooltip title="undo">
+                                                    <IconButton
+                                                      aria-label="undo-schema"
+                                                      size="small"
+                                                      color="inherit"
+                                                      onClick={() =>
+                                                        onUndoUpdateSchemaCtxField(
+                                                          {
+                                                            newId: diff.newId,
+                                                            oldId: diff.oldId,
+                                                          }
+                                                        )
+                                                      }
+                                                    >
+                                                      <UndoIcon fontSize="small" />
+                                                    </IconButton>
+                                                  </Tooltip>
+                                                </>
+                                              )}
                                             </TableCell>
                                           </TableRow>
                                           {diff.tables.map((table) => (
@@ -1640,6 +1661,16 @@ export function SchemaCtxClient({
                                                           aria-label="undo-schema"
                                                           size="small"
                                                           color="inherit"
+                                                          onClick={() =>
+                                                            onUndoUpdateSchemaCtxField(
+                                                              {
+                                                                newId:
+                                                                  table.newId,
+                                                                oldId:
+                                                                  table.oldId,
+                                                              }
+                                                            )
+                                                          }
                                                         >
                                                           <UndoIcon fontSize="small" />
                                                         </IconButton>
@@ -1730,6 +1761,29 @@ export function SchemaCtxClient({
                                                               }
                                                             >
                                                               <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                        </>
+                                                      )}
+                                                      {col.oldId && (
+                                                        <>
+                                                          <Tooltip title="undo">
+                                                            <IconButton
+                                                              aria-label="undo-schema"
+                                                              size="small"
+                                                              color="inherit"
+                                                              onClick={() =>
+                                                                onUndoUpdateSchemaCtxField(
+                                                                  {
+                                                                    newId:
+                                                                      col.newId,
+                                                                    oldId:
+                                                                      col.oldId,
+                                                                  }
+                                                                )
+                                                              }
+                                                            >
+                                                              <UndoIcon fontSize="small" />
                                                             </IconButton>
                                                           </Tooltip>
                                                         </>
