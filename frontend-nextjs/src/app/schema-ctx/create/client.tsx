@@ -1521,9 +1521,8 @@ export function SchemaCtxClient({
                                                   </IconButton>
                                                 </Tooltip>
                                               )}
-                                              {(diff.status ===
-                                                SchemaCtxDiffStatus.DELETE ||
-                                                diff.newName) && (
+                                              {diff.status ===
+                                                SchemaCtxDiffStatus.DELETE && (
                                                 <>
                                                   <Tooltip title="delete">
                                                     <IconButton
@@ -1632,9 +1631,8 @@ export function SchemaCtxClient({
                                                       </IconButton>
                                                     </Tooltip>
                                                   )}
-                                                  {(table.status ===
-                                                    SchemaCtxDiffStatus.DELETE ||
-                                                    table.newName) && (
+                                                  {table.status ===
+                                                    SchemaCtxDiffStatus.DELETE && (
                                                     <>
                                                       <Tooltip title="delete">
                                                         <IconButton
@@ -1745,9 +1743,8 @@ export function SchemaCtxClient({
                                                           </IconButton>
                                                         </Tooltip>
                                                       )}
-                                                      {(col.status ===
-                                                        SchemaCtxDiffStatus.DELETE ||
-                                                        col.newName) && (
+                                                      {col.status ===
+                                                        SchemaCtxDiffStatus.DELETE && (
                                                         <>
                                                           <Tooltip title="delete">
                                                             <IconButton
