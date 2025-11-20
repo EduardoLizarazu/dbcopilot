@@ -37,7 +37,9 @@ export class GenTableColumnsStep implements IGenTableColumnsStep {
       return { tablesColumns: response.tablesColumns };
     } catch (error) {
       this.logger.error(`[GenTableColumnsStep] Error: ${error.message}`);
-      throw new Error(`[GenTableColumnsStep] Error: ${error.message}`);
+      throw new Error(
+        error.message || "Error generating topology schema table columns"
+      );
     }
   }
 }

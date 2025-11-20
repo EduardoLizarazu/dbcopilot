@@ -309,27 +309,42 @@ export class NlqQaTopologyGenerationAdapter
         `[NlqQaTopologyGenerationAdapter] Generating tables and columns from query: ${data.query}`
       );
       const prompt = `
-        Given the following sql query,
-        extract the tables and columns used in the query.
+        Given the following SQL query, extract every schema, table, and column reference used.
+
         ### SQL Query:
         ${data.query}
-        ### Instructions:
-        1. Extract the tables and columns used in the query.
-        2. Return the tables and columns as a list of strings in the format "table.column".
-        3. Return ONLY the list of tables and columns with no additional text.
-        4. If a table is used without a column, return the table name only.
-        5. If a column is used without a table, return the column name only.
-        6. Do not include duplicates in the list.
-        7. If the query is invalid or does not contain any tables or columns, return an empty list.
-        ### Response format Tables and Columns:
-        Return the tables and columns as a JSON array of strings.
-        \`\`\`json
-            [
-                "table1.column1",
-                "table2.column2",
-                "table3"
-            ]
-        \`\`\`
+
+        ### Extraction Rules:
+        1. Return **only physical references**, normalized into one of the following formats:
+          - "schema.table.column"
+          - "table.column"
+          - "column"
+        2. If a schema appears in the SQL, include it in the output for that table/column.
+        3. If only a table and column appear, return "table.column".
+        4. If only a column appears (e.g., SELECT COUNT(*)), return the column name only.
+        5. Include columns referenced in:
+          - SELECT
+          - WHERE
+          - JOIN
+          - GROUP BY / HAVING
+          - ORDER BY
+          - subqueries
+        6. Expand table aliases to their actual table names.
+        7. Do **not** include functions, operators, or literals.
+        8. Do **not** infer columns that do not explicitly appear.
+        9. Remove duplicates.
+        10. Return **only** the JSON array—no explanation, no backticks, no code fences.
+
+        ### Response Format:
+        Return a valid JSON array of strings. Example:
+
+        [
+          "public.actor.actor_id",
+          "public.actor.first_name",
+          "film.film_id",
+          "customer_id"
+        ]
+
       `;
       const response = await this.openaiProvider.openai.chat.completions.create(
         {
@@ -338,7 +353,7 @@ export class NlqQaTopologyGenerationAdapter
             {
               role: "system",
               content:
-                "You are an expert SQL parser that extracts tables and columns from SQL queries.",
+                "You are an expert SQL parser that extracts schema, tables and columns from SQL queries.",
             },
             {
               role: "user",
@@ -346,12 +361,12 @@ export class NlqQaTopologyGenerationAdapter
             },
           ],
           temperature: 0.1, // Low temperature for deterministic output
-          max_tokens: 500,
+          max_tokens: 1000,
           top_p: 0.1,
         }
       );
       const tcRes = response.choices[0]?.message?.content?.trim() || "";
-      const tablesColumnsExtraction = tcRes.match(/```json\n([\s\S]*?)\n```/);
+      const tablesColumnsExtraction = tcRes.match(/\[([\s\S]*?)\]/);
       if (tablesColumnsExtraction && tablesColumnsExtraction[1]) {
         const tablesColumns = JSON.parse(tablesColumnsExtraction[1].trim());
         this.logger.info(
@@ -360,13 +375,14 @@ export class NlqQaTopologyGenerationAdapter
         return { tablesColumns };
       }
       this.logger.warn(
-        "[NlqQaTopologyGenerationAdapter] Warning: Could not extract tables and columns from response"
+        "[NlqQaTopologyGenerationAdapter] Warning: Could not extract tables and columns from response",
+        tcRes
       );
       return { tablesColumns: [] };
     } catch (error) {
       this.logger.error(
         "[NlqQaTopologyGenerationAdapter] Error generating tables and columns",
-        { error }
+        { message: error.message }
       );
       throw new Error("Error generating tables and columns");
     }
