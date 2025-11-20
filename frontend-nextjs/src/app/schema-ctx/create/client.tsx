@@ -435,9 +435,15 @@ export function SchemaCtxClient({
         })
       )
     );
-    console.log("displayOldFields", displayOldFields);
+    const displayOldFieldsFormatted = displayOldFields
+      .filter(Boolean) // quita null
+      .filter(
+        (item, index, self) =>
+          index === self.findIndex((other) => other.id === item.id)
+      );
+    console.log("displayOldFields", displayOldFieldsFormatted);
 
-    // setDisplayOldFields(displayOldFields);
+    setDisplayOldFields(displayOldFieldsFormatted || null);
   };
 
   // selected the id of the field in the diff which is the previous one (old)
