@@ -1346,30 +1346,32 @@ export function SchemaCtxClient({
                                                 SchemaCtxDiffStatus.UN_CHANGE &&
                                                 "-"}
                                               {diff.status !==
-                                                SchemaCtxDiffStatus.UN_CHANGE && (
-                                                <Tooltip title="update">
-                                                  <IconButton
-                                                    aria-label="update-schema"
-                                                    size="small"
-                                                    onClick={() =>
-                                                      onSearchDiffSchemaCtxFieldsToUpdate(
-                                                        diff.id,
-                                                        SchemaCtxDiffLevel.SCHEMA
-                                                      )
-                                                    }
-                                                  >
-                                                    <EditIcon
-                                                      fontSize="small"
-                                                      color={
-                                                        diff.status ===
-                                                        SchemaCtxDiffStatus.UPDATE
-                                                          ? "secondary"
-                                                          : "inherit"
+                                                SchemaCtxDiffStatus.UN_CHANGE &&
+                                                diff.status !==
+                                                  SchemaCtxDiffStatus.DELETE && (
+                                                  <Tooltip title="update">
+                                                    <IconButton
+                                                      aria-label="update-schema"
+                                                      size="small"
+                                                      onClick={() =>
+                                                        onSearchDiffSchemaCtxFieldsToUpdate(
+                                                          diff.id,
+                                                          SchemaCtxDiffLevel.SCHEMA
+                                                        )
                                                       }
-                                                    />
-                                                  </IconButton>
-                                                </Tooltip>
-                                              )}
+                                                    >
+                                                      <EditIcon
+                                                        fontSize="small"
+                                                        color={
+                                                          diff.status ===
+                                                          SchemaCtxDiffStatus.UPDATE
+                                                            ? "secondary"
+                                                            : "inherit"
+                                                        }
+                                                      />
+                                                    </IconButton>
+                                                  </Tooltip>
+                                                )}
                                               {diff.status ===
                                                 SchemaCtxDiffStatus.NEW && (
                                                 <Tooltip title="new">
@@ -1431,30 +1433,32 @@ export function SchemaCtxClient({
                                                     SchemaCtxDiffStatus.UN_CHANGE &&
                                                     "-"}
                                                   {table.status !==
-                                                    SchemaCtxDiffStatus.UN_CHANGE && (
-                                                    <Tooltip title="update">
-                                                      <IconButton
-                                                        aria-label="update-schema"
-                                                        size="small"
-                                                        onClick={() =>
-                                                          onSearchDiffSchemaCtxFieldsToUpdate(
-                                                            table.id,
-                                                            SchemaCtxDiffLevel.TABLE
-                                                          )
-                                                        }
-                                                      >
-                                                        <EditIcon
-                                                          fontSize="small"
-                                                          color={
-                                                            table.status ===
-                                                            SchemaCtxDiffStatus.UPDATE
-                                                              ? "secondary"
-                                                              : "inherit"
+                                                    SchemaCtxDiffStatus.UN_CHANGE &&
+                                                    table.status !==
+                                                      SchemaCtxDiffStatus.DELETE && (
+                                                      <Tooltip title="update">
+                                                        <IconButton
+                                                          aria-label="update-schema"
+                                                          size="small"
+                                                          onClick={() =>
+                                                            onSearchDiffSchemaCtxFieldsToUpdate(
+                                                              table.id,
+                                                              SchemaCtxDiffLevel.TABLE
+                                                            )
                                                           }
-                                                        />
-                                                      </IconButton>
-                                                    </Tooltip>
-                                                  )}
+                                                        >
+                                                          <EditIcon
+                                                            fontSize="small"
+                                                            color={
+                                                              table.status ===
+                                                              SchemaCtxDiffStatus.UPDATE
+                                                                ? "secondary"
+                                                                : "inherit"
+                                                            }
+                                                          />
+                                                        </IconButton>
+                                                      </Tooltip>
+                                                    )}
                                                   {table.status ===
                                                     SchemaCtxDiffStatus.NEW && (
                                                     <Tooltip title="new">
@@ -1516,30 +1520,32 @@ export function SchemaCtxClient({
                                                         SchemaCtxDiffStatus.UN_CHANGE &&
                                                         "-"}
                                                       {col.status !==
-                                                        SchemaCtxDiffStatus.UN_CHANGE && (
-                                                        <Tooltip title="update">
-                                                          <IconButton
-                                                            aria-label="update-schema"
-                                                            size="small"
-                                                            onClick={() =>
-                                                              onSearchDiffSchemaCtxFieldsToUpdate(
-                                                                col.id,
-                                                                SchemaCtxDiffLevel.COLUMN
-                                                              )
-                                                            }
-                                                          >
-                                                            <EditIcon
-                                                              fontSize="small"
-                                                              color={
-                                                                col.status ===
-                                                                SchemaCtxDiffStatus.UPDATE
-                                                                  ? "secondary"
-                                                                  : "inherit"
+                                                        SchemaCtxDiffStatus.UN_CHANGE &&
+                                                        col.status !==
+                                                          SchemaCtxDiffStatus.DELETE && (
+                                                          <Tooltip title="update">
+                                                            <IconButton
+                                                              aria-label="update-schema"
+                                                              size="small"
+                                                              onClick={() =>
+                                                                onSearchDiffSchemaCtxFieldsToUpdate(
+                                                                  col.id,
+                                                                  SchemaCtxDiffLevel.COLUMN
+                                                                )
                                                               }
-                                                            />
-                                                          </IconButton>
-                                                        </Tooltip>
-                                                      )}
+                                                            >
+                                                              <EditIcon
+                                                                fontSize="small"
+                                                                color={
+                                                                  col.status ===
+                                                                  SchemaCtxDiffStatus.UPDATE
+                                                                    ? "secondary"
+                                                                    : "inherit"
+                                                                }
+                                                              />
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                        )}
                                                       {col.status ===
                                                         SchemaCtxDiffStatus.NEW && (
                                                         <Tooltip title="new">
