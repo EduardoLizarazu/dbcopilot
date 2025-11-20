@@ -363,7 +363,7 @@ export function SchemaCtxClient({
         });
         if (res.ok) {
           setSchemaCtxDiff(res.data?.diffSchemas || []);
-          console.log("diff schemas", res.data);
+          console.log("diff schemas", res.data?.diffSchemas || []);
           setOpenDiffEditor(true);
           setBusyFlag("table-diff", true);
         }
@@ -397,6 +397,8 @@ export function SchemaCtxClient({
     id: string,
     level: SchemaCtxDiffLevel
   ) => {
+    console.log("id", id);
+    console.log("level", level);
     setUpdateNewField({ id, level });
     const displayOldFields = schemaCtxDiff?.flatMap((schema) =>
       schema.tables.flatMap((table) =>
@@ -413,7 +415,7 @@ export function SchemaCtxClient({
           } else if (
             level === SchemaCtxDiffLevel.TABLE &&
             table.id !== id &&
-            schema.status === SchemaCtxDiffStatus.DELETE
+            table.status === SchemaCtxDiffStatus.DELETE
           ) {
             return {
               id: table.id,
@@ -422,7 +424,7 @@ export function SchemaCtxClient({
           } else if (
             level === SchemaCtxDiffLevel.COLUMN &&
             col.id !== id &&
-            schema.status === SchemaCtxDiffStatus.DELETE
+            col.status === SchemaCtxDiffStatus.DELETE
           ) {
             return {
               id: col.id,
@@ -433,8 +435,9 @@ export function SchemaCtxClient({
         })
       )
     );
+    console.log("displayOldFields", displayOldFields);
 
-    setDisplayOldFields(displayOldFields);
+    // setDisplayOldFields(displayOldFields);
   };
 
   // selected the id of the field in the diff which is the previous one (old)
