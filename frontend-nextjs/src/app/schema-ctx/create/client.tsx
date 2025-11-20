@@ -383,6 +383,7 @@ export function SchemaCtxClient({
   // select the id of the field in the diff schema that I want to update (new)
   const [updateNewField, setUpdateNewField] = React.useState<{
     id: string;
+    name: string;
     level: SchemaCtxDiffLevel;
   } | null>(null);
   const [displayOldFields, setDisplayOldFields] = React.useState<
@@ -395,11 +396,12 @@ export function SchemaCtxClient({
   >(null);
   const onSearchDiffSchemaCtxFieldsToUpdate = (
     id: string,
+    name: string,
     level: SchemaCtxDiffLevel
   ) => {
     console.log("id", id);
     console.log("level", level);
-    setUpdateNewField({ id, level });
+    setUpdateNewField({ id, name, level });
     const displayOldFields = schemaCtxDiff?.flatMap((schema) =>
       schema.tables.flatMap((table) =>
         table.columns.map((col) => {
@@ -447,33 +449,73 @@ export function SchemaCtxClient({
   };
 
   // selected the id of the field in the diff which is the previous one (old)
-  const onUpdateSchemaCtxFieldByOldField = (id: string, name: string) => {
+  const onUpdateSchemaCtxFieldByOldField = (oldId: string, oldName: string) => {
+    const newId = updateNewField?.id;
+    const newName = updateNewField?.name;
+    const level = updateNewField?.level;
+
     setSchemaCtxDiff((prev) => {
       return prev.map((schema) => {
-        if (schema.id === id) {
+        if (schema.id === oldId) {
           return {
             ...schema,
-            oldName: name,
+            newId: newId,
+            newName: newName,
+            oldId: "",
+            oldName: "",
+            status: SchemaCtxDiffStatus.UPDATE,
+          };
+        } else if (schema.id === newId) {
+          return {
+            ...schema,
+            oldId: oldId,
+            oldName: oldName,
+            newId: "",
+            newName: "",
             status: SchemaCtxDiffStatus.UPDATE,
           };
         }
         return {
           ...schema,
           tables: schema.tables.map((table) => {
-            if (table.id === id) {
+            if (table.id === oldId) {
               return {
                 ...table,
-                oldName: name,
+                newId: newId,
+                newName: newName,
+                oldId: "",
+                oldName: "",
+                status: SchemaCtxDiffStatus.UPDATE,
+              };
+            } else if (table.id === newId) {
+              return {
+                ...table,
+                oldId: oldId,
+                oldName: oldName,
+                newId: "",
+                newName: "",
                 status: SchemaCtxDiffStatus.UPDATE,
               };
             }
             return {
               ...table,
               columns: table.columns.map((col) => {
-                if (col.id === id) {
+                if (col.id === oldId) {
                   return {
                     ...col,
-                    oldName: name,
+                    newId: newId,
+                    newName: newName,
+                    oldId: "",
+                    oldName: "",
+                    status: SchemaCtxDiffStatus.UPDATE,
+                  };
+                } else if (col.id === newId) {
+                  return {
+                    ...col,
+                    oldId: oldId,
+                    oldName: oldName,
+                    newId: "",
+                    newName: "",
                     status: SchemaCtxDiffStatus.UPDATE,
                   };
                 }
@@ -484,6 +526,8 @@ export function SchemaCtxClient({
         };
       });
     });
+
+    setDisplayOldFields(null);
   };
 
   const onProfile = async () => {
@@ -1340,7 +1384,13 @@ export function SchemaCtxClient({
                                         <React.Fragment key={diff.id}>
                                           <TableRow key={diff.id} hover>
                                             <TableCell>Schema</TableCell>
-                                            <TableCell>{diff.name}</TableCell>
+                                            <TableCell>
+                                              {diff.name}
+                                              {diff.oldName &&
+                                                ` → (old) ${diff.oldName}`}
+                                              {diff.newName &&
+                                                ` → (new) ${diff.newName}`}
+                                            </TableCell>
                                             <TableCell>
                                               {diff.status ===
                                                 SchemaCtxDiffStatus.UN_CHANGE &&
@@ -1356,6 +1406,7 @@ export function SchemaCtxClient({
                                                       onClick={() =>
                                                         onSearchDiffSchemaCtxFieldsToUpdate(
                                                           diff.id,
+                                                          diff.name,
                                                           SchemaCtxDiffLevel.SCHEMA
                                                         )
                                                       }
@@ -1421,6 +1472,10 @@ export function SchemaCtxClient({
                                                 </TableCell>
                                                 <TableCell>
                                                   {table.name}
+                                                  {table.oldName &&
+                                                    ` → (old) ${table.oldName}`}
+                                                  {table.newName &&
+                                                    ` → (new) ${table.newName}`}
                                                 </TableCell>
                                                 <TableCell>
                                                   {table.status ===
@@ -1437,6 +1492,7 @@ export function SchemaCtxClient({
                                                           onClick={() =>
                                                             onSearchDiffSchemaCtxFieldsToUpdate(
                                                               table.id,
+                                                              table.name,
                                                               SchemaCtxDiffLevel.TABLE
                                                             )
                                                           }
@@ -1502,6 +1558,10 @@ export function SchemaCtxClient({
                                                     </TableCell>
                                                     <TableCell>
                                                       {col.name}
+                                                      {col.oldName &&
+                                                        ` → (old) ${col.oldName}`}
+                                                      {col.newName &&
+                                                        ` → (new) ${col.newName}`}
                                                     </TableCell>
                                                     <TableCell>
                                                       {col.status ===
@@ -1518,6 +1578,7 @@ export function SchemaCtxClient({
                                                               onClick={() =>
                                                                 onSearchDiffSchemaCtxFieldsToUpdate(
                                                                   col.id,
+                                                                  col.name,
                                                                   SchemaCtxDiffLevel.COLUMN
                                                                 )
                                                               }
