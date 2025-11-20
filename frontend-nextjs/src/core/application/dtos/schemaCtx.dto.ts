@@ -39,10 +39,17 @@ export const schemaCtxDiffColumn = schemaCtxColumn
   })
   .extend({
     status: z.nativeEnum(SchemaCtxDiffStatus),
+    oldId: z.string().default(""),
+    oldName: z.string().default(""),
+    newId: z.string().default(""),
+    newName: z.string().default(""),
     dataType: z.object({
       name: z.string().min(1),
       status: z.nativeEnum(SchemaCtxDiffStatus),
+      oldId: z.string().default(""),
       oldName: z.string().default(""),
+      newId: z.string().default(""),
+      newName: z.string().default(""),
     }),
   });
 export type TSchemaCtxDiffColumnDto = z.infer<typeof schemaCtxDiffColumn>;
@@ -64,7 +71,10 @@ export const schemaCtxDiffTable = schemaCtxTable
   .extend({
     columns: z.array(schemaCtxDiffColumn).default([]),
     status: z.nativeEnum(SchemaCtxDiffStatus),
+    oldId: z.string().default(""),
     oldName: z.string().default(""),
+    newId: z.string().default(""),
+    newName: z.string().default(""),
   });
 export type TSchemaCtxDiffTableDto = z.infer<typeof schemaCtxDiffTable>;
 
@@ -84,7 +94,10 @@ export const schemaCtxDiffSchema = schemaCtxSchema
   })
   .extend({
     status: z.nativeEnum(SchemaCtxDiffStatus),
+    oldId: z.string().default(""),
     oldName: z.string().default(""),
+    newId: z.string().default(""),
+    newName: z.string().default(""),
     tables: z.array(schemaCtxDiffTable).default([]),
   });
 export type TSchemaCtxDiffSchemaDto = z.infer<typeof schemaCtxDiffSchema>;
