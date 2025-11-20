@@ -1498,6 +1498,7 @@ export function SchemaCtxClient({
                                                           ? "secondary"
                                                           : "inherit"
                                                       }
+                                                      disabled={!!diff.newId}
                                                     >
                                                       <EditIcon fontSize="small" />
                                                     </IconButton>
@@ -1550,7 +1551,7 @@ export function SchemaCtxClient({
                                                       onClick={() =>
                                                         onUndoUpdateSchemaCtxField(
                                                           {
-                                                            newId: diff.newId,
+                                                            newId: diff.id,
                                                             oldId: diff.oldId,
                                                           }
                                                         )
@@ -1605,6 +1606,9 @@ export function SchemaCtxClient({
                                                             SchemaCtxDiffStatus.UPDATE
                                                               ? "secondary"
                                                               : "inherit"
+                                                          }
+                                                          disabled={
+                                                            !!table.newId
                                                           }
                                                         >
                                                           <EditIcon fontSize="small" />
@@ -1662,8 +1666,7 @@ export function SchemaCtxClient({
                                                           onClick={() =>
                                                             onUndoUpdateSchemaCtxField(
                                                               {
-                                                                newId:
-                                                                  table.newId,
+                                                                newId: table.id,
                                                                 oldId:
                                                                   table.oldId,
                                                               }
@@ -1720,6 +1723,9 @@ export function SchemaCtxClient({
                                                                   ? "secondary"
                                                                   : "inherit"
                                                               }
+                                                              disabled={
+                                                                !!col.newId
+                                                              }
                                                             >
                                                               <EditIcon fontSize="small" />
                                                             </IconButton>
@@ -1773,7 +1779,7 @@ export function SchemaCtxClient({
                                                                 onUndoUpdateSchemaCtxField(
                                                                   {
                                                                     newId:
-                                                                      col.newId,
+                                                                      col.id,
                                                                     oldId:
                                                                       col.oldId,
                                                                   }
