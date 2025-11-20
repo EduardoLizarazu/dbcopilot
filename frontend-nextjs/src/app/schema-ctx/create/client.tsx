@@ -531,6 +531,80 @@ export function SchemaCtxClient({
     setDisplayOldFields(null);
   };
 
+  const onUndoUpdateSchemaCtxField = (data: {
+    newId: string;
+    oldId: string;
+  }) => {
+    const newId = data.newId;
+    const oldId = data.oldId;
+    setSchemaCtxDiff((prev) => {
+      return prev.map((schema) => {
+        if (schema.id === newId) {
+          return {
+            ...schema,
+            oldId: "",
+            oldName: "",
+            newId: "",
+            newName: "",
+            status: SchemaCtxDiffStatus.NEW,
+          };
+        } else if (schema.id === oldId) {
+          return {
+            ...schema,
+            oldId: "",
+            oldName: "",
+            newId: "",
+            newName: "",
+            status: SchemaCtxDiffStatus.DELETE,
+          };
+        }
+        return schema.tables.map((table) => {
+          if (table.id === newId) {
+            return {
+              ...table,
+              oldId: "",
+              oldName: "",
+              newId: "",
+              newName: "",
+              status: SchemaCtxDiffStatus.NEW,
+            };
+          } else if (table.id === oldId) {
+            return {
+              ...table,
+              oldId: "",
+              oldName: "",
+              newId: "",
+              newName: "",
+              status: SchemaCtxDiffStatus.DELETE,
+            };
+          }
+          return table.columns.map((col) => {
+            if (col.id === newId) {
+              return {
+                ...col,
+                oldId: "",
+                oldName: "",
+                newId: "",
+                newName: "",
+                status: SchemaCtxDiffStatus.NEW,
+              };
+            } else if (col.id === oldId) {
+              return {
+                ...col,
+                oldId: "",
+                oldName: "",
+                newId: "",
+                newName: "",
+                status: SchemaCtxDiffStatus.DELETE,
+              };
+            }
+            return col;
+          });
+        });
+      });
+    });
+  };
+
   const onProfile = async () => {
     setError(null);
     setSuccess(null);
