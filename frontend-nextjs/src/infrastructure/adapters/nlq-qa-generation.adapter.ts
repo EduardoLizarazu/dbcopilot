@@ -1,4 +1,5 @@
 import { TCreateNlqQaGenerationPromptTemplate } from "@/core/application/dtos/nlq/nlq-qa-generation.dto";
+import { TSchemaCtxSchemaDto } from "@/core/application/dtos/schemaCtx.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
@@ -8,6 +9,139 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
     private readonly logger: ILogger,
     private readonly aiProvider: OpenAIProvider
   ) {}
+  async genNewQuestionAndQuery(data: {
+    previousQuestion: string;
+    previousQuery: string;
+    schemaChange: {
+      status: "DELETE" | "UPDATE";
+      new: string; // delete schema in string format
+      old: string;
+    };
+    schemaCtx: TSchemaCtxSchemaDto[]; // only if has change (update)
+  }): Promise<{ question: string; query: string }> {
+    try {
+      this.logger.info(
+        `Generating new question and query from previous question: ${data.previousQuestion} and previous query: ${data.previousQuery}`
+      );
+      const prompt = `
+         Your task is to adjust an existing SQL query and its natural-language question according to a physical schema change.
+
+        ### Previous Question
+        ${data.previousQuestion}
+
+        ### Previous SQL Query
+        ${data.previousQuery}
+
+        ### Schema Change
+        A physical change occurred in the database schema.
+
+        - Change status: ${data.schemaChange.status}
+        - NEW reference: "${data.schemaChange.new}"
+        ${
+          data.schemaChange.status === "UPDATE"
+            ? `- OLD reference: "${data.schemaChange.old}"`
+            : ""
+        }
+
+        Interpret the references as physical identifiers:
+        - "schema.table.column"
+        - "table.column"
+        - "column"
+
+        ### Updated Schema Context
+        (Only provided for UPDATE changes. DO NOT invent objects not present here.)
+
+        ${data.schemaCtx ? JSON.stringify(data.schemaCtx, null, 2) : "None (DELETE only)"}
+
+        ---
+
+        ### Your Tasks
+
+        1. **Understand the previous intent**  
+          Infer what the SQL query was meant to retrieve based on the previousQuestion and previousQuery.
+
+        2. **Apply the schema change**  
+          - If status === "UPDATE":
+              Replace every occurrence of the OLD reference with the NEW reference.  
+              Use schemaCtx to validate that the NEW reference actually exists.  
+              If the NEW reference corresponds to a different table, schema, or column, adjust JOINs, SELECTs, or WHERE clauses accordingly.
+          - If status === "DELETE":
+              The reference in "new" no longer exists.  
+              Remove or rewrite any part of the SQL that depended on it.  
+              If the feature removed makes the question no longer answerable, simplify the SQL while keeping the closest possible meaning.
+
+        3. **Correct the SQL**
+          - The final SQL MUST be valid according to the updated schema (if schemaCtx is provided).
+          - Do NOT create new columns or tables.
+          - Do NOT hallucinate structure.
+          - Only use tables/columns that exist in schemaCtx for UPDATE.
+          - For DELETE: remove usage of deleted objects; do not replace them unless logical inference is possible.
+
+        4. **Correct the question if needed**
+          - If the change modifies the meaning (e.g., deleted column → question must be adjusted), rewrite the question minimally.
+          - If change does not affect meaning, keep the previous question exactly.
+
+        5. **Output Format Requirements**
+          Respond ONLY with a JSON object:
+          {
+            "newQuestion": "...",
+            "newSQL": "..."
+          }
+          No explanations. No markdown. No backticks.
+
+        If you cannot determine a valid SQL after the change, return:
+        {
+          "newQuestion": "${data.previousQuestion}",
+          "newSQL": ""
+        }
+
+      `;
+      const response = await this.aiProvider.openai.chat.completions.create({
+        model: "gpt-4-turbo", // Use "gpt-3.5-turbo" for faster/cheaper results
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert SQL refactoring engine specialized in adapting SQL queries and natural language questions after physical schema changes 
+            (DELETE or UPDATE). You MUST NOT invent tables or columns. Only use what is present in the updated schema context (schemaCtx) when available.`,
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.1, // Low temperature for deterministic output
+        max_tokens: 2000,
+        top_p: 0.1,
+      });
+
+      const genRes = response.choices[0]?.message?.content?.trim() || "";
+      this.logger.info(
+        `Received response for new question and query generation: ${genRes}`
+      );
+      const jsonMatch = genRes.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          question: parsed.newQuestion,
+          query: parsed.newSQL,
+        };
+      } else {
+        this.logger.warn(
+          "NlqQaGenerationAdapter: Warning: Could not extract JSON from response",
+          genRes
+        );
+        return { question: data.previousQuestion, query: "" };
+      }
+    } catch (error) {
+      this.logger.error(
+        "NlqQaGenerationAdapter: Error generating new question and query",
+        { message: error.message }
+      );
+      throw new Error(
+        error.message || "Error generating new question and query"
+      );
+    }
+  }
   async queryGeneration(prompt: string): Promise<{ answer: string }> {
     try {
       this.logger.info(`Generating query from prompt: ${prompt}`);
