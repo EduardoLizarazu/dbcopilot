@@ -43,6 +43,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DoneIcon from "@mui/icons-material/Done";
+import UndoIcon from "@mui/icons-material/Undo";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
 import { ReadNewSchemaCtxAction } from "@/_actions/schemaCtx/new-by-conn-ids.action";
@@ -1547,6 +1548,19 @@ export function SchemaCtxClient({
                                                           }
                                                         >
                                                           <DeleteIcon fontSize="small" />
+                                                        </IconButton>
+                                                      </Tooltip>
+                                                    </>
+                                                  )}
+                                                  {table.oldId && (
+                                                    <>
+                                                      <Tooltip title="undo">
+                                                        <IconButton
+                                                          aria-label="undo-schema"
+                                                          size="small"
+                                                          color="inherit"
+                                                        >
+                                                          <UndoIcon fontSize="small" />
                                                         </IconButton>
                                                       </Tooltip>
                                                     </>
