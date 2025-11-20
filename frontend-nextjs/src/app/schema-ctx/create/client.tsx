@@ -1507,14 +1507,17 @@ export function SchemaCtxClient({
                                                         </IconButton>
                                                       </Tooltip>
                                                     )}
-                                                  {table.status ===
-                                                    SchemaCtxDiffStatus.NEW && (
+                                                  {(table.status ===
+                                                    SchemaCtxDiffStatus.NEW ||
+                                                    table.oldName) && (
                                                     <Tooltip title="new">
                                                       <IconButton
                                                         aria-label="new-schema"
                                                         size="small"
                                                         color={
-                                                          table.status ===
+                                                          Number(
+                                                            table.status
+                                                          ) ===
                                                           SchemaCtxDiffStatus.NEW
                                                             ? "success"
                                                             : "inherit"
