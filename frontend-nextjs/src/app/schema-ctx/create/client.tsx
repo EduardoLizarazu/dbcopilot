@@ -539,7 +539,16 @@ export function SchemaCtxClient({
     const oldId = data.oldId;
     setSchemaCtxDiff((prev) => {
       return prev.map((schema) => {
-        if (schema.id === newId) {
+        if (schema.id === oldId) {
+          return {
+            ...schema,
+            newId: "",
+            newName: "",
+            oldId: "",
+            oldName: "",
+            status: SchemaCtxDiffStatus.DELETE,
+          };
+        } else if (schema.id === newId) {
           return {
             ...schema,
             oldId: "",
@@ -548,61 +557,59 @@ export function SchemaCtxClient({
             newName: "",
             status: SchemaCtxDiffStatus.NEW,
           };
-        } else if (schema.id === oldId) {
-          return {
-            ...schema,
-            oldId: "",
-            oldName: "",
-            newId: "",
-            newName: "",
-            status: SchemaCtxDiffStatus.DELETE,
-          };
         }
-        return schema.tables.map((table) => {
-          if (table.id === newId) {
-            return {
-              ...table,
-              oldId: "",
-              oldName: "",
-              newId: "",
-              newName: "",
-              status: SchemaCtxDiffStatus.NEW,
-            };
-          } else if (table.id === oldId) {
-            return {
-              ...table,
-              oldId: "",
-              oldName: "",
-              newId: "",
-              newName: "",
-              status: SchemaCtxDiffStatus.DELETE,
-            };
-          }
-          return table.columns.map((col) => {
-            if (col.id === newId) {
+        return {
+          ...schema,
+          tables: schema.tables.map((table) => {
+            if (table.id === oldId) {
               return {
-                ...col,
+                ...table,
+                newId: "",
+                newName: "",
+                oldId: "",
+                oldName: "",
+                status: SchemaCtxDiffStatus.DELETE,
+              };
+            } else if (table.id === newId) {
+              return {
+                ...table,
                 oldId: "",
                 oldName: "",
                 newId: "",
                 newName: "",
                 status: SchemaCtxDiffStatus.NEW,
               };
-            } else if (col.id === oldId) {
-              return {
-                ...col,
-                oldId: "",
-                oldName: "",
-                newId: "",
-                newName: "",
-                status: SchemaCtxDiffStatus.DELETE,
-              };
             }
-            return col;
-          });
-        });
+            return {
+              ...table,
+              columns: table.columns.map((col) => {
+                if (col.id === oldId) {
+                  return {
+                    ...col,
+                    newId: "",
+                    newName: "",
+                    oldId: "",
+                    oldName: "",
+                    status: SchemaCtxDiffStatus.DELETE,
+                  };
+                } else if (col.id === newId) {
+                  return {
+                    ...col,
+                    oldId: "",
+                    oldName: "",
+                    newId: "",
+                    newName: "",
+                    status: SchemaCtxDiffStatus.NEW,
+                  };
+                }
+                return col;
+              }),
+            };
+          }),
+        };
       });
     });
+    setDisplayOldFields(null);
   };
 
   const onProfile = async () => {
