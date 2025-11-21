@@ -54,6 +54,9 @@ import {
   NlqQaGoodWithExecutionStatus,
   TNlqQaGoodWithExecutionDto,
 } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import { InfoExtractorAction } from "@/_actions/nlq-qa-info/execute-query.action";
+import { set } from "zod";
+import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 
 const steps = ["Schema Differences", "Knowledge source", "Confirm"];
 
@@ -71,6 +74,13 @@ enum EnumBusy {
   PROFILE = "profile",
   GEN_SCHEMA_CTX = "genSchemaCtx",
   NLQ_QA_GOOD_EXEC = "nlqQaGoodExec",
+  NLQ_GOOD_OLD_RUN = "nlqGoodOldRun",
+  NLQ_GOOD_NEW_RUN = "nlqGoodNewRun",
+}
+
+enum FbFlags {
+  DIALOG_OLD_RUN = "dialog-old-run",
+  DIALOG_NEW_RUN = "dialog-new-run",
 }
 
 export function SchemaCtxClient({
@@ -105,6 +115,9 @@ export function SchemaCtxClient({
     TSchemaCtxDiffSchemaDto[] | null
   >(null);
 
+  const [oldRows, setOldRows] = React.useState<any[] | null>(null);
+  const [newRows, setNewRows] = React.useState<any[] | null>(null);
+
   // INTERNAL STATES
   const [busy, setBusy] = React.useState<Set<string>>(new Set());
   const [error, setError] = React.useState<string | null>(null);
@@ -113,6 +126,7 @@ export function SchemaCtxClient({
     React.useState(false);
 
   const [errorFlag, setErrorFlag] = React.useState<Set<string>>(new Set());
+  const [successFlag, setSuccessFlag] = React.useState<Set<string>>(new Set());
 
   const [openDiffEditor, setOpenDiffEditor] = React.useState(false);
   // ================ SINGLE SCHEMA EDITOR STATES =================
@@ -265,6 +279,15 @@ export function SchemaCtxClient({
   };
   const isErrorFlag = (key: string) => errorFlag.has(key);
 
+  const onSetSuccessFlag = (key: string, on: boolean) => {
+    setSuccessFlag((prev) => {
+      const s = new Set(prev);
+      if (on) s.add(key);
+      else s.delete(key);
+      return s;
+    });
+  };
+  const isSuccessFlag = (key: string) => successFlag.has(key);
   const isStepOptional = (step: number) => {
     return step === 1;
   };
@@ -766,6 +789,55 @@ export function SchemaCtxClient({
     setSelectedNlqGoodDiff(null);
     const selected = nlqGoodDiffs?.find((n) => n.id === data.nlqGoodId) || null;
     setSelectedNlqGoodDiff(selected);
+  };
+
+  const onOldRun = async () => {
+    setError(null);
+    setSuccess(null);
+    setOldRows(null);
+    onSetErrorFlag(FbFlags.DIALOG_OLD_RUN, false);
+    onSetSuccessFlag(FbFlags.DIALOG_OLD_RUN, false);
+    setBusyFlag(EnumBusy.NLQ_GOOD_OLD_RUN, true);
+    console.log("OLD RUN");
+    try {
+      const r = await InfoExtractorAction({
+        query: selectedNlqGoodDiff?.query?.trim() || "",
+        connId: selectedNlqGoodDiff?.dbConnectionId || "",
+      });
+      console.log("OLD RUN", r);
+      if (r.ok) {
+        setOldRows(r.data?.data || []);
+        onSetSuccessFlag(FbFlags.DIALOG_OLD_RUN, true);
+      }
+      if (!r.ok) {
+        onSetErrorFlag(FbFlags.DIALOG_OLD_RUN, true);
+      }
+    } finally {
+      setBusyFlag(EnumBusy.NLQ_GOOD_OLD_RUN, false);
+    }
+  };
+
+  const onNewRun = async () => {
+    setError(null);
+    setSuccess(null);
+    setNewRows(null);
+    onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
+    onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
+    setBusyFlag(EnumBusy.NLQ_GOOD_OLD_RUN, true);
+    console.log("OLD RUN");
+    try {
+      const r = await InfoExtractorAction({
+        query: selectedNlqGoodDiff?.newQuery?.trim() || "",
+        connId: selectedNlqGoodDiff?.dbConnectionId || "",
+      });
+      if (r.ok) {
+        setNewRows(r.data?.data || []);
+        onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, true);
+      }
+      if (!r.ok) onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, true);
+    } finally {
+      setBusyFlag(EnumBusy.NLQ_GOOD_NEW_RUN, false);
+    }
   };
 
   return (
@@ -2099,22 +2171,43 @@ export function SchemaCtxClient({
                             />
                             <Button
                               variant="outlined"
-                              onClick={() => {}}
-                              disabled={false}
-                              loading={false}
+                              onClick={() => {
+                                onOldRun();
+                              }}
+                              disabled={isBusy(EnumBusy.NLQ_GOOD_OLD_RUN)}
+                              loading={isBusy(EnumBusy.NLQ_GOOD_OLD_RUN)}
                               sx={{ mb: 2 }}
                             >
                               old run
                             </Button>
+                            {isErrorFlag(FbFlags.DIALOG_OLD_RUN) && (
+                              <Alert severity="error" sx={{ mb: 2 }}>
+                                Error executing old query.
+                              </Alert>
+                            )}
+                            {isSuccessFlag(FbFlags.DIALOG_OLD_RUN) && (
+                              <Alert severity="success" sx={{ mb: 2 }}>
+                                Old query executed successfully.
+                              </Alert>
+                            )}
                             <Box sx={{ mb: 2 }}>
-                              {/* <ChatResultTable data={rows} /> */}
+                              {oldRows && oldRows.length > 0 ? (
+                                <ChatResultTable data={oldRows} />
+                              ) : (
+                                <Typography>No results</Typography>
+                              )}
                             </Box>
                             <TextField
                               label="New question"
                               type="new-question"
                               value={selectedNlqGoodDiff?.newQuestion || ""}
                               required
-                              onChange={(e) => {}}
+                              onChange={(e) => {
+                                setSelectedNlqGoodDiff({
+                                  ...selectedNlqGoodDiff,
+                                  newQuestion: e.target.value,
+                                });
+                              }}
                               fullWidth
                               multiline
                               minRows={2}
@@ -2125,7 +2218,12 @@ export function SchemaCtxClient({
                               type="new-consult"
                               value={selectedNlqGoodDiff?.newQuery || ""}
                               required
-                              onChange={(e) => {}}
+                              onChange={(e) => {
+                                setSelectedNlqGoodDiff({
+                                  ...selectedNlqGoodDiff,
+                                  newQuery: e.target.value,
+                                });
+                              }}
                               fullWidth
                               multiline
                               minRows={4}
@@ -2133,15 +2231,31 @@ export function SchemaCtxClient({
                             />
                             <Button
                               variant="outlined"
-                              onClick={() => {}}
-                              disabled={false}
-                              loading={false}
+                              onClick={() => {
+                                onNewRun();
+                              }}
+                              disabled={isBusy(EnumBusy.NLQ_GOOD_NEW_RUN)}
+                              loading={isBusy(EnumBusy.NLQ_GOOD_NEW_RUN)}
                               sx={{ mb: 2 }}
                             >
                               new run
                             </Button>
+                            {isErrorFlag(FbFlags.DIALOG_NEW_RUN) && (
+                              <Alert severity="error" sx={{ mb: 2 }}>
+                                Error executing new query.
+                              </Alert>
+                            )}
+                            {isSuccessFlag(FbFlags.DIALOG_NEW_RUN) && (
+                              <Alert severity="success" sx={{ mb: 2 }}>
+                                New query executed successfully.
+                              </Alert>
+                            )}
                             <Box sx={{ mb: 2 }}>
-                              {/* <ChatResultTable data={rows} /> */}
+                              {newRows && newRows.length > 0 ? (
+                                <ChatResultTable data={newRows} />
+                              ) : (
+                                <Typography>No results</Typography>
+                              )}
                             </Box>
                           </Grid>
                         </Grid>
