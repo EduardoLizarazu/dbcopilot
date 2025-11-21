@@ -6,6 +6,7 @@ import {
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { IReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
+import { IGenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
 import { IAddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/add-to-knowledge-base.step";
 import { IDeleteOnKnowledgeBaseByIdStep } from "@/core/application/steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
 import { IUpdateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good.step";
@@ -36,7 +37,8 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
     private readonly ensureDbConnWithSplitterExistsStep: IReadDbConnectionWithSplitterAndSchemaQueryStep,
     private readonly addToKnowledgeBaseStep: IAddToTheKnowledgeBaseStep,
     private readonly deleteOnKnowledgeBaseByIdStep: IDeleteOnKnowledgeBaseByIdStep,
-    private readonly updateNlqQaGoodStep: IUpdateNlqQaGoodStep
+    private readonly updateNlqQaGoodStep: IUpdateNlqQaGoodStep,
+    private readonly genTableColumnsStep: IGenTableColumnsStep
   ) {}
   async execute(
     id: string,
@@ -92,10 +94,16 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
         );
       }
 
+      // Generate tablesColumns if not provided
+      const schemaRepresentation = await this.genTableColumnsStep.run({
+        query: validInputData.query,
+      });
+
       // 4. Update the NLQ QA Good entry in the repository
       const { actorId, ...restData } = validInputData; // Exclude actorId from update
       const updatedEntry = await this.updateNlqQaGoodStep.run({
         ...restData,
+        tablesColumns: schemaRepresentation.tablesColumns,
         updatedBy: validInputData.actorId,
       });
       this.logger.info(

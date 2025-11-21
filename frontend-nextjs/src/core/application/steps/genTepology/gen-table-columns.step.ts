@@ -27,6 +27,7 @@ export class GenTableColumnsStep implements IGenTableColumnsStep {
       const response = await this.genTopoPort.genTablesColumns({
         query: data.query,
       });
+      this.logger.info(`[GenTableColumnsStep] Generation response:`, response);
 
       if (!response?.tablesColumns || response.tablesColumns.length === 0) {
         this.logger.error(

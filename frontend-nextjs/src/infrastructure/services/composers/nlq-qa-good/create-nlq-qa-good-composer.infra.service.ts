@@ -1,4 +1,5 @@
 import { ReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
+import { GenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
 import { AddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/add-to-knowledge-base.step";
 import { CreateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/create-nlq-qa-good.step";
 import { UpdateNlqQaGoodKnowledgeStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good-knowledge.step";
@@ -9,6 +10,7 @@ import { IController } from "@/http/controllers/IController.http.controller";
 import { CreateNlqQaGoodController } from "@/http/controllers/nlq-qa-good/create-nlq-qa-good.http.controller";
 import { DecodeTokenAdapter } from "@/infrastructure/adapters/decode-token.adapter";
 import { NlqQaKnowledgeAdapter } from "@/infrastructure/adapters/nlq-qa-knowledge.adapter";
+import { NlqQaTopologyGenerationAdapter } from "@/infrastructure/adapters/nlq-qa-topology-generation";
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
 import { FirebaseAdminProvider } from "@/infrastructure/providers/firebase/firebase-admin";
 import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winstom-logger.infra.provider";
@@ -48,6 +50,11 @@ export function createNlqQaGoodComposer(): IController {
     openAiProvider
   );
 
+  const genTopoAdapter = new NlqQaTopologyGenerationAdapter(
+    loggerProvider,
+    openAiProvider
+  );
+
   // STEPS
   const validateInputDataStep = new ValidateCreateNlqQaGoodInputDataStep(
     loggerProvider
@@ -79,6 +86,11 @@ export function createNlqQaGoodComposer(): IController {
     nlqQaRepo
   );
 
+  const genTableColumnsStep = new GenTableColumnsStep(
+    loggerProvider,
+    genTopoAdapter
+  );
+
   // USE CASES
   const useCase = new CreateNlqQaGoodUseCase(
     loggerProvider,
@@ -87,7 +99,8 @@ export function createNlqQaGoodComposer(): IController {
     createNlqQaGoodStep,
     addToKnowledgeSource,
     updateNlqQaGoodOnKnowledgeStep,
-    updateNlqQaIfOriginIdStep
+    updateNlqQaIfOriginIdStep,
+    genTableColumnsStep
   );
 
   // CONTROLLER

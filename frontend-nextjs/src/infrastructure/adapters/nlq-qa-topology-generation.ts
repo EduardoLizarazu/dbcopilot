@@ -309,73 +309,114 @@ export class NlqQaTopologyGenerationAdapter
         `[NlqQaTopologyGenerationAdapter] Generating tables and columns from query: ${data.query}`
       );
       const prompt = `
-        Given the following SQL query, extract every schema, table, and column reference used, and also the conditions (restrictions) applied to those columns.
+          Given the following SQL query, extract every schema, table, and column reference used, and also the conditions (restrictions) applied to those columns.
 
-        ### SQL Query:
-        ${data.query}
+          ### SQL Query:
+          ${data.query}
 
-        ### Extraction Rules:
+          ### Extraction Rules:
 
-        1. Normalize every column reference into a physical path with the format:
-          - "schema.table.column"
-          - If the schema is not present in the SQL, use "unknown" as the schema.
-          - If the table is not present in the SQL (column-only reference), use "unknown" as the table and "unknown" as the schema: "unknown.unknown.column".
+          1. Normalize every column reference into a physical path with the format:
+            - "schema.table.column"
+            - If the schema is not present in the SQL, use "unknown" as the schema.
+            - If the table is not present in the SQL (column-only reference), use "unknown" as the table and "unknown" as the schema: "unknown.unknown.column".
 
-        2. For every column that appears in a condition with a literal value (for example in WHERE, JOIN ON, HAVING, or GROUP BY conditions), also add an entry with the restriction, using this format:
-          - "schema.table.column.[restriction]"
+          2. For every column that appears in a condition with a **literal value** (for example in WHERE, HAVING, or JOIN with a literal), also add an entry with the restriction, using this format:
+            - "schema.table.column.[restriction]"
 
-          Examples:
-          - \`WHERE public.actor.actor_id = 1\`
-            → "public.actor.actor_id"
-            → "public.actor.actor_id.[1]"
-          - \`WHERE actor.actor_id = '1'\`
-            → "unknown.actor.actor_id"
-            → "unknown.actor.actor_id.['1']"
-          - \`WHERE customer_id = 123\`
-            → "unknown.unknown.customer_id"
-            → "unknown.unknown.customer_id.[123]"
+            The [restriction] MUST be based on **literal values only**, NOT on other columns.
 
-        3. Type/quoting rules for [restriction]:
-          - If the literal is numeric (e.g., 1, 10.5), return it without quotes: \`[1]\`, \`[10.5]\`.
-          - If the literal is a string, date, or other non-numeric type, return it with single quotes exactly as it should appear in SQL: \`['ACTIVE']\`, \`['2023-01-01']\`.
-          - If the condition is more complex (e.g., IN, BETWEEN, LIKE), put the full literal expression inside the brackets:
-            - \`WHERE c.id IN (1, 2, 3)\` → \`schema.table.id.[IN (1, 2, 3)]\`
+            Examples (valid):
+            - \`WHERE public.customer.customer_id = 1\`
+              → "public.customer.customer_id"
+              → "public.customer.customer_id.[1]"
+
+            - \`WHERE public.customer.first_name = 'JOHN'\`
+              → "public.customer.first_name"
+              → "public.customer.first_name.['JOHN']"
+
+            - \`WHERE c.id IN (1, 2, 3)\`
+              → "schema.table.id"
+              → "schema.table.id.[IN (1, 2, 3)]"
+
             - \`WHERE created_at BETWEEN '2023-01-01' AND '2023-01-31'\`
-              → \`schema.table.created_at.[BETWEEN '2023-01-01' AND '2023-01-31']\`
-            - \`WHERE name LIKE 'A%'\` → \`schema.table.name.[LIKE 'A%']\`
+              → "schema.table.created_at"
+              → "schema.table.created_at.[BETWEEN '2023-01-01' AND '2023-01-31']"
 
-        4. Include columns referenced in:
-          - SELECT
-          - WHERE
-          - JOIN
-          - GROUP BY / HAVING
-          - ORDER BY
-          - subqueries
+          3. **Aggregates in HAVING (IMPORTANT)**  
+            - If an aggregate function like \`COUNT\`, \`SUM\`, \`AVG\`, \`MIN\`, \`MAX\` is applied to a column and the result is compared with a literal in HAVING, you MUST:
+              - Ignore the function name itself.
+              - Treat the argument of the function as the target column.
+              - Attach the literal as a restriction to that column.
+              
+            Example:
+            - \`HAVING COUNT(public.rental.rental_id) > 10\`
+              MUST produce:
+              - "public.rental.rental_id"
+              - "public.rental.rental_id.[> 10]"
 
-        5. Always expand table aliases to their base table names when possible.  
-          - If you cannot resolve the schema from the SQL, use "unknown" as schema.
-          - If you cannot resolve the table, use "unknown" as table.
+            Another example:
+            - \`HAVING SUM(sales.amount) >= 1000\`
+              → "schema.sales.amount"
+              → "schema.sales.amount.[>= 1000]"
 
-        6. Do **not** include functions, operators, or literals by themselves.
-          - For example, do not return "COUNT(*)" or "1" alone.
+          4. VERY IMPORTANT – Do NOT treat column = column as a restriction:
+            - If a condition compares a column with another column (e.g. \`a.city_id = b.city_id\`), DO NOT generate a restriction entry with brackets.
+            - In those cases, only include the plain column references, without \`[restriction]\`.
 
-        7. Do **not** infer columns that do not explicitly appear.
+            Invalid (DO NOT generate):
+            - \`public.address.city_id = public.city.city_id\`
+              ✗ "public.address.city_id.[public.city.city_id]"
 
-        8. Remove duplicates.  
-          - If "public.actor.actor_id.[1]" appears multiple times, include it only once.
+            Valid behavior:
+            - "public.address.city_id"
+            - "public.city.city_id"
 
-        9. Return **only** the JSON array—no explanation, no backticks, no code fences.
+          5. Type/quoting rules for [restriction]:
+            - If the literal is numeric (e.g., 1, 10.5), return it without quotes: "[1]", "[10.5]".
+            - If the literal is a string, date, or other non-numeric type, return it with single quotes as in SQL: "['ACTIVE']", "['2023-01-01']".
+            - For complex conditions (IN, BETWEEN, LIKE, etc.), put the full literal expression inside the brackets, but only if the expression is based on literals, not on columns.
 
-        ### Response Format:
-        Return a valid JSON array of strings. Example:
+          6. Include columns referenced in:
+            - SELECT
+            - WHERE
+            - JOIN
+            - GROUP BY / HAVING
+            - ORDER BY
+            - subqueries
 
-        [
-          "public.actor.actor_id",
-          "public.actor.actor_id.[1]",
-          "public.actor.first_name",
-          "unknown.unknown.customer_id",
-          "unknown.unknown.customer_id.['123']"
-        ]
+          7. For aggregates:
+            - Ignore the function wrapper (e.g. do NOT return "COUNT(public.rental.rental_id)").
+            - Only work with the inner column (e.g. "public.rental.rental_id") and its comparison literals.
+
+          8. Always expand table aliases to their base table names when possible.
+            - If you cannot resolve the schema from the SQL, use "unknown" as schema.
+            - If you cannot resolve the table, use "unknown" as table.
+
+          9. Do **not** include functions, operators, or literals by themselves (only within [restriction] on a column).
+
+          10. Do **not** infer columns that do not explicitly appear.
+
+          11. Remove duplicates.
+
+          12. Response format:
+              - Return ONLY a valid JSON array of strings.
+              - Do not include explanations, markdown, or code fences.
+
+          ### Response Example:
+
+          For this query:
+
+          HAVING COUNT(public.rental.rental_id) > 10
+
+          a correct response MUST include:
+
+          [
+            "public.film.film_id",
+            "public.film.title",
+            "public.rental.rental_id",
+            "public.rental.rental_id.[> 10]"
+          ]
 
       `;
 
@@ -398,14 +439,30 @@ export class NlqQaTopologyGenerationAdapter
           top_p: 0.1,
         }
       );
+      this.logger.info(
+        `[NlqQaTopologyGenerationAdapter] OpenAI response for tables and columns:`,
+        response
+      );
+
       const tcRes = response.choices[0]?.message?.content?.trim() || "";
-      const tablesColumnsExtraction = tcRes.match(/\[([\s\S]*?)\]/);
-      if (tablesColumnsExtraction && tablesColumnsExtraction[1]) {
-        const tablesColumns = JSON.parse(tablesColumnsExtraction[1].trim());
+      if (tcRes.startsWith("[")) {
+        const tablesColumns = JSON.parse(tcRes);
         this.logger.info(
-          `[NlqQaTopologyGenerationAdapter] Generated tables and columns: ${JSON.stringify(tablesColumns)}`
+          `[NlqQaTopologyGenerationAdapter] Generated tables and columns: `,
+          tablesColumns
         );
         return { tablesColumns };
+      }
+      if (tcRes.startsWith("```json")) {
+        const tablesColumnsExtraction = tcRes.match(/```json\n([\s\S]*?)\n```/);
+        if (tablesColumnsExtraction && tablesColumnsExtraction[1]) {
+          const tablesColumns = JSON.parse(tablesColumnsExtraction[1].trim());
+          this.logger.info(
+            `[NlqQaTopologyGenerationAdapter] Generated tables and columns: `,
+            tablesColumns
+          );
+          return { tablesColumns };
+        }
       }
       this.logger.warn(
         "[NlqQaTopologyGenerationAdapter] Warning: Could not extract tables and columns from response",

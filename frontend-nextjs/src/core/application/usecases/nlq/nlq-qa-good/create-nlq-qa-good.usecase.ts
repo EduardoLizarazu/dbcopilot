@@ -10,6 +10,7 @@ import { ICreateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/creat
 import { IAddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/add-to-knowledge-base.step";
 import { IUpdateNlqQaGoodFieldFromGoodStep } from "@/core/application/steps/nlq-qa/update-nlq-qa-good-field-from-good.step";
 import { IUpdateNlqQaGoodKnowledgeStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good-knowledge.step";
+import { IGenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
 
 export interface ICreateNlqQaGoodUseCase {
   execute(
@@ -34,7 +35,8 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
     private readonly createNlqQaGoodStep: ICreateNlqQaGoodStep,
     private readonly addToKnowledgeSource: IAddToTheKnowledgeBaseStep,
     private readonly updateNlqQaGoodOnKnowledgeStep: IUpdateNlqQaGoodKnowledgeStep,
-    private readonly updateNlqQaIfOriginIdStep: IUpdateNlqQaGoodFieldFromGoodStep
+    private readonly updateNlqQaIfOriginIdStep: IUpdateNlqQaGoodFieldFromGoodStep,
+    private readonly genTableColumnsStep: IGenTableColumnsStep
   ) {}
 
   async execute(
@@ -48,6 +50,11 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
 
       // Step 1: Validate input data
       const validData = await this.validateInputDataStep.run(data);
+
+      // Generate tablesColumns if not provided
+      const schemaRepresentation = await this.genTableColumnsStep.run({
+        query: validData.query,
+      });
 
       // Step 2: Ensure dbConnection exists with splitter
       const dbConn = await this.ensureDbConnWithSplitterExistsStep.run({
@@ -65,7 +72,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         createdBy: validData.actorId,
         detailQuestion: validData.detailQuestion,
         think: validData.think,
-        tablesColumns: validData.tablesColumns,
+        tablesColumns: schemaRepresentation.tablesColumns,
         semanticFields: validData.semanticFields,
         semanticTables: validData.semanticTables,
         flags: validData.flags,

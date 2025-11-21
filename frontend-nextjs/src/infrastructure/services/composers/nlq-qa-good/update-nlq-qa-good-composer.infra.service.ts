@@ -1,4 +1,5 @@
 import { ReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
+import { GenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
 import { AddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/add-to-knowledge-base.step";
 import { DeleteOnKnowledgeBaseByIdStep } from "@/core/application/steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
 import { UpdateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good.step";
@@ -45,6 +46,10 @@ export function updateNlqQaGoodComposer(): IController {
     pineconeProvider,
     openAiProvider
   );
+  const genTopoAdapter = new NlqQaTopologyGenerationAdapter(
+    loggerProvider,
+    openAiProvider
+  );
 
   // STEPS
   const validateUpdateNlqQaGoodInputDataStep =
@@ -70,6 +75,10 @@ export function updateNlqQaGoodComposer(): IController {
     loggerProvider,
     nlqQaGoodRepo
   );
+  const genTableColumnsStep = new GenTableColumnsStep(
+    loggerProvider,
+    genTopoAdapter
+  );
 
   // USE CASES
   const useCase = new UpdateNlqQaGoodUseCase(
@@ -78,7 +87,8 @@ export function updateNlqQaGoodComposer(): IController {
     ensureDbConnWithSplitterExistsStep,
     addToKnowledgeBaseStep,
     deleteOnKnowledgeBaseByIdStep,
-    updateNlqQaGoodStep
+    updateNlqQaGoodStep,
+    genTableColumnsStep
   );
 
   // CONTROLLER
