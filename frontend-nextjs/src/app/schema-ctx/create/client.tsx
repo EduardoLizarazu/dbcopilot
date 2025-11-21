@@ -329,10 +329,8 @@ export function SchemaCtxClient({
 
   React.useEffect(() => {
     (async () => {
-      console.log("ACTIVE STEP", activeStep);
       if (activeStep === 1 && (!nlqGoodDiffs || nlqGoodDiffs.length === 0)) {
         await onNlqQaGoodExecByConnIds();
-        console.log("retrieving nlq good exec diffs...");
       }
     })();
   }, [activeStep]);
@@ -446,7 +444,6 @@ export function SchemaCtxClient({
         });
         if (res.ok) {
           setSchemaCtxDiff(res.data?.diffSchemas || []);
-          console.log("diff schemas", res.data?.diffSchemas || []);
           setOpenDiffEditor(true);
           setBusyFlag("table-diff", true);
         }
@@ -482,8 +479,6 @@ export function SchemaCtxClient({
     name: string,
     level: SchemaCtxDiffLevel
   ) => {
-    console.log("id", id);
-    console.log("level", level);
     setUpdateNewField({ id, name, level });
     const displayOldFields = schemaCtxDiff?.flatMap((schema) =>
       schema.tables.flatMap((table) =>
@@ -526,7 +521,6 @@ export function SchemaCtxClient({
         (item, index, self) =>
           index === self.findIndex((other) => other.id === item.id)
       );
-    console.log("displayOldFields", displayOldFieldsFormatted);
 
     setDisplayOldFields(displayOldFieldsFormatted || null);
   };
@@ -707,13 +701,11 @@ export function SchemaCtxClient({
         dataType: selectedColumnId ? columnType : "",
         top: sampleTop || 1,
       };
-      console.log("schemaInfo", schemaInfo);
 
       const res = await InfoProfileExtractorAction({
         connectionIds: dbConnectionIds,
         schema: schemaInfo,
       });
-      console.log("profile extractor response", res);
 
       if (res.ok) {
         setColumnProfile(res.data);
@@ -787,14 +779,12 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     setBusyFlag(EnumBusy.NLQ_QA_GOOD_EXEC, true);
-    console.log("GOOD EXEC");
     try {
       const res = await ReadChangesWithExecBySchemaAction({
         dbConnectionIds: dbConnectionIds,
       });
       if (res.ok) {
         setNlqGoodDiffs(res.data || []);
-        console.log("nlq good diffs", res.data || []);
       }
       if (!res.ok)
         setError(res.message || "Failed to execute NLQ QA Good changes.");
@@ -805,7 +795,6 @@ export function SchemaCtxClient({
   const [selectedNlqGoodDiff, setSelectedNlqGoodDiff] =
     React.useState<TNlqQaGoodWithExecutionDto | null>(null);
   const onSelectNlqGoodDiff = (data: { nlqGoodId: string }) => {
-    console.log("selected nlq good diff", data);
     setSelectedNlqGoodDiff(null);
     const selected = nlqGoodDiffs?.find((n) => n.id === data.nlqGoodId) || null;
     setSelectedNlqGoodDiff(selected);
