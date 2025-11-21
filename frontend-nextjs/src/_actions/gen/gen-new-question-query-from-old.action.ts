@@ -4,12 +4,15 @@ import { TGenNewQuestionQueryFromOldDto } from "@/core/application/dtos/gen-quer
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
-export async function GenDetailQuestionAction(
+export async function GenNewQuestionQueryFromOldAction(
   input: TGenNewQuestionQueryFromOldDto
-): Promise<TResOutContent<{ detailQuestion: string }>> {
-  console.log("[GenDetailQuestionAction] Creating NLQ QA (test)...", input);
+): Promise<TResOutContent<{ question: string; query: string }>> {
+  console.log(
+    "[GenNewQuestionQueryFromOldAction] Creating NLQ QA (test)...",
+    input
+  );
 
-  const nlqQaRes = await fetch(`${domain}/api/gen/detail-question`, {
+  const res = await fetch(`${domain}/api/gen/gen-new-nlq-from-old`, {
     method: "POST",
     body: JSON.stringify({ ...input }),
     headers: {
@@ -17,13 +20,13 @@ export async function GenDetailQuestionAction(
       Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
     },
   });
-  console.log("[GenDetailQuestionAction] Response:", nlqQaRes);
+  console.log("[GenNewQuestionQueryFromOldAction] Response:", res);
 
-  if (!nlqQaRes.ok) {
-    const errorData = await nlqQaRes.json();
+  if (!res.ok) {
+    const errorData = await res.json();
     console.log(
-      "[GenDetailQuestionAction] Failed response:",
-      errorData.message || nlqQaRes.statusText
+      "[GenNewQuestionQueryFromOldAction] Failed response:",
+      errorData.message || res.statusText
     );
     return {
       ok: false,
@@ -32,14 +35,12 @@ export async function GenDetailQuestionAction(
     };
   }
 
-  const nlqQaData = await nlqQaRes.json();
-  console.log("[GenDetailQuestionAction] Created NLQ QA:", nlqQaData);
+  const resData = await res.json();
+  console.log("[GenNewQuestionQueryFromOldAction] ResData: ", resData);
 
   return {
     ok: true,
-    data: {
-      detailQuestion: nlqQaData.detailQuestion,
-    },
-    message: "NLQ QA created successfully",
+    data: resData.data,
+    message: resData.message || "Created successfully",
   };
 }

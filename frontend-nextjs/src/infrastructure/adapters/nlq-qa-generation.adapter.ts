@@ -1,5 +1,5 @@
+import { TGenNewQuestionQueryFromOldDto } from "@/core/application/dtos/gen-query.dto";
 import { TCreateNlqQaGenerationPromptTemplate } from "@/core/application/dtos/nlq/nlq-qa-generation.dto";
-import { TSchemaCtxSchemaDto } from "@/core/application/dtos/schemaCtx.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
 import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provider";
@@ -9,16 +9,9 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
     private readonly logger: ILogger,
     private readonly aiProvider: OpenAIProvider
   ) {}
-  async genNewQuestionAndQuery(data: {
-    previousQuestion: string;
-    previousQuery: string;
-    schemaChange: {
-      status: "DELETE" | "UPDATE";
-      new: string; // delete schema in string format
-      old: string;
-    };
-    schemaCtx: TSchemaCtxSchemaDto[]; // only if has change (update)
-  }): Promise<{ question: string; query: string }> {
+  async genNewQuestionAndQuery(
+    data: TGenNewQuestionQueryFromOldDto
+  ): Promise<{ question: string; query: string }> {
     try {
       this.logger.info(
         `Generating new question and query from previous question: ${data.previousQuestion} and previous query: ${data.previousQuery}`

@@ -1,40 +1,42 @@
+import {
+  ESchemaChangeStatus,
+  genNewQuestionQueryFromOld,
+  TGenNewQuestionQueryFromOldDto,
+} from "../../dtos/gen-query.dto";
 import { TSchemaCtxSchemaDto } from "../../dtos/schemaCtx.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
 import { INlqQaQueryGenerationPort } from "../../ports/nlq-qa-query-generation.port";
 
-export interface IGenNewQuestionAndQueryStep {
-  run(data: {
-    previousQuestion: string;
-    previousQuery: string;
-    schemaChange: {
-      status: "DELETE" | "UPDATE";
-      new: string; // delete schema in string format
-      old: string;
-    };
-    schemaCtx: TSchemaCtxSchemaDto[]; // only if has change (update)
-  }): Promise<{ question: string; query: string }>;
+export interface IGenNewQuestionAndQueryFromOldStep {
+  run(
+    data: TGenNewQuestionQueryFromOldDto
+  ): Promise<{ question: string; query: string }>;
 }
 
-export class GenNewQuestionAndQueryStep implements IGenNewQuestionAndQueryStep {
+export class GenNewQuestionAndQueryFromOldStep
+  implements IGenNewQuestionAndQueryFromOldStep
+{
   constructor(
     private readonly logger: ILogger,
     private readonly nlqQaQueryGenerationPort: INlqQaQueryGenerationPort
   ) {}
-  async run(data: {
-    previousQuestion: string;
-    previousQuery: string;
-    schemaChange: {
-      status: "DELETE" | "UPDATE";
-      new: string; // delete schema in string format
-      old: string;
-    };
-    schemaCtx: TSchemaCtxSchemaDto[]; // only if has change (update)
-  }): Promise<{ question: string; query: string }> {
+  async run(
+    data: TGenNewQuestionQueryFromOldDto
+  ): Promise<{ question: string; query: string }> {
     try {
       this.logger.info(
         `[GenNewQuestionAndQueryStep] Running new question and query generation`,
         data
       );
+      const vData = await genNewQuestionQueryFromOld.safeParseAsync(data);
+      if (!vData.success) {
+        this.logger.error(
+          `[GenNewQuestionAndQueryStep] Validation failed: `,
+          vData.error
+        );
+        throw new Error("Validation failed");
+      }
+
       // validate
       if (!data.previousQuestion || !data.previousQuery) {
         throw new Error(
@@ -47,8 +49,8 @@ export class GenNewQuestionAndQueryStep implements IGenNewQuestionAndQueryStep {
       }
 
       if (
-        data.schemaChange.status !== "UPDATE" &&
-        data.schemaChange.status !== "DELETE"
+        data.schemaChange.status !== ESchemaChangeStatus.UPDATE &&
+        data.schemaChange.status !== ESchemaChangeStatus.DELETE
       ) {
         throw new Error(
           "Validation failed: schemaChange.status must be UPDATE or DELETE."
@@ -71,7 +73,7 @@ export class GenNewQuestionAndQueryStep implements IGenNewQuestionAndQueryStep {
       }
 
       // DELETE requires only new (old optional but irrelevant)
-      if (data.schemaChange.status === "DELETE") {
+      if (data.schemaChange.status === ESchemaChangeStatus.DELETE) {
         if (!data.schemaChange.new) {
           throw new Error(
             "Validation failed: DELETE requires schemaChange.new."

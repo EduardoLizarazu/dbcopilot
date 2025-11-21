@@ -57,6 +57,7 @@ import {
 import { InfoExtractorAction } from "@/_actions/nlq-qa-info/execute-query.action";
 import { set } from "zod";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
+import { GenNewQuestionQueryFromOldAction } from "@/_actions/gen/gen-new-question-query-from-old.action";
 
 const steps = ["Schema Differences", "Knowledge source", "Confirm"];
 
@@ -76,6 +77,7 @@ enum EnumBusy {
   NLQ_QA_GOOD_EXEC = "nlqQaGoodExec",
   NLQ_GOOD_OLD_RUN = "nlqGoodOldRun",
   NLQ_GOOD_NEW_RUN = "nlqGoodNewRun",
+  NLQ_GOOD_NEW_GEN = "nlqGoodNewGen",
 }
 
 enum FbFlags {
@@ -807,6 +809,8 @@ export function SchemaCtxClient({
     setSelectedNlqGoodDiff(null);
     const selected = nlqGoodDiffs?.find((n) => n.id === data.nlqGoodId) || null;
     setSelectedNlqGoodDiff(selected);
+    console.log("SCHEMA DIFF: ", schemaCtxDiff);
+    console.log("SELECTED NLQ GOOD DIFF", selected);
   };
 
   const onOldRun = async () => {
@@ -816,13 +820,11 @@ export function SchemaCtxClient({
     onSetErrorFlag(FbFlags.DIALOG_OLD_RUN, false);
     onSetSuccessFlag(FbFlags.DIALOG_OLD_RUN, false);
     setBusyFlag(EnumBusy.NLQ_GOOD_OLD_RUN, true);
-    console.log("OLD RUN");
     try {
       const r = await InfoExtractorAction({
         query: selectedNlqGoodDiff?.query?.trim() || "",
         connId: selectedNlqGoodDiff?.dbConnectionId || "",
       });
-      console.log("OLD RUN", r);
       if (r.ok) {
         setOldRows(r.data?.data || []);
         onSetSuccessFlag(FbFlags.DIALOG_OLD_RUN, true, r.message || "");
@@ -847,7 +849,6 @@ export function SchemaCtxClient({
         query: selectedNlqGoodDiff?.newQuery?.trim() || "",
         connId: selectedNlqGoodDiff?.dbConnectionId || "",
       });
-      console.log("OLD RUN", r);
       if (r.ok) {
         setNewRows(r.data?.data || []);
         onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, true, r.message || "");
@@ -855,6 +856,22 @@ export function SchemaCtxClient({
       if (!r.ok) onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, true, r.message || "");
     } finally {
       setBusyFlag(EnumBusy.NLQ_GOOD_NEW_RUN, false);
+    }
+  };
+
+  const onGenNewQuestionQueryFromOld = async () => {
+    setError(null);
+    setSuccess(null);
+    onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
+    onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
+    setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN, true);
+    try {
+      const r = await GenNewQuestionQueryFromOldAction({
+        previousQuestion: selectedNlqGoodDiff?.question || "",
+        previousQuery: selectedNlqGoodDiff?.query || "",
+      });
+    } finally {
+      setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN, false);
     }
   };
 

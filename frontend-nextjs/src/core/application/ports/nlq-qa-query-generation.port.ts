@@ -1,3 +1,4 @@
+import { TGenNewQuestionQueryFromOldDto } from "../dtos/gen-query.dto";
 import { TCreateNlqQaGenerationPromptTemplate } from "../dtos/nlq/nlq-qa-generation.dto";
 import { TSchemaCtxSchemaDto } from "../dtos/schemaCtx.dto";
 
@@ -13,14 +14,7 @@ export interface INlqQaQueryGenerationPort {
   extractSuggestionsFromGenerationResponse(
     generationResponse: string
   ): Promise<{ suggestion: string }>;
-  genNewQuestionAndQuery(data: {
-    previousQuestion: string;
-    previousQuery: string;
-    schemaChange: {
-      status: "DELETE" | "UPDATE";
-      new: string; // delete schema in string format
-      old: string;
-    };
-    schemaCtx: TSchemaCtxSchemaDto[]; // only if has change (update)
-  }): Promise<{ question: string; query: string }>;
+  genNewQuestionAndQuery(
+    data: TGenNewQuestionQueryFromOldDto
+  ): Promise<{ question: string; query: string }>;
 }
