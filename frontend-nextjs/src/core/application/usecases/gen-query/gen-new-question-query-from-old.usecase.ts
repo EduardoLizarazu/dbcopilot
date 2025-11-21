@@ -32,8 +32,7 @@ export class GenNewQuestionAndQueryFromOldUseCase
       const result = await this.genNewQuestionAndQueryStep.run({
         previousQuestion: data.previousQuestion,
         previousQuery: data.previousQuery,
-        schemaChange: data.schemaChange,
-        schemaCtx: data.schemaCtx,
+        schemaCtxDiff: data.schemaCtxDiff,
       });
       this.logger.info(
         `[GenNewQuestionAndQueryUseCase] Use case executed successfully with result:`,

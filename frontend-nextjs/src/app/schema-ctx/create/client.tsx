@@ -58,6 +58,7 @@ import { InfoExtractorAction } from "@/_actions/nlq-qa-info/execute-query.action
 import { set } from "zod";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { GenNewQuestionQueryFromOldAction } from "@/_actions/gen/gen-new-question-query-from-old.action";
+import { FindSchemaCtxDiffByNlqGoodAction } from "@/_actions/utils/find-schema-ctx-diff-by-nlq-good.action";
 
 const steps = ["Schema Differences", "Knowledge source", "Confirm"];
 
@@ -855,10 +856,44 @@ export function SchemaCtxClient({
     onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
     setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN, true);
     try {
+      const findSchemaCtxDiffByNlqGood = await FindSchemaCtxDiffByNlqGoodAction(
+        schemaCtxDiff,
+        selectedNlqGoodDiff
+      );
+
+      console.log(
+        "FOUND SCHEMA CTX DIFF BY NLQ GOOD: ",
+        findSchemaCtxDiffByNlqGood
+      );
+
       const r = await GenNewQuestionQueryFromOldAction({
         previousQuestion: selectedNlqGoodDiff?.question || "",
         previousQuery: selectedNlqGoodDiff?.query || "",
+        schemaCtxDiff: findSchemaCtxDiffByNlqGood,
       });
+
+      if (r.ok) {
+        // update the selected nlq good diff new query
+        setSelectedNlqGoodDiff((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            newQuestion: r.data?.question || "",
+            newQuery: r.data?.query || "",
+          };
+        });
+        onSetSuccessFlag(
+          FbFlags.DIALOG_NEW_RUN,
+          true,
+          r.message || "New question and query generated successfully."
+        );
+      }
+      if (!r.ok)
+        onSetErrorFlag(
+          FbFlags.DIALOG_NEW_RUN,
+          true,
+          r.message || "Failed to generate new question and query."
+        );
     } finally {
       setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN, false);
     }
@@ -2255,17 +2290,34 @@ export function SchemaCtxClient({
                               minRows={4}
                               sx={{ mb: 2 }}
                             />
-                            <Button
-                              variant="outlined"
-                              onClick={() => {
-                                onNewRun();
-                              }}
-                              disabled={isBusy(EnumBusy.NLQ_GOOD_NEW_RUN)}
-                              loading={isBusy(EnumBusy.NLQ_GOOD_NEW_RUN)}
-                              sx={{ mb: 2 }}
-                            >
-                              new run
-                            </Button>
+                            <Stack direction="row" spacing={2}>
+                              <Button
+                                variant="outlined"
+                                onClick={() => {
+                                  onNewRun();
+                                }}
+                                disabled={
+                                  isBusy(EnumBusy.NLQ_GOOD_NEW_RUN) ||
+                                  isBusy(EnumBusy.NLQ_GOOD_NEW_GEN)
+                                }
+                                loading={isBusy(EnumBusy.NLQ_GOOD_NEW_RUN)}
+                                sx={{ mb: 2 }}
+                              >
+                                new run
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                color="secondary"
+                                onClick={() => {
+                                  onGenNewQuestionQueryFromOld();
+                                }}
+                                disabled={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN)}
+                                loading={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN)}
+                                sx={{ mb: 2 }}
+                              >
+                                Gen. New Question & Consult
+                              </Button>
+                            </Stack>
                             {isErrorFlag(FbFlags.DIALOG_NEW_RUN) && (
                               <Alert severity="error" sx={{ mb: 2 }}>
                                 {errorMessages[FbFlags.DIALOG_NEW_RUN] ||

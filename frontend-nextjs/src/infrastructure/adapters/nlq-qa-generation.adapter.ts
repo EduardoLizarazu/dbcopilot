@@ -17,7 +17,9 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
         `Generating new question and query from previous question: ${data.previousQuestion} and previous query: ${data.previousQuery}`
       );
       const prompt = `
-         Your task is to adjust an existing SQL query and its natural-language question according to a physical schema change.
+        You are an expert SQL refactoring assistant.
+
+        Your task is to adjust an existing SQL query and its natural-language question according to a set of physical schema changes described in a diff structure.
 
         ### Previous Question
         ${data.previousQuestion}
@@ -25,70 +27,75 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
         ### Previous SQL Query
         ${data.previousQuery}
 
-        ### Schema Change
-        A physical change occurred in the database schema.
+        ### Schema Diff (schemaCtxDiff)
+        The following JSON describes how the physical schema changed between the version used by the previousQuery and the current version.
 
-        - Change status: ${data.schemaChange.status}
-        - NEW reference: "${data.schemaChange.new}"
-        ${
-          data.schemaChange.status === "UPDATE"
-            ? `- OLD reference: "${data.schemaChange.old}"`
-            : ""
-        }
+        Each node may represent a schema, table, column, or datatype and includes:
+        - id / name: the CURRENT physical identifier (after the change).
+        - status: numeric change status defined as:
+          - 0 = UN_CHANGE (no change)
+          - 1 = NEW      (newly added)
+          - 2 = DELETE   (deleted / no longer available)
+          - 3 = UPDATE   (renamed or otherwise changed)
+        - oldId / oldName: the PREVIOUS physical identifier (how it appeared in old queries).
+        - newId / newName: may be used to point to the corresponding new identifier when this node represents the old side of a rename.
 
-        Interpret the references as physical identifiers:
-        - "schema.table.column"
-        - "table.column"
-        - "column"
+        Use this diff to understand how to map old physical references to new ones:
 
-        ### Updated Schema Context
-        (Only provided for UPDATE changes. DO NOT invent objects not present here.)
-
-        ${data.schemaCtx ? JSON.stringify(data.schemaCtx, null, 2) : "None (DELETE only)"}
+        ${data.schemaCtxDiff ? JSON.stringify(data.schemaCtxDiff, null, 2) : "[]"}
 
         ---
 
         ### Your Tasks
 
         1. **Understand the previous intent**  
-          Infer what the SQL query was meant to retrieve based on the previousQuestion and previousQuery.
+          Infer what the SQL query was meant to retrieve based on the previousQuestion and previousQuery (business meaning, not just syntax).
 
-        2. **Apply the schema change**  
-          - If status === "UPDATE":
-              Replace every occurrence of the OLD reference with the NEW reference.  
-              Use schemaCtx to validate that the NEW reference actually exists.  
-              If the NEW reference corresponds to a different table, schema, or column, adjust JOINs, SELECTs, or WHERE clauses accordingly.
-          - If status === "DELETE":
-              The reference in "new" no longer exists.  
-              Remove or rewrite any part of the SQL that depended on it.  
-              If the feature removed makes the question no longer answerable, simplify the SQL while keeping the closest possible meaning.
+        2. **Analyze the schema diff**
+          - Identify all schemas, tables, columns, or datatypes with:
+            - status = DELETE (2): these objects no longer exist and must not appear in the new SQL.
+            - status = UPDATE (3): these objects have changed (typically renamed). Use:
+              - oldId/oldName as the way they appeared in the previousQuery.
+              - id/newId/newName as the current identifier to be used in the new SQL.
+            - status = NEW (1): new objects that may be used only if they are the explicit target of an UPDATE mapping (via newId/newName) or a clearly necessary replacement.
+          - Do NOT invent objects or relationships that are not present in the diff or clearly implied by the previousQuery.
 
-        3. **Correct the SQL**
-          - The final SQL MUST be valid according to the updated schema (if schemaCtx is provided).
-          - Do NOT create new columns or tables.
-          - Do NOT hallucinate structure.
-          - Only use tables/columns that exist in schemaCtx for UPDATE.
-          - For DELETE: remove usage of deleted objects; do not replace them unless logical inference is possible.
+        3. **Update the SQL query**
+          - Rewrite the previousQuery so that:
+            - Any physical reference that matches an oldId/oldName of an UPDATED (status=3) object is replaced with its corresponding current identifier (id or newId/newName).
+            - Any reference to a DELETED (status=2) object is removed or the query is simplified accordingly.
+          - If removing a deleted object makes the original question impossible to answer, simplify the query to the closest valid approximation (e.g., drop a filter or a column) while keeping the meaning as similar as possible.
+          - The final SQL MUST be syntactically valid and consistent with the updated schema implied by schemaCtxDiff.
+          - Do NOT create new columns or tables beyond what exists in schemaCtxDiff and the unchanged parts of the original query.
+          - Do NOT hallucinate structure: if you cannot confidently map an old reference to a new one via the diff, remove it rather than guessing.
 
-        4. **Correct the question if needed**
-          - If the change modifies the meaning (e.g., deleted column → question must be adjusted), rewrite the question minimally.
-          - If change does not affect meaning, keep the previous question exactly.
+        4. **Update the natural-language question (if needed)**
+          - If the schema changes (DELETE/UPDATE) alter what is being returned or filtered (for example, a deleted column that was central to the question), adjust the question minimally so that it:
+            - Still describes what the newSQL actually does.
+            - Stays as close as possible to the original intent and wording.
+          - If the change is purely technical (e.g., column rename without semantic change), keep the question exactly as it was.
 
         5. **Output Format Requirements**
-          Respond ONLY with a JSON object:
+          Respond ONLY with a JSON object, with no explanations, no markdown, and no backticks.  
+          The JSON must have exactly this shape:
+
           {
-            "newQuestion": "...",
-            "newSQL": "..."
+            "newQuestion": "string",
+            "newSQL": "string"
           }
-          No explanations. No markdown. No backticks.
 
-        If you cannot determine a valid SQL after the change, return:
-        {
-          "newQuestion": "${data.previousQuestion}",
-          "newSQL": ""
-        }
+          - "newQuestion": the final, possibly adjusted natural-language question.
+          - "newSQL": the final, updated SQL query.
 
-      `;
+        6. **Failure case**
+          If, after applying the schema diff, you cannot construct any valid SQL that preserves a reasonable version of the original intent, return:
+
+          {
+            "newQuestion": "${data.previousQuestion}",
+            "newSQL": ""
+          }
+        `;
+
       const response = await this.aiProvider.openai.chat.completions.create({
         model: "gpt-4-turbo", // Use "gpt-3.5-turbo" for faster/cheaper results
         messages: [
@@ -111,20 +118,37 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
       this.logger.info(
         `Received response for new question and query generation: ${genRes}`
       );
-      const jsonMatch = genRes.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
+      if (!genRes) {
+        throw new Error("Empty response from AI provider");
+      }
+      if (genRes.startsWith("{")) {
+        const parsed = JSON.parse(genRes);
         return {
           question: parsed.newQuestion,
           query: parsed.newSQL,
         };
-      } else {
-        this.logger.warn(
-          "NlqQaGenerationAdapter: Warning: Could not extract JSON from response",
-          genRes
-        );
-        return { question: data.previousQuestion, query: "" };
       }
+      if (genRes.includes("```")) {
+        const codeMatch = genRes.match(/```json([\s\S]*?)```/);
+        if (codeMatch && codeMatch[1]) {
+          const codeContent = codeMatch[1].trim();
+          const parsed = JSON.parse(codeContent);
+          return {
+            question: parsed.newQuestion,
+            query: parsed.newSQL,
+          };
+        }
+      }
+      if (genRes.startsWith("json") || genRes.startsWith("JSON")) {
+        const jsonStart = genRes.indexOf("{");
+        const jsonString = genRes.substring(jsonStart);
+        const parsed = JSON.parse(jsonString);
+        return {
+          question: parsed.newQuestion,
+          query: parsed.newSQL,
+        };
+      }
+      throw new Error("Unable to parse AI provider response");
     } catch (error) {
       this.logger.error(
         "NlqQaGenerationAdapter: Error generating new question and query",
