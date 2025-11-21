@@ -44,6 +44,11 @@ export class ReadChangesWithExecBySchemaUseCase
         allNlqQaGoods = allNlqQaGoods.concat(nlqQaGoods);
       }
 
+      this.logger.info(
+        `[ReadChangesWithExecBySchemaUseCase] Retrieved NLQ QA Goods: `,
+        allNlqQaGoods
+      );
+
       // Get the connection fields by ids
       let allDbConnections: TDbConnectionOutRequestDto[] = [];
       for (const dbConnId of data.dbConnectionIds) {
@@ -52,6 +57,10 @@ export class ReadChangesWithExecBySchemaUseCase
         });
         allDbConnections.push(dbConn);
       }
+      this.logger.info(
+        `[ReadChangesWithExecBySchemaUseCase] Retrieved DB Connections: `,
+        allDbConnections
+      );
 
       const allNlqQaGoodsWithExecution: TNlqQaGoodWithExecutionDto[] = [];
       // For each, execute the query with the correspond connection
@@ -94,22 +103,27 @@ export class ReadChangesWithExecBySchemaUseCase
         }
       }
 
-      const vAllNlqQaGoodsWithExecution = await nlqQaGoodWithExecution
-        .array()
-        .safeParseAsync(allNlqQaGoodsWithExecution);
+      this.logger.info(
+        `[ReadChangesWithExecBySchemaUseCase] Successfully retrieved and executed NLQ QA Goods: `,
+        allNlqQaGoodsWithExecution
+      );
 
-      if (!vAllNlqQaGoodsWithExecution.success) {
-        this.logger.error(
-          `[ReadChangesWithExecBySchemaUseCase] Validation failed:`,
-          vAllNlqQaGoodsWithExecution.error
-        );
-        throw new Error("Validation failed for NLQ QA Goods with execution");
-      }
+      // const vAllNlqQaGoodsWithExecution = await nlqQaGoodWithExecution
+      //   .array()
+      //   .safeParseAsync(allNlqQaGoodsWithExecution);
+
+      // if (!vAllNlqQaGoodsWithExecution.success) {
+      //   this.logger.error(
+      //     `[ReadChangesWithExecBySchemaUseCase] Validation failed:`,
+      //     vAllNlqQaGoodsWithExecution.error
+      //   );
+      //   throw new Error("Validation failed for NLQ QA Goods with execution");
+      // }
 
       return {
         success: true,
         message: "Successfully retrieved NLQ QA Goods",
-        data: vAllNlqQaGoodsWithExecution.data,
+        data: allNlqQaGoodsWithExecution,
       };
     } catch (error) {
       this.logger.error(

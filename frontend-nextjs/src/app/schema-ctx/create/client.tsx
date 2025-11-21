@@ -1978,7 +1978,7 @@ export function SchemaCtxClient({
                                 <TableBody>
                                   {isBusy(EnumBusy.NLQ_QA_GOOD_EXEC) ? (
                                     <TableRow>
-                                      <TableCell colSpan={6} align="center">
+                                      <TableCell colSpan={6}>
                                         Loading...
                                       </TableCell>
                                     </TableRow>
