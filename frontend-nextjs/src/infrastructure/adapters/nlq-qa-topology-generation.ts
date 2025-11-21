@@ -309,43 +309,76 @@ export class NlqQaTopologyGenerationAdapter
         `[NlqQaTopologyGenerationAdapter] Generating tables and columns from query: ${data.query}`
       );
       const prompt = `
-        Given the following SQL query, extract every schema, table, and column reference used.
+        Given the following SQL query, extract every schema, table, and column reference used, and also the conditions (restrictions) applied to those columns.
 
         ### SQL Query:
         ${data.query}
 
         ### Extraction Rules:
-        1. Return **only physical references**, normalized into one of the following formats:
+
+        1. Normalize every column reference into a physical path with the format:
           - "schema.table.column"
-          - "table.column"
-          - "column"
-        2. If a schema appears in the SQL, include it in the output for that table/column.
-        3. If only a table and column appear, return "table.column".
-        4. If only a column appears (e.g., SELECT COUNT(*)), return the column name only.
-        5. Include columns referenced in:
+          - If the schema is not present in the SQL, use "unknown" as the schema.
+          - If the table is not present in the SQL (column-only reference), use "unknown" as the table and "unknown" as the schema: "unknown.unknown.column".
+
+        2. For every column that appears in a condition with a literal value (for example in WHERE, JOIN ON, HAVING, or GROUP BY conditions), also add an entry with the restriction, using this format:
+          - "schema.table.column.[restriction]"
+
+          Examples:
+          - \`WHERE public.actor.actor_id = 1\`
+            → "public.actor.actor_id"
+            → "public.actor.actor_id.[1]"
+          - \`WHERE actor.actor_id = '1'\`
+            → "unknown.actor.actor_id"
+            → "unknown.actor.actor_id.['1']"
+          - \`WHERE customer_id = 123\`
+            → "unknown.unknown.customer_id"
+            → "unknown.unknown.customer_id.[123]"
+
+        3. Type/quoting rules for [restriction]:
+          - If the literal is numeric (e.g., 1, 10.5), return it without quotes: \`[1]\`, \`[10.5]\`.
+          - If the literal is a string, date, or other non-numeric type, return it with single quotes exactly as it should appear in SQL: \`['ACTIVE']\`, \`['2023-01-01']\`.
+          - If the condition is more complex (e.g., IN, BETWEEN, LIKE), put the full literal expression inside the brackets:
+            - \`WHERE c.id IN (1, 2, 3)\` → \`schema.table.id.[IN (1, 2, 3)]\`
+            - \`WHERE created_at BETWEEN '2023-01-01' AND '2023-01-31'\`
+              → \`schema.table.created_at.[BETWEEN '2023-01-01' AND '2023-01-31']\`
+            - \`WHERE name LIKE 'A%'\` → \`schema.table.name.[LIKE 'A%']\`
+
+        4. Include columns referenced in:
           - SELECT
           - WHERE
           - JOIN
           - GROUP BY / HAVING
           - ORDER BY
           - subqueries
-        6. Expand table aliases to their actual table names.
-        7. Do **not** include functions, operators, or literals.
-        8. Do **not** infer columns that do not explicitly appear.
-        9. Remove duplicates.
-        10. Return **only** the JSON array—no explanation, no backticks, no code fences.
+
+        5. Always expand table aliases to their base table names when possible.  
+          - If you cannot resolve the schema from the SQL, use "unknown" as schema.
+          - If you cannot resolve the table, use "unknown" as table.
+
+        6. Do **not** include functions, operators, or literals by themselves.
+          - For example, do not return "COUNT(*)" or "1" alone.
+
+        7. Do **not** infer columns that do not explicitly appear.
+
+        8. Remove duplicates.  
+          - If "public.actor.actor_id.[1]" appears multiple times, include it only once.
+
+        9. Return **only** the JSON array—no explanation, no backticks, no code fences.
 
         ### Response Format:
         Return a valid JSON array of strings. Example:
 
         [
           "public.actor.actor_id",
+          "public.actor.actor_id.[1]",
           "public.actor.first_name",
-          "film.film_id",
-          "customer_id"
+          "unknown.unknown.customer_id",
+          "unknown.unknown.customer_id.['123']"
         ]
 
       `;
+
       const response = await this.openaiProvider.openai.chat.completions.create(
         {
           model: "gpt-4-turbo", // Use "gpt-3.5-turbo" for faster/cheaper results
