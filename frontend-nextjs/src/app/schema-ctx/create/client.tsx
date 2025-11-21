@@ -64,6 +64,15 @@ enum SchemaCtxDiffLevel {
   DATATYPE = "DATATYPE",
 }
 
+enum EnumBusy {
+  SUBMIT = "submit",
+  TABLE = "table",
+  TABLE_DIFF = "table-diff",
+  PROFILE = "profile",
+  GEN_SCHEMA_CTX = "genSchemaCtx",
+  NLQ_QA_GOOD_EXEC = "nlqQaGoodExec",
+}
+
 export function SchemaCtxClient({
   initial,
   dbConnections,
@@ -259,7 +268,20 @@ export function SchemaCtxClient({
 
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     setSkipped(newSkipped);
+
+    // Retrieve nql good exec diffs when reaching the second step
   };
+
+  React.useEffect(() => {
+    (async () => {
+      console.log("ACTIVE STEP", activeStep);
+      if (activeStep === 1 && (!nlqGoodDiffs || nlqGoodDiffs.length === 0)) {
+        await onNlqQaGoodExecByConnIds();
+        console.log("retrieving nlq good exec diffs...");
+      }
+    })();
+  }, [activeStep]);
+
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
@@ -708,18 +730,20 @@ export function SchemaCtxClient({
   const onNlqQaGoodExecByConnIds = async () => {
     setError(null);
     setSuccess(null);
-    setBusyFlag("nlqQaGoodExec", true);
+    setBusyFlag(EnumBusy.NLQ_QA_GOOD_EXEC, true);
+    console.log("GOOD EXEC");
     try {
       const res = await ReadChangesWithExecBySchemaAction({
         dbConnectionIds: dbConnectionIds,
       });
       if (res.ok) {
         setNlqGoodDiffs(res.data || []);
+        console.log("nlq good diffs", res.data || []);
       }
       if (!res.ok)
         setError(res.message || "Failed to execute NLQ QA Good changes.");
     } finally {
-      setBusyFlag("nlqQaGoodExec", false);
+      setBusyFlag(EnumBusy.NLQ_QA_GOOD_EXEC, false);
     }
   };
 
@@ -1952,49 +1976,61 @@ export function SchemaCtxClient({
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                  {nlqGoodDiffs && nlqGoodDiffs.length > 0 ? (
-                                    nlqGoodDiffs.map((diff) => (
-                                      <TableRow key={diff.id} hover>
-                                        <TableCell>
-                                          {diff.question || "-"}
-                                        </TableCell>
-                                        <TableCell>
-                                          {diff.query || "-"}
-                                        </TableCell>
-                                        <TableCell>
-                                          {diff.newQuestion || "-"}
-                                        </TableCell>
-                                        <TableCell>
-                                          {diff.newQuery || "-"}
-                                        </TableCell>
-                                        <TableCell>
-                                          {diff.executionStatus ===
-                                            NlqQaGoodWithExecutionStatus.OK &&
-                                            "OK"}
-                                          {diff.executionStatus ===
-                                            NlqQaGoodWithExecutionStatus.FAILED &&
-                                            "FAILED"}
-                                          {diff.executionStatus ===
-                                            NlqQaGoodWithExecutionStatus.NOTHING &&
-                                            "NOTHING"}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                          <Tooltip title="edit">
-                                            <IconButton>
-                                              <EditIcon fontSize="small" />
-                                            </IconButton>
-                                          </Tooltip>
-                                        </TableCell>
-                                      </TableRow>
-                                    ))
-                                  ) : (
+                                  {isBusy(EnumBusy.NLQ_QA_GOOD_EXEC) ? (
                                     <TableRow>
-                                      <TableCell colSpan={6}>
-                                        <Typography color="text.secondary">
-                                          No knowledge source rows available.
-                                        </Typography>
+                                      <TableCell colSpan={6} align="center">
+                                        Loading...
                                       </TableCell>
                                     </TableRow>
+                                  ) : (
+                                    <>
+                                      {nlqGoodDiffs &&
+                                      nlqGoodDiffs.length > 0 ? (
+                                        nlqGoodDiffs.map((diff) => (
+                                          <TableRow key={diff.id} hover>
+                                            <TableCell>
+                                              {diff.question || "-"}
+                                            </TableCell>
+                                            <TableCell>
+                                              {diff.query || "-"}
+                                            </TableCell>
+                                            <TableCell>
+                                              {diff.newQuestion || "-"}
+                                            </TableCell>
+                                            <TableCell>
+                                              {diff.newQuery || "-"}
+                                            </TableCell>
+                                            <TableCell>
+                                              {diff.executionStatus ===
+                                                NlqQaGoodWithExecutionStatus.OK &&
+                                                "OK"}
+                                              {diff.executionStatus ===
+                                                NlqQaGoodWithExecutionStatus.FAILED &&
+                                                "FAILED"}
+                                              {diff.executionStatus ===
+                                                NlqQaGoodWithExecutionStatus.NOTHING &&
+                                                "NOTHING"}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                              <Tooltip title="edit">
+                                                <IconButton>
+                                                  <EditIcon fontSize="small" />
+                                                </IconButton>
+                                              </Tooltip>
+                                            </TableCell>
+                                          </TableRow>
+                                        ))
+                                      ) : (
+                                        <TableRow>
+                                          <TableCell colSpan={6}>
+                                            <Typography color="text.secondary">
+                                              No knowledge source rows
+                                              available.
+                                            </Typography>
+                                          </TableCell>
+                                        </TableRow>
+                                      )}
+                                    </>
                                   )}
                                 </TableBody>
                               </Table>
