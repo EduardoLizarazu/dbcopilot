@@ -104,6 +104,7 @@ export enum NlqQaGoodWithExecutionStatus {
   FAILED = 0,
   OK = 1,
   NOTHING = 2,
+  CORRECTED = 3,
 }
 
 export const nlqQaGoodWithExecution = nlqQaGoodSchema.extend({

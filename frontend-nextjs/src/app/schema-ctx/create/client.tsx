@@ -899,6 +899,38 @@ export function SchemaCtxClient({
     }
   };
 
+  const onSaveNewQuestionQueryFromOld = async () => {
+    setError(null);
+    setSuccess(null);
+    onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
+    onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
+    try {
+      setNlqGoodDiffs((prev) => {
+        return prev.map((n) => {
+          if (n.id === selectedNlqGoodDiff?.id) {
+            return {
+              ...n,
+              newQuestion: selectedNlqGoodDiff?.newQuestion || n.question,
+              newQuery: selectedNlqGoodDiff?.newQuery || n.query,
+              executionStatus: NlqQaGoodWithExecutionStatus.CORRECTED,
+            };
+          }
+          return n;
+        });
+      });
+      onSetSuccessFlag(
+        FbFlags.DIALOG_NEW_RUN,
+        true,
+        "New question and query saved successfully."
+      );
+    } catch (error) {
+      onSetErrorFlag(
+        FbFlags.DIALOG_NEW_RUN,
+        true,
+        "Failed to save new question and query."
+      );
+    }
+  };
   return (
     <Box>
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
@@ -2162,6 +2194,9 @@ export function SchemaCtxClient({
                                               {diff.executionStatus ===
                                                 NlqQaGoodWithExecutionStatus.NOTHING &&
                                                 "NOTHING"}
+                                              {diff.executionStatus ===
+                                                NlqQaGoodWithExecutionStatus.CORRECTED &&
+                                                "CORRECTED"}
                                             </TableCell>
                                             <TableCell align="right">
                                               <Tooltip title="edit">
@@ -2315,7 +2350,19 @@ export function SchemaCtxClient({
                                 loading={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN)}
                                 sx={{ mb: 2 }}
                               >
-                                Gen. New Question & Consult
+                                Gen.
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                color="success"
+                                onClick={() => {
+                                  onSaveNewQuestionQueryFromOld();
+                                }}
+                                disabled={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN)}
+                                loading={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN)}
+                                sx={{ mb: 2 }}
+                              >
+                                Done
                               </Button>
                             </Stack>
                             {isErrorFlag(FbFlags.DIALOG_NEW_RUN) && (
