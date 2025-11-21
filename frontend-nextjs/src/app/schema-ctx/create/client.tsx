@@ -724,6 +724,7 @@ export function SchemaCtxClient({
     }
   };
 
+  // Nlq good diffs with execution
   const [nlqGoodDiffs, setNlqGoodDiffs] = React.useState<
     TNlqQaGoodWithExecutionDto[] | null
   >(null);
@@ -745,6 +746,14 @@ export function SchemaCtxClient({
     } finally {
       setBusyFlag(EnumBusy.NLQ_QA_GOOD_EXEC, false);
     }
+  };
+  const [selectedNlqGoodDiff, setSelectedNlqGoodDiff] =
+    React.useState<TNlqQaGoodWithExecutionDto | null>(null);
+  const onSelectNlqGoodDiff = (data: { nlqGoodId: string }) => {
+    console.log("selected nlq good diff", data);
+    setSelectedNlqGoodDiff(null);
+    const selected = nlqGoodDiffs?.find((n) => n.id === data.nlqGoodId) || null;
+    setSelectedNlqGoodDiff(selected);
   };
 
   return (
@@ -2013,7 +2022,15 @@ export function SchemaCtxClient({
                                             </TableCell>
                                             <TableCell align="right">
                                               <Tooltip title="edit">
-                                                <IconButton>
+                                                <IconButton
+                                                  aria-label="edit-nlq-good-diff"
+                                                  size="small"
+                                                  onClick={() =>
+                                                    onSelectNlqGoodDiff({
+                                                      nlqGoodId: diff.id,
+                                                    })
+                                                  }
+                                                >
                                                   <EditIcon fontSize="small" />
                                                 </IconButton>
                                               </Tooltip>
@@ -2047,7 +2064,7 @@ export function SchemaCtxClient({
                             <TextField
                               label="Old Question"
                               type="old-question"
-                              value={name}
+                              value={selectedNlqGoodDiff?.question || ""}
                               required
                               disabled
                               onChange={(e) => {}}
@@ -2059,7 +2076,7 @@ export function SchemaCtxClient({
                             <TextField
                               label="Old Consult"
                               type="old-consult"
-                              value={name}
+                              value={selectedNlqGoodDiff?.query || ""}
                               required
                               onChange={(e) => {}}
                               fullWidth
@@ -2083,7 +2100,7 @@ export function SchemaCtxClient({
                             <TextField
                               label="New question"
                               type="new-question"
-                              value={name}
+                              value={selectedNlqGoodDiff?.newQuestion || ""}
                               required
                               onChange={(e) => {}}
                               fullWidth
@@ -2094,7 +2111,7 @@ export function SchemaCtxClient({
                             <TextField
                               label="New Consult"
                               type="new-consult"
-                              value={name}
+                              value={selectedNlqGoodDiff?.newQuery || ""}
                               required
                               onChange={(e) => {}}
                               fullWidth
