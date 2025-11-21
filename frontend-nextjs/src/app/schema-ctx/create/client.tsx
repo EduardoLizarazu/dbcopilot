@@ -295,6 +295,8 @@ export function SchemaCtxClient({
         return <Chip label="NOTHING" color="default" size="small" />;
       case NlqQaGoodWithExecutionStatus.CORRECTED:
         return <Chip label="CORRECTED" color="info" size="small" />;
+      case NlqQaGoodWithExecutionStatus.TO_DELETE:
+        return <Chip label="TO DELETE" color="warning" size="small" />;
       default:
         return <Chip label="UNKNOWN" size="small" />;
     }
@@ -953,6 +955,29 @@ export function SchemaCtxClient({
       );
     }
   };
+  const onDeleteQuestionQueryDiff = async () => {
+    setError(null);
+    setSuccess(null);
+    onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
+    onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
+
+    const selectedId = selectedNlqGoodDiff?.id;
+
+    setNlqGoodDiffs((prev) => {
+      return prev.map((n) => {
+        if (n.id === selectedId) {
+          return {
+            ...n,
+            newQuestion: "",
+            newQuery: "",
+            executionStatus: NlqQaGoodWithExecutionStatus.TO_DELETE,
+          };
+        }
+        return n;
+      });
+    });
+  };
+
   return (
     <Box>
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
@@ -2397,8 +2422,16 @@ export function SchemaCtxClient({
                                 onClick={() => {
                                   onSaveNewQuestionQueryFromOld();
                                 }}
-                                disabled={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN)}
-                                loading={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN)}
+                                sx={{ mb: 2 }}
+                              >
+                                Done
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                color="error"
+                                onClick={() => {
+                                  onDeleteQuestionQueryDiff();
+                                }}
                                 sx={{ mb: 2 }}
                               >
                                 Done
