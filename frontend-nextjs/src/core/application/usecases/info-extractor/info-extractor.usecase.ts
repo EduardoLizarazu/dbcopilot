@@ -122,7 +122,7 @@ export class NlqQaInfoExtractorUseCase implements INlqQaInfoExtractorUseCase {
       );
       return {
         success: false,
-        message: "Error executing query",
+        message: error.message || "Error executing query",
         data: null,
       };
     }

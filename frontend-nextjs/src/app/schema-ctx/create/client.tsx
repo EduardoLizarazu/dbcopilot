@@ -127,6 +127,12 @@ export function SchemaCtxClient({
 
   const [errorFlag, setErrorFlag] = React.useState<Set<string>>(new Set());
   const [successFlag, setSuccessFlag] = React.useState<Set<string>>(new Set());
+  const [errorMessages, setErrorMessages] = React.useState<
+    Record<string, string>
+  >({});
+  const [successMessages, setSuccessMessages] = React.useState<
+    Record<string, string>
+  >({});
 
   const [openDiffEditor, setOpenDiffEditor] = React.useState(false);
   // ================ SINGLE SCHEMA EDITOR STATES =================
@@ -269,22 +275,34 @@ export function SchemaCtxClient({
   };
   const isBusy = (key: string) => busy.has(key);
 
-  const onSetErrorFlag = (key: string, on: boolean) => {
+  const onSetErrorFlag = (key: string, on: boolean, message?: string) => {
     setErrorFlag((prev) => {
       const s = new Set(prev);
       if (on) s.add(key);
       else s.delete(key);
       return s;
     });
+    setErrorMessages((prev) => {
+      const copy = { ...prev };
+      if (on && message) copy[key] = message;
+      if (!on) delete copy[key];
+      return copy;
+    });
   };
   const isErrorFlag = (key: string) => errorFlag.has(key);
 
-  const onSetSuccessFlag = (key: string, on: boolean) => {
+  const onSetSuccessFlag = (key: string, on: boolean, message?: string) => {
     setSuccessFlag((prev) => {
       const s = new Set(prev);
       if (on) s.add(key);
       else s.delete(key);
       return s;
+    });
+    setSuccessMessages((prev) => {
+      const copy = { ...prev };
+      if (on && message) copy[key] = message;
+      if (!on) delete copy[key];
+      return copy;
     });
   };
   const isSuccessFlag = (key: string) => successFlag.has(key);
@@ -807,10 +825,10 @@ export function SchemaCtxClient({
       console.log("OLD RUN", r);
       if (r.ok) {
         setOldRows(r.data?.data || []);
-        onSetSuccessFlag(FbFlags.DIALOG_OLD_RUN, true);
+        onSetSuccessFlag(FbFlags.DIALOG_OLD_RUN, true, r.message || "");
       }
       if (!r.ok) {
-        onSetErrorFlag(FbFlags.DIALOG_OLD_RUN, true);
+        onSetErrorFlag(FbFlags.DIALOG_OLD_RUN, true, r.message || "");
       }
     } finally {
       setBusyFlag(EnumBusy.NLQ_GOOD_OLD_RUN, false);
@@ -824,17 +842,17 @@ export function SchemaCtxClient({
     onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
     onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
     setBusyFlag(EnumBusy.NLQ_GOOD_OLD_RUN, true);
-    console.log("OLD RUN");
     try {
       const r = await InfoExtractorAction({
         query: selectedNlqGoodDiff?.newQuery?.trim() || "",
         connId: selectedNlqGoodDiff?.dbConnectionId || "",
       });
+      console.log("OLD RUN", r);
       if (r.ok) {
         setNewRows(r.data?.data || []);
-        onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, true);
+        onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, true, r.message || "");
       }
-      if (!r.ok) onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, true);
+      if (!r.ok) onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, true, r.message || "");
     } finally {
       setBusyFlag(EnumBusy.NLQ_GOOD_NEW_RUN, false);
     }
@@ -2182,12 +2200,14 @@ export function SchemaCtxClient({
                             </Button>
                             {isErrorFlag(FbFlags.DIALOG_OLD_RUN) && (
                               <Alert severity="error" sx={{ mb: 2 }}>
-                                Error executing old query.
+                                {errorMessages[FbFlags.DIALOG_OLD_RUN] ||
+                                  "Error executing old query."}
                               </Alert>
                             )}
                             {isSuccessFlag(FbFlags.DIALOG_OLD_RUN) && (
                               <Alert severity="success" sx={{ mb: 2 }}>
-                                Old query executed successfully.
+                                {successMessages[FbFlags.DIALOG_OLD_RUN] ||
+                                  "Old query executed successfully."}
                               </Alert>
                             )}
                             <Box sx={{ mb: 2 }}>
@@ -2242,12 +2262,14 @@ export function SchemaCtxClient({
                             </Button>
                             {isErrorFlag(FbFlags.DIALOG_NEW_RUN) && (
                               <Alert severity="error" sx={{ mb: 2 }}>
-                                Error executing new query.
+                                {errorMessages[FbFlags.DIALOG_NEW_RUN] ||
+                                  "Error executing new query."}
                               </Alert>
                             )}
                             {isSuccessFlag(FbFlags.DIALOG_NEW_RUN) && (
                               <Alert severity="success" sx={{ mb: 2 }}>
-                                New query executed successfully.
+                                {successMessages[FbFlags.DIALOG_NEW_RUN] ||
+                                  "New query executed successfully."}
                               </Alert>
                             )}
                             <Box sx={{ mb: 2 }}>
