@@ -49,6 +49,8 @@ import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.a
 import { ReadNewSchemaCtxAction } from "@/_actions/schemaCtx/new-by-conn-ids.action";
 import { InfoProfileExtractorAction } from "@/_actions/nlq-qa-info/profile-extractor.action";
 import { GenSchemaCtxAction } from "@/_actions/gen/gen-schema-ctx.action";
+import { ReadChangesWithExecBySchemaAction } from "@/_actions/nlq-qa-good/exec-by-conn-ids";
+import { TNlqQaGoodWithExecutionDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 
 const steps = ["Schema Differences", "Knowledge source", "Confirm"];
 
@@ -694,6 +696,27 @@ export function SchemaCtxClient({
         setError(res.message || "Failed to generate schema context.");
     } finally {
       setBusyFlag("genSchemaCtx", false);
+    }
+  };
+
+  const [nlqGoodDiff, setNlqGoodDiff] = React.useState<
+    TNlqQaGoodWithExecutionDto[] | null
+  >(null);
+  const onNlqQaGoodExecByConnIds = async () => {
+    setError(null);
+    setSuccess(null);
+    setBusyFlag("nlqQaGoodExec", true);
+    try {
+      const res = await ReadChangesWithExecBySchemaAction({
+        dbConnectionIds: dbConnectionIds,
+      });
+      if (res.ok) {
+        setNlqGoodDiff(res.data || []);
+      }
+      if (!res.ok)
+        setError(res.message || "Failed to execute NLQ QA Good changes.");
+    } finally {
+      setBusyFlag("nlqQaGoodExec", false);
     }
   };
 

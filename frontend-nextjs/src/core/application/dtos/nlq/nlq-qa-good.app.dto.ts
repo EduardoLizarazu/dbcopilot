@@ -15,7 +15,7 @@ export const nlqQaGoodSchema = z.object({
   // Generated fields from the query and question
   detailQuestion: z.string().default(""), // detailed version of the question
   think: z.string().default(""), // how the query was built according to the question
-  tablesColumns: z.array(z.string()).default([""]), // ["[TABLE].[COLUMN]"] // To know which tables and columns were used
+  tablesColumns: z.array(z.string()).default([""]), // ["["SCHEMA"].[TABLE].[COLUMN]"] // To know which tables and columns were used
   semanticFields: z // To know the meaning of the fields
     .array(
       z.object({
@@ -99,6 +99,19 @@ export const updateNlqQaGoodInRqDto = nlqQaGoodInRequestSchema.extend({
 export type TUpdateNlqQaGoodInRqDto = z.infer<typeof updateNlqQaGoodInRqDto>;
 
 export type TNlqQaGoodOutRequestDto = z.infer<typeof nlqQaGoodSchema>;
+
+export enum NlqQaGoodWithExecutionStatus {
+  FAILED = 0,
+  OK = 1,
+  NOTHING = 2,
+}
+
+export const nlqQaGoodWithExecution = nlqQaGoodSchema.extend({
+  executionStatus: z.nativeEnum(NlqQaGoodWithExecutionStatus),
+  newQuestion: z.string().min(0).default(""),
+  newQuery: z.string().min(0).default(""),
+});
+export type TNlqQaGoodWithExecutionDto = z.infer<typeof nlqQaGoodWithExecution>;
 
 export type TNlqQaGoodOutWithUserAndConnRequestDto = TNlqQaGoodOutRequestDto & {
   user: {
