@@ -50,7 +50,10 @@ import { ReadNewSchemaCtxAction } from "@/_actions/schemaCtx/new-by-conn-ids.act
 import { InfoProfileExtractorAction } from "@/_actions/nlq-qa-info/profile-extractor.action";
 import { GenSchemaCtxAction } from "@/_actions/gen/gen-schema-ctx.action";
 import { ReadChangesWithExecBySchemaAction } from "@/_actions/nlq-qa-good/exec-by-conn-ids";
-import { TNlqQaGoodWithExecutionDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
+import {
+  NlqQaGoodWithExecutionStatus,
+  TNlqQaGoodWithExecutionDto,
+} from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 
 const steps = ["Schema Differences", "Knowledge source", "Confirm"];
 
@@ -699,7 +702,7 @@ export function SchemaCtxClient({
     }
   };
 
-  const [nlqGoodDiff, setNlqGoodDiff] = React.useState<
+  const [nlqGoodDiffs, setNlqGoodDiffs] = React.useState<
     TNlqQaGoodWithExecutionDto[] | null
   >(null);
   const onNlqQaGoodExecByConnIds = async () => {
@@ -711,7 +714,7 @@ export function SchemaCtxClient({
         dbConnectionIds: dbConnectionIds,
       });
       if (res.ok) {
-        setNlqGoodDiff(res.data || []);
+        setNlqGoodDiffs(res.data || []);
       }
       if (!res.ok)
         setError(res.message || "Failed to execute NLQ QA Good changes.");
@@ -1917,6 +1920,7 @@ export function SchemaCtxClient({
                               overflow: "auto",
                             }}
                           >
+                            {/* NLQ QA Good changes */}
                             <TableContainer component={Paper} elevation={0}>
                               <Table
                                 size="small"
@@ -1943,59 +1947,46 @@ export function SchemaCtxClient({
                                       align="right"
                                       sx={{ fontWeight: 700 }}
                                     >
-                                      Actions
+                                      Action
                                     </TableCell>
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                  {schemaCtxDiff && schemaCtxDiff.length > 0 ? (
-                                    schemaCtxDiff.map((schema) =>
-                                      schema.tables.map((table) =>
-                                        table.columns.map((col) => (
-                                          <TableRow
-                                            key={`${schema.id}-${table.id}-${col.id}`}
-                                            hover
-                                          >
-                                            <TableCell>{schema.name}</TableCell>
-                                            <TableCell>
-                                              {table.name || "—"}
-                                            </TableCell>
-                                            <TableCell>
-                                              {col.name || "—"}
-                                            </TableCell>
-                                            <TableCell>
-                                              {col.dataType?.name || "—"}
-                                            </TableCell>
-                                            <TableCell>{"—"}</TableCell>
-                                            <TableCell align="right">
-                                              <Stack
-                                                direction="row"
-                                                spacing={1}
-                                              >
-                                                <Tooltip title="watch">
-                                                  <IconButton
-                                                    aria-label="watch"
-                                                    size="small"
-                                                    onClick={() => {}}
-                                                  >
-                                                    <VisibilityIcon fontSize="small" />
-                                                  </IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="delete">
-                                                  <IconButton
-                                                    aria-label="delete"
-                                                    size="small"
-                                                    onClick={() => {}}
-                                                  >
-                                                    <DeleteIcon fontSize="small" />
-                                                  </IconButton>
-                                                </Tooltip>
-                                              </Stack>
-                                            </TableCell>
-                                          </TableRow>
-                                        ))
-                                      )
-                                    )
+                                  {nlqGoodDiffs && nlqGoodDiffs.length > 0 ? (
+                                    nlqGoodDiffs.map((diff) => (
+                                      <TableRow key={diff.id} hover>
+                                        <TableCell>
+                                          {diff.question || "-"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {diff.query || "-"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {diff.newQuestion || "-"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {diff.newQuery || "-"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {diff.executionStatus ===
+                                            NlqQaGoodWithExecutionStatus.OK &&
+                                            "OK"}
+                                          {diff.executionStatus ===
+                                            NlqQaGoodWithExecutionStatus.FAILED &&
+                                            "FAILED"}
+                                          {diff.executionStatus ===
+                                            NlqQaGoodWithExecutionStatus.NOTHING &&
+                                            "NOTHING"}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                          <Tooltip title="edit">
+                                            <IconButton>
+                                              <EditIcon fontSize="small" />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </TableCell>
+                                      </TableRow>
+                                    ))
                                   ) : (
                                     <TableRow>
                                       <TableCell colSpan={6}>
