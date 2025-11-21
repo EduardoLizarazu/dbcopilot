@@ -24,6 +24,7 @@ import {
   Link,
   Paper,
   Stack,
+  Chip,
   Step,
   StepLabel,
   Stepper,
@@ -277,6 +278,27 @@ export function SchemaCtxClient({
     });
   };
   const isBusy = (key: string) => busy.has(key);
+
+  const truncateText = (txt?: string | null, limit = 5) => {
+    if (!txt) return "-";
+    if (txt.length <= limit) return txt;
+    return `${txt.slice(0, limit)}...`;
+  };
+
+  const renderStatusChip = (status?: NlqQaGoodWithExecutionStatus) => {
+    switch (status) {
+      case NlqQaGoodWithExecutionStatus.OK:
+        return <Chip label="OK" color="success" size="small" />;
+      case NlqQaGoodWithExecutionStatus.FAILED:
+        return <Chip label="FAILED" color="error" size="small" />;
+      case NlqQaGoodWithExecutionStatus.NOTHING:
+        return <Chip label="NOTHING" color="default" size="small" />;
+      case NlqQaGoodWithExecutionStatus.CORRECTED:
+        return <Chip label="CORRECTED" color="info" size="small" />;
+      default:
+        return <Chip label="UNKNOWN" size="small" />;
+    }
+  };
 
   const onSetErrorFlag = (key: string, on: boolean, message?: string) => {
     setErrorFlag((prev) => {
@@ -2173,30 +2195,47 @@ export function SchemaCtxClient({
                                         nlqGoodDiffs.map((diff) => (
                                           <TableRow key={diff.id} hover>
                                             <TableCell>
-                                              {diff.question || "-"}
+                                              <Tooltip
+                                                title={diff.question || "-"}
+                                              >
+                                                <span>
+                                                  {truncateText(diff.question)}
+                                                </span>
+                                              </Tooltip>
                                             </TableCell>
                                             <TableCell>
-                                              {diff.query || "-"}
+                                              <Tooltip
+                                                title={diff.query || "-"}
+                                              >
+                                                <span>
+                                                  {truncateText(diff.query)}
+                                                </span>
+                                              </Tooltip>
                                             </TableCell>
                                             <TableCell>
-                                              {diff.newQuestion || "-"}
+                                              <Tooltip
+                                                title={diff.newQuestion || "-"}
+                                              >
+                                                <span>
+                                                  {truncateText(
+                                                    diff.newQuestion
+                                                  )}
+                                                </span>
+                                              </Tooltip>
                                             </TableCell>
                                             <TableCell>
-                                              {diff.newQuery || "-"}
+                                              <Tooltip
+                                                title={diff.newQuery || "-"}
+                                              >
+                                                <span>
+                                                  {truncateText(diff.newQuery)}
+                                                </span>
+                                              </Tooltip>
                                             </TableCell>
                                             <TableCell>
-                                              {diff.executionStatus ===
-                                                NlqQaGoodWithExecutionStatus.OK &&
-                                                "OK"}
-                                              {diff.executionStatus ===
-                                                NlqQaGoodWithExecutionStatus.FAILED &&
-                                                "FAILED"}
-                                              {diff.executionStatus ===
-                                                NlqQaGoodWithExecutionStatus.NOTHING &&
-                                                "NOTHING"}
-                                              {diff.executionStatus ===
-                                                NlqQaGoodWithExecutionStatus.CORRECTED &&
-                                                "CORRECTED"}
+                                              {renderStatusChip(
+                                                diff.executionStatus
+                                              )}
                                             </TableCell>
                                             <TableCell align="right">
                                               <Tooltip title="edit">
