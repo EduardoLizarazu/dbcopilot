@@ -112,6 +112,8 @@ export function SchemaCtxClient({
   const [openSingleSchemaEditor, setOpenSingleSchemaEditor] =
     React.useState(false);
 
+  const [errorFlag, setErrorFlag] = React.useState<Set<string>>(new Set());
+
   const [openDiffEditor, setOpenDiffEditor] = React.useState(false);
   // ================ SINGLE SCHEMA EDITOR STATES =================
   // Single-item selection state (which schema/table/column we're editing)
@@ -252,6 +254,16 @@ export function SchemaCtxClient({
     });
   };
   const isBusy = (key: string) => busy.has(key);
+
+  const onSetErrorFlag = (key: string, on: boolean) => {
+    setErrorFlag((prev) => {
+      const s = new Set(prev);
+      if (on) s.add(key);
+      else s.delete(key);
+      return s;
+    });
+  };
+  const isErrorFlag = (key: string) => errorFlag.has(key);
 
   const isStepOptional = (step: number) => {
     return step === 1;
