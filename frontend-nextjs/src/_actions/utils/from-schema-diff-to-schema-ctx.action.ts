@@ -113,10 +113,36 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
 
           oldCol.id = colDiff.newId;
           oldCol.name = colDiff.newName;
+
+          // Split new id to get the data type
+          // schema.table.column -> schema -> schema.table. -> schema.table.column
+
+          const newIdParts = colDiff.newId.split(".");
+          const [schemaId, tableId, columnId] = newIdParts;
+          const newSchemaId = `${schemaId}`;
+          const newTableId = `${schemaId}.${tableId}`;
+          const newColumnId = `${schemaId}.${tableId}.${columnId}`;
+
+          // Track the new column column
+          const newSchemaDiff = schemasCtxDiff.find(
+            (s) => s.id === newSchemaId
+          );
+          if (!newSchemaDiff) continue;
+
+          const newTableDiff = newSchemaDiff.tables?.find(
+            (t) => t.id === newTableId
+          );
+          if (!newTableDiff) continue;
+
+          const newCol = newTableDiff.columns?.find(
+            (c) => c.id === newColumnId
+          );
+          if (!newCol) continue;
+          oldCol.dataType = newCol.dataType.name;
         }
       }
     }
   }
-
+  // console.log("Resulting SchemaCtx:", JSON.stringify(oldSchemaCtx, null, 2));
   return oldSchemaCtx;
 }

@@ -514,6 +514,7 @@ export function SchemaCtxClient({
       }[]
     | null
   >(null);
+  // function to search for old fields to update based on the selected new field
   const onSearchDiffSchemaCtxFieldsToUpdate = (
     id: string,
     name: string,
