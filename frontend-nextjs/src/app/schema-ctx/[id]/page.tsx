@@ -9,6 +9,7 @@ export default async function EditSchemaCtxPage({
   params: { id: string };
 }) {
   const initial = await ReadByIdSchemaCtxAction(await params.id);
+  console.log("READ SCHEMA CTX", initial);
 
   if (!initial.ok || !initial.data) {
     return <NotFound />;

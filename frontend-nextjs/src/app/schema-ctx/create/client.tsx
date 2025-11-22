@@ -60,8 +60,9 @@ import { set } from "zod";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { GenNewQuestionQueryFromOldAction } from "@/_actions/gen/gen-new-question-query-from-old.action";
 import { FindSchemaCtxDiffByNlqGoodAction } from "@/_actions/utils/find-schema-ctx-diff-by-nlq-good.action";
+import { FromSchemaDiffToSchemaCtxAction } from "@/_actions/utils/from-schema-diff-to-schema-ctx.action";
 
-const steps = ["Schema Differences", "Knowledge source", "Confirm"];
+const steps = ["Schema Differences", "Knowledge source", "Summary"];
 
 enum SchemaCtxDiffLevel {
   SCHEMA = "SCHEMA",
@@ -80,11 +81,13 @@ enum EnumBusy {
   NLQ_GOOD_OLD_RUN = "nlqGoodOldRun",
   NLQ_GOOD_NEW_RUN = "nlqGoodNewRun",
   NLQ_GOOD_NEW_GEN = "nlqGoodNewGen",
+  BTN_SAVE_SCHEMA_CTX_DIFF_NLQ_GOOD = "btnSaveSchemaCtxDiffNlqGood",
 }
 
 enum FbFlags {
   DIALOG_OLD_RUN = "dialog-old-run",
   DIALOG_NEW_RUN = "dialog-new-run",
+  DIALOG_SAVE_SCHEMA_CTX_DIFF_NLQ_GOOD = "dialog-save-schema-ctx-diff-nlq-good",
 }
 
 export function SchemaCtxClient({
@@ -318,6 +321,16 @@ export function SchemaCtxClient({
   };
   const isErrorFlag = (key: string) => errorFlag.has(key);
 
+  const onResetAllFb = () => {
+    setErrorFlag(new Set());
+    setErrorMessages({});
+    setSuccessFlag(new Set());
+    setSuccessMessages({});
+  };
+  const onResetAllBusy = () => {
+    setBusy(new Set());
+  };
+
   const onSetSuccessFlag = (key: string, on: boolean, message?: string) => {
     setSuccessFlag((prev) => {
       const s = new Set(prev);
@@ -467,6 +480,8 @@ export function SchemaCtxClient({
           schemaCtxId: initial?.id || null,
           connIds: dbConnectionIds,
         });
+        console.log("READ SCHEMA DIFF CTX: ", res);
+
         if (res.ok) {
           setSchemaCtxDiff(res.data?.diffSchemas || []);
           setOpenDiffEditor(true);
@@ -976,6 +991,20 @@ export function SchemaCtxClient({
         return n;
       });
     });
+  };
+
+  const onFinishSchemaDiffAndNlqGood = async () => {
+    onResetAllBusy();
+    onResetAllFb();
+    try {
+      const mergeSchemaCtxWithDiffs = await FromSchemaDiffToSchemaCtxAction({
+        oldSchemaCtx: schemaCtx,
+        schemasCtxDiff: schemaCtxDiff,
+      });
+      console.log("MERGED SCHEMA CTX WITH DIFFS: ", mergeSchemaCtxWithDiffs);
+    } finally {
+      onResetAllBusy();
+    }
   };
 
   return (
@@ -1685,15 +1714,16 @@ export function SchemaCtxClient({
             }}
           >
             <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
-              {activeStep === 3 ? (
+              {activeStep === 2 ? (
                 <React.Fragment>
-                  <Typography sx={{ mt: 2, mb: 1 }}>
-                    All steps completed - you&apos;re finished
-                  </Typography>
-                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                    <Box sx={{ flex: "1 1 auto" }} />
-                    <Button onClick={handleReset}>Reset</Button>
-                  </Box>
+                  <Typography sx={{ mt: 2, mb: 1 }}>Summary:</Typography>
+                  <Button
+                    onClick={onFinishSchemaDiffAndNlqGood}
+                    variant="contained"
+                    color="primary"
+                  >
+                    Finish
+                  </Button>
                 </React.Fragment>
               ) : (
                 <React.Fragment>
@@ -2484,20 +2514,16 @@ export function SchemaCtxClient({
               Back
             </Button>
             <Box sx={{ flex: "1 1 auto" }} />
-            {isStepOptional(activeStep) && (
-              <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-                Skip
-              </Button>
+            {activeStep === steps.length - 1 ? (
+              <></>
+            ) : (
+              <Button onClick={handleNext}>Next</Button>
             )}
-            <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
-            </Button>
           </Box>
           <Button
             type="button"
             variant="outlined"
             color="error"
-            disabled={true}
             sx={{ textTransform: "none" }}
             onClick={() => {}}
           >
