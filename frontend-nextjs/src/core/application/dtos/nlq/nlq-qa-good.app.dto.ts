@@ -1,12 +1,25 @@
 import { z } from "zod";
 import { TDbConnectionOutRequestDto } from "../dbconnection.dto";
 
+export enum NlqQaGoodWithExecutionStatus {
+  FAILED = 0,
+  OK = 1,
+  NOTHING = 2,
+  CORRECTED = 3,
+  TO_DELETE = 4,
+  UNKNOWN = -1,
+}
+
 export const nlqQaGoodSchema = z.object({
   id: z.string().min(2),
   question: z.string().min(2),
   query: z.string().min(2),
   originId: z.string().default(""), // FK to nlqQa
   dbConnectionId: z.string().min(2),
+
+  executionStatus: z
+    .nativeEnum(NlqQaGoodWithExecutionStatus)
+    .default(NlqQaGoodWithExecutionStatus.UNKNOWN),
 
   // VDB
   knowledgeSourceId: z.string().default(""), // VDB - Same as this.id
@@ -100,16 +113,7 @@ export type TUpdateNlqQaGoodInRqDto = z.infer<typeof updateNlqQaGoodInRqDto>;
 
 export type TNlqQaGoodOutRequestDto = z.infer<typeof nlqQaGoodSchema>;
 
-export enum NlqQaGoodWithExecutionStatus {
-  FAILED = 0,
-  OK = 1,
-  NOTHING = 2,
-  CORRECTED = 3,
-  TO_DELETE = 4,
-}
-
 export const nlqQaGoodWithExecution = nlqQaGoodSchema.extend({
-  executionStatus: z.nativeEnum(NlqQaGoodWithExecutionStatus),
   newQuestion: z.string().min(0).default(""),
   newQuery: z.string().min(0).default(""),
 });

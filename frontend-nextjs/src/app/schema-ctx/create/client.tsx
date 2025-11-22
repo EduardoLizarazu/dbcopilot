@@ -37,6 +37,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Divider,
 } from "@mui/material";
 import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
 import EditIcon from "@mui/icons-material/Edit";
@@ -61,6 +62,14 @@ import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { GenNewQuestionQueryFromOldAction } from "@/_actions/gen/gen-new-question-query-from-old.action";
 import { FindSchemaCtxDiffByNlqGoodAction } from "@/_actions/utils/find-schema-ctx-diff-by-nlq-good.action";
 import { FromSchemaDiffToSchemaCtxAction } from "@/_actions/utils/from-schema-diff-to-schema-ctx.action";
+import {
+  CountSchemaCtxDiffAction,
+  TCountSchemaCtxDiffResult,
+} from "@/_actions/utils/count-schema-ctx-diff.action";
+import {
+  CountNlqGoodChangesAction,
+  TCountNlqGoodChangesResult,
+} from "@/_actions/utils/count-nlq-good-changes.action";
 
 const steps = ["Schema Differences", "Knowledge source", "Summary"];
 
@@ -121,6 +130,11 @@ export function SchemaCtxClient({
   const [schemaCtxDiff, setSchemaCtxDiff] = React.useState<
     TSchemaCtxDiffSchemaDto[] | null
   >(null);
+
+  const [schemaDiffCount, setSchemaDiffCount] =
+    React.useState<TCountSchemaCtxDiffResult | null>(null);
+  const [nlqGoodDiffCount, setNlqGoodDiffCount] =
+    React.useState<TCountNlqGoodChangesResult | null>(null);
 
   const [oldRows, setOldRows] = React.useState<any[] | null>(null);
   const [newRows, setNewRows] = React.useState<any[] | null>(null);
@@ -369,6 +383,18 @@ export function SchemaCtxClient({
     (async () => {
       if (activeStep === 1 && (!nlqGoodDiffs || nlqGoodDiffs.length === 0)) {
         await onNlqQaGoodExecByConnIds();
+      }
+      if (activeStep === 2) {
+        setSchemaDiffCount(null);
+        setNlqGoodDiffCount(null);
+        const countSchemaDiffResult = await CountSchemaCtxDiffAction({
+          schemasCtxDiff: schemaCtxDiff,
+        });
+        setSchemaDiffCount(countSchemaDiffResult);
+        const countNlqGoodResult = await CountNlqGoodChangesAction({
+          nlqGoodChanges: nlqGoodDiffs,
+        });
+        setNlqGoodDiffCount(countNlqGoodResult);
       }
     })();
   }, [activeStep]);
@@ -843,6 +869,7 @@ export function SchemaCtxClient({
     console.log("SELECTED NLQ GOOD DIFF", selected);
   };
 
+  // run old query
   const onOldRun = async () => {
     setError(null);
     setSuccess(null);
@@ -867,6 +894,7 @@ export function SchemaCtxClient({
     }
   };
 
+  // run new query
   const onNewRun = async () => {
     setError(null);
     setSuccess(null);
@@ -889,6 +917,7 @@ export function SchemaCtxClient({
     }
   };
 
+  // generate new question and query from old
   const onGenNewQuestionQueryFromOld = async () => {
     setError(null);
     setSuccess(null);
@@ -939,6 +968,7 @@ export function SchemaCtxClient({
     }
   };
 
+  // save question and query on the nlq good
   const onSaveNewQuestionQueryFromOld = async () => {
     setError(null);
     setSuccess(null);
@@ -971,6 +1001,7 @@ export function SchemaCtxClient({
       );
     }
   };
+  // delete question and query on the nlq good
   const onDeleteQuestionQueryDiff = async () => {
     setError(null);
     setSuccess(null);
@@ -994,16 +1025,21 @@ export function SchemaCtxClient({
     });
   };
 
+  // finalize schema ctx diff and nlq good changes
+
   const onFinishSchemaDiffAndNlqGood = async () => {
     onResetAllBusy();
     onResetAllFb();
     try {
+      // merge schema ctx with diffs
       const mergeSchemaCtxWithDiffs = await FromSchemaDiffToSchemaCtxAction({
         oldSchemaCtx: schemaCtx,
         schemasCtxDiff: schemaCtxDiff,
       });
       console.log("SCHEMA CTX DIFFS: ", schemaCtxDiff);
       console.log("MERGED SCHEMA CTX WITH DIFFS: ", mergeSchemaCtxWithDiffs);
+      // prepare as well nlq good with execution to be saved
+      const prepareNlqGoodWithExecToSave = nlqGoodDiffs;
     } finally {
       onResetAllBusy();
     }
@@ -1718,14 +1754,60 @@ export function SchemaCtxClient({
             <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
               {activeStep === 2 ? (
                 <React.Fragment>
-                  <Typography sx={{ mt: 2, mb: 1 }}>Summary:</Typography>
-                  <Button
-                    onClick={onFinishSchemaDiffAndNlqGood}
-                    variant="contained"
-                    color="primary"
+                  {/* Center de objects */}
+                  <Box
+                    sx={{
+                      height: "100%",
+                      overflow: "auto",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 4,
+                    }}
                   >
-                    Finish
-                  </Button>
+                    <Grid container spacing={8}>
+                      <Grid>
+                        <Typography>
+                          <b>Summary Schema diff:</b>
+                        </Typography>
+                        <Box component="ul" sx={{ pl: 2, mb: 0 }}>
+                          <li>
+                            UnChanged: {schemaDiffCount?.countUnchanged || 0}
+                          </li>
+                          <li>New: {schemaDiffCount?.countNew || 0}</li>
+                          <li>Updated: {schemaDiffCount?.countUpdated || 0}</li>
+                          <li>Deleted: {schemaDiffCount?.countDeleted || 0}</li>
+                        </Box>
+                      </Grid>
+                      <Grid>
+                        <Typography>
+                          <b>Summary NlqGood diff:</b>
+                        </Typography>
+                        <Box component="ul" sx={{ pl: 2, mb: 0 }}>
+                          <li>Failed: {nlqGoodDiffCount?.countFailed || 0}</li>
+                          <li>Ok: {nlqGoodDiffCount?.countOk || 0}</li>
+                          <li>
+                            Nothing: {nlqGoodDiffCount?.countNothing || 0}
+                          </li>
+                          <li>
+                            Deleted: {nlqGoodDiffCount?.countToDelete || 0}
+                          </li>
+                          <li>
+                            Corrected: {nlqGoodDiffCount?.countCorrected || 0}
+                          </li>
+                        </Box>
+                      </Grid>
+                    </Grid>
+                    <Button
+                      onClick={onFinishSchemaDiffAndNlqGood}
+                      variant="contained"
+                      color="primary"
+                      sx={{ mt: 2 }}
+                    >
+                      Finish
+                    </Button>
+                  </Box>
                 </React.Fragment>
               ) : (
                 <React.Fragment>
