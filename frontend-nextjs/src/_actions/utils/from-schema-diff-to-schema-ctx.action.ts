@@ -61,18 +61,9 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
       }
       if (tableDiff.status === SchemaCtxDiffStatus.UPDATE) {
         const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
-        console.log(
-          "SCHEMA FOR TABLE UPDATE: ",
-          JSON.stringify(schema, null, 2)
-        );
         if (!schema) continue;
         const oldTable = (schema.tables || []).find(
           (t) => t.id === tableDiff.id
-        );
-        console.log("TABLE DIFF: ", JSON.stringify(tableDiff, null, 2));
-        console.log(
-          "OLD TABLE FOR UPDATE: ",
-          JSON.stringify(oldTable, null, 2)
         );
         if (!oldTable) continue;
         oldTable.id = tableDiff.newId;
@@ -111,12 +102,15 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
         if (colDiff.status === SchemaCtxDiffStatus.UPDATE) {
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
+
           const table = (schema.tables || []).find(
             (t) => t.id === tableDiff.id
           );
           if (!table) continue;
+
           const oldCol = (table.columns || []).find((c) => c.id === colDiff.id);
           if (!oldCol) continue;
+
           oldCol.id = colDiff.newId;
           oldCol.name = colDiff.newName;
         }
