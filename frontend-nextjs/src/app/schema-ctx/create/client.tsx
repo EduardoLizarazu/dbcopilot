@@ -1001,6 +1001,7 @@ export function SchemaCtxClient({
         oldSchemaCtx: schemaCtx,
         schemasCtxDiff: schemaCtxDiff,
       });
+      console.log("SCHEMA CTX DIFFS: ", schemaCtxDiff);
       console.log("MERGED SCHEMA CTX WITH DIFFS: ", mergeSchemaCtxWithDiffs);
     } finally {
       onResetAllBusy();

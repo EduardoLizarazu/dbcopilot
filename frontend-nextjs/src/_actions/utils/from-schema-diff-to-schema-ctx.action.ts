@@ -10,16 +10,6 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
   oldSchemaCtx: TSchemaCtxSchemaDto[];
   schemasCtxDiff: TSchemaCtxDiffSchemaDto[];
 }): Promise<TSchemaCtxSchemaDto[]> {
-  // return {
-  //   ...oldCol,
-  //   id: newColId,
-  //   name: newColName,
-  //   // NEW → description/aliases vacíos
-  //   description: isNew ? "" : (oldCol.description ?? ""),
-  //   aliases: isNew ? [] : (oldCol.aliases ?? []),
-  //   dataType: diffCol.dataType?.name ?? oldCol.dataType,
-  // };
-
   const { oldSchemaCtx, schemasCtxDiff } = data;
 
   // UN_CHANGED: means that the item is the same (schema/table/column)
@@ -43,7 +33,7 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
       });
     }
     if (schemaDiff.status === SchemaCtxDiffStatus.UPDATE) {
-      const oldSchema = oldSchemaCtx.find((s) => s.id === schemaDiff.newId);
+      const oldSchema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
       if (!oldSchema) continue;
       oldSchema.id = schemaDiff.newId;
       oldSchema.name = schemaDiff.newName;
@@ -71,9 +61,18 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
       }
       if (tableDiff.status === SchemaCtxDiffStatus.UPDATE) {
         const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
+        console.log(
+          "SCHEMA FOR TABLE UPDATE: ",
+          JSON.stringify(schema, null, 2)
+        );
         if (!schema) continue;
         const oldTable = (schema.tables || []).find(
-          (t) => t.id === tableDiff.newId
+          (t) => t.id === tableDiff.id
+        );
+        console.log("TABLE DIFF: ", JSON.stringify(tableDiff, null, 2));
+        console.log(
+          "OLD TABLE FOR UPDATE: ",
+          JSON.stringify(oldTable, null, 2)
         );
         if (!oldTable) continue;
         oldTable.id = tableDiff.newId;
@@ -116,13 +115,10 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
             (t) => t.id === tableDiff.id
           );
           if (!table) continue;
-          const oldCol = (table.columns || []).find(
-            (c) => c.id === colDiff.newId
-          );
+          const oldCol = (table.columns || []).find((c) => c.id === colDiff.id);
           if (!oldCol) continue;
           oldCol.id = colDiff.newId;
           oldCol.name = colDiff.newName;
-          oldCol.dataType = colDiff.dataType?.name || oldCol.dataType;
         }
       }
     }
