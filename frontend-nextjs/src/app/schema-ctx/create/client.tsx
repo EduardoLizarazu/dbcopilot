@@ -906,6 +906,7 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     setNewRows(null);
+    onResetAllBusy();
     onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
     onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
     setBusyFlag(EnumBusy.NLQ_GOOD_NEW_RUN, true);
@@ -1111,11 +1112,26 @@ export function SchemaCtxClient({
   };
 
   // finalize schema ctx diff and nlq good changes
-
-  const onFinishSchemaDiffAndNlqGood = async () => {
-    onResetAllBusy();
+  const [isDiffFinalized, setIsDiffFinalized] = React.useState(false);
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (isDiffFinalized) {
+          // await onFinishSchemaDiffAndNlqGood();
+        }
+      } finally {
+      }
+    })();
+  }, [isDiffFinalized]);
+  async function onFinishSchemaDiffAndNlqGood() {
     onResetAllFb();
+    setBusyFlag(EnumBusy.BTN_FINISH_SCHEMA_DIFF_AND_NLQ_GOOD, true);
     try {
+      for (const nlqGood of nlqGoodDiffs || []) {
+        console.log("NLQ GOOD DIFF TO PROCESS: ", nlqGood);
+        const updatedNlqGood = await UpdateNlqQaGoodAction(nlqGood);
+      }
+
       // merge schema ctx with diffs
       const mergeSchemaCtxWithDiffs = await FromSchemaDiffToSchemaCtxAction({
         oldSchemaCtx: schemaCtx,
@@ -1123,12 +1139,13 @@ export function SchemaCtxClient({
       });
       console.log("SCHEMA CTX DIFFS: ", schemaCtxDiff);
       console.log("MERGED SCHEMA CTX WITH DIFFS: ", mergeSchemaCtxWithDiffs);
+      setSchemaCtx(mergeSchemaCtxWithDiffs);
       // prepare as well nlq good with execution to be saved
-      const prepareNlqGoodWithExecToSave = nlqGoodDiffs;
     } finally {
       onResetAllBusy();
+      setOpenDiffEditor(false);
     }
-  };
+  }
 
   return (
     <Box>
@@ -1885,10 +1902,16 @@ export function SchemaCtxClient({
                       </Grid>
                     </Grid>
                     <Button
-                      onClick={onFinishSchemaDiffAndNlqGood}
+                      onClick={() => setIsDiffFinalized(true)}
                       variant="contained"
                       color="primary"
                       sx={{ mt: 2 }}
+                      disabled={isBusy(
+                        EnumBusy.BTN_FINISH_SCHEMA_DIFF_AND_NLQ_GOOD
+                      )}
+                      loading={isBusy(
+                        EnumBusy.BTN_FINISH_SCHEMA_DIFF_AND_NLQ_GOOD
+                      )}
                     >
                       Finish
                     </Button>
