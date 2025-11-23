@@ -486,7 +486,7 @@ export function SchemaCtxClient({
       });
       if (res.ok) {
         setSuccess(res.message ?? "Schema Context update successfully.");
-        router.push("/schema-ctx");
+        // router.push("/schema-ctx");
       }
 
       if (!res.ok) {
@@ -502,7 +502,7 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     if (initial) {
-      //   await onUpdate();
+      // await onUpdate();
     } else {
       await onCreate();
     }
@@ -1268,7 +1268,7 @@ export function SchemaCtxClient({
                 disabled={isBusy("submit")}
                 sx={{ textTransform: "none" }}
               >
-                Cancel
+                Back
               </Button>
             </Stack>
             <Stack
@@ -1289,6 +1289,16 @@ export function SchemaCtxClient({
                 {!(initial && initial?.dbConnectionIds?.length > 0)
                   ? "Load schema"
                   : "Load & update knowledge"}
+              </Button>
+              <Button
+                variant="outlined"
+                color="info"
+                disabled={false}
+                loading={false}
+                sx={{ textTransform: "none" }}
+                onClick={() => {}}
+              >
+                Generate Schema Context & Profile
               </Button>
             </Stack>
           </Box>
