@@ -8,7 +8,6 @@ import {
   TSchemaCtxColumnProfileDto,
   TSchemaCtxSimpleSchemaDto,
   SchemaCtxDiffStatus,
-  schemaCtxBase,
 } from "@/core/application/dtos/schemaCtx.dto";
 import { CreateSchemaCtxAction } from "@/_actions/schemaCtx/create.action";
 import {
