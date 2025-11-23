@@ -33,6 +33,7 @@ export class GenNewQuestionAndQueryFromOldUseCase
         previousQuestion: data.previousQuestion,
         previousQuery: data.previousQuery,
         schemaCtxDiff: data.schemaCtxDiff,
+        extraMessage: data.extraMessage,
       });
       this.logger.info(
         `[GenNewQuestionAndQueryUseCase] Use case executed successfully with result:`,

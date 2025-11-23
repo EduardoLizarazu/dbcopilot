@@ -41,6 +41,7 @@ export class GenNewQuestionAndQueryFromOldStep
           previousQuestion: data.previousQuestion,
           previousQuery: data.previousQuery,
           schemaCtxDiff: data.schemaCtxDiff,
+          extraMessage: data.extraMessage,
         });
 
       return { question: response.question, query: response.query };

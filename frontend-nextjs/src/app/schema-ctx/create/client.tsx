@@ -141,6 +141,7 @@ export function SchemaCtxClient({
 
   const [oldRows, setOldRows] = React.useState<any[] | null>(null);
   const [newRows, setNewRows] = React.useState<any[] | null>(null);
+  const [extraMessage, setExtraMessage] = React.useState<string>("");
 
   // INTERNAL STATES
   const [busy, setBusy] = React.useState<Set<string>>(new Set());
@@ -945,6 +946,7 @@ export function SchemaCtxClient({
         previousQuestion: selectedNlqGoodDiff?.question || "",
         previousQuery: selectedNlqGoodDiff?.query || "",
         schemaCtxDiff: findSchemaCtxDiffByNlqGood,
+        extraMessage: extraMessage,
       });
 
       if (r.ok) {
@@ -979,7 +981,6 @@ export function SchemaCtxClient({
     setSuccess(null);
     onSetErrorFlag(FbFlags.DIALOG_BUTTON, false);
     onSetSuccessFlag(FbFlags.DIALOG_BUTTON, false);
-    onResetAllBusy();
     onResetAllFb();
     setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN_ALL, true);
     try {
@@ -1005,6 +1006,7 @@ export function SchemaCtxClient({
           previousQuestion: nlqGoodDiff?.question || "",
           previousQuery: nlqGoodDiff?.query || "",
           schemaCtxDiff: findSchemaCtxDiffByNlqGood,
+          extraMessage: extraMessage,
         });
         const rgData = rg.data;
         const rgOk = rg.ok;
@@ -1034,7 +1036,7 @@ export function SchemaCtxClient({
         });
       }
     } finally {
-      onResetAllBusy();
+      setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN_ALL, false);
     }
   };
 
@@ -2500,6 +2502,20 @@ export function SchemaCtxClient({
                               overflow: "auto",
                             }}
                           >
+                            <TextField
+                              label="extra message for generation"
+                              type="extra-message"
+                              value={extraMessage || ""}
+                              onChange={(e) => {
+                                setExtraMessage(e.target.value);
+                              }}
+                              fullWidth
+                              multiline
+                              minRows={2}
+                              sx={{ mb: 2 }}
+                              helperText="Provide additional context or instructions for generating the new question and query, if needed. 
+                              If gen. all is used, this message will be applied to all."
+                            />
                             <TextField
                               label="Old Question"
                               type="old-question"

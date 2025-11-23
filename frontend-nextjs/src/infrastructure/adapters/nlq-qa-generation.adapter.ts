@@ -19,7 +19,9 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
       const prompt = `
         You are an expert SQL refactoring assistant.
 
-        Your task is to adjust an existing SQL query and its natural-language question according to a set of physical schema changes described in a diff structure.
+        Your task is to adjust an existing SQL query and its natural-language question according to:
+        - a set of physical schema changes described in a diff structure, and
+        - an optional extraMessage with additional human hints or constraints.
 
         ### Previous Question
         ${data.previousQuestion}
@@ -44,6 +46,24 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
 
         ${data.schemaCtxDiff ? JSON.stringify(data.schemaCtxDiff, null, 2) : "[]"}
 
+        ### Extra Context (extraMessage)
+        You may receive additional hints to help you generate a better, more accurate SQL adaptation.
+        This can include things like:
+        - Direct rename hints: e.g. "the table X changed to table Y" using full schema.table.column.
+        - Case or value adjustments: e.g. "You may have to use this conditional on the WHERE 'PG-13' instead of 'pg-13'".
+        - Other clarifications about how to interpret or adapt the query.
+
+        If provided, use this extraMessage as authoritative guidance for:
+        - Choosing between multiple plausible mappings.
+        - Adjusting constants, filters, or conditions.
+        - Resolving ambiguities not fully covered by the diff.
+
+        If extraMessage is not provided, ignore this section.
+
+        Extra message content:
+
+        ${data.extraMessage ? data.extraMessage : "no extraMessage provided"}
+
         ---
 
         ### Your Tasks
@@ -51,29 +71,47 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
         1. **Understand the previous intent**  
           Infer what the SQL query was meant to retrieve based on the previousQuestion and previousQuery (business meaning, not just syntax).
 
-        2. **Analyze the schema diff**
-          - Identify all schemas, tables, columns, or datatypes with:
-            - status = DELETE (2): these objects no longer exist and must not appear in the new SQL.
-            - status = UPDATE (3): these objects have changed (typically renamed). Use:
-              - oldId/oldName as the way they appeared in the previousQuery.
-              - id/newId/newName as the current identifier to be used in the new SQL.
-            - status = NEW (1): new objects that may be used only if they are the explicit target of an UPDATE mapping (via newId/newName) or a clearly necessary replacement.
-          - Do NOT invent objects or relationships that are not present in the diff or clearly implied by the previousQuery.
+        2. **Analyze the schema diff (and extraMessage)**
+          - From the schema diff:
+            - Identify all schemas, tables, columns, or datatypes with:
+              - status = DELETE (2): these objects no longer exist and must not appear in the new SQL.
+              - status = UPDATE (3): these objects have changed (typically renamed). Use:
+                - oldId/oldName as the way they appeared in the previousQuery.
+                - id/newId/newName as the current identifier to be used in the new SQL.
+              - status = NEW (1): new objects that may be used only if they are the explicit target of an UPDATE mapping (via newId/newName) or a clearly necessary replacement.
+          - From the extraMessage (if present):
+            - Apply any explicit mapping instructions (e.g. table/column renames, value normalization in WHERE conditions).
+            - Apply any additional conditions or corrections to match the intended logic (e.g. change a literal from 'pg-13' to 'PG-13').
+          - Do NOT invent objects or relationships that are not present in:
+            - the diff,
+            - the unchanged parts of the original query, or
+            - the explicit extraMessage.
+
+          In case of conflict:
+          - The physical existence of objects (what exists or not) is determined by the schema diff.
+          - Naming, filter details, or subtle behavioral hints can be refined by the extraMessage.
 
         3. **Update the SQL query**
           - Rewrite the previousQuery so that:
             - Any physical reference that matches an oldId/oldName of an UPDATED (status=3) object is replaced with its corresponding current identifier (id or newId/newName).
             - Any reference to a DELETED (status=2) object is removed or the query is simplified accordingly.
+            - Any additional mapping or condition described in extraMessage is applied (for example:
+              - renaming a table or column using a direct hint,
+              - adjusting a WHERE literal from 'pg-13' to 'PG-13',
+              - using a specific column instead of another if explicitly instructed).
           - If removing a deleted object makes the original question impossible to answer, simplify the query to the closest valid approximation (e.g., drop a filter or a column) while keeping the meaning as similar as possible.
-          - The final SQL MUST be syntactically valid and consistent with the updated schema implied by schemaCtxDiff.
-          - Do NOT create new columns or tables beyond what exists in schemaCtxDiff and the unchanged parts of the original query.
-          - Do NOT hallucinate structure: if you cannot confidently map an old reference to a new one via the diff, remove it rather than guessing.
+          - The final SQL MUST be syntactically valid and consistent with the updated schema implied by schemaCtxDiff and any additional constraints given by extraMessage.
+          - Do NOT create new columns or tables beyond what exists in:
+            - schemaCtxDiff,
+            - the unchanged parts of the original query,
+            - or what is explicitly indicated in extraMessage.
+          - Do NOT hallucinate structure: if you cannot confidently map an old reference to a new one via the diff or extraMessage, remove it rather than guessing.
 
         4. **Update the natural-language question (if needed)**
-          - If the schema changes (DELETE/UPDATE) alter what is being returned or filtered (for example, a deleted column that was central to the question), adjust the question minimally so that it:
+          - If the schema changes (DELETE/UPDATE) or extraMessage-driven adjustments alter what is being returned or filtered (for example, a deleted column that was central to the question, or a condition that now behaves differently), adjust the question minimally so that it:
             - Still describes what the newSQL actually does.
             - Stays as close as possible to the original intent and wording.
-          - If the change is purely technical (e.g., column rename without semantic change), keep the question exactly as it was.
+          - If the change is purely technical (e.g., column rename without semantic change, or case normalization of a filter literal), keep the question exactly as it was.
 
         5. **Output Format Requirements**
           Respond ONLY with a JSON object, with no explanations, no markdown, and no backticks.  
@@ -88,7 +126,7 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
           - "newSQL": the final, updated SQL query.
 
         6. **Failure case**
-          If, after applying the schema diff, you cannot construct any valid SQL that preserves a reasonable version of the original intent, return:
+          If, after applying the schema diff and extraMessage, you cannot construct any valid SQL that preserves a reasonable version of the original intent, return:
 
           {
             "newQuestion": "${data.previousQuestion}",
