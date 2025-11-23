@@ -55,7 +55,6 @@ import {
   TNlqQaGoodWithExecutionDto,
 } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { InfoExtractorAction } from "@/_actions/nlq-qa-info/execute-query.action";
-import { set } from "zod";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
 import { GenNewQuestionQueryFromOldAction } from "@/_actions/gen/gen-new-question-query-from-old.action";
 import { FindSchemaCtxDiffByNlqGoodAction } from "@/_actions/utils/find-schema-ctx-diff-by-nlq-good.action";
@@ -70,6 +69,7 @@ import {
 } from "@/_actions/utils/count-nlq-good-changes.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 import { set } from "zod";
+import { on } from "events";
 
 const steps = ["Schema Differences", "Knowledge source", "Summary"];
 
@@ -99,6 +99,7 @@ enum FbFlags {
   DIALOG_OLD_RUN = "dialog-old-run",
   DIALOG_NEW_RUN = "dialog-new-run",
   DIALOG_SAVE_SCHEMA_CTX_DIFF_NLQ_GOOD = "dialog-save-schema-ctx-diff-nlq-good",
+  DIALOG_BUTTON = "dialog-button",
 }
 
 export function SchemaCtxClient({
@@ -865,6 +866,9 @@ export function SchemaCtxClient({
     React.useState<TNlqQaGoodWithExecutionDto | null>(null);
   const onSelectNlqGoodDiff = (data: { nlqGoodId: string }) => {
     setSelectedNlqGoodDiff(null);
+    setOldRows(null);
+    setNewRows(null);
+    onResetAllFb();
     const selected = nlqGoodDiffs?.find((n) => n.id === data.nlqGoodId) || null;
     setSelectedNlqGoodDiff(selected);
     console.log("SCHEMA DIFF: ", schemaCtxDiff);
@@ -903,7 +907,7 @@ export function SchemaCtxClient({
     setNewRows(null);
     onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
     onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
-    setBusyFlag(EnumBusy.NLQ_GOOD_OLD_RUN, true);
+    setBusyFlag(EnumBusy.NLQ_GOOD_NEW_RUN, true);
     try {
       const r = await InfoExtractorAction({
         query: selectedNlqGoodDiff?.newQuery?.trim() || "",
@@ -1076,19 +1080,32 @@ export function SchemaCtxClient({
 
     const selectedId = selectedNlqGoodDiff?.id;
 
-    setNlqGoodDiffs((prev) => {
-      return prev.map((n) => {
-        if (n.id === selectedId) {
-          return {
-            ...n,
-            newQuestion: "",
-            newQuery: "",
-            executionStatus: NlqQaGoodWithExecutionStatus.TO_DELETE,
-          };
-        }
-        return n;
+    try {
+      setNlqGoodDiffs((prev) => {
+        return prev.map((n) => {
+          if (n.id === selectedId) {
+            return {
+              ...n,
+              newQuestion: "",
+              newQuery: "",
+              executionStatus: NlqQaGoodWithExecutionStatus.TO_DELETE,
+            };
+          }
+          return n;
+        });
       });
-    });
+      onSetSuccessFlag(
+        FbFlags.DIALOG_NEW_RUN,
+        true,
+        "New question and query mark to deleted successfully."
+      );
+    } catch (error) {
+      onSetErrorFlag(
+        FbFlags.DIALOG_NEW_RUN,
+        true,
+        "Failed to mark to delete new question and query."
+      );
+    }
   };
 
   // finalize schema ctx diff and nlq good changes
@@ -2575,10 +2592,7 @@ export function SchemaCtxClient({
                                 onClick={() => {
                                   onNewRun();
                                 }}
-                                disabled={
-                                  isBusy(EnumBusy.NLQ_GOOD_NEW_RUN) ||
-                                  isBusy(EnumBusy.NLQ_GOOD_NEW_GEN)
-                                }
+                                disabled={isBusy(EnumBusy.NLQ_GOOD_NEW_RUN)}
                                 loading={isBusy(EnumBusy.NLQ_GOOD_NEW_RUN)}
                                 sx={{ mb: 2 }}
                               >
@@ -2618,13 +2632,13 @@ export function SchemaCtxClient({
                               </Button>
                             </Stack>
                             {isErrorFlag(FbFlags.DIALOG_NEW_RUN) && (
-                              <Alert severity="error" sx={{ mb: 2 }}>
+                              <Alert severity="error" sx={{ mt: 2 }}>
                                 {errorMessages[FbFlags.DIALOG_NEW_RUN] ||
                                   "Error executing new query."}
                               </Alert>
                             )}
                             {isSuccessFlag(FbFlags.DIALOG_NEW_RUN) && (
-                              <Alert severity="success" sx={{ mb: 2 }}>
+                              <Alert severity="success" sx={{ mt: 2 }}>
                                 {successMessages[FbFlags.DIALOG_NEW_RUN] ||
                                   "New query executed successfully."}
                               </Alert>

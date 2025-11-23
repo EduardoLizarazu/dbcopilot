@@ -6,6 +6,7 @@ export enum ESchemaChangeStatus {
 }
 
 export const genNewQuestionQueryFromOld = z.object({
+  extraMessage: z.string().optional().default(""),
   previousQuestion: z.string().min(1),
   previousQuery: z.string().min(1),
   schemaCtxDiff: z.array(schemaCtxDiffSchema),

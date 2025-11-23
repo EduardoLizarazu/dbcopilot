@@ -19,6 +19,8 @@ export interface IUpdateNlqQaGoodUseCase {
   ): Promise<TResponseDto<TNlqQaGoodOutRequestDto>>;
 }
 
+// ADD DELETE WHEN EXECUTION STATUS IS TO DELETE
+
 /**
  * Use case for updating an existing NLQ QA Good entry:
  * 1. Validates the input data and ID.

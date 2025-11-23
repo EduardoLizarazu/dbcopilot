@@ -100,6 +100,7 @@ export const nlqQaGoodInRequestSchema = nlqQaGoodSchema
     semanticFields: true,
     semanticTables: true,
     flags: true,
+    executionStatus: true,
   })
   .extend({
     actorId: z.string().min(2).optional(),
