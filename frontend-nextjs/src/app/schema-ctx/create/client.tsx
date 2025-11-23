@@ -323,6 +323,7 @@ export function SchemaCtxClient({
   // ===========================================================
 
   // ================ CONNECTIONS TOGGLE - DOWN =================
+
   const getGroupKey = (c?: TDbConnectionDto) =>
     c ? `${c.type}::${c.host}::${c.port}::${c.database}` : "";
 
@@ -335,22 +336,21 @@ export function SchemaCtxClient({
     ? getGroupKey(selectedBaseConn)
     : null;
 
-  const usedConnIdSet = React.useMemo(
-    () => new Set(allSchemaCtxConnIdsExcludingMain ?? []),
-    [allSchemaCtxConnIdsExcludingMain]
-  );
+  const usedConnIdSet = new Set(allSchemaCtxConnIdsExcludingMain);
 
-  const usedGroupKeys = React.useMemo(() => {
-    const set = new Set<string>();
+  const usedGroupKeys = new Set<string>();
 
-    dbConnection.forEach((c) => {
-      if (usedConnIdSet.has(c.id)) {
-        set.add(getGroupKey(c));
-      }
+  dbConnections.forEach((c) => {
+    if (usedConnIdSet.has(c.id)) {
+      usedGroupKeys.add(`${c.type}::${c.host}::${c.port}::${c.database}`);
+    }
+  });
+  const availableConnections = React.useMemo(() => {
+    return dbConnections.filter((c) => {
+      const groupKey = `${c.type}::${c.host}::${c.port}::${c.database}`;
+      return !usedGroupKeys.has(groupKey); // <<< oculta los grupos ocupados
     });
-
-    return set;
-  }, [dbConnection, usedConnIdSet]);
+  }, [dbConnections, usedGroupKeys]);
 
   const toggleConn = (id: string) => {
     // Encontrar la conexión base
@@ -1544,7 +1544,7 @@ export function SchemaCtxClient({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {dbConnection.length === 0 ? (
+                  {availableConnections.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={3}>
                         <Typography color="text.secondary">
@@ -1553,21 +1553,14 @@ export function SchemaCtxClient({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    dbConnection.map((r) => {
+                    availableConnections.map((r) => {
                       const checked = dbConnectionIds.includes(r.id);
                       const rowGroupKey = getGroupKey(r);
 
-                      const groupTakenByOtherCtx =
-                        usedGroupKeys.has(rowGroupKey);
-
-                      // Deshabilitar si:
-                      // 1) El grupo ya está usado por OTRO schema ctx, y esta fila no está marcada aquí, o
-                      // 2) Ya se eligió un groupKey en este schema y esta fila pertenece a otro groupKey distinto
                       const disabled =
-                        (groupTakenByOtherCtx && !checked) ||
-                        (!!selectedGroupKey &&
-                          rowGroupKey !== selectedGroupKey &&
-                          !checked);
+                        !!selectedGroupKey &&
+                        rowGroupKey !== selectedGroupKey &&
+                        !checked;
                       return (
                         <TableRow key={r.id} hover>
                           <TableCell width={90}>
