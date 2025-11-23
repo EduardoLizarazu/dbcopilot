@@ -61,6 +61,7 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
       "NCLOB",
       "NTEXT",
       // Binary / blob
+      "TSVECTOR",
       "BLOB",
       "MEDIUMBLOB",
       "LONGBLOB",

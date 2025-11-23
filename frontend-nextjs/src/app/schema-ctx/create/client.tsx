@@ -38,6 +38,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
 import EditIcon from "@mui/icons-material/Edit";
@@ -93,13 +94,18 @@ enum EnumBusy {
   BTN_SAVE_SCHEMA_CTX_DIFF_NLQ_GOOD = "btnSaveSchemaCtxDiffNlqGood",
   BTN_FINISH_SCHEMA_DIFF_AND_NLQ_GOOD = "btnFinishSchemaDiffAndNlqGood",
   NLQ_GOOD_NEW_GEN_ALL = "NLQ_GOOD_NEW_GEN_ALL",
+  BTN_GEN_SCHEMA_CTX_AND_PROFILE = "btnGenSchemaCtxAndProfile",
+  BTN_EDIT_SINGLE_SCHEMA_CTX = "btnEditSingleSchemaCtx",
+  BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY = "btnIndivGenNlqGoodNewQuestionQuery",
 }
 
-enum FbFlags {
+enum EnumFb {
   DIALOG_OLD_RUN = "dialog-old-run",
   DIALOG_NEW_RUN = "dialog-new-run",
   DIALOG_SAVE_SCHEMA_CTX_DIFF_NLQ_GOOD = "dialog-save-schema-ctx-diff-nlq-good",
   DIALOG_BUTTON = "dialog-button",
+  BTN_EDIT_SINGLE_SCHEMA_CTX = "btnEditSingleSchemaCtx",
+  DIALOG_SIMPLE_EDITOR_SCHEMA_CTX = "dialog-simple-editor-schema-ctx",
 }
 
 export function SchemaCtxClient({
@@ -160,6 +166,14 @@ export function SchemaCtxClient({
   >({});
 
   const [openDiffEditor, setOpenDiffEditor] = React.useState(false);
+  const [isStopProfileAndGenSchemaCtx, setIsStopProfileAndGenSchemaCtx] =
+    React.useState(false);
+  const isStopProfileAndGenSchemaCtxRef = React.useRef(
+    isStopProfileAndGenSchemaCtx
+  );
+  React.useEffect(() => {
+    isStopProfileAndGenSchemaCtxRef.current = isStopProfileAndGenSchemaCtx;
+  }, [isStopProfileAndGenSchemaCtx]);
   // ================ SINGLE SCHEMA EDITOR STATES =================
   // Single-item selection state (which schema/table/column we're editing)
   const [selectedSchemaId, setSelectedSchemaId] = React.useState<string | null>(
@@ -216,6 +230,8 @@ export function SchemaCtxClient({
     setOldRows(null);
     setNewRows(null);
     setExtraMessage("");
+    onResetAllBusy();
+    onResetAllFb();
     handleReset();
   };
 
@@ -252,6 +268,8 @@ export function SchemaCtxClient({
     setColumnProfile(
       c.profile ? (c.profile as TSchemaCtxColumnProfileDto) : null
     );
+
+    onResetAllFb();
 
     setOpenSingleSchemaEditor(true);
   };
@@ -335,6 +353,8 @@ export function SchemaCtxClient({
     }
   };
 
+  // ================ ERROR / SUCCESS FLAG HELPERS - DOWN =================
+
   const onSetErrorFlag = (key: string, on: boolean, message?: string) => {
     setErrorFlag((prev) => {
       const s = new Set(prev);
@@ -375,7 +395,11 @@ export function SchemaCtxClient({
       return copy;
     });
   };
+
   const isSuccessFlag = (key: string) => successFlag.has(key);
+
+  // ================ ERROR / SUCCESS FLAG HELPERS - UP
+  //  =================
   const isStepOptional = (step: number) => {
     return step === 1;
   };
@@ -775,6 +799,8 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     setBusyFlag("profile", true);
+    onSetErrorFlag(EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX, false);
+    onSetSuccessFlag(EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX, false);
     try {
       // build requested schema info. If single-editor open, use selected values
       const schemaInfo = {
@@ -790,11 +816,30 @@ export function SchemaCtxClient({
         schema: schemaInfo,
       });
 
-      if (res.ok) {
+      if (res.ok && res?.data) {
         setColumnProfile(res.data);
+        onSetSuccessFlag(
+          EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX,
+          true,
+          "Profile extracted successfully."
+        );
       }
 
-      if (!res.ok) setError(res.message || "Failed to profile schema context.");
+      if (res.ok && !res?.data) {
+        setColumnProfile(res.data);
+        onSetErrorFlag(
+          EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX,
+          true,
+          "Could not extract profile data."
+        );
+      }
+
+      if (!res.ok)
+        onSetErrorFlag(
+          EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX,
+          true,
+          res.message
+        );
     } finally {
       setBusyFlag("profile", false);
     }
@@ -804,6 +849,8 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     setBusyFlag("genSchemaCtx", true);
+    onSetErrorFlag(EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX, false);
+    onSetSuccessFlag(EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX, false);
     try {
       const schemaInfo: TSchemaCtxSimpleSchemaDto = {
         id: selectedSchemaId || "",
@@ -845,12 +892,207 @@ export function SchemaCtxClient({
         setColumnAliases(
           res.data.table?.column?.aliases.map((i) => i.toString()) || []
         );
+        onSetSuccessFlag(
+          EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX,
+          true,
+          "Schema context generated successfully."
+        );
       }
 
       if (!res.ok)
-        setError(res.message || "Failed to generate schema context.");
+        onSetErrorFlag(
+          EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX,
+          true,
+          res.message
+        );
     } finally {
       setBusyFlag("genSchemaCtx", false);
+    }
+  };
+
+  // generate many schema context and profile
+  const onStopProfileAndGenSchemaCtx = () => {
+    setIsStopProfileAndGenSchemaCtx(true);
+    isStopProfileAndGenSchemaCtxRef.current = true;
+  };
+  const onGenManySchemaCtxAndProfile = async () => {
+    setError(null);
+    setSuccess(null);
+    setIsStopProfileAndGenSchemaCtx(false);
+    isStopProfileAndGenSchemaCtxRef.current = false;
+    setBusyFlag(EnumBusy.BTN_GEN_SCHEMA_CTX_AND_PROFILE, true);
+    onResetAllFb();
+    try {
+      // List errors
+      const genErrors: string[] = [];
+      const profileErrors: string[] = [];
+      // Build schema info list and call onProfile & GenSchemaCtxAction for each
+      for (const schema of schemaCtx || []) {
+        if (isStopProfileAndGenSchemaCtxRef.current) break;
+        for (const table of schema.tables) {
+          if (isStopProfileAndGenSchemaCtxRef.current) break;
+          for (const column of table.columns) {
+            if (isStopProfileAndGenSchemaCtxRef.current) break;
+            // Busy
+            setBusyFlag(
+              `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${column.id}`,
+              true
+            );
+            onSetErrorFlag(
+              `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${column.id}`,
+              false
+            );
+            onSetSuccessFlag(
+              `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${column.id}`,
+              false
+            );
+            // Build schema info
+            const schemaInfo: TSchemaCtxSimpleSchemaDto = {
+              id: schema.id || "",
+              name: schema.name.toString() || "",
+              description: schema.description.toString() || "",
+              aliases: schema.aliases.map((i) => i.toString()) || [],
+              table: {
+                id: table.id || "",
+                name: table.name.toString() || "",
+                description: table.description.toString() || "",
+                aliases: table.aliases.map((i) => i.toString()) || [],
+                column: {
+                  id: column.id || "",
+                  name: column.name.toString() || "",
+                  description: column.description.toString() || "",
+                  aliases: column.aliases.map((i) => i.toString()) || [],
+                  dataType: column.dataType.toString() || "",
+                  profile: {
+                    maxValue: column.profile?.maxValue.toString() || "",
+                    minValue: column.profile?.minValue.toString() || "",
+                    countNulls: column.profile?.countNulls || 0,
+                    countUnique: column.profile?.countUnique || 0,
+                    sampleUnique:
+                      column.profile?.sampleUnique.map((i) => i.toString()) ||
+                      [],
+                  },
+                },
+              },
+            };
+            // Profile
+            const resProfile = await InfoProfileExtractorAction({
+              connectionIds: dbConnectionIds,
+              schema: {
+                schemaName: schemaInfo.name.toString() || "",
+                tableName: schemaInfo.table.name.toString() || "",
+                columnName: schemaInfo.table.column.name.toString() || "",
+                dataType: schemaInfo.table.column.dataType.toString() || "",
+                top: 10,
+              },
+            });
+            if (resProfile.ok && resProfile.data) {
+              schemaInfo.table.column.profile = {
+                maxValue: resProfile.data.maxValue.toString() || "",
+                minValue: resProfile.data.minValue.toString() || "",
+                countNulls: resProfile.data.countNulls || 0,
+                countUnique: resProfile.data.countUnique || 0,
+                sampleUnique:
+                  resProfile.data.sampleUnique.map((i) => i.toString()) || [],
+              };
+              onSetSuccessFlag(
+                `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${column.id}`,
+                true,
+                "Profiled successfully."
+              );
+            }
+            if (!resProfile.ok) {
+              profileErrors.push(
+                `${schemaInfo.name}.${schemaInfo.table.name}.${
+                  schemaInfo.table.column.name
+                }: ${resProfile.message || "Failed to profile schema context."}`
+              );
+              onSetErrorFlag(
+                `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${column.id}`,
+                true,
+                resProfile.message || "Failed to profile schema context."
+              );
+            }
+
+            // Generation
+            const resGen = await GenSchemaCtxAction(schemaInfo);
+            if (resGen.ok) {
+              // update the schema context with the new generated info
+              setSchemaCtx((prev) => {
+                return prev.map((s) => {
+                  if (s.id !== schemaInfo.id) return s;
+                  return {
+                    ...s,
+                    description:
+                      resGen.data.description.toString() || s.description || "",
+                    aliases:
+                      resGen.data.aliases.map((i) => i.toString()) ||
+                      s.aliases ||
+                      [],
+                    tables: s.tables.map((t) => {
+                      if (t.id !== schemaInfo.table.id) return t;
+                      return {
+                        ...t,
+                        description:
+                          resGen.data.table?.description.toString() ||
+                          t.description ||
+                          "",
+                        aliases:
+                          resGen.data.table?.aliases.map((i) => i.toString()) ||
+                          t.aliases ||
+                          [],
+                        columns: t.columns.map((col) => {
+                          if (col.id !== schemaInfo.table.column.id) return col;
+                          return {
+                            ...col,
+                            description:
+                              resGen.data.table?.column?.description.toString() ||
+                              col.description ||
+                              "",
+                            aliases:
+                              resGen.data.table?.column?.aliases.map((i) =>
+                                i.toString()
+                              ) ||
+                              col.aliases ||
+                              [],
+                          };
+                        }),
+                      };
+                    }),
+                  };
+                });
+              });
+              onSetSuccessFlag(
+                `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${column.id}`,
+                true,
+                "Generated successfully."
+              );
+            }
+            if (!resGen.ok) {
+              genErrors.push(
+                `${schemaInfo.name}.${schemaInfo.table.name}.${
+                  schemaInfo.table.column.name
+                }: ${resGen.message || "Failed to generate schema context."}`
+              );
+              onSetErrorFlag(
+                `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${column.id}`,
+                true,
+                resGen.message || "Failed to generate schema context."
+              );
+            }
+            // Clear busy
+            setBusyFlag(
+              `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${column.id}`,
+              false
+            );
+          }
+        }
+      }
+      // Set errors if any
+      console.log("GEN ERRORS: ", genErrors);
+      console.log("PROFILE ERRORS: ", profileErrors);
+    } finally {
+      setBusyFlag(EnumBusy.BTN_GEN_SCHEMA_CTX_AND_PROFILE, false);
     }
   };
 
@@ -893,8 +1135,8 @@ export function SchemaCtxClient({
     setError(null);
     setSuccess(null);
     setOldRows(null);
-    onSetErrorFlag(FbFlags.DIALOG_OLD_RUN, false);
-    onSetSuccessFlag(FbFlags.DIALOG_OLD_RUN, false);
+    onSetErrorFlag(EnumFb.DIALOG_OLD_RUN, false);
+    onSetSuccessFlag(EnumFb.DIALOG_OLD_RUN, false);
     setBusyFlag(EnumBusy.NLQ_GOOD_OLD_RUN, true);
     try {
       const r = await InfoExtractorAction({
@@ -903,10 +1145,10 @@ export function SchemaCtxClient({
       });
       if (r.ok) {
         setOldRows(r.data?.data || []);
-        onSetSuccessFlag(FbFlags.DIALOG_OLD_RUN, true, r.message || "");
+        onSetSuccessFlag(EnumFb.DIALOG_OLD_RUN, true, r.message || "");
       }
       if (!r.ok) {
-        onSetErrorFlag(FbFlags.DIALOG_OLD_RUN, true, r.message || "");
+        onSetErrorFlag(EnumFb.DIALOG_OLD_RUN, true, r.message || "");
       }
     } finally {
       setBusyFlag(EnumBusy.NLQ_GOOD_OLD_RUN, false);
@@ -919,8 +1161,8 @@ export function SchemaCtxClient({
     setSuccess(null);
     setNewRows(null);
     onResetAllBusy();
-    onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
-    onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
+    onSetErrorFlag(EnumFb.DIALOG_NEW_RUN, false);
+    onSetSuccessFlag(EnumFb.DIALOG_NEW_RUN, false);
     setBusyFlag(EnumBusy.NLQ_GOOD_NEW_RUN, true);
     try {
       const r = await InfoExtractorAction({
@@ -929,9 +1171,9 @@ export function SchemaCtxClient({
       });
       if (r.ok) {
         setNewRows(r.data?.data || []);
-        onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, true, r.message || "");
+        onSetSuccessFlag(EnumFb.DIALOG_NEW_RUN, true, r.message || "");
       }
-      if (!r.ok) onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, true, r.message || "");
+      if (!r.ok) onSetErrorFlag(EnumFb.DIALOG_NEW_RUN, true, r.message || "");
     } finally {
       setBusyFlag(EnumBusy.NLQ_GOOD_NEW_RUN, false);
     }
@@ -941,8 +1183,8 @@ export function SchemaCtxClient({
   const onGenNewQuestionQueryFromOld = async () => {
     setError(null);
     setSuccess(null);
-    onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
-    onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
+    onSetErrorFlag(EnumFb.DIALOG_NEW_RUN, false);
+    onSetSuccessFlag(EnumFb.DIALOG_NEW_RUN, false);
     setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN, true);
     try {
       const findSchemaCtxDiffByNlqGood = await FindSchemaCtxDiffByNlqGoodAction(
@@ -973,14 +1215,14 @@ export function SchemaCtxClient({
           };
         });
         onSetSuccessFlag(
-          FbFlags.DIALOG_NEW_RUN,
+          EnumFb.DIALOG_NEW_RUN,
           true,
           r.message || "New question and query generated successfully."
         );
       }
       if (!r.ok)
         onSetErrorFlag(
-          FbFlags.DIALOG_NEW_RUN,
+          EnumFb.DIALOG_NEW_RUN,
           true,
           r.message || "Failed to generate new question and query."
         );
@@ -992,12 +1234,17 @@ export function SchemaCtxClient({
   const onGenManyNewQuestionQueryFromOldAndExecute = async () => {
     setError(null);
     setSuccess(null);
-    onSetErrorFlag(FbFlags.DIALOG_BUTTON, false);
-    onSetSuccessFlag(FbFlags.DIALOG_BUTTON, false);
+    onSetErrorFlag(EnumFb.DIALOG_BUTTON, false);
+    onSetSuccessFlag(EnumFb.DIALOG_BUTTON, false);
     onResetAllFb();
     setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN_ALL, true);
     try {
       for (const nlqGoodDiff of nlqGoodDiffs || []) {
+        if (isStopGenManyNlqGoodNewQuestionQueryRef.current) break;
+        setBusyFlag(
+          `${EnumBusy.BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY}-${nlqGoodDiff.id}`,
+          true
+        );
         if (
           nlqGoodDiff.executionStatus === NlqQaGoodWithExecutionStatus.OK ||
           nlqGoodDiff.executionStatus ===
@@ -1047,6 +1294,10 @@ export function SchemaCtxClient({
             return n;
           });
         });
+        setBusyFlag(
+          `${EnumBusy.BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY}-${nlqGoodDiff.id}`,
+          false
+        );
       }
     } finally {
       setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN_ALL, false);
@@ -1057,8 +1308,8 @@ export function SchemaCtxClient({
   const onSaveNewQuestionQueryFromOld = async () => {
     setError(null);
     setSuccess(null);
-    onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
-    onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
+    onSetSuccessFlag(EnumFb.DIALOG_NEW_RUN, false);
+    onSetErrorFlag(EnumFb.DIALOG_NEW_RUN, false);
     try {
       setNlqGoodDiffs((prev) => {
         return prev.map((n) => {
@@ -1074,13 +1325,13 @@ export function SchemaCtxClient({
         });
       });
       onSetSuccessFlag(
-        FbFlags.DIALOG_NEW_RUN,
+        EnumFb.DIALOG_NEW_RUN,
         true,
         "New question and query saved successfully."
       );
     } catch (error) {
       onSetErrorFlag(
-        FbFlags.DIALOG_NEW_RUN,
+        EnumFb.DIALOG_NEW_RUN,
         true,
         "Failed to save new question and query."
       );
@@ -1090,8 +1341,8 @@ export function SchemaCtxClient({
   const onDeleteQuestionQueryDiff = async () => {
     setError(null);
     setSuccess(null);
-    onSetSuccessFlag(FbFlags.DIALOG_NEW_RUN, false);
-    onSetErrorFlag(FbFlags.DIALOG_NEW_RUN, false);
+    onSetSuccessFlag(EnumFb.DIALOG_NEW_RUN, false);
+    onSetErrorFlag(EnumFb.DIALOG_NEW_RUN, false);
 
     const selectedId = selectedNlqGoodDiff?.id;
 
@@ -1110,13 +1361,13 @@ export function SchemaCtxClient({
         });
       });
       onSetSuccessFlag(
-        FbFlags.DIALOG_NEW_RUN,
+        EnumFb.DIALOG_NEW_RUN,
         true,
         "New question and query mark to deleted successfully."
       );
     } catch (error) {
       onSetErrorFlag(
-        FbFlags.DIALOG_NEW_RUN,
+        EnumFb.DIALOG_NEW_RUN,
         true,
         "Failed to mark to delete new question and query."
       );
@@ -1281,7 +1532,10 @@ export function SchemaCtxClient({
                 type="submit"
                 color="secondary"
                 variant="contained"
-                disabled={isBusy("table")}
+                disabled={
+                  isBusy("table") ||
+                  isBusy(EnumBusy.BTN_GEN_SCHEMA_CTX_AND_PROFILE)
+                }
                 loading={isBusy("table")}
                 sx={{ textTransform: "none" }}
                 onClick={onSearchDiffSchema}
@@ -1293,13 +1547,31 @@ export function SchemaCtxClient({
               <Button
                 variant="outlined"
                 color="info"
-                disabled={false}
-                loading={false}
+                disabled={
+                  isBusy(EnumBusy.BTN_GEN_SCHEMA_CTX_AND_PROFILE) ||
+                  !schemaCtx ||
+                  schemaCtx.length === 0
+                }
+                loading={isBusy(EnumBusy.BTN_GEN_SCHEMA_CTX_AND_PROFILE)}
                 sx={{ textTransform: "none" }}
-                onClick={() => {}}
+                onClick={() => {
+                  onGenManySchemaCtxAndProfile();
+                }}
               >
                 Generate Schema Context & Profile
               </Button>
+              {isBusy(EnumBusy.BTN_GEN_SCHEMA_CTX_AND_PROFILE) && (
+                <Button
+                  variant="outlined"
+                  color="inherit"
+                  sx={{ textTransform: "none" }}
+                  onClick={() => {
+                    onStopProfileAndGenSchemaCtx();
+                  }}
+                >
+                  Stop Gen.
+                </Button>
+              )}
             </Stack>
           </Box>
           {/* Table Schema */}
@@ -1334,6 +1606,23 @@ export function SchemaCtxClient({
                               <IconButton
                                 aria-label="Edit schema context"
                                 size="small"
+                                color={
+                                  isErrorFlag(
+                                    `${EnumFb.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${col.id}`
+                                  )
+                                    ? "error"
+                                    : isSuccessFlag(
+                                          `${EnumFb.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${col.id}`
+                                        )
+                                      ? "success"
+                                      : "inherit"
+                                }
+                                disabled={isBusy(
+                                  `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${col.id}`
+                                )}
+                                loading={isBusy(
+                                  `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${col.id}`
+                                )}
                                 onClick={() =>
                                   openSingleEditor(schema.id, table.id, col.id)
                                 }
@@ -1570,6 +1859,17 @@ export function SchemaCtxClient({
                 Profile
               </Typography>
 
+              {isSuccessFlag(EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX) && (
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  {successMessages[EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX]}
+                </Alert>
+              )}
+              {isErrorFlag(EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX) && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {errorMessages[EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX]}
+                </Alert>
+              )}
+
               <TextField
                 label="Sample top"
                 type="number"
@@ -1585,102 +1885,154 @@ export function SchemaCtxClient({
                 sx={{ mb: 1, width: 200 }}
               />
 
-              {columnProfile === null ? (
-                <Alert severity="warning">
-                  No profile data. Click Profile to fetch.
-                </Alert>
-              ) : (
-                <Box display="grid" gap={1}>
-                  <TextField
-                    label="Max Value"
-                    value={columnProfile?.maxValue || ""}
-                    onChange={(e) =>
-                      setColumnProfile(
-                        (p) =>
-                          ({
-                            ...(p ?? {
-                              maxValue: "",
-                              minValue: "",
-                              countNulls: 0,
-                              countUnique: 0,
-                              sampleUnique: [],
-                            }),
-                            maxValue: e.target.value,
-                          }) as TSchemaCtxColumnProfileDto
-                      )
-                    }
-                    fullWidth
-                    size="small"
-                  />
-                  <TextField
-                    label="Min Value"
-                    value={columnProfile?.minValue || ""}
-                    onChange={(e) =>
-                      setColumnProfile(
-                        (p) =>
-                          ({
-                            ...(p ?? {
-                              maxValue: "",
-                              minValue: "",
-                              countNulls: 0,
-                              countUnique: 0,
-                              sampleUnique: [],
-                            }),
-                            minValue: e.target.value,
-                          }) as TSchemaCtxColumnProfileDto
-                      )
-                    }
-                    fullWidth
-                    size="small"
-                  />
-                  <TextField
-                    label="Count Nulls"
-                    type="number"
-                    value={columnProfile?.countNulls ?? 0}
-                    onChange={(e) =>
-                      setColumnProfile(
-                        (p) =>
-                          ({
-                            ...(p ?? {
-                              maxValue: "",
-                              minValue: "",
-                              countNulls: 0,
-                              countUnique: 0,
-                              sampleUnique: [],
-                            }),
-                            countNulls: Number(e.target.value || 0),
-                          }) as TSchemaCtxColumnProfileDto
-                      )
-                    }
-                    fullWidth
-                    size="small"
-                  />
-                  <TextField
-                    label="Count Unique"
-                    type="number"
-                    value={columnProfile?.countUnique ?? 0}
-                    onChange={(e) =>
-                      setColumnProfile(
-                        (p) =>
-                          ({
-                            ...(p ?? {
-                              maxValue: "",
-                              minValue: "",
-                              countNulls: 0,
-                              countUnique: 0,
-                              sampleUnique: [],
-                            }),
-                            countUnique: Number(e.target.value || 0),
-                          }) as TSchemaCtxColumnProfileDto
-                      )
-                    }
-                    fullWidth
-                    size="small"
-                  />
+              <Box display="grid" gap={1}>
+                <TextField
+                  label="Max Value"
+                  value={columnProfile?.maxValue || ""}
+                  onChange={(e) =>
+                    setColumnProfile(
+                      (p) =>
+                        ({
+                          ...(p ?? {
+                            maxValue: "",
+                            minValue: "",
+                            countNulls: 0,
+                            countUnique: 0,
+                            sampleUnique: [],
+                          }),
+                          maxValue: e.target.value,
+                        }) as TSchemaCtxColumnProfileDto
+                    )
+                  }
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label="Min Value"
+                  value={columnProfile?.minValue || ""}
+                  onChange={(e) =>
+                    setColumnProfile(
+                      (p) =>
+                        ({
+                          ...(p ?? {
+                            maxValue: "",
+                            minValue: "",
+                            countNulls: 0,
+                            countUnique: 0,
+                            sampleUnique: [],
+                          }),
+                          minValue: e.target.value,
+                        }) as TSchemaCtxColumnProfileDto
+                    )
+                  }
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label="Count Nulls"
+                  type="number"
+                  value={columnProfile?.countNulls ?? 0}
+                  onChange={(e) =>
+                    setColumnProfile(
+                      (p) =>
+                        ({
+                          ...(p ?? {
+                            maxValue: "",
+                            minValue: "",
+                            countNulls: 0,
+                            countUnique: 0,
+                            sampleUnique: [],
+                          }),
+                          countNulls: Number(e.target.value || 0),
+                        }) as TSchemaCtxColumnProfileDto
+                    )
+                  }
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label="Count Unique"
+                  type="number"
+                  value={columnProfile?.countUnique ?? 0}
+                  onChange={(e) =>
+                    setColumnProfile(
+                      (p) =>
+                        ({
+                          ...(p ?? {
+                            maxValue: "",
+                            minValue: "",
+                            countNulls: 0,
+                            countUnique: 0,
+                            sampleUnique: [],
+                          }),
+                          countUnique: Number(e.target.value || 0),
+                        }) as TSchemaCtxColumnProfileDto
+                    )
+                  }
+                  fullWidth
+                  size="small"
+                />
 
-                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <Typography variant="subtitle2">Sample Unique</Typography>
-                    <Button
+                <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                  <Typography variant="subtitle2">Sample Unique</Typography>
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      setColumnProfile(
+                        (p) =>
+                          ({
+                            ...(p ?? {
+                              maxValue: "",
+                              minValue: "",
+                              countNulls: 0,
+                              countUnique: 0,
+                              sampleUnique: [],
+                            }),
+                            sampleUnique: [
+                              ...((p?.sampleUnique as string[]) || []),
+                              "",
+                            ],
+                          }) as TSchemaCtxColumnProfileDto
+                      )
+                    }
+                    startIcon={<AddIcon />}
+                  >
+                    Add
+                  </Button>
+                </Box>
+
+                {!(columnProfile?.sampleUnique || []).length && (
+                  <Typography color="text.secondary">
+                    No samples defined.
+                  </Typography>
+                )}
+                {(columnProfile?.sampleUnique || []).map((alias, idx) => (
+                  <Box key={idx} sx={{ display: "flex", gap: 1 }}>
+                    <TextField
+                      label={`Sample ${idx + 1}`}
+                      value={alias}
+                      onChange={(e) =>
+                        setColumnProfile(
+                          (p) =>
+                            ({
+                              ...(p ?? {
+                                maxValue: "",
+                                minValue: "",
+                                countNulls: 0,
+                                countUnique: 0,
+                                sampleUnique: [],
+                              }),
+                              sampleUnique: (p?.sampleUnique || []).map(
+                                (v, i) => (i === idx ? e.target.value : v)
+                              ),
+                            }) as TSchemaCtxColumnProfileDto
+                        )
+                      }
+                      fullWidth
+                      size="small"
+                    />
+                    <IconButton
+                      aria-label="remove-sample"
                       size="small"
                       onClick={() =>
                         setColumnProfile(
@@ -1693,76 +2045,18 @@ export function SchemaCtxClient({
                                 countUnique: 0,
                                 sampleUnique: [],
                               }),
-                              sampleUnique: [
-                                ...((p?.sampleUnique as string[]) || []),
-                                "",
-                              ],
+                              sampleUnique: (p?.sampleUnique || []).filter(
+                                (_, i) => i !== idx
+                              ),
                             }) as TSchemaCtxColumnProfileDto
                         )
                       }
-                      startIcon={<AddIcon />}
                     >
-                      Add
-                    </Button>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
                   </Box>
-
-                  {!(columnProfile?.sampleUnique || []).length && (
-                    <Typography color="text.secondary">
-                      No samples defined.
-                    </Typography>
-                  )}
-                  {(columnProfile?.sampleUnique || []).map((alias, idx) => (
-                    <Box key={idx} sx={{ display: "flex", gap: 1 }}>
-                      <TextField
-                        label={`Sample ${idx + 1}`}
-                        value={alias}
-                        onChange={(e) =>
-                          setColumnProfile(
-                            (p) =>
-                              ({
-                                ...(p ?? {
-                                  maxValue: "",
-                                  minValue: "",
-                                  countNulls: 0,
-                                  countUnique: 0,
-                                  sampleUnique: [],
-                                }),
-                                sampleUnique: (p?.sampleUnique || []).map(
-                                  (v, i) => (i === idx ? e.target.value : v)
-                                ),
-                              }) as TSchemaCtxColumnProfileDto
-                          )
-                        }
-                        fullWidth
-                        size="small"
-                      />
-                      <IconButton
-                        aria-label="remove-sample"
-                        size="small"
-                        onClick={() =>
-                          setColumnProfile(
-                            (p) =>
-                              ({
-                                ...(p ?? {
-                                  maxValue: "",
-                                  minValue: "",
-                                  countNulls: 0,
-                                  countUnique: 0,
-                                  sampleUnique: [],
-                                }),
-                                sampleUnique: (p?.sampleUnique || []).filter(
-                                  (_, i) => i !== idx
-                                ),
-                              }) as TSchemaCtxColumnProfileDto
-                          )
-                        }
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  ))}
-                </Box>
-              )}
+                ))}
+              </Box>
             </Box>
           </Box>
         </DialogContent>
@@ -2596,15 +2890,15 @@ export function SchemaCtxClient({
                             >
                               old run
                             </Button>
-                            {isErrorFlag(FbFlags.DIALOG_OLD_RUN) && (
+                            {isErrorFlag(EnumFb.DIALOG_OLD_RUN) && (
                               <Alert severity="error" sx={{ mb: 2 }}>
-                                {errorMessages[FbFlags.DIALOG_OLD_RUN] ||
+                                {errorMessages[EnumFb.DIALOG_OLD_RUN] ||
                                   "Error executing old query."}
                               </Alert>
                             )}
-                            {isSuccessFlag(FbFlags.DIALOG_OLD_RUN) && (
+                            {isSuccessFlag(EnumFb.DIALOG_OLD_RUN) && (
                               <Alert severity="success" sx={{ mb: 2 }}>
-                                {successMessages[FbFlags.DIALOG_OLD_RUN] ||
+                                {successMessages[EnumFb.DIALOG_OLD_RUN] ||
                                   "Old query executed successfully."}
                               </Alert>
                             )}
@@ -2692,15 +2986,15 @@ export function SchemaCtxClient({
                                 DELETE
                               </Button>
                             </Stack>
-                            {isErrorFlag(FbFlags.DIALOG_NEW_RUN) && (
+                            {isErrorFlag(EnumFb.DIALOG_NEW_RUN) && (
                               <Alert severity="error" sx={{ mt: 2 }}>
-                                {errorMessages[FbFlags.DIALOG_NEW_RUN] ||
+                                {errorMessages[EnumFb.DIALOG_NEW_RUN] ||
                                   "Error executing new query."}
                               </Alert>
                             )}
-                            {isSuccessFlag(FbFlags.DIALOG_NEW_RUN) && (
+                            {isSuccessFlag(EnumFb.DIALOG_NEW_RUN) && (
                               <Alert severity="success" sx={{ mt: 2 }}>
-                                {successMessages[FbFlags.DIALOG_NEW_RUN] ||
+                                {successMessages[EnumFb.DIALOG_NEW_RUN] ||
                                   "New query executed successfully."}
                               </Alert>
                             )}
@@ -2738,32 +3032,32 @@ export function SchemaCtxClient({
             >
               Back
             </Button>
-            {isErrorFlag(FbFlags.DIALOG_BUTTON) && (
+            {isErrorFlag(EnumFb.DIALOG_BUTTON) && (
               <Alert severity="error" sx={{ mr: 2 }}>
-                {errorMessages[FbFlags.DIALOG_BUTTON] ||
-                  "Something went wrong."}
+                {errorMessages[EnumFb.DIALOG_BUTTON] || "Something went wrong."}
               </Alert>
             )}
-            {isSuccessFlag(FbFlags.DIALOG_BUTTON) && (
+            {isSuccessFlag(EnumFb.DIALOG_BUTTON) && (
               <Alert severity="success" sx={{ mr: 2 }}>
-                {successMessages[FbFlags.DIALOG_BUTTON] ||
+                {successMessages[EnumFb.DIALOG_BUTTON] ||
                   "Operation successful."}
               </Alert>
             )}
             <Box sx={{ flex: "1 1 auto" }} />
             {activeStep === 1 && (
-              <Button
-                variant="outlined"
-                color="secondary"
-                onClick={() => onGenManyNewQuestionQueryFromOldAndExecute()}
-                sx={{
-                  mr: 4,
-                }}
-                disabled={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL)}
-                loading={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL)}
-              >
-                Gen. All
-              </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => onGenManyNewQuestionQueryFromOldAndExecute()}
+                  sx={{
+                    mr: 4,
+                  }}
+                  disabled={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL)}
+                  loading={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL)}
+                >
+                  Gen. All
+                </Button>
+              </>
             )}
             {activeStep === steps.length - 1 ? (
               <></>
