@@ -207,6 +207,18 @@ export function SchemaCtxClient({
     setColumnAliases([]);
   };
 
+  const resetDiffEditorState = () => {
+    setOpenDiffEditor(false);
+    setSchemaCtxDiff(null);
+    setSchemaDiffCount(null);
+    setNlqGoodDiffCount(null);
+    setNlqGoodDiffs(null);
+    setOldRows(null);
+    setNewRows(null);
+    setExtraMessage("");
+    handleReset();
+  };
+
   const openSingleEditor = (
     schemaId: string,
     tableId: string,
@@ -1819,9 +1831,9 @@ export function SchemaCtxClient({
                   optional?: React.ReactNode;
                 } = {};
                 if (isStepOptional(index)) {
-                  labelProps.optional = (
-                    <Typography variant="caption">Optional</Typography>
-                  );
+                  // labelProps.optional = (
+                  //   <Typography variant="caption">Optional</Typography>
+                  // );
                 }
                 if (isStepSkipped(index)) {
                   stepProps.completed = false;
@@ -2754,7 +2766,9 @@ export function SchemaCtxClient({
             variant="outlined"
             color="error"
             sx={{ textTransform: "none" }}
-            onClick={() => {}}
+            onClick={() => {
+              resetDiffEditorState();
+            }}
           >
             Close
           </Button>
