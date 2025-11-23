@@ -326,15 +326,8 @@ export function SchemaCtxClient({
     );
   };
 
-  const setBusyFlag = (key: string, on: boolean) => {
-    setBusy((prev) => {
-      const s = new Set(prev);
-      if (on) s.add(key);
-      else s.delete(key);
-      return s;
     });
   };
-  const isBusy = (key: string) => busy.has(key);
 
   const truncateText = (txt?: string | null, limit = 5) => {
     if (!txt) return "-";
@@ -403,6 +396,16 @@ export function SchemaCtxClient({
   };
 
   const isSuccessFlag = (key: string) => successFlag.has(key);
+
+  const setBusyFlag = (key: string, on: boolean) => {
+    setBusy((prev) => {
+      const s = new Set(prev);
+      if (on) s.add(key);
+      else s.delete(key);
+      return s;
+    });
+  };
+  const isBusy = (key: string) => busy.has(key);
 
   // ================ ERROR / SUCCESS FLAG HELPERS - UP
   //  =================
