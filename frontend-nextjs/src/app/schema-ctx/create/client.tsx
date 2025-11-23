@@ -8,6 +8,7 @@ import {
   TSchemaCtxColumnProfileDto,
   TSchemaCtxSimpleSchemaDto,
   SchemaCtxDiffStatus,
+  schemaCtxBase,
 } from "@/core/application/dtos/schemaCtx.dto";
 import { CreateSchemaCtxAction } from "@/_actions/schemaCtx/create.action";
 import {
@@ -37,16 +38,13 @@ import {
   TextField,
   Tooltip,
   Typography,
-  Divider,
 } from "@mui/material";
 import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import DoneIcon from "@mui/icons-material/Done";
 import UndoIcon from "@mui/icons-material/Undo";
-import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 import { ReadDiffSchemaCtxAction } from "@/_actions/schemaCtx/diff-by-conn-ids.action";
 import { ReadNewSchemaCtxAction } from "@/_actions/schemaCtx/new-by-conn-ids.action";
 import { InfoProfileExtractorAction } from "@/_actions/nlq-qa-info/profile-extractor.action";
@@ -70,6 +68,8 @@ import {
   CountNlqGoodChangesAction,
   TCountNlqGoodChangesResult,
 } from "@/_actions/utils/count-nlq-good-changes.action";
+import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
+import { set } from "zod";
 
 const steps = ["Schema Differences", "Knowledge source", "Summary"];
 
@@ -91,6 +91,8 @@ enum EnumBusy {
   NLQ_GOOD_NEW_RUN = "nlqGoodNewRun",
   NLQ_GOOD_NEW_GEN = "nlqGoodNewGen",
   BTN_SAVE_SCHEMA_CTX_DIFF_NLQ_GOOD = "btnSaveSchemaCtxDiffNlqGood",
+  BTN_FINISH_SCHEMA_DIFF_AND_NLQ_GOOD = "btnFinishSchemaDiffAndNlqGood",
+  NLQ_GOOD_NEW_GEN_ALL = "NLQ_GOOD_NEW_GEN_ALL",
 }
 
 enum FbFlags {
@@ -965,6 +967,70 @@ export function SchemaCtxClient({
         );
     } finally {
       setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN, false);
+    }
+  };
+
+  const onGenManyNewQuestionQueryFromOldAndExecute = async () => {
+    setError(null);
+    setSuccess(null);
+    onSetErrorFlag(FbFlags.DIALOG_BUTTON, false);
+    onSetSuccessFlag(FbFlags.DIALOG_BUTTON, false);
+    onResetAllBusy();
+    onResetAllFb();
+    setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN_ALL, true);
+    try {
+      for (const nlqGoodDiff of nlqGoodDiffs || []) {
+        if (
+          nlqGoodDiff.executionStatus === NlqQaGoodWithExecutionStatus.OK ||
+          nlqGoodDiff.executionStatus ===
+            NlqQaGoodWithExecutionStatus.TO_DELETE ||
+          nlqGoodDiff.executionStatus ===
+            NlqQaGoodWithExecutionStatus.CORRECTED ||
+          nlqGoodDiff.executionStatus === NlqQaGoodWithExecutionStatus.NOTHING
+        )
+          continue;
+        const findSchemaCtxDiffByNlqGood =
+          await FindSchemaCtxDiffByNlqGoodAction(schemaCtxDiff, nlqGoodDiff);
+
+        console.log(
+          "FOUND SCHEMA CTX DIFF BY NLQ GOOD: ",
+          findSchemaCtxDiffByNlqGood
+        );
+
+        const rg = await GenNewQuestionQueryFromOldAction({
+          previousQuestion: nlqGoodDiff?.question || "",
+          previousQuery: nlqGoodDiff?.query || "",
+          schemaCtxDiff: findSchemaCtxDiffByNlqGood,
+        });
+        const rgData = rg.data;
+        const rgOk = rg.ok;
+
+        const ri = await InfoExtractorAction({
+          query: rgData?.query?.trim() || "",
+          connId: nlqGoodDiff?.dbConnectionId || "",
+        });
+        const riData = ri.data;
+        const riOk = ri.ok;
+        const execStatus =
+          rgOk && riOk
+            ? NlqQaGoodWithExecutionStatus.CORRECTED
+            : NlqQaGoodWithExecutionStatus.FAILED;
+        setNlqGoodDiffs((prev) => {
+          return prev?.map((n) => {
+            if (n.id === nlqGoodDiff.id) {
+              return {
+                ...n,
+                newQuestion: rgData?.question || "",
+                newQuery: rgData?.query || "",
+                executionStatus: execStatus,
+              };
+            }
+            return n;
+          });
+        });
+      }
+    } finally {
+      onResetAllBusy();
     }
   };
 
@@ -2548,7 +2614,7 @@ export function SchemaCtxClient({
                                 }}
                                 sx={{ mb: 2 }}
                               >
-                                Done
+                                DELETE
                               </Button>
                             </Stack>
                             {isErrorFlag(FbFlags.DIALOG_NEW_RUN) && (
@@ -2597,7 +2663,33 @@ export function SchemaCtxClient({
             >
               Back
             </Button>
+            {isErrorFlag(FbFlags.DIALOG_BUTTON) && (
+              <Alert severity="error" sx={{ mr: 2 }}>
+                {errorMessages[FbFlags.DIALOG_BUTTON] ||
+                  "Something went wrong."}
+              </Alert>
+            )}
+            {isSuccessFlag(FbFlags.DIALOG_BUTTON) && (
+              <Alert severity="success" sx={{ mr: 2 }}>
+                {successMessages[FbFlags.DIALOG_BUTTON] ||
+                  "Operation successful."}
+              </Alert>
+            )}
             <Box sx={{ flex: "1 1 auto" }} />
+            {activeStep === 1 && (
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => onGenManyNewQuestionQueryFromOldAndExecute()}
+                sx={{
+                  mr: 4,
+                }}
+                disabled={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL)}
+                loading={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL)}
+              >
+                Gen. All
+              </Button>
+            )}
             {activeStep === steps.length - 1 ? (
               <></>
             ) : (
