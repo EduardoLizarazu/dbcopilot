@@ -38,7 +38,6 @@ import {
   TextField,
   Tooltip,
   Typography,
-  CircularProgress,
 } from "@mui/material";
 import { TDbConnectionDto } from "@/core/application/dtos/dbconnection.dto";
 import EditIcon from "@mui/icons-material/Edit";
@@ -69,10 +68,6 @@ import {
   TCountNlqGoodChangesResult,
 } from "@/_actions/utils/count-nlq-good-changes.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
-import { set } from "zod";
-import { on } from "events";
-import { consoleLogAction } from "@/_actions/utils/console-log";
-
 const steps = ["Schema Differences", "Knowledge source", "Summary"];
 
 enum SchemaCtxDiffLevel {
