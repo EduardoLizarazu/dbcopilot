@@ -71,6 +71,7 @@ import {
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 import { set } from "zod";
 import { on } from "events";
+import { consoleLogAction } from "@/_actions/utils/console-log";
 
 const steps = ["Schema Differences", "Knowledge source", "Summary"];
 
@@ -174,6 +175,17 @@ export function SchemaCtxClient({
   React.useEffect(() => {
     isStopProfileAndGenSchemaCtxRef.current = isStopProfileAndGenSchemaCtx;
   }, [isStopProfileAndGenSchemaCtx]);
+  const [
+    isStopGenManyNlqGoodNewQuestionQuery,
+    setIsStopGenManyNlqGoodNewQuestionQuery,
+  ] = React.useState(false);
+  const isStopGenManyNlqGoodNewQuestionQueryRef = React.useRef(
+    isStopGenManyNlqGoodNewQuestionQuery
+  );
+  React.useEffect(() => {
+    isStopGenManyNlqGoodNewQuestionQueryRef.current =
+      isStopGenManyNlqGoodNewQuestionQuery;
+  }, [isStopGenManyNlqGoodNewQuestionQuery]);
   // ================ SINGLE SCHEMA EDITOR STATES =================
   // Single-item selection state (which schema/table/column we're editing)
   const [selectedSchemaId, setSelectedSchemaId] = React.useState<string | null>(
@@ -1231,20 +1243,39 @@ export function SchemaCtxClient({
     }
   };
 
+  const onStopGenManyNlqGoodNewQuestionQuery = () => {
+    setIsStopGenManyNlqGoodNewQuestionQuery(true);
+    isStopGenManyNlqGoodNewQuestionQueryRef.current = true;
+  };
   const onGenManyNewQuestionQueryFromOldAndExecute = async () => {
     setError(null);
     setSuccess(null);
     onSetErrorFlag(EnumFb.DIALOG_BUTTON, false);
     onSetSuccessFlag(EnumFb.DIALOG_BUTTON, false);
     onResetAllFb();
+    onResetAllBusy();
     setBusyFlag(EnumBusy.NLQ_GOOD_NEW_GEN_ALL, true);
+    setIsStopGenManyNlqGoodNewQuestionQuery(false);
+    isStopGenManyNlqGoodNewQuestionQueryRef.current = false;
     try {
+      let count = 0;
       for (const nlqGoodDiff of nlqGoodDiffs || []) {
         if (isStopGenManyNlqGoodNewQuestionQueryRef.current) break;
+        count += 1;
+        console.log(
+          "GENERATING NLQ GOOD NEW QUESTION/QUERY FOR: ",
+          nlqGoodDiff
+        );
+        console.log("COUNT: ", count);
+        console.log(
+          "BUSY: ",
+          `${EnumBusy.BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY}-${nlqGoodDiff.id}`
+        );
         setBusyFlag(
           `${EnumBusy.BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY}-${nlqGoodDiff.id}`,
           true
         );
+
         if (
           nlqGoodDiff.executionStatus === NlqQaGoodWithExecutionStatus.OK ||
           nlqGoodDiff.executionStatus ===
@@ -1341,6 +1372,7 @@ export function SchemaCtxClient({
   const onDeleteQuestionQueryDiff = async () => {
     setError(null);
     setSuccess(null);
+    onResetAllFb();
     onSetSuccessFlag(EnumFb.DIALOG_NEW_RUN, false);
     onSetErrorFlag(EnumFb.DIALOG_NEW_RUN, false);
 
@@ -1569,7 +1601,9 @@ export function SchemaCtxClient({
                     onStopProfileAndGenSchemaCtx();
                   }}
                 >
-                  Stop Gen.
+                  {isStopProfileAndGenSchemaCtxRef.current
+                    ? "Stopping..."
+                    : "Stop"}
                 </Button>
               )}
             </Stack>
@@ -2810,6 +2844,12 @@ export function SchemaCtxClient({
                                                       nlqGoodId: diff.id,
                                                     })
                                                   }
+                                                  disabled={isBusy(
+                                                    `${EnumBusy.BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY}-${diff.id}`
+                                                  )}
+                                                  loading={isBusy(
+                                                    `${EnumBusy.BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY}-${diff.id}`
+                                                  )}
                                                 >
                                                   <EditIcon fontSize="small" />
                                                 </IconButton>
@@ -3045,6 +3085,19 @@ export function SchemaCtxClient({
             )}
             <Box sx={{ flex: "1 1 auto" }} />
             {activeStep === 1 && (
+              <>
+                {isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL) && (
+                  <Button
+                    variant="outlined"
+                    color="inherit"
+                    sx={{ mr: 2 }}
+                    onClick={() => onStopGenManyNlqGoodNewQuestionQuery()}
+                  >
+                    {isStopGenManyNlqGoodNewQuestionQueryRef.current
+                      ? "Stopping..."
+                      : "Stop"}
+                  </Button>
+                )}
                 <Button
                   variant="outlined"
                   color="secondary"
@@ -3052,7 +3105,11 @@ export function SchemaCtxClient({
                   sx={{
                     mr: 4,
                   }}
-                  disabled={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL)}
+                  disabled={
+                    isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL) ||
+                    !nlqGoodDiffs ||
+                    nlqGoodDiffs?.length === 0
+                  }
                   loading={isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL)}
                 >
                   Gen. All
