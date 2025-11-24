@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import { TSchemaCtxBaseDto } from "@/core/application/dtos/schemaCtx.dto";
 import { ReadSchemaCtxByConnIdAction } from "@/_actions/schemaCtx/by-conn-id.action";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 type Anchor = "right";
 
@@ -32,9 +34,9 @@ export function SchemaCtxDrawerComponent({
   const [state, setState] = React.useState({
     right: false,
   });
-  const [error, setError] = React.useState<string | null>(null);
-  const [success, setSuccess] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+
+  const [openCollTable, setOpenCollTable] = React.useState(false);
 
   const [schemaCtxBase, setSchemaCtxBase] =
     React.useState<TSchemaCtxBaseDto | null>(null);
@@ -115,8 +117,18 @@ export function SchemaCtxDrawerComponent({
                   {schemaCtxBase?.schemaCtx?.map((schema) =>
                     schema.tables.map((table) =>
                       table.columns.map((column, index) => (
-                        <TableRow key={index}>
-                          <TableCell />
+                        <TableRow key={index} hover>
+                          <TableCell>
+                            <IconButton
+                              onClick={() => setOpenCollTable((prev) => !prev)}
+                            >
+                              {openCollTable ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )}
+                            </IconButton>
+                          </TableCell>
                           <TableCell>{schema.name}</TableCell>
                           <TableCell>{table.name}</TableCell>
                           <TableCell>{column.name}</TableCell>
