@@ -12,35 +12,35 @@ export async function UpdateNlqQaGoodAction(
 ): Promise<TResOutContent<TNlqQaGoodOutRequestDto>> {
   console.log("Updating NLQ QA Good...", input);
 
-  // const nlqQaGoodRes = await fetch(`${domain}/api/nlq-qa-good/${input.id}`, {
-  //   method: "PUT",
-  //   body: JSON.stringify({ ...input }),
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //     Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
-  //   },
-  // });
-  // console.log("Response:", nlqQaGoodRes);
+  const nlqQaGoodRes = await fetch(`${domain}/api/nlq-qa-good/${input.id}`, {
+    method: "PUT",
+    body: JSON.stringify({ ...input }),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
+    },
+  });
+  console.log("Response:", nlqQaGoodRes);
 
-  // if (!nlqQaGoodRes.ok) {
-  //   const nlqQaGoodDateError = await nlqQaGoodRes.json();
-  //   console.log(
-  //     "NLQ QA Good update error:",
-  //     nlqQaGoodDateError.message || nlqQaGoodRes.statusText
-  //   );
-  //   return {
-  //     ok: false,
-  //     data: null,
-  //     message: nlqQaGoodDateError?.message || "Failed to update NLQ QA Good",
-  //   };
-  // }
+  if (!nlqQaGoodRes.ok) {
+    const nlqQaGoodDateError = await nlqQaGoodRes.json();
+    console.log(
+      "NLQ QA Good update error:",
+      nlqQaGoodDateError.message || nlqQaGoodRes.statusText
+    );
+    return {
+      ok: false,
+      data: null,
+      message: nlqQaGoodDateError?.message || "Failed to update NLQ QA Good",
+    };
+  }
 
-  // const nlqQaGoodData = await nlqQaGoodRes.json();
-  // console.log("Updated NLQ QA Good:", nlqQaGoodData);
+  const nlqQaGoodData = await nlqQaGoodRes.json();
+  console.log("Updated NLQ QA Good:", nlqQaGoodData);
 
-  // return {
-  //   ok: true,
-  //   data: nlqQaGoodData.data,
-  //   message: nlqQaGoodData.message || "Successfully updated NLQ QA Good",
-  // };
+  return {
+    ok: true,
+    data: nlqQaGoodData.data,
+    message: nlqQaGoodData.message || "Successfully updated NLQ QA Good",
+  };
 }

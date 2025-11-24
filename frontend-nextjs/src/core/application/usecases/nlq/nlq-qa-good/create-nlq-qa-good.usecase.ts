@@ -1,4 +1,5 @@
 import {
+  NlqQaGoodWithExecutionStatus,
   TNlqQaGoodInRequestDto,
   TNlqQaGoodOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
@@ -66,6 +67,7 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
       const createdNlqQaGood = await this.createNlqQaGoodStep.run({
         question: validData.question,
         query: validData.query,
+        executionStatus: NlqQaGoodWithExecutionStatus.OK,
         originId: validData.originId,
         dbConnectionId: validData.dbConnectionId,
         questionBy: validData.questionBy,

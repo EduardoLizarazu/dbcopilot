@@ -1,4 +1,5 @@
 import {
+  NlqQaGoodWithExecutionStatus,
   TNlqQaGoodOutRequestDto,
   TUpdateNlqQaGoodDto,
   TUpdateNlqQaGoodInRqDto,
@@ -9,6 +10,7 @@ import { IReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/applicat
 import { IGenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
 import { IAddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/add-to-knowledge-base.step";
 import { IDeleteOnKnowledgeBaseByIdStep } from "@/core/application/steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
+import { IDeleteNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/delete-nlq-qa-good.step";
 import { IUpdateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good.step";
 import { IValidateUpdateNlqQaGoodInputDataStep } from "@/core/application/steps/nlq-qa-good/validate-update-nlq-qa-good-input-data.step";
 
@@ -39,6 +41,7 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
     private readonly ensureDbConnWithSplitterExistsStep: IReadDbConnectionWithSplitterAndSchemaQueryStep,
     private readonly addToKnowledgeBaseStep: IAddToTheKnowledgeBaseStep,
     private readonly deleteOnKnowledgeBaseByIdStep: IDeleteOnKnowledgeBaseByIdStep,
+    private readonly deleteNlqQaGoodStep: IDeleteNlqQaGoodStep,
     private readonly updateNlqQaGoodStep: IUpdateNlqQaGoodStep,
     private readonly genTableColumnsStep: IGenTableColumnsStep
   ) {}
@@ -94,6 +97,22 @@ export class UpdateNlqQaGoodUseCase implements IUpdateNlqQaGoodUseCase {
         this.logger.info(
           `[UpdateNlqQaGoodUseCase] Added updated NLQ QA Good with ID: ${id} to knowledge base`
         );
+      }
+
+      // If execution status is TO_DELETE, delete the NLQ QA Good entry
+      if (
+        validInputData.executionStatus ===
+        NlqQaGoodWithExecutionStatus.TO_DELETE
+      ) {
+        await this.deleteNlqQaGoodStep.run(id);
+        this.logger.info(
+          `[UpdateNlqQaGoodUseCase] Deleted NLQ QA Good with ID: ${id} as executionStatus is TO_DELETE`
+        );
+        return {
+          success: true,
+          data: null,
+          message: "NLQ QA Good deleted successfully",
+        };
       }
 
       // Generate tablesColumns if not provided

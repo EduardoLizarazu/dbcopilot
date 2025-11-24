@@ -67,6 +67,7 @@ import {
   TCountNlqGoodChangesResult,
 } from "@/_actions/utils/count-nlq-good-changes.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
+import { FromNlqGoodDiffToNlqGood } from "@/_actions/utils/from-nlq-good-diff-to-nlq-good-update.action";
 const steps = ["Schema Differences", "Knowledge source", "Summary"];
 
 enum SchemaCtxDiffLevel {
@@ -235,6 +236,7 @@ export function SchemaCtxClient({
     setSchemaDiffCount(null);
     setNlqGoodDiffCount(null);
     setNlqGoodDiffs(null);
+    setSelectedNlqGoodDiff(null);
     setOldRows(null);
     setNewRows(null);
     setExtraMessage("");
@@ -1313,24 +1315,8 @@ export function SchemaCtxClient({
     setIsStopGenManyNlqGoodNewQuestionQuery(false);
     isStopGenManyNlqGoodNewQuestionQueryRef.current = false;
     try {
-      let count = 0;
       for (const nlqGoodDiff of nlqGoodDiffs || []) {
         if (isStopGenManyNlqGoodNewQuestionQueryRef.current) break;
-        count += 1;
-        console.log(
-          "GENERATING NLQ GOOD NEW QUESTION/QUERY FOR: ",
-          nlqGoodDiff
-        );
-        console.log("COUNT: ", count);
-        console.log(
-          "BUSY: ",
-          `${EnumBusy.BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY}-${nlqGoodDiff.id}`
-        );
-        setBusyFlag(
-          `${EnumBusy.BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY}-${nlqGoodDiff.id}`,
-          true
-        );
-
         if (
           nlqGoodDiff.executionStatus === NlqQaGoodWithExecutionStatus.OK ||
           nlqGoodDiff.executionStatus ===
@@ -1338,15 +1324,15 @@ export function SchemaCtxClient({
           nlqGoodDiff.executionStatus ===
             NlqQaGoodWithExecutionStatus.CORRECTED ||
           nlqGoodDiff.executionStatus === NlqQaGoodWithExecutionStatus.NOTHING
-        )
+        ) {
           continue;
+        }
+        setBusyFlag(
+          `${EnumBusy.BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY}-${nlqGoodDiff.id}`,
+          true
+        );
         const findSchemaCtxDiffByNlqGood =
           await FindSchemaCtxDiffByNlqGoodAction(schemaCtxDiff, nlqGoodDiff);
-
-        console.log(
-          "FOUND SCHEMA CTX DIFF BY NLQ GOOD: ",
-          findSchemaCtxDiffByNlqGood
-        );
 
         const rg = await GenNewQuestionQueryFromOldAction({
           previousQuestion: nlqGoodDiff?.question || "",
@@ -1461,41 +1447,46 @@ export function SchemaCtxClient({
     }
   };
 
-  // finalize schema ctx diff and nlq good changes
-  const [isDiffFinalized, setIsDiffFinalized] = React.useState(false);
-  React.useEffect(() => {
-    (async () => {
-      try {
-        if (isDiffFinalized) {
-          // await onFinishSchemaDiffAndNlqGood();
-        }
-      } finally {
-      }
-    })();
-  }, [isDiffFinalized]);
+  // ============== FINALIZE SCHEMA CTX AND NLQ GOOD DIFFS - DOWN =================
   async function onFinishSchemaDiffAndNlqGood() {
     onResetAllFb();
     setBusyFlag(EnumBusy.BTN_FINISH_SCHEMA_DIFF_AND_NLQ_GOOD, true);
     try {
-      for (const nlqGood of nlqGoodDiffs || []) {
+      // prepare as well nlq good with execution to be saved
+      const nlqGoodsToUpdate = await FromNlqGoodDiffToNlqGood({
+        nlqGoodDiff: nlqGoodDiffs || [],
+      });
+      const resNlqGoodFail = [];
+      for (const nlqGood of nlqGoodsToUpdate || []) {
         console.log("NLQ GOOD DIFF TO PROCESS: ", nlqGood);
-        const updatedNlqGood = await UpdateNlqQaGoodAction(nlqGood);
+        const resNlqGood = await UpdateNlqQaGoodAction(nlqGood);
+        if (!resNlqGood.ok) {
+          resNlqGoodFail.push({
+            nlqGood: nlqGood,
+            message: resNlqGood.message || "Failed to update NLQ QA Good.",
+          });
+        }
       }
+
+      console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
 
       // merge schema ctx with diffs
       const mergeSchemaCtxWithDiffs = await FromSchemaDiffToSchemaCtxAction({
         oldSchemaCtx: schemaCtx,
         schemasCtxDiff: schemaCtxDiff,
       });
+
       console.log("SCHEMA CTX DIFFS: ", schemaCtxDiff);
       console.log("MERGED SCHEMA CTX WITH DIFFS: ", mergeSchemaCtxWithDiffs);
       setSchemaCtx(mergeSchemaCtxWithDiffs);
-      // prepare as well nlq good with execution to be saved
     } finally {
-      onResetAllBusy();
+      setBusyFlag(EnumBusy.BTN_FINISH_SCHEMA_DIFF_AND_NLQ_GOOD, false);
       setOpenDiffEditor(false);
+      // reset steps
+      resetDiffEditorState();
     }
   }
+  // ================ FINALIZE SCHEMA CTX AND NLQ GOOD DIFFS - UP =================
 
   return (
     <Box>
@@ -2314,7 +2305,7 @@ export function SchemaCtxClient({
                       </Grid>
                     </Grid>
                     <Button
-                      onClick={() => setIsDiffFinalized(true)}
+                      onClick={() => onFinishSchemaDiffAndNlqGood()}
                       variant="contained"
                       color="primary"
                       sx={{ mt: 2 }}

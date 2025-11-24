@@ -2,6 +2,7 @@ import { ReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/applicati
 import { GenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
 import { AddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/add-to-knowledge-base.step";
 import { DeleteOnKnowledgeBaseByIdStep } from "@/core/application/steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
+import { DeleteNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/delete-nlq-qa-good.step";
 import { UpdateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good.step";
 import { ValidateUpdateNlqQaGoodInputDataStep } from "@/core/application/steps/nlq-qa-good/validate-update-nlq-qa-good-input-data.step";
 import { UpdateNlqQaGoodUseCase } from "@/core/application/usecases/nlq/nlq-qa-good/update-nlq-qa-good.usecase";
@@ -75,6 +76,12 @@ export function updateNlqQaGoodComposer(): IController {
     loggerProvider,
     nlqQaGoodRepo
   );
+
+  const deleteNlqQaGoodStep = new DeleteNlqQaGoodStep(
+    loggerProvider,
+    nlqQaGoodRepo
+  );
+
   const genTableColumnsStep = new GenTableColumnsStep(
     loggerProvider,
     genTopoAdapter
@@ -87,6 +94,7 @@ export function updateNlqQaGoodComposer(): IController {
     ensureDbConnWithSplitterExistsStep,
     addToKnowledgeBaseStep,
     deleteOnKnowledgeBaseByIdStep,
+    deleteNlqQaGoodStep,
     updateNlqQaGoodStep,
     genTableColumnsStep
   );

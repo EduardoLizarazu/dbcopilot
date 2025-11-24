@@ -13,10 +13,11 @@ import {
 //   UNKNOWN = -1,
 // }
 
-export async function FromNlqGoodDiff(data: {
+export async function FromNlqGoodDiffToNlqGood(data: {
   nlqGoodDiff: TNlqQaGoodWithExecutionDto[];
 }): Promise<TUpdateNlqQaGoodInRqDto[]> {
   const nlqGoodDiff = data.nlqGoodDiff;
+
   const updateData = nlqGoodDiff.map((item) => {
     const executionStatus =
       item.executionStatus === NlqQaGoodWithExecutionStatus.CORRECTED
@@ -29,14 +30,13 @@ export async function FromNlqGoodDiff(data: {
 
     return {
       ...rest,
-      question: newQuestion ?? item.question,
-      query: newQuery ?? item.query,
+      question: newQuestion || item.question,
+      query: newQuery || item.query,
       executionStatus,
       isOnKnowledgeSource: !(
-        item.executionStatus === NlqQaGoodWithExecutionStatus.FAILED ||
         item.executionStatus === NlqQaGoodWithExecutionStatus.TO_DELETE
       ),
-    } as TUpdateNlqQaGoodInRqDto;
+    };
   });
   return updateData;
 }

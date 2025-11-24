@@ -36,10 +36,10 @@ export class ValidateUpdateNlqQaGoodInputDataStep
     } catch (error) {
       this.logger.error(
         "Error validating NLQ QA Good update input data",
-        JSON.stringify(error)
+        JSON.stringify(error.message)
       );
       throw new Error(
-        "Error validating NLQ QA Good update input data: " + error.message
+        error.message || "Failed to validate NLQ QA Good update input data"
       );
     }
   }
