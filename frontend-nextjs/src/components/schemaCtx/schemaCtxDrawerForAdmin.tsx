@@ -27,7 +27,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 type Anchor = "right";
 
-export function SchemaCtxDrawerComponent({
+export function SchemaCtxDrawerForAdminComponent({
   dbConnectionId,
 }: {
   dbConnectionId: string;
