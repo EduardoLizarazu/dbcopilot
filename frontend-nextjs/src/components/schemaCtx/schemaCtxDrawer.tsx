@@ -16,6 +16,7 @@ import {
   TableRow,
   Typography,
   Collapse,
+  TextField,
 } from "@mui/material";
 import { TSchemaCtxBaseDto } from "@/core/application/dtos/schemaCtx.dto";
 import { ReadSchemaCtxByConnIdAction } from "@/_actions/schemaCtx/by-conn-id.action";
@@ -46,6 +47,37 @@ export function SchemaCtxDrawerComponent({
 
   const [schemaCtxBase, setSchemaCtxBase] =
     React.useState<TSchemaCtxBaseDto | null>(null);
+
+  // Search query for client-side filtering
+  const [searchQuery, setSearchQuery] = React.useState<string>("");
+
+  const normalize = (s?: any) => (s ?? "").toString().toLowerCase();
+
+  const matchesSearch = (
+    schema: any,
+    table: any,
+    column: any,
+    tokens: string[]
+  ) => {
+    if (!tokens.length) return true;
+
+    const combined = [
+      schema?.name,
+      schema?.description,
+      ...(schema?.aliases ?? []),
+      table?.name,
+      table?.description,
+      ...(table?.aliases ?? []),
+      column?.name,
+      column?.description,
+      ...(column?.aliases ?? []),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return tokens.every((t) => combined.includes(t));
+  };
 
   React.useEffect(() => {
     (async () => {
@@ -84,7 +116,7 @@ export function SchemaCtxDrawerComponent({
 
   const list = () => (
     <Box
-      sx={{ width: 400 }}
+      sx={{ width: 500 }}
       role="presentation"
       // don't close on any click inside the drawer content
       // onKeyDown={toggleDrawer(false)}
@@ -92,9 +124,18 @@ export function SchemaCtxDrawerComponent({
       <Typography variant="h6" sx={{ p: 2 }}>
         Schema Context: {schemaCtxBase?.name || "Not found or selected"}
       </Typography>
+      <Box sx={{ px: 2, pb: 1 }}>
+        <TextField
+          size="small"
+          fullWidth
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </Box>
       <Button
         variant="outlined"
-        sx={{ m: 2, width: "90%" }}
+        sx={{ m: 3, width: "100%", maxWidth: 450 }}
         onClick={toggleDrawer(false)}
       >
         Close
@@ -120,95 +161,111 @@ export function SchemaCtxDrawerComponent({
                 </TableRow>
               ) : (
                 <>
-                  {schemaCtxBase?.schemaCtx?.map((schema) =>
-                    schema.tables.map((table) =>
-                      table.columns.map((column, index) => {
-                        const rowKey =
-                          column.id ??
-                          `${schema.id ?? schema.name}-${table.id ?? table.name}-${column.name}-${index}`;
+                  {(() => {
+                    const tokens = searchQuery
+                      .toLowerCase()
+                      .split(/\s+/)
+                      .filter(Boolean);
 
-                        return (
-                          <React.Fragment key={rowKey}>
-                            <TableRow hover>
-                              <TableCell>
-                                <IconButton onClick={() => toggleRow(rowKey)}>
-                                  {openRows[rowKey] ? (
-                                    <KeyboardArrowUpIcon />
-                                  ) : (
-                                    <KeyboardArrowDownIcon />
-                                  )}
-                                </IconButton>
-                              </TableCell>
-                              <TableCell>{schema.name}</TableCell>
-                              <TableCell>{table.name}</TableCell>
-                              <TableCell>{column.name}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell
-                                style={{ paddingBottom: 0, paddingTop: 0 }}
-                                colSpan={4}
-                              >
-                                <Collapse
-                                  in={!!openRows[rowKey]}
-                                  timeout="auto"
-                                  unmountOnExit
-                                >
-                                  <Box sx={{ margin: 2 }}>
-                                    <Typography variant="subtitle2">
-                                      Column details
-                                    </Typography>
-                                    <Typography variant="body2">
-                                      Description: {column.description ?? "-"}
-                                    </Typography>
-                                    {column.aliases &&
-                                      column.aliases.length > 0 && (
-                                        <Typography variant="body2">
-                                          Aliases: {column.aliases.join(", ")}
-                                        </Typography>
+                    return (
+                      schemaCtxBase?.schemaCtx?.map((schema) =>
+                        schema.tables.map((table) =>
+                          table.columns.map((column, index) => {
+                            if (!matchesSearch(schema, table, column, tokens))
+                              return null;
+
+                            const rowKey =
+                              column.id ??
+                              `${schema.id ?? schema.name}-${table.id ?? table.name}-${column.name}-${index}`;
+
+                            return (
+                              <React.Fragment key={rowKey}>
+                                <TableRow hover>
+                                  <TableCell>
+                                    <IconButton
+                                      onClick={() => toggleRow(rowKey)}
+                                    >
+                                      {openRows[rowKey] ? (
+                                        <KeyboardArrowUpIcon />
+                                      ) : (
+                                        <KeyboardArrowDownIcon />
                                       )}
-                                    <Typography variant="body2">
-                                      Data type: {column.dataType ?? "-"}
-                                    </Typography>
-                                    {column.profile && (
-                                      <Box sx={{ mt: 1 }}>
+                                    </IconButton>
+                                  </TableCell>
+                                  <TableCell>{schema.name}</TableCell>
+                                  <TableCell>{table.name}</TableCell>
+                                  <TableCell>{column.name}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell
+                                    style={{ paddingBottom: 0, paddingTop: 0 }}
+                                    colSpan={4}
+                                  >
+                                    <Collapse
+                                      in={!!openRows[rowKey]}
+                                      timeout="auto"
+                                      unmountOnExit
+                                    >
+                                      <Box sx={{ margin: 2 }}>
                                         <Typography variant="subtitle2">
-                                          Profile
+                                          Column details
                                         </Typography>
-                                        <pre
-                                          style={{
-                                            whiteSpace: "pre-wrap",
-                                            margin: 0,
-                                          }}
-                                        >
-                                          {JSON.stringify(
-                                            column.profile,
-                                            null,
-                                            2
+                                        <Typography variant="body2">
+                                          Description:{" "}
+                                          {column.description || "-"}
+                                        </Typography>
+                                        {column.aliases &&
+                                          column.aliases.length > 0 && (
+                                            <Typography variant="body2">
+                                              Aliases:{" "}
+                                              {column.aliases.join(", ")}
+                                            </Typography>
                                           )}
-                                        </pre>
+                                        <Typography variant="body2">
+                                          Data type: {column.dataType || "-"}
+                                        </Typography>
+                                        {column.profile && (
+                                          <Box sx={{ mt: 1 }}>
+                                            <Typography variant="subtitle2">
+                                              Profile
+                                            </Typography>
+                                            <pre
+                                              style={{
+                                                whiteSpace: "pre-wrap",
+                                                margin: 0,
+                                              }}
+                                            >
+                                              {JSON.stringify(
+                                                column.profile,
+                                                null,
+                                                2
+                                              )}
+                                            </pre>
+                                          </Box>
+                                        )}
+                                        {/* Optionally show table and schema metadata inside the expanded area */}
+                                        <Box sx={{ mt: 1 }}>
+                                          <Typography variant="caption">
+                                            Schema: {schema.name} —{" "}
+                                            {schema.description ?? "-"}
+                                          </Typography>
+                                          <br />
+                                          <Typography variant="caption">
+                                            Table: {table.name} —{" "}
+                                            {table.description ?? "-"}
+                                          </Typography>
+                                        </Box>
                                       </Box>
-                                    )}
-                                    {/* Optionally show table and schema metadata inside the expanded area */}
-                                    <Box sx={{ mt: 1 }}>
-                                      <Typography variant="caption">
-                                        Schema: {schema.name} —{" "}
-                                        {schema.description ?? "-"}
-                                      </Typography>
-                                      <br />
-                                      <Typography variant="caption">
-                                        Table: {table.name} —{" "}
-                                        {table.description ?? "-"}
-                                      </Typography>
-                                    </Box>
-                                  </Box>
-                                </Collapse>
-                              </TableCell>
-                            </TableRow>
-                          </React.Fragment>
-                        );
-                      })
-                    )
-                  )}
+                                    </Collapse>
+                                  </TableCell>
+                                </TableRow>
+                              </React.Fragment>
+                            );
+                          })
+                        )
+                      ) ?? null
+                    );
+                  })()}
                 </>
               )}
             </TableBody>
