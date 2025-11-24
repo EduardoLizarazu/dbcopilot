@@ -4,15 +4,8 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import Button from "@mui/material/Button";
-import List from "@mui/material/List";
-import Divider from "@mui/material/Divider";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
-import { Typography } from "@mui/material";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import { IconButton, Typography } from "@mui/material";
 import { TSchemaCtxBaseDto } from "@/core/application/dtos/schemaCtx.dto";
 import { ReadSchemaCtxByConnIdAction } from "@/_actions/schemaCtx/by-conn-id.action";
 
@@ -91,7 +84,9 @@ export function SchemaCtxDrawerComponent({
   return (
     <div>
       <React.Fragment>
-        <Button onClick={toggleDrawer(true)}>{"right"}</Button>
+        <IconButton onClick={toggleDrawer(true)} color="inherit">
+          <MenuOpenIcon />
+        </IconButton>
         <Drawer
           anchor="right"
           open={state.right}
