@@ -5,7 +5,17 @@ import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import Button from "@mui/material/Button";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
-import { IconButton, Typography } from "@mui/material";
+import {
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { TSchemaCtxBaseDto } from "@/core/application/dtos/schemaCtx.dto";
 import { ReadSchemaCtxByConnIdAction } from "@/_actions/schemaCtx/by-conn-id.action";
 
@@ -32,16 +42,21 @@ export function SchemaCtxDrawerComponent({
   React.useEffect(() => {
     (async () => {
       if (dbConnectionId) {
-        const schemaCtx = await ReadSchemaCtxByConnIdAction({
-          connId: dbConnectionId,
-        });
-        if (schemaCtx?.ok) {
-          setSchemaCtxBase(schemaCtx.data);
+        try {
+          setIsLoading(true);
+          const schemaCtx = await ReadSchemaCtxByConnIdAction({
+            connId: dbConnectionId,
+          });
+          if (schemaCtx?.ok) {
+            setSchemaCtxBase(schemaCtx.data);
+          }
+          console.log(
+            "SchemaCtxDrawerComponent - dbConnectionId changed:",
+            schemaCtx
+          );
+        } finally {
+          setIsLoading(false);
         }
-        console.log(
-          "SchemaCtxDrawerComponent - dbConnectionId changed:",
-          schemaCtx
-        );
       }
     })();
   }, [dbConnectionId]);
@@ -77,7 +92,34 @@ export function SchemaCtxDrawerComponent({
         Close
       </Button>
       {/* You can add more detailed schema context information here */}
-      <Box></Box>
+      <Box>
+        <TableContainer component={Paper}>
+          <Table aria-label="schema context table" size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell />
+                <TableCell sx={{ fontWeight: 700 }}>Schema</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Table</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Column</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {schemaCtxBase?.schemaCtx?.map((schema) =>
+                schema.tables.map((table) =>
+                  table.columns.map((column, index) => (
+                    <TableRow key={index}>
+                      <TableCell />
+                      <TableCell>{schema.name}</TableCell>
+                      <TableCell>{table.name}</TableCell>
+                      <TableCell>{column.name}</TableCell>
+                    </TableRow>
+                  ))
+                )
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
     </Box>
   );
 
