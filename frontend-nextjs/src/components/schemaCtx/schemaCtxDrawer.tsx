@@ -80,7 +80,7 @@ export function SchemaCtxDrawerComponent({
     <Box
       sx={{ width: 400 }}
       role="presentation"
-      onClick={toggleDrawer(false)}
+      // don't close on any click inside the drawer content
       // onKeyDown={toggleDrawer(false)}
     >
       <Typography variant="h6" sx={{ p: 2 }}>
@@ -155,7 +155,6 @@ export function SchemaCtxDrawerComponent({
           anchor="right"
           open={state.right}
           onClose={toggleDrawer(false)}
-          variant="persistent"
           ModalProps={{
             keepMounted: true,
           }}
