@@ -104,17 +104,27 @@ export function SchemaCtxDrawerComponent({
               </TableRow>
             </TableHead>
             <TableBody>
-              {schemaCtxBase?.schemaCtx?.map((schema) =>
-                schema.tables.map((table) =>
-                  table.columns.map((column, index) => (
-                    <TableRow key={index}>
-                      <TableCell />
-                      <TableCell>{schema.name}</TableCell>
-                      <TableCell>{table.name}</TableCell>
-                      <TableCell>{column.name}</TableCell>
-                    </TableRow>
-                  ))
-                )
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <>
+                  {schemaCtxBase?.schemaCtx?.map((schema) =>
+                    schema.tables.map((table) =>
+                      table.columns.map((column, index) => (
+                        <TableRow key={index}>
+                          <TableCell />
+                          <TableCell>{schema.name}</TableCell>
+                          <TableCell>{table.name}</TableCell>
+                          <TableCell>{column.name}</TableCell>
+                        </TableRow>
+                      ))
+                    )
+                  )}
+                </>
               )}
             </TableBody>
           </Table>
