@@ -17,6 +17,7 @@ import {
   Typography,
   Collapse,
   TextField,
+  Divider,
 } from "@mui/material";
 import { TSchemaCtxBaseDto } from "@/core/application/dtos/schemaCtx.dto";
 import { ReadSchemaCtxByConnIdAction } from "@/_actions/schemaCtx/by-conn-id.action";
@@ -207,12 +208,41 @@ export function SchemaCtxDrawerComponent({
                                       unmountOnExit
                                     >
                                       <Box sx={{ margin: 2 }}>
-                                        <Typography variant="subtitle2">
-                                          Column details
+                                        <Box>
+                                          <Typography
+                                            variant="subtitle2"
+                                            fontWeight={600}
+                                          >
+                                            Schema: {schema.name}{" "}
+                                            {schema.description ?? "-"}
+                                          </Typography>
+                                        </Box>
+                                        <Divider sx={{ mb: 2, mt: 2 }} />
+                                        <Box>
+                                          <Typography
+                                            variant="subtitle2"
+                                            fontWeight={600}
+                                          >
+                                            Table: {table.name} —{" "}
+                                            {table.description ?? "-"}
+                                          </Typography>
+                                        </Box>
+                                        <Divider sx={{ mb: 2, mt: 2 }} />
+
+                                        <Typography
+                                          variant="subtitle2"
+                                          fontWeight={600}
+                                        >
+                                          Column details:
                                         </Typography>
-                                        <Typography variant="body2">
-                                          Description:{" "}
-                                          {column.description || "-"}
+                                        <Typography
+                                          variant="body2"
+                                          fontWeight={400}
+                                        >
+                                          <i>
+                                            Description:{" "}
+                                            {column.description || "..."}
+                                          </i>
                                         </Typography>
                                         {column.aliases &&
                                           column.aliases.length > 0 && (
@@ -221,11 +251,9 @@ export function SchemaCtxDrawerComponent({
                                               {column.aliases.join(", ")}
                                             </Typography>
                                           )}
-                                        <Typography variant="body2">
-                                          Data type: {column.dataType || "-"}
-                                        </Typography>
                                         {column.profile && (
                                           <Box sx={{ mt: 1 }}>
+                                            <Divider sx={{ mb: 2, mt: 2 }} />
                                             <Typography variant="subtitle2">
                                               Profile
                                             </Typography>
@@ -243,18 +271,6 @@ export function SchemaCtxDrawerComponent({
                                             </pre>
                                           </Box>
                                         )}
-                                        {/* Optionally show table and schema metadata inside the expanded area */}
-                                        <Box sx={{ mt: 1 }}>
-                                          <Typography variant="caption">
-                                            Schema: {schema.name} —{" "}
-                                            {schema.description ?? "-"}
-                                          </Typography>
-                                          <br />
-                                          <Typography variant="caption">
-                                            Table: {table.name} —{" "}
-                                            {table.description ?? "-"}
-                                          </Typography>
-                                        </Box>
                                       </Box>
                                     </Collapse>
                                   </TableCell>
