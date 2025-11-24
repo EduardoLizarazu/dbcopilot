@@ -1,4 +1,7 @@
-import { TGenNewQuestionQueryFromOldDto } from "@/core/application/dtos/gen-query.dto";
+import {
+  TGenNewQuestionQueryFromOldDto,
+  TGenQueryCorrectionDto,
+} from "@/core/application/dtos/gen-query.dto";
 import { TCreateNlqQaGenerationPromptTemplate } from "@/core/application/dtos/nlq/nlq-qa-generation.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
@@ -9,6 +12,240 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
     private readonly logger: ILogger,
     private readonly aiProvider: OpenAIProvider
   ) {}
+  async genCorrectQuery(
+    data: TGenQueryCorrectionDto
+  ): Promise<{ query: string }> {
+    try {
+      // type TGenQueryCorrectionDto = {
+      //   extractMessage?: string;
+      //   nlqGoodUsed?: {
+      //     questionUsed?: string;
+      //     queryUsed?: string;
+      //   }[];
+      //   prevQuestion?: string;
+      //   wrongQuery?: string;
+      //   hint?: string;
+      //   schemaContext?: TSchemaCtxSchemaDto[];
+      // };
+      this.logger.info(
+        `Generating correct query from previous query: ${data.wrongQuery} with hint: ${data.hint}`,
+        data
+      );
+      const template = `
+          You are a SQL expert. Your task is to CORRECT a previously generated SQL query.
+
+          You will receive:
+          - A wrong SQL query (wrongQuery) that failed or was incorrect.
+          - The original natural language question from the user (prevQuestion).
+          - A list of similar questions and the SQL that was used as examples (nlqGoodUsed).
+          - A hint, which can be:
+              * User feedback describing what is wrong or missing in the query, OR
+              * The exact syntax error returned by the database.
+          - An optional extraMessage with additional clarifications from the user.
+          - A schemaContext that describes the database schemas, tables and columns, including semantic metadata.
+
+          Your goal:
+          - Fix the wrongQuery so that it:
+              * Matches the intent of prevQuestion.
+              * Respects the hint and any additional clarifications in extraMessage.
+              * Is valid with respect to the given schemaContext.
+          - If it is NOT possible to fix the query reliably with the given information and schemaContext, you MUST return an empty string.
+
+          ---
+
+          ### Inputs
+
+          #### Extra Message (may be empty or undefined)
+          ${JSON.stringify(data.extractMessage ?? "", null, 2)}
+
+          #### Similar NLQ + SQL used previously (nlqGoodUsed)
+          Each item has: questionUsed, queryUsed.
+          ${JSON.stringify(data.nlqGoodUsed ?? [], null, 2)}
+
+          #### Previous Question (prevQuestion)
+          ${JSON.stringify(data.prevQuestion ?? "", null, 2)}
+
+          #### Wrong Query (wrongQuery)
+          ${JSON.stringify(data.wrongQuery ?? "", null, 2)}
+
+          #### Hint (feedback or error message)
+          ${JSON.stringify(data.hint ?? "", null, 2)}
+
+          #### Schema Context (schemaContext)
+          ${JSON.stringify(data.schemaCtx ?? [], null, 2)}
+
+          ---
+
+          ### Schema Format & Semantics
+
+          The schema is an array of schema objects with the following structure:
+
+          - schema.name  = physical schema name in the database
+          - table.name   = physical table name in the database
+          - column.name  = physical column name in the database
+
+          Use these "name" fields to build fully-qualified identifiers in the SQL query:
+          SCHEMA_NAME.TABLE_NAME.COLUMN_NAME
+
+          The "id" field is a helper identifier with the same pattern:
+          - schema.id  = "schema_name"
+          - table.id   = "schema_name.table_name"
+          - column.id  = "schema_name.table_name.column_name"
+
+          You may use "id" to match or reason about elements, but you MUST build SQL identifiers using the corresponding "name" fields.
+
+          The "description" and "aliases" fields are semantic hints:
+          - description: human-readable explanation of what the schema/table/column represents.
+          - aliases: alternative names/keywords that users might use in questions for this element.
+          Use them to map user language to the correct schemas, tables and columns, but NEVER treat them as physical names in the SQL.
+
+          The "profile" object in each column contains:
+          - maxValue, minValue, countNulls, countUnique
+          - sampleUnique: a sample list of real values from that column.
+
+          Use "profile.sampleUnique" to understand the typical format and values for WHERE conditions (e.g., dates, status codes, etc.), together with the column description.
+
+          ---
+
+          ### Task: SQL Correction
+
+          You must:
+
+          1) Carefully read:
+            - prevQuestion
+            - wrongQuery
+            - hint
+            - extraMessage (if present)
+            - nlqGoodUsed (examples of good queries)
+            - schemaContext
+
+          2) Identify why wrongQuery is incorrect, considering:
+            - The error message or user feedback in hint.
+            - Mismatches between wrongQuery and the schemaContext (missing/invalid tables/columns).
+            - Misalignment between wrongQuery and the intent of prevQuestion.
+
+          3) Use nlqGoodUsed ONLY as guidance:
+            - Look at how similar questions were correctly translated to SQL.
+            - Reuse patterns (JOINs, WHERE conditions, GROUP BY, etc.) when they are compatible with prevQuestion and schemaContext.
+            - Do NOT blindly reuse queries that do not match the schemaContext or the current question.
+
+          4) Build a corrected SQL query that:
+            - Answers prevQuestion.
+            - Fixes any error indicated by hint (syntax, wrong column, wrong table, missing condition, etc.).
+            - Uses ONLY schemas, tables and columns that exist in schemaContext.
+            - Uses "description", "aliases" and "profile.sampleUnique" only as semantic hints, never as identifiers.
+
+          ---
+
+          ### Query Construction Rules
+
+          5) Use ONLY the schemas, tables and columns present in schemaContext.
+
+          6) Always use explicit JOINs inferred from relationships visible in the schema 
+            (for example: *_id ↔ id, or keys clearly related in the schema). Do not invent columns or tables.
+
+          7) Add or adjust WHERE clauses according to the intent of prevQuestion and any clarifications in extraMessage.
+            Respect datatypes:
+            - Do not quote numeric values.
+            - Use appropriate formats for dates and codes, inferring them from profile.sampleUnique.
+
+          8) Use table aliases and format the query with indentation and line breaks.
+
+          9) Always fully qualify every table and column reference using:
+            SCHEMA.TABLE and SCHEMA.TABLE.COLUMN.
+            Do not use unqualified names. Never omit schema names.
+
+          10) Generate ONLY SELECT queries.
+              Do NOT generate INSERT, UPDATE, DELETE, TRUNCATE or any data-modifying queries.
+
+          11) Ignore any columns whose name contains "D_E_L_E_T_E" when constructing queries.
+
+          12) If the question cannot be answered with the given schemaContext (missing tables/columns, impossible mapping or too ambiguous),
+              you MUST return an empty string as the newSQL.
+
+          13) If the hint indicates a simple syntax error (e.g., missing comma, wrong keyword, misplaced parenthesis),
+              fix the syntax while preserving the original semantics as much as possible.
+
+          14) If the hint indicates semantic feedback (e.g., "this is counting rows instead of summing amounts"),
+              adjust the SELECT list, aggregates, GROUP BY or WHERE clauses accordingly.
+
+          ---
+
+          ### Output Format (STRICT)
+
+          You MUST return ONLY a JSON object with the following shape:
+
+          - If you can correct the query:
+            {
+              "newSQL": "<the corrected SQL SELECT query without a trailing semicolon>"
+            }
+
+          - If you CANNOT reliably correct the query:
+            {
+              "newSQL": ""
+            }
+
+          Do NOT wrap the JSON in a code block.
+          Do NOT add any other fields or text.
+`;
+
+      const response = await this.aiProvider.openai.chat.completions.create({
+        model: "gpt-4-turbo", // Use "gpt-3.5-turbo" for faster/cheaper results
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert SQL refactoring engine specialized in adapting SQL queries and natural language questions`,
+          },
+          {
+            role: "user",
+            content: template,
+          },
+        ],
+        temperature: 0.1, // Low temperature for deterministic output
+        max_tokens: 2000,
+        top_p: 0.1,
+      });
+
+      const genRes = response.choices[0]?.message?.content?.trim() || "";
+      this.logger.info(
+        `Received response for new question and query generation: ${genRes}`
+      );
+      if (!genRes) {
+        throw new Error("Empty response from AI provider");
+      }
+      if (genRes.startsWith("{")) {
+        const parsed = JSON.parse(genRes);
+        return {
+          query: parsed.newSQL,
+        };
+      }
+      if (genRes.includes("```")) {
+        const codeMatch = genRes.match(/```json([\s\S]*?)```/);
+        if (codeMatch && codeMatch[1]) {
+          const codeContent = codeMatch[1].trim();
+          const parsed = JSON.parse(codeContent);
+          return {
+            query: parsed.newSQL,
+          };
+        }
+      }
+      if (genRes.startsWith("json") || genRes.startsWith("JSON")) {
+        const jsonStart = genRes.indexOf("{");
+        const jsonString = genRes.substring(jsonStart);
+        const parsed = JSON.parse(jsonString);
+        return {
+          query: parsed.newSQL,
+        };
+      }
+      throw new Error("Unable to parse AI provider response");
+    } catch (error) {
+      this.logger.error(
+        "NlqQaGenerationAdapter: Error generating correct query",
+        { message: error.message }
+      );
+      throw new Error(error.message || "Error generating correct query");
+    }
+  }
   async genNewQuestionAndQuery(
     data: TGenNewQuestionQueryFromOldDto
   ): Promise<{ question: string; query: string }> {

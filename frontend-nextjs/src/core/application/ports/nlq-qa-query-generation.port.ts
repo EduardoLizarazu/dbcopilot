@@ -1,6 +1,8 @@
-import { TGenNewQuestionQueryFromOldDto } from "../dtos/gen-query.dto";
+import {
+  TGenNewQuestionQueryFromOldDto,
+  TGenQueryCorrectionDto,
+} from "../dtos/gen-query.dto";
 import { TCreateNlqQaGenerationPromptTemplate } from "../dtos/nlq/nlq-qa-generation.dto";
-import { TSchemaCtxSchemaDto } from "../dtos/schemaCtx.dto";
 
 export interface INlqQaQueryGenerationPort {
   queryGeneration(prompt: string): Promise<{ answer: string }>;
@@ -17,4 +19,5 @@ export interface INlqQaQueryGenerationPort {
   genNewQuestionAndQuery(
     data: TGenNewQuestionQueryFromOldDto
   ): Promise<{ question: string; query: string }>;
+  genCorrectQuery(data: TGenQueryCorrectionDto): Promise<{ query: string }>;
 }

@@ -26,6 +26,7 @@ import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-
 import { InfoExtractorAction } from "@/_actions/nlq-qa-info/execute-query.action";
 import { CreateNlqQaGoodAction } from "@/_actions/nlq-qa-correction/create.action";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { SchemaCtxDrawerForAdminComponent } from "@/components/schemaCtx/schemaCtxDrawerForAdmin";
 
 export default function NlqCorrectionClient({
   initial,
@@ -112,9 +113,14 @@ export default function NlqCorrectionClient({
 
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
-      <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        Correct NLQ
-      </Typography>
+      <Stack direction="row" justifyContent="space-between" sx={{ mb: 3 }}>
+        <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
+          Correct NLQ
+        </Typography>
+        <SchemaCtxDrawerForAdminComponent
+          dbConnectionId={initial.dbConnection?.id || ""}
+        />
+      </Stack>
 
       {/* NLQ Details */}
       <Paper className="p-4" elevation={1} sx={{ mb: 2 }}>
@@ -251,6 +257,15 @@ export default function NlqCorrectionClient({
       </Stack>
 
       <Divider sx={{ my: 3 }} />
+
+      <Stack direction="row" justifyContent="space-between" sx={{ mb: 3 }}>
+        <Typography variant="h6" fontWeight={800}>
+          Correction
+        </Typography>
+        <SchemaCtxDrawerForAdminComponent
+          dbConnectionId={initial.dbConnection?.id || ""}
+        />
+      </Stack>
 
       {/* Editors & runners */}
       <Grid container spacing={3}>
