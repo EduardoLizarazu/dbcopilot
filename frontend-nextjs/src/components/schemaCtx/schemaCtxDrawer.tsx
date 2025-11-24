@@ -18,6 +18,7 @@ import {
   Collapse,
   TextField,
   Divider,
+  Stack,
 } from "@mui/material";
 import { TSchemaCtxBaseDto } from "@/core/application/dtos/schemaCtx.dto";
 import { ReadSchemaCtxByConnIdAction } from "@/_actions/schemaCtx/by-conn-id.action";
@@ -208,69 +209,125 @@ export function SchemaCtxDrawerComponent({
                                       unmountOnExit
                                     >
                                       <Box sx={{ margin: 2 }}>
-                                        <Box>
+                                        <Stack spacing={2} direction="column">
                                           <Typography
                                             variant="subtitle2"
                                             fontWeight={600}
                                           >
                                             Schema: {schema.name}{" "}
-                                            {schema.description ?? "-"}
                                           </Typography>
-                                        </Box>
+                                          <Typography variant="body2">
+                                            <i>
+                                              Description:{" "}
+                                              {schema.description || "..."}
+                                            </i>
+                                          </Typography>
+                                          <Typography variant="body2">
+                                            <i>
+                                              Aliases:{" "}
+                                              {schema.aliases?.join(", ") ||
+                                                "..."}
+                                            </i>
+                                          </Typography>
+                                        </Stack>
                                         <Divider sx={{ mb: 2, mt: 2 }} />
-                                        <Box>
+                                        <Stack spacing={2} direction="column">
                                           <Typography
                                             variant="subtitle2"
                                             fontWeight={600}
                                           >
-                                            Table: {table.name} —{" "}
-                                            {table.description ?? "-"}
+                                            Table: {table.name}{" "}
                                           </Typography>
-                                        </Box>
-                                        <Divider sx={{ mb: 2, mt: 2 }} />
-
-                                        <Typography
-                                          variant="subtitle2"
-                                          fontWeight={600}
-                                        >
-                                          Column details:
-                                        </Typography>
-                                        <Typography
-                                          variant="body2"
-                                          fontWeight={400}
-                                        >
-                                          <i>
-                                            Description:{" "}
-                                            {column.description || "..."}
-                                          </i>
-                                        </Typography>
-                                        {column.aliases &&
-                                          column.aliases.length > 0 && (
-                                            <Typography variant="body2">
+                                          <Typography variant="body2">
+                                            <i>
+                                              Description:{" "}
+                                              {table.description || "..."}
+                                            </i>
+                                          </Typography>
+                                          <Typography variant="body2">
+                                            <i>
                                               Aliases:{" "}
-                                              {column.aliases.join(", ")}
-                                            </Typography>
-                                          )}
-                                        {column.profile && (
-                                          <Box sx={{ mt: 1 }}>
-                                            <Divider sx={{ mb: 2, mt: 2 }} />
-                                            <Typography variant="subtitle2">
-                                              Profile
-                                            </Typography>
-                                            <pre
-                                              style={{
-                                                whiteSpace: "pre-wrap",
-                                                margin: 0,
-                                              }}
-                                            >
-                                              {JSON.stringify(
-                                                column.profile,
-                                                null,
-                                                2
-                                              )}
-                                            </pre>
-                                          </Box>
-                                        )}
+                                              {table.aliases?.join(", ") ||
+                                                "..."}
+                                            </i>
+                                          </Typography>
+                                        </Stack>
+                                        <Divider sx={{ mb: 2, mt: 2 }} />
+                                        <Stack spacing={2} direction="column">
+                                          <Typography
+                                            variant="subtitle2"
+                                            fontWeight={600}
+                                          >
+                                            Column details:
+                                          </Typography>
+                                          <Typography variant="body2">
+                                            <i>
+                                              Description:{" "}
+                                              {column.description || "..."}
+                                            </i>
+                                          </Typography>
+                                          <Typography variant="body2">
+                                            <i>
+                                              {" "}
+                                              Aliases:{" "}
+                                              {column.aliases.join(", ") ||
+                                                "..."}
+                                            </i>
+                                          </Typography>
+                                        </Stack>
+                                        <Divider sx={{ mb: 2, mt: 2 }} />
+                                        <Stack spacing={2} direction="column">
+                                          <Typography
+                                            variant="subtitle2"
+                                            fontWeight={600}
+                                          >
+                                            Profile Data:
+                                          </Typography>
+
+                                          <Typography variant="body2">
+                                            <i>
+                                              Max Value:{" "}
+                                              {column.profile
+                                                ? column.profile.maxValue
+                                                : "..."}
+                                            </i>
+                                          </Typography>
+                                          <Typography variant="body2">
+                                            <i>
+                                              Max Value:{" "}
+                                              {column.profile
+                                                ? column.profile.minValue
+                                                : "..."}
+                                            </i>
+                                          </Typography>
+                                          <Typography variant="body2">
+                                            <i>
+                                              Records Count:{" "}
+                                              {column.profile
+                                                ? column.profile.countUnique
+                                                : "..."}
+                                            </i>
+                                          </Typography>
+                                          <Typography variant="body2">
+                                            <i>
+                                              Nulls Count:{" "}
+                                              {column.profile
+                                                ? column.profile.countNulls
+                                                : "..."}
+                                            </i>
+                                          </Typography>
+                                          <Typography variant="body2">
+                                            <i>
+                                              Distinct Values Count:{" "}
+                                              {column.profile
+                                                ? column.profile.sampleUnique?.join(
+                                                    ", "
+                                                  )
+                                                : "..."}
+                                            </i>
+                                          </Typography>
+                                          <Divider sx={{ mb: 2, mt: 2 }} />
+                                        </Stack>
                                       </Box>
                                     </Collapse>
                                   </TableCell>
