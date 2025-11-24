@@ -1448,6 +1448,9 @@ export function SchemaCtxClient({
   };
 
   // ============== FINALIZE SCHEMA CTX AND NLQ GOOD DIFFS - DOWN =================
+  React.useEffect(() => {
+    console.log("USE EFFECT SCHEMA CTX UPDATED: ", schemaCtx);
+  }, [schemaCtx]);
   async function onFinishSchemaDiffAndNlqGood() {
     onResetAllFb();
     setBusyFlag(EnumBusy.BTN_FINISH_SCHEMA_DIFF_AND_NLQ_GOOD, true);
@@ -1458,7 +1461,6 @@ export function SchemaCtxClient({
       });
       const resNlqGoodFail = [];
       for (const nlqGood of nlqGoodsToUpdate || []) {
-        console.log("NLQ GOOD DIFF TO PROCESS: ", nlqGood);
         const resNlqGood = await UpdateNlqQaGoodAction(nlqGood);
         if (!resNlqGood.ok) {
           resNlqGoodFail.push({
@@ -1470,18 +1472,15 @@ export function SchemaCtxClient({
 
       console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
 
-      // merge schema ctx with diffs
-      const mergeSchemaCtxWithDiffs = await FromSchemaDiffToSchemaCtxAction({
+      const schemaCtxFormatted = await FromSchemaDiffToSchemaCtxAction({
         oldSchemaCtx: schemaCtx,
         schemasCtxDiff: schemaCtxDiff,
       });
-
       console.log("SCHEMA CTX DIFFS: ", schemaCtxDiff);
-      console.log("MERGED SCHEMA CTX WITH DIFFS: ", mergeSchemaCtxWithDiffs);
-      setSchemaCtx(mergeSchemaCtxWithDiffs);
+      console.log("MERGED SCHEMA CTX WITH DIFFS: ", schemaCtxFormatted);
+      setSchemaCtx(schemaCtxFormatted);
     } finally {
       setBusyFlag(EnumBusy.BTN_FINISH_SCHEMA_DIFF_AND_NLQ_GOOD, false);
-      setOpenDiffEditor(false);
       // reset steps
       resetDiffEditorState();
     }

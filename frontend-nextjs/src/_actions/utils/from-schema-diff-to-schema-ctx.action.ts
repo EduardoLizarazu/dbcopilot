@@ -143,6 +143,9 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
       }
     }
   }
-  // console.log("Resulting SchemaCtx:", JSON.stringify(oldSchemaCtx, null, 2));
-  return oldSchemaCtx;
+  console.log("Resulting SchemaCtx:", JSON.stringify(oldSchemaCtx, null, 2));
+
+  const res = JSON.parse(JSON.stringify(oldSchemaCtx));
+
+  return res;
 }
