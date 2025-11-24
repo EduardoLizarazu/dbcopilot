@@ -90,12 +90,6 @@ export function SingleChat({ props = null }: Props = { props: null }) {
 
     setSubmitting(false);
     setIsResetHf(false);
-
-    setTimeout(() => {
-      setSuccess(null);
-      setError(null);
-      setWarn(null);
-    }, 2000);
   }
 
   function handleReset() {

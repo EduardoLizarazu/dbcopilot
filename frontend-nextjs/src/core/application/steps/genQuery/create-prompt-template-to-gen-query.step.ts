@@ -4,7 +4,6 @@ import {
 } from "@/core/application/dtos/nlq/nlq-qa-generation.dto";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
-import { error } from "console";
 
 export interface ICreatePromptTemplateToGenQueryStep {
   run(
@@ -33,7 +32,7 @@ export class CreatePromptTemplateToGenQueryStep
         await createNlqQaGenerationPromptTemplate.safeParseAsync(data);
       if (!validData.success) {
         this.logger.error(
-          `[CreatePromptTemplateToGenQueryStep] Invalid input data: `,
+          `[CreatePromptTemplateToGenQueryStep] Invalid input data 2: `,
           JSON.stringify(validData.error.issues)
         );
         throw new Error(validData.error.message || "Invalid input data");

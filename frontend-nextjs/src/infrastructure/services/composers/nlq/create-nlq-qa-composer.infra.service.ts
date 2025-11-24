@@ -27,6 +27,10 @@ import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { DbConnectionRepository } from "@/infrastructure/repository/dbconnection.repo";
 import { NlqQaErrorRepository } from "@/infrastructure/repository/nlq/nlq-qa-error.repo";
 import { NlqQaAppRepository } from "@/infrastructure/repository/nlq/nlq-qa.repo";
+import { FormatSchemaCtxStep } from "@/core/application/steps/schemaCtx/format-schema-ctx.step";
+import { ReadSchemaCtxByConnIdStep } from "@/core/application/steps/schemaCtx/read-schema-ctx-by-conn-id.step";
+import { MergeSchemaCtxsStep } from "@/core/application/steps/schemaCtx/merge-schema-ctxs.step";
+import { SchemaCtxRepository } from "@/infrastructure/repository/schemaCtx.repo";
 
 export function createNlqQaComposer(): IController {
   // Providers
@@ -66,6 +70,10 @@ export function createNlqQaComposer(): IController {
     firebaseAdmin
   );
   const authRepository = new AuthorizationRepository(
+    loggerProvider,
+    firebaseAdmin
+  );
+  const schemaCtxRepository = new SchemaCtxRepository(
     loggerProvider,
     firebaseAdmin
   );
@@ -127,6 +135,13 @@ export function createNlqQaComposer(): IController {
     nlqQaErrorRepository
   );
 
+  const formatRawSchemaStep = new FormatSchemaCtxStep(loggerProvider);
+  const readSchemaCtxByConnIdStep = new ReadSchemaCtxByConnIdStep(
+    loggerProvider,
+    schemaCtxRepository
+  );
+  const mergeSchemaCtxsStep = new MergeSchemaCtxsStep(loggerProvider);
+
   // Use cases
   const createNlqQaUseCase = new CreateNlqQaUseCase(
     loggerProvider,
@@ -134,6 +149,9 @@ export function createNlqQaComposer(): IController {
     extractDbConnWithSplitterAndSchemaQueryStep,
     searchSimilarQuestionOnKnowledgeBaseStep,
     extractSchemaBasedStep,
+    formatRawSchemaStep,
+    readSchemaCtxByConnIdStep,
+    mergeSchemaCtxsStep,
     createPromptToGenQueryStep,
     genQueryFromPromptTemplateStep,
     extractQueryFromGenQueryStep,

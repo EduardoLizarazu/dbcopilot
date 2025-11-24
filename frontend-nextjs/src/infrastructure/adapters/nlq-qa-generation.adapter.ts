@@ -221,7 +221,9 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
 
       return { answer: response.choices[0]?.message?.content?.trim() || "" };
     } catch (error) {
-      this.logger.error("Error generating query from prompt", { error });
+      this.logger.error("Error generating query from prompt", {
+        message: error.message,
+      });
       throw new Error("Error generating query from prompt");
     }
   }
@@ -236,66 +238,81 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
       // Create a prompt template using the provided data
       const template = `
         You are a SQL expert specialized in ${data.dbType} databases. 
-        Generate a SELECT query that answers the user's question using ONLY the provided database schema and the help of the similar questions with its sql and score to guide you.
+        Your task is to generate a SELECT query that answers the user's question using ONLY the provided database schema and the similar questions with their SQL and score.
 
         ### Database Type:
         ${data.dbType}
- 
-        ### Database Schema ANSI SQL:
+
+        ### Database Schema ANSI SQL (with metadata):
         ${JSON.stringify(data.schemaBased)}
+
+        The schema includes optional fields: description, aliases and profile (maxValue, minValue, countNulls, countUnique, sampleUnique).
+        These fields may be non-empty and MUST be used as semantic hints to map the user question to the correct schemas, tables and columns.
 
         ### User Question:
         ${JSON.stringify(data.question, null, 2)}
 
-        ### Similar Questions with SQL:
+        ### Similar Questions with SQL (each item has: question, sql, score):
         ${JSON.stringify(data.similarKnowledgeBased, null, 2)}
 
         ### Instructions:
+
         A) Scope & Validation
-        1) Use ONLY the tables and columns present in the provided schema list.
-        2) Build an internal map: schema.table -> {columns, datatypes}; validate every referenced column.
-        3) Qualify tables as TABLE_SCHEMA.TABLE_NAME and use table aliases; qualify selected/filtered columns.
+        1) Use ONLY the schemas, tables and columns present in the provided schema list.
+        2) Build an internal map: schema.table -> { columns, datatypes, description, aliases, profile } and use it to validate every referenced column.
+        3) Always qualify tables as SCHEMA.TABLE and columns as SCHEMA.TABLE.COLUMN. Use table aliases consistently.
 
-
-        B) Dialect: mssql
-        5) Use standard T-SQL for SELECT/JOIN/WHERE/ORDER BY. Avoid vendor-specific features from other engines.
+        B) Dialect
+        4) Use standard ANSI-style SELECT syntax adapted to ${data.dbType}. 
+        5) Do NOT use features that are not supported by ${data.dbType} (no vendor-specific features from other engines).
 
         C) Query Construction
-        6) Always use explicit JOINs inferred from columns that exist on both sides (e.g., *_ID ↔ ID). Do not invent columns.
-        7) Add necessary WHERE clauses implied by the question; respect datatypes (no quoting numerics; use parameters for strings/dates).
-        8) Use table aliases; format the query with indentation and line breaks.
-        9) When “top/latest/best” is implied, add a deterministic ORDER BY and (if needed) OFFSET … FETCH.
-        10) Limit the query to SELECT statements only. Do not generate data-modifying queries.
-        11) Answer only the sql query, do not add any explanations and without ";" at the end.
-        12) Ignore D_E_L_E_T_E columns in all tables when constructing queries.
+        6) Always use explicit JOINs inferred from relationships visible in the schema (for example: *_id ↔ id, or keys clearly related in the schema). Do not invent columns or tables.
+        7) Add necessary WHERE clauses implied by the question; respect datatypes (do not quote numeric values; treat dates and strings as parameters when needed).
+        8) Use table aliases and format the query with indentation and line breaks.
+        9) When “top/latest/best” is implied, add a deterministic ORDER BY and (if needed) LIMIT / TOP / OFFSET … FETCH, according to ${data.dbType}.
+        10) Generate ONLY SELECT queries. Do NOT generate INSERT, UPDATE, DELETE, TRUNCATE or any data-modifying queries.
+        11) Ignore any columns whose name contains "D_E_L_E_T_E" when constructing queries.
+        12) If the question cannot be answered with the given schema (missing tables/columns or ambiguous semantics), you must return NOT_ANSWERED.
 
         D) Similarity Enforcement (STRICT)
         13) Let similarity_threshold = 0.95:
-            - Validate the candidate SQL against the current schema map.
-            - If score is greater than similarity_threshold, then, reuse it as-is, do not modify anything, generate it as it is. Do not add anything else!.
-            - If score is less than similarity_threshold, then, minimally adapt invalid identifiers or may have to combine multiple similar items; if still invalid, return NOT_ANSWERED.
+            - For each similar item, use its "score" property.
+            - If some item's score is greater than similarity_threshold (score > similarity_threshold), reuse its SQL as-is:
+                * Validate that all identifiers exist in the current schema.
+                * If all identifiers are valid, output that SQL exactly as provided (no changes).
+            - If no item's score is greater than similarity_threshold OR the reused SQL is invalid for the current schema:
+                * You may adapt or combine the similar SQLs MINIMALLY to fit the current schema.
+                * If after adaptation the query still cannot be made valid (missing tables/columns), return NOT_ANSWERED.
 
         E) Output & Fallback
-        14) Return ONLY the SQL query, inside a code block, with no extra text and no trailing semicolon.
+        14) If you can answer the question:
+            - Return ONLY the SQL SELECT query inside a code block with language "sql".
+            - Do NOT include any explanations.
+            - Do NOT include a trailing semicolon at the end ";".
 
+        15) If you CANNOT answer the question with the given schema:
+            - Return a code block in the following format:
+            \`\`\`NOT_ANSWERED
+            I don't know because <brief reason: e.g., missing columns/tables or ambiguous mapping>.
+            \`\`\`
 
         ### Response Format, if you know the answer:
-        Return ONLY the SQL query inside a code block:
         \`\`\`sql
-          SELECT ...
-          FROM schema.table AS t
-          JOIN schema.other AS o ON ...
-          WHERE ...
-          ORDER BY ...
+        SELECT ...
+        FROM schema.table AS t
+        JOIN schema.other AS o ON ...
+        WHERE ...
+        ORDER BY ...
         \`\`\`
 
         ### Response Format, if you don't know the answer:
         \`\`\`NOT_ANSWERED
-          I don't know because ...
+        I don't know because ...
         \`\`\`
-
       `;
-      this.logger.info(`Created prompt template: ${template}`);
+
+      this.logger.info(`Created prompt template: `, template);
 
       return { promptTemplate: template };
     } catch (error) {

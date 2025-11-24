@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { schemaCtxSchema } from "../schemaCtx.dto";
 
 export const nlqQaGenerationSchema = z.object({
   question: z.string(),
@@ -34,12 +35,15 @@ export const nlqQaGenerationSchema = z.object({
 });
 
 // Create prompt template 40190
-export const createNlqQaGenerationPromptTemplate = nlqQaGenerationSchema.pick({
-  question: true,
-  similarKnowledgeBased: true,
-  schemaBased: true,
-  dbType: true,
-});
+export const createNlqQaGenerationPromptTemplate = nlqQaGenerationSchema
+  .pick({
+    question: true,
+    similarKnowledgeBased: true,
+    dbType: true,
+  })
+  .extend({
+    schemaBased: z.array(schemaCtxSchema),
+  });
 
 export type TCreateNlqQaGenerationPromptTemplate = z.infer<
   typeof createNlqQaGenerationPromptTemplate
