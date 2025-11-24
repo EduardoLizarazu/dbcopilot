@@ -1,7 +1,7 @@
 import { TSchemaCtxBaseDto } from "../../dtos/schemaCtx.dto";
 import { TResponseDto } from "../../dtos/utils/response.app.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
-import { IReadAllSchemaCtxStep } from "../../steps/schemaCtx/read-all-schema-ctx.step";
+import { IReadSchemaCtxByConnIdStep } from "../../steps/schemaCtx/read-schema-ctx-by-conn-id.step";
 
 export interface IReadSchemaCtxByConnIdUseCase {
   execute(data: { connId: string }): Promise<TResponseDto<TSchemaCtxBaseDto>>;
@@ -12,7 +12,7 @@ export class ReadSchemaCtxByConnIdUseCase
 {
   constructor(
     private readonly logger: ILogger,
-    private readonly readAllSchemaCtx: IReadAllSchemaCtxStep
+    private readonly readSchemaCtxByConnId: IReadSchemaCtxByConnIdStep
   ) {}
   async execute(data: {
     connId: string;
@@ -29,21 +29,19 @@ export class ReadSchemaCtxByConnIdUseCase
         };
       }
 
-      // Get all schema contexts
-      const allSchemaCtxResult = await this.readAllSchemaCtx.run();
-
-      // On iterate over and schema contexts, and iterate over their dbConnectionIds to find a match with data.connId
-      for (const schemaCtx of allSchemaCtxResult) {
-        if (schemaCtx.dbConnectionIds.includes(data.connId)) {
-          this.logger.info(
-            `ReadSchemaCtxByConnIdUseCase - execute - Found schema context for connId: ${data.connId}`
-          );
-          return {
-            success: true,
-            message: "Schema context found for the given connection ID",
-            data: schemaCtx,
-          };
-        }
+      // Get schema context by connection ID
+      const schemaCtxResult = await this.readSchemaCtxByConnId.run({
+        connId: data.connId,
+      });
+      if (schemaCtxResult) {
+        this.logger.info(
+          `ReadSchemaCtxByConnIdUseCase - execute - Found schema context for connId: ${data.connId}`
+        );
+        return {
+          success: true,
+          message: "Schema context found for the given connection ID",
+          data: schemaCtxResult,
+        };
       }
 
       this.logger.info(

@@ -1,4 +1,5 @@
 import { ReadAllSchemaCtxStep } from "@/core/application/steps/schemaCtx/read-all-schema-ctx.step";
+import { ReadSchemaCtxByConnIdStep } from "@/core/application/steps/schemaCtx/read-schema-ctx-by-conn-id.step";
 import { ReadSchemaCtxByConnIdUseCase } from "@/core/application/usecases/schemaCtx/read-schema-ctx-by-conn-id.usecase";
 import { IController } from "@/http/controllers/IController.http.controller";
 import { ReadSchemaCtxByConnIdController } from "@/http/controllers/schemaCtx/read-schema-ctx-by-conn-id.http.controller";
@@ -28,7 +29,7 @@ export function ReadSchemaCtxByConnIdComposer(): IController {
   );
 
   // STEPS
-  const readAllSchemaCtxStep = new ReadAllSchemaCtxStep(
+  const readSchemaCtxByConnIdStep = new ReadSchemaCtxByConnIdStep(
     loggerProvider,
     schemaRepo
   );
@@ -36,7 +37,7 @@ export function ReadSchemaCtxByConnIdComposer(): IController {
   // USE CASES
   const useCase = new ReadSchemaCtxByConnIdUseCase(
     loggerProvider,
-    readAllSchemaCtxStep
+    readSchemaCtxByConnIdStep
   );
 
   // CONTROLLER
