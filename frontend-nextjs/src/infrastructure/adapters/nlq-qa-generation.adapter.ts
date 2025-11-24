@@ -246,8 +246,33 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
         ### Database Schema ANSI SQL (with metadata):
         ${JSON.stringify(data.schemaBased)}
 
-        The schema includes optional fields: description, aliases and profile (maxValue, minValue, countNulls, countUnique, sampleUnique).
-        These fields may be non-empty and MUST be used as semantic hints to map the user question to the correct schemas, tables and columns.
+        ### Schema Format & Semantics
+        The schema is an array of schema objects with the following structure:
+
+        - schema.name  = physical schema name in the database
+        - table.name   = physical table name in the database
+        - column.name  = physical column name in the database
+
+        Use these "name" fields to build fully-qualified identifiers in the SQL query:
+        SCHEMA_NAME.TABLE_NAME.COLUMN_NAME
+
+        The "id" field is a helper identifier with the same pattern:
+        - schema.id  = "schema_name"
+        - table.id   = "schema_name.table_name"
+        - column.id  = "schema_name.table_name.column_name"
+
+        You may use "id" to match or reason about elements, but you MUST build SQL identifiers using the corresponding "name" fields.
+
+        The "description" and "aliases" fields are semantic hints:
+        - description: human-readable explanation of what the schema/table/column represents.
+        - aliases: alternative names/keywords that users might use in questions for this element.
+        Use them to map user language to the correct schemas, tables and columns, but NEVER treat them as physical names in the SQL.
+
+        The "profile" object in each column contains:
+        - maxValue, minValue, countNulls, countUnique
+        - sampleUnique: a sample list of real values from that column.
+
+        Use "profile.sampleUnique" to understand the typical format and values for WHERE conditions (e.g., dates, status codes, etc.), together with the column description.
 
         ### User Question:
         ${JSON.stringify(data.question, null, 2)}
