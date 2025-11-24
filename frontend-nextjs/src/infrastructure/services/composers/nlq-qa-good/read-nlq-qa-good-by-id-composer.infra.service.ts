@@ -38,3 +38,27 @@ export function readNlqQaGoodByIdComposer(): IController {
   );
   return controller;
 }
+
+export function ReturnReadNlqQaGoodByIdUseCase() {
+  // PROVIDERS
+  const loggerProvider = new WinstonLoggerProvider();
+  const firebaseAdmin = new FirebaseAdminProvider();
+
+  // REPOSITORIES
+  const nlqQaGoodRepo = new NlqQaGoodRepository(loggerProvider, firebaseAdmin);
+
+  // Others utils
+  const decodeTokenAdapter = new DecodeTokenAdapter(
+    loggerProvider,
+    firebaseAdmin
+  );
+
+  const authRepository = new AuthorizationRepository(
+    loggerProvider,
+    firebaseAdmin
+  );
+
+  // USE CASES
+  const useCase = new ReadNlqQaGoodByIdUseCase(loggerProvider, nlqQaGoodRepo);
+  return useCase;
+}

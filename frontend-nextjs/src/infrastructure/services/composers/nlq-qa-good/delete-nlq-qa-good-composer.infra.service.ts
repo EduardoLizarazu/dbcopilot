@@ -84,3 +84,65 @@ export function DeleteNlqQaGoodComposer(): IController {
   );
   return controller;
 }
+
+export function ReturnDeleteNlqQaGoodUseCase() {
+  // PROVIDERS
+  const loggerProvider = new WinstonLoggerProvider();
+  const firebaseAdmin = new FirebaseAdminProvider();
+  const pineconeProvider = new PineconeProvider();
+  const openAiProvider = new OpenAIProvider();
+
+  // REPOSITORIES
+  const nlqQaGoodRepo = new NlqQaGoodRepository(loggerProvider, firebaseAdmin);
+  const dbConnRepo = new DbConnectionRepository(loggerProvider, firebaseAdmin);
+
+  // Others utils
+  const decodeTokenAdapter = new DecodeTokenAdapter(
+    loggerProvider,
+    firebaseAdmin
+  );
+
+  const authRepository = new AuthorizationRepository(
+    loggerProvider,
+    firebaseAdmin
+  );
+
+  //   PORTS
+  const knowledgeBasePort = new NlqQaKnowledgeAdapter(
+    loggerProvider,
+    pineconeProvider,
+    openAiProvider
+  );
+
+  //   STEPS
+  const readNlqQaGoodByIdStep = new ReadNlqQaGoodByIdStep(
+    loggerProvider,
+    nlqQaGoodRepo
+  );
+
+  const readDbConnectionWithSplitterAndSchemaQueryStep =
+    new ReadDbConnectionWithSplitterAndSchemaQueryStep(
+      loggerProvider,
+      dbConnRepo
+    );
+
+  const deleteOnKnowledgeBaseByIdStep = new DeleteOnKnowledgeBaseByIdStep(
+    loggerProvider,
+    knowledgeBasePort
+  );
+
+  const deleteNlqQaGoodStep = new DeleteNlqQaGoodStep(
+    loggerProvider,
+    nlqQaGoodRepo
+  );
+
+  // USE CASES
+  const useCase = new DeleteQaGoodUseCase(
+    loggerProvider,
+    readNlqQaGoodByIdStep,
+    readDbConnectionWithSplitterAndSchemaQueryStep,
+    deleteOnKnowledgeBaseByIdStep,
+    deleteNlqQaGoodStep
+  );
+  return useCase;
+}

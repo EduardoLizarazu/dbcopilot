@@ -19,7 +19,7 @@ export const nlqQaGoodSchema = z.object({
 
   executionStatus: z
     .nativeEnum(NlqQaGoodWithExecutionStatus)
-    .default(NlqQaGoodWithExecutionStatus.UNKNOWN),
+    .default(NlqQaGoodWithExecutionStatus.OK),
 
   // VDB
   knowledgeSourceId: z.string().default(""), // VDB - Same as this.id

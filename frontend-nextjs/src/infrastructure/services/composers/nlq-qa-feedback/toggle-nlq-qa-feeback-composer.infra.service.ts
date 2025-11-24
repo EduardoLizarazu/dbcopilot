@@ -11,6 +11,10 @@ import { WinstonLoggerProvider } from "@/infrastructure/providers/logging/winsto
 import { AuthorizationRepository } from "@/infrastructure/repository/auth.repo";
 import { NlqQaFeedbackRepository } from "@/infrastructure/repository/nlq/nlq-qa-feedback.repo";
 import { NlqQaAppRepository } from "@/infrastructure/repository/nlq/nlq-qa.repo";
+import { ReturnCreateNlqQaGoodUseCase } from "../nlq-qa-good/create-nlq-qa-good-composer.infra.service";
+import { ReturnDeleteNlqQaGoodUseCase } from "../nlq-qa-good/delete-nlq-qa-good-composer.infra.service";
+import { ReturnReadNlqQaGoodByIdUseCase } from "../nlq-qa-good/read-nlq-qa-good-by-id-composer.infra.service";
+import { ReturnReadNlqQaByIdUseCase } from "../nlq/read-nlq-qa-by-id-composer.infra.service";
 
 export function ToggleNlqQaFeedbackComposer(): IController {
   // PROVIDERS
@@ -51,13 +55,21 @@ export function ToggleNlqQaFeedbackComposer(): IController {
     nlqQaFeedbackRepository,
     nlqQaRepository
   );
+  const readNlqQaByIdUseCase = ReturnReadNlqQaByIdUseCase();
+  const readNlqQaGoodByIdUseCase = ReturnReadNlqQaGoodByIdUseCase();
+  const createNlqQaGoodUseCase = ReturnCreateNlqQaGoodUseCase();
+  const deleteNlqQaGoodUseCase = ReturnDeleteNlqQaGoodUseCase();
 
   //   ORCHESTRATOR
   const orchestrator = new ToggleNlqQaFeedbackOrchestrator(
     loggerProvider,
     createUseCase,
     updateUseCase,
-    deleteUseCase
+    deleteUseCase,
+    readNlqQaByIdUseCase,
+    readNlqQaGoodByIdUseCase,
+    createNlqQaGoodUseCase,
+    deleteNlqQaGoodUseCase
   );
 
   //   CONTROLLER

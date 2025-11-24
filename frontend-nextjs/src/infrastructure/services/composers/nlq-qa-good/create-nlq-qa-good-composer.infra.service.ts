@@ -112,3 +112,88 @@ export function createNlqQaGoodComposer(): IController {
   );
   return controller;
 }
+
+export function ReturnCreateNlqQaGoodUseCase() {
+  // PROVIDERS
+  const loggerProvider = new WinstonLoggerProvider();
+  const firebaseAdmin = new FirebaseAdminProvider();
+  const openAiProvider = new OpenAIProvider();
+  const pineconeProvider = new PineconeProvider();
+
+  // REPOSITORIES
+  const nlqQaRepo = new NlqQaAppRepository(loggerProvider, firebaseAdmin);
+  const nlqQaGoodRepo = new NlqQaGoodRepository(loggerProvider, firebaseAdmin);
+  const dbConnRepo = new DbConnectionRepository(loggerProvider, firebaseAdmin);
+
+  // Others utils
+  const decodeTokenAdapter = new DecodeTokenAdapter(
+    loggerProvider,
+    firebaseAdmin
+  );
+
+  const authRepository = new AuthorizationRepository(
+    loggerProvider,
+    firebaseAdmin
+  );
+
+  //   PORTS
+  const nlqQaKnowledgeAdapter = new NlqQaKnowledgeAdapter(
+    loggerProvider,
+    pineconeProvider,
+    openAiProvider
+  );
+
+  const genTopoAdapter = new NlqQaTopologyGenerationAdapter(
+    loggerProvider,
+    openAiProvider
+  );
+
+  // STEPS
+  const validateInputDataStep = new ValidateCreateNlqQaGoodInputDataStep(
+    loggerProvider
+  );
+
+  const ensureDbConnWithSplitterExistsStep =
+    new ReadDbConnectionWithSplitterAndSchemaQueryStep(
+      loggerProvider,
+      dbConnRepo
+    );
+
+  const createNlqQaGoodStep = new CreateNlqQaGoodStep(
+    loggerProvider,
+    nlqQaGoodRepo
+  );
+
+  const addToKnowledgeSource = new AddToTheKnowledgeBaseStep(
+    loggerProvider,
+    nlqQaKnowledgeAdapter
+  );
+
+  const updateNlqQaGoodOnKnowledgeStep = new UpdateNlqQaGoodKnowledgeStep(
+    loggerProvider,
+    nlqQaGoodRepo
+  );
+
+  const updateNlqQaIfOriginIdStep = new UpdateNlqQaGoodFieldFromGoodStep(
+    loggerProvider,
+    nlqQaRepo
+  );
+
+  const genTableColumnsStep = new GenTableColumnsStep(
+    loggerProvider,
+    genTopoAdapter
+  );
+
+  // USE CASES
+  const useCase = new CreateNlqQaGoodUseCase(
+    loggerProvider,
+    validateInputDataStep,
+    ensureDbConnWithSplitterExistsStep,
+    createNlqQaGoodStep,
+    addToKnowledgeSource,
+    updateNlqQaGoodOnKnowledgeStep,
+    updateNlqQaIfOriginIdStep,
+    genTableColumnsStep
+  );
+  return useCase;
+}

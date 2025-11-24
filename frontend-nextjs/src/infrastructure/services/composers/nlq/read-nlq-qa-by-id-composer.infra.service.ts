@@ -41,3 +41,19 @@ export function readNlqQaByIdComposer(): IController {
 
   return controller;
 }
+
+export function ReturnReadNlqQaByIdUseCase() {
+  // Providers
+  const loggerProvider = new WinstonLoggerProvider();
+  const firebaseAdmin = new FirebaseAdminProvider();
+
+  // Repositories
+  const nlqQaRepository = new NlqQaAppRepository(loggerProvider, firebaseAdmin);
+
+  // Use cases
+  const readNlqQaByIdUseCase = new ReadNlqQaByIdUseCase(
+    loggerProvider,
+    nlqQaRepository
+  );
+  return readNlqQaByIdUseCase;
+}
