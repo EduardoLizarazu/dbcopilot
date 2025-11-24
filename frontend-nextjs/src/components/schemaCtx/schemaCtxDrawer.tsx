@@ -29,6 +29,9 @@ export function SchemaCtxDrawerComponent({
   const [state, setState] = React.useState({
     right: false,
   });
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   const [schemaCtxBase, setSchemaCtxBase] =
     React.useState<TSchemaCtxBaseDto | null>(null);
@@ -42,6 +45,10 @@ export function SchemaCtxDrawerComponent({
         if (schemaCtx?.ok) {
           setSchemaCtxBase(schemaCtx.data);
         }
+        console.log(
+          "SchemaCtxDrawerComponent - dbConnectionId changed:",
+          schemaCtx
+        );
       }
     })();
   }, [dbConnectionId]);
@@ -67,7 +74,7 @@ export function SchemaCtxDrawerComponent({
       // onKeyDown={toggleDrawer(false)}
     >
       <Typography variant="h6" sx={{ p: 2 }}>
-        DB Connection ID: {dbConnId || "Not selected"}
+        Schema Context: {schemaCtxBase?.name || "Not found or selected"}
       </Typography>
       <Button
         variant="outlined"
@@ -76,67 +83,8 @@ export function SchemaCtxDrawerComponent({
       >
         Close
       </Button>
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <InboxIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Inbox"} />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <MailIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Starred"} />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <InboxIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Send email"} />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <MailIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Drafts"} />
-          </ListItemButton>
-        </ListItem>
-      </List>
-      <Divider />
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <InboxIcon />
-            </ListItemIcon>
-            <ListItemText primary={"All mail"} />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <MailIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Trash"} />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <InboxIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Spam"} />
-          </ListItemButton>
-        </ListItem>
-      </List>
+      {/* You can add more detailed schema context information here */}
+      <Box></Box>
     </Box>
   );
 
