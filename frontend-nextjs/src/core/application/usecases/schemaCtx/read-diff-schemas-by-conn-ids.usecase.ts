@@ -1,6 +1,8 @@
 import {
+  schemaCtxSchema,
   TSchemaCtxCounterDto,
   TSchemaCtxDiffBaseDto,
+  TSchemaCtxSchemaDto,
 } from "../../dtos/schemaCtx.dto";
 import { TResponseDto } from "../../dtos/utils/response.app.dto";
 import { ILogger } from "../../interfaces/ilog.app.inter";
@@ -13,7 +15,10 @@ import { IMergeSchemaCtxRawStep } from "../../steps/schemaCtx/merge-schema-ctx-r
 import { IReadByIdSchemaCtxStep } from "../../steps/schemaCtx/read-by-id-schema-ctx.step";
 
 export interface IReadDiffSchemasByConnIdsUseCase {
-  execute(data: { schemaCtxId: string; connIds: string[] }): Promise<
+  execute(data: {
+    oldSchema: TSchemaCtxSchemaDto[];
+    connIds: string[];
+  }): Promise<
     TResponseDto<{
       diffSchemas: TSchemaCtxDiffBaseDto[];
       diffCount: TSchemaCtxCounterDto;
@@ -26,7 +31,6 @@ export class ReadDiffSchemasByConnIdsUseCase
 {
   constructor(
     private readonly logger: ILogger,
-    private readonly readByIdSchemaCtxStep: IReadByIdSchemaCtxStep,
     private readonly readByIdDbConnStep: IReadDbConnByIdStep,
     private readonly extractSchemaBasedStep: IExtractSchemaBasedStep,
     private readonly mergeSchemaCtxRawStep: IMergeSchemaCtxRawStep,
@@ -35,7 +39,10 @@ export class ReadDiffSchemasByConnIdsUseCase
     private readonly countDiffSchemaCtxStep: ICountDiffSchemaCtxStep
   ) {}
 
-  async execute(data: { schemaCtxId: string; connIds: string[] }): Promise<
+  async execute(data: {
+    oldSchema: TSchemaCtxSchemaDto[];
+    connIds: string[];
+  }): Promise<
     TResponseDto<{
       diffSchemas: TSchemaCtxDiffBaseDto[];
       diffCount: TSchemaCtxCounterDto;
@@ -48,16 +55,15 @@ export class ReadDiffSchemasByConnIdsUseCase
         data
       );
 
-      const schemaCtx = await this.readByIdSchemaCtxStep.run(data.schemaCtxId);
-      if (!schemaCtx) {
-        this.logger.warn(
-          `[ReadDiffSchemasByConnIdsUseCase] Schema context not found for ID: ${data.schemaCtxId}`
+      const vOldSchemaCtx = await schemaCtxSchema
+        .array()
+        .safeParseAsync(data.oldSchema);
+      if (!vOldSchemaCtx.success) {
+        this.logger.error(
+          `[ReadDiffSchemasByConnIdsUseCase] Old Schema Context validation failed: `,
+          vOldSchemaCtx.error
         );
-        return {
-          success: false,
-          message: "Schema context not found",
-          data: null,
-        };
+        throw new Error("Old Schema Context validation failed");
       }
 
       // NEW PART
@@ -112,7 +118,7 @@ export class ReadDiffSchemasByConnIdsUseCase
 
       // Compare Schemas
       const diffSchema = await this.compareSchemaCtxStep.run(
-        schemaCtx.schemaCtx,
+        vOldSchemaCtx.data,
         formatNewSchema
       );
       this.logger.info(

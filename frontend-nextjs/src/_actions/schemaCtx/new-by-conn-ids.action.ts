@@ -9,7 +9,7 @@ export async function ReadNewSchemaCtxAction(input: {
 }): Promise<TResOutContent<TSchemaCtxSchemaDto[]>> {
   console.log("Reading new schema context (test)...", input);
 
-  const res = await fetch(`${domain}/api/schema-ctx/diff`, {
+  const res = await fetch(`${domain}/api/schema-ctx/diff/new`, {
     method: "POST",
     body: JSON.stringify(input),
     headers: {

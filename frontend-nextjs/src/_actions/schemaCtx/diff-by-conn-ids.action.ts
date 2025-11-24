@@ -3,12 +3,13 @@ import { ReadTokenFromCookieAction } from "@/_actions/auth/read-token-from-cooki
 import {
   TSchemaCtxCounterDto,
   TSchemaCtxDiffBaseDto,
+  TSchemaCtxSchemaDto,
 } from "@/core/application/dtos/schemaCtx.dto";
 import { TResOutContent } from "@/core/application/dtos/utils/response.app.dto";
 import { domain } from "@/utils/constants";
 
 export async function ReadDiffSchemaCtxAction(input: {
-  schemaCtxId: string;
+  oldSchema: TSchemaCtxSchemaDto[];
   connIds: string[];
 }): Promise<
   TResOutContent<{
@@ -18,17 +19,14 @@ export async function ReadDiffSchemaCtxAction(input: {
 > {
   console.log("Reading diff schema context (test)...", input);
 
-  const res = await fetch(
-    `${domain}/api/schema-ctx/diff/${input.schemaCtxId}`,
-    {
-      method: "POST",
-      body: JSON.stringify(input),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
-      },
-    }
-  );
+  const res = await fetch(`${domain}/api/schema-ctx/diff/compare`, {
+    method: "POST",
+    body: JSON.stringify(input),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
+    },
+  });
   console.log("Response:", res);
 
   if (!res.ok) {

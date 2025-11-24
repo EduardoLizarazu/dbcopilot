@@ -246,6 +246,15 @@ export function SchemaCtxClient({
     handleReset();
   };
 
+  const onResetBtn = () => {
+    resetDiffEditorState();
+    resetSingleEditorState;
+    setSchemaCtx(null);
+    setDbConnectionIds([]);
+    setName("");
+    setDescription("");
+  };
+
   const openSingleEditor = (
     schemaId: string,
     tableId: string,
@@ -670,26 +679,34 @@ export function SchemaCtxClient({
     setSchemaCtxDiff(null);
     try {
       let res = null;
-      if (initial && initial?.dbConnectionIds?.length > 0) {
+      // initial && initial?.dbConnectionIds?.length > 0
+      // !schemaCtx || Object.keys(schemaCtx || {}).length === 0 //load schema
+      console.log(
+        "SCHEMA CTX BEFORE DIFF: ",
+        !!(schemaCtx && schemaCtx?.length !== 0)
+      );
+      if (!!(schemaCtx && schemaCtx?.length !== 0)) {
         res = await ReadDiffSchemaCtxAction({
-          schemaCtxId: initial?.id || null,
+          oldSchema: schemaCtx,
           connIds: dbConnectionIds,
         });
         console.log("READ SCHEMA DIFF CTX: ", res);
 
-        if (res.ok) {
+        if (res?.ok) {
           setSchemaCtxDiff(res.data?.diffSchemas || []);
           setOpenDiffEditor(true);
           setBusyFlag("table-diff", true);
         }
+        if (!res?.ok)
+          setError(res.message || "Failed to search schema context.");
       } else {
         res = await ReadNewSchemaCtxAction({
           connIds: dbConnectionIds,
         });
-        if (res.ok) setSchemaCtx(res.data || []);
+        if (res?.ok) setSchemaCtx(res.data || []);
+        if (!res?.ok)
+          setError(res.message || "Failed to search schema context.");
       }
-
-      if (!res.ok) setError(res.message || "Failed to search schema context.");
     } finally {
       setBusyFlag("table", false);
       setBusyFlag("table-diff", false);
@@ -1655,7 +1672,16 @@ export function SchemaCtxClient({
               >
                 Save
               </Button>
-
+              <Button
+                type="button"
+                color="secondary"
+                variant="outlined"
+                disabled={isBusy("submit")}
+                sx={{ textTransform: "none" }}
+                onClick={onResetBtn}
+              >
+                Reset
+              </Button>
               <Button
                 component={Link}
                 href="/schema-ctx/"
@@ -1684,7 +1710,7 @@ export function SchemaCtxClient({
                 sx={{ textTransform: "none" }}
                 onClick={onSearchDiffSchema}
               >
-                {!(initial && initial?.dbConnectionIds?.length > 0)
+                {!schemaCtx || Object.keys(schemaCtx || {}).length === 0
                   ? "Load schema"
                   : "Load & update knowledge"}
               </Button>
@@ -1694,7 +1720,7 @@ export function SchemaCtxClient({
                 disabled={
                   isBusy(EnumBusy.BTN_GEN_SCHEMA_CTX_AND_PROFILE) ||
                   !schemaCtx ||
-                  schemaCtx.length === 0
+                  Object.keys(schemaCtx || {}).length === 0
                 }
                 loading={isBusy(EnumBusy.BTN_GEN_SCHEMA_CTX_AND_PROFILE)}
                 sx={{ textTransform: "none" }}

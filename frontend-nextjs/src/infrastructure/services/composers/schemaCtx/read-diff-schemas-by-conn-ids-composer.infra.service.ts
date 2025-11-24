@@ -46,10 +46,6 @@ export function ReadDiffSchemasByConnIdsComposer(): IController {
   );
 
   // STEPS
-  const readByIdSchemaCtxStep = new ReadByIdSchemaCtxStep(
-    loggerProvider,
-    schemaRepo
-  );
   const readByIdDbConnStep = new ReadDbConnByIdStep(loggerProvider, dbConnRepo);
   const extractSchemaBasedStep = new ExtractSchemaBasedStep(
     loggerProvider,
@@ -63,7 +59,6 @@ export function ReadDiffSchemasByConnIdsComposer(): IController {
   // USE CASES
   const useCase = new ReadDiffSchemasByConnIdsUseCase(
     loggerProvider,
-    readByIdSchemaCtxStep,
     readByIdDbConnStep,
     extractSchemaBasedStep,
     mergeSchemaCtxRawStep,
