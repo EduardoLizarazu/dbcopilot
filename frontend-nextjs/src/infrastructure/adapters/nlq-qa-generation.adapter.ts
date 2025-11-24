@@ -299,6 +299,9 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
         10) Generate ONLY SELECT queries. Do NOT generate INSERT, UPDATE, DELETE, TRUNCATE or any data-modifying queries.
         11) Ignore any columns whose name contains "D_E_L_E_T_E" when constructing queries.
         12) If the question cannot be answered with the given schema (missing tables/columns or ambiguous semantics), you must return NOT_ANSWERED.
+        13) Always fully qualify every table and column reference using: 
+          - SCHEMA.TABLE and SCHEMA.TABLE.COLUMN.
+          - Do not use unqualified names. Never omit schema names.
 
         D) Similarity Enforcement (STRICT)
         13) Let similarity_threshold = 0.95:
