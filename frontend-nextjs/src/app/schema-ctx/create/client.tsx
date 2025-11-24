@@ -68,6 +68,7 @@ import {
 } from "@/_actions/utils/count-nlq-good-changes.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 import { FromNlqGoodDiffToNlqGood } from "@/_actions/utils/from-nlq-good-diff-to-nlq-good-update.action";
+import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
 const steps = ["Schema Differences", "Knowledge source", "Summary"];
 
 enum SchemaCtxDiffLevel {
@@ -589,13 +590,72 @@ export function SchemaCtxClient({
       setBusyFlag("submit", false);
     }
   };
+  const onUpdate = async () => {
+    setBusyFlag("submit", true);
+    try {
+      const res = await UpdateSchemaCtxAction(initial?.id || null, {
+        id: initial?.id || null,
+        name,
+        description,
+        dbConnectionIds,
+        schemaCtx:
+          schemaCtx?.map((s) => {
+            return {
+              id: s.id.toString() || "",
+              name: s.name.toString() || "",
+              description: s.description?.toString() || "",
+              aliases: s.aliases?.map((a) => a.toString()) || [],
+              tables:
+                s.tables?.map((t) => {
+                  return {
+                    id: t.id.toString() || "",
+                    name: t.name.toString() || "",
+                    description: t.description?.toString() || "",
+                    aliases: t.aliases?.map((a) => a.toString()) || [],
+                    columns:
+                      t.columns?.map((col) => {
+                        return {
+                          id: col.id.toString() || "",
+                          name: col.name.toString() || "",
+                          description: col.description?.toString() || "",
+                          aliases: col.aliases?.map((a) => a.toString()) || [],
+                          dataType: col.dataType.toString() || "",
+                          profile: {
+                            maxValue: col.profile?.maxValue?.toString() || "",
+                            minValue: col.profile?.minValue?.toString() || "",
+                            countNulls: col.profile?.countNulls || 0,
+                            countUnique: col.profile?.countUnique || 0,
+                            sampleUnique:
+                              col.profile?.sampleUnique?.map((s) =>
+                                s.toString()
+                              ) || [],
+                          },
+                        };
+                      }) || [],
+                  };
+                }) || [],
+            };
+          }) || [],
+      });
+      if (res.ok) {
+        setSuccess(res.message ?? "Schema Context update successfully.");
+        // router.push("/schema-ctx");
+      }
+
+      if (!res.ok) {
+        setError(res.message || "Failed to update Schema Context.");
+      }
+    } finally {
+      setBusyFlag("submit", false);
+    }
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
     if (initial) {
-      // await onUpdate();
+      await onUpdate();
     } else {
       await onCreate();
     }
