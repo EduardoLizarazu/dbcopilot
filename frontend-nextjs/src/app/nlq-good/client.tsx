@@ -61,6 +61,8 @@ export default function NlqGoodClient({
   const [vbdFrom, setVbdFrom] = React.useState("");
   const [vbdTo, setVbdTo] = React.useState("");
   const [sortDir, setSortDir] = React.useState<"desc" | "asc">("desc");
+  // Search term (searches question and user email)
+  const [search, setSearch] = React.useState("");
 
   // Feedback
   const [success, setSuccess] = React.useState<string | null>(null);
@@ -174,11 +176,25 @@ export default function NlqGoodClient({
   };
 
   // Apply VBD date filters + ordering on the client
+  // Also support searching by question text and user email (client-side)
   const filteredSorted = React.useMemo(() => {
     const from = vbdFrom ? new Date(vbdFrom) : null;
     const to = vbdTo ? new Date(vbdTo) : null;
+    const q = search.trim().toLowerCase();
 
     let arr = rows.filter((r) => {
+      // Search filtering (question or email)
+      if (q) {
+        const matchesQuestion = !!(
+          r.question && r.question.toLowerCase().includes(q)
+        );
+        const matchesEmail = !!(
+          r.user?.email && r.user.email.toLowerCase().includes(q)
+        );
+        if (!matchesQuestion && !matchesEmail) return false;
+      }
+
+      // Date range filtering only applies if a from/to is provided
       if (!from && !to) return true;
       if (!r.isOnKnowledgeSource || !r.createdAt) return false;
 
@@ -220,7 +236,7 @@ export default function NlqGoodClient({
     });
 
     return arr;
-  }, [rows, vbdFrom, vbdTo, sortDir]);
+  }, [rows, vbdFrom, vbdTo, sortDir, search]);
 
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
@@ -230,11 +246,7 @@ export default function NlqGoodClient({
 
       {/* Filters + Refresh */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={2}
-          alignItems="center"
-        >
+        <Stack direction="row" spacing={2} alignItems="center">
           <TextField
             label="VBD createdAt from"
             size="small"
@@ -280,6 +292,14 @@ export default function NlqGoodClient({
             Create
           </Button>
         </Stack>
+        <TextField
+          label="Search question or email"
+          size="small"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search question text or user email"
+          sx={{ width: "100%", mt: 2 }}
+        />
       </Paper>
 
       {error && <Alert severity="error">{error}</Alert>}
@@ -311,7 +331,7 @@ export default function NlqGoodClient({
               {filteredSorted.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     align="center"
                     sx={{ py: 6, color: "text.secondary" }}
                   >
