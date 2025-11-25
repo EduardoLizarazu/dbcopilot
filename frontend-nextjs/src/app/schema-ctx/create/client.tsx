@@ -1587,6 +1587,7 @@ export function SchemaCtxClient({
         nlqGoodDiff: nlqGoodDiffs || [],
       });
       const resNlqGoodFail = [];
+      console.log("NLQ GOODS TO UPDATE: ", nlqGoodsToUpdate);
       for (const nlqGood of nlqGoodsToUpdate || []) {
         const resNlqGood = await UpdateNlqQaGoodAction(nlqGood);
         if (!resNlqGood.ok) {

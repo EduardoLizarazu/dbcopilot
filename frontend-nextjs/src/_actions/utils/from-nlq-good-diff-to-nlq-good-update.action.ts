@@ -38,5 +38,9 @@ export async function FromNlqGoodDiffToNlqGood(data: {
       ),
     };
   });
-  return updateData;
+
+  // Deep copy to ensure no references remain
+  const deepCopiedUpdateData = JSON.parse(JSON.stringify(updateData));
+
+  return deepCopiedUpdateData;
 }
