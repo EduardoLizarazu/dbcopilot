@@ -677,6 +677,7 @@ export function SchemaCtxClient({
     setBusyFlag("table", true);
     setBusyFlag("table-diff", false);
     setSchemaCtxDiff(null);
+    console.log("SCHEMA CTX BEFORE DIFF: ", schemaCtx);
     try {
       let res = null;
       // initial && initial?.dbConnectionIds?.length > 0
