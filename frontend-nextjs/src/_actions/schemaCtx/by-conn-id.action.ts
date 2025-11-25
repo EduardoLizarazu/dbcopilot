@@ -21,7 +21,7 @@ export async function ReadSchemaCtxByConnIdAction(input: {
 
   if (!res.ok) {
     const errorData = await res.json();
-    console.error(
+    console.warn(
       "Error reading schema context by connection ID:",
       errorData.message || res.statusText
     );

@@ -21,7 +21,7 @@ export async function ReadNewSchemaCtxAction(input: {
 
   if (!res.ok) {
     const errorData = await res.json();
-    console.error(
+    console.warn(
       "Error reading new schema context:",
       errorData.message || res.statusText
     );

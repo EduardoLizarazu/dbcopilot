@@ -24,7 +24,7 @@ export async function CreateSchemaCtxAction(
 
   if (!res.ok) {
     const errorData = await res.json();
-    console.error(
+    console.warn(
       "Error creating schema context:",
       errorData.message || res.statusText
     );

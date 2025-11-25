@@ -19,7 +19,7 @@ export async function DeleteSchemaCtxByIdAction(
 
   if (!res.ok) {
     const errorData = await res.json();
-    console.error(
+    console.warn(
       "Error deleting schema context by id:",
       errorData.message || res.statusText
     );

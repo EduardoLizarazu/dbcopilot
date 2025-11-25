@@ -31,7 +31,7 @@ export async function ReadDiffSchemaCtxAction(input: {
 
   if (!res.ok) {
     const errorData = await res.json();
-    console.error(
+    console.warn(
       "Error reading diff schema context:",
       errorData.message || res.statusText
     );
