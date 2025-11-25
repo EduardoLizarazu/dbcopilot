@@ -1162,8 +1162,15 @@ export function SchemaCtxClient({
             }
 
             // Generation
-            const resGen = await GenSchemaCtxAction(schemaInfo);
-            if (resGen.ok) {
+            let resGen = {
+              ok: false,
+              data: null,
+              message: "no profile data or profile failed",
+            };
+            if (resProfile.ok && resProfile.data) {
+              resGen = await GenSchemaCtxAction(schemaInfo);
+            }
+            if (resGen?.ok) {
               // update the schema context with the new generated info
               setSchemaCtx((prev) => {
                 return prev.map((s) => {
@@ -1171,9 +1178,11 @@ export function SchemaCtxClient({
                   return {
                     ...s,
                     description:
-                      resGen.data.description.toString() || s.description || "",
+                      resGen?.data?.description?.toString() ||
+                      s.description ||
+                      "",
                     aliases:
-                      resGen.data.aliases.map((i) => i.toString()) ||
+                      resGen?.data?.aliases?.map((i) => i.toString()) ||
                       s.aliases ||
                       [],
                     tables: s.tables.map((t) => {
@@ -1181,11 +1190,13 @@ export function SchemaCtxClient({
                       return {
                         ...t,
                         description:
-                          resGen.data.table?.description.toString() ||
+                          resGen?.data?.table?.description?.toString() ||
                           t.description ||
                           "",
                         aliases:
-                          resGen.data.table?.aliases.map((i) => i.toString()) ||
+                          resGen?.data?.table?.aliases?.map((i) =>
+                            i.toString()
+                          ) ||
                           t.aliases ||
                           [],
                         columns: t.columns.map((col) => {
@@ -1193,15 +1204,43 @@ export function SchemaCtxClient({
                           return {
                             ...col,
                             description:
-                              resGen.data.table?.column?.description.toString() ||
+                              resGen?.data?.table?.column?.description?.toString() ||
                               col.description ||
                               "",
                             aliases:
-                              resGen.data.table?.column?.aliases.map((i) =>
+                              resGen?.data?.table?.column?.aliases?.map((i) =>
                                 i.toString()
                               ) ||
                               col.aliases ||
                               [],
+                            profile: {
+                              maxValue:
+                                resGen?.data?.table?.column?.profile?.maxValue?.toString() ||
+                                col.profile?.maxValue.toString() ||
+                                "",
+                              minValue:
+                                resGen?.data?.table?.column?.profile?.minValue?.toString() ||
+                                col.profile?.minValue.toString() ||
+                                "",
+                              countNulls:
+                                resGen?.data?.table?.column?.profile
+                                  ?.countNulls ||
+                                col.profile?.countNulls ||
+                                0,
+                              countUnique:
+                                resGen?.data?.table?.column?.profile
+                                  ?.countUnique ||
+                                col.profile?.countUnique ||
+                                0,
+                              sampleUnique:
+                                resGen?.data?.table?.column?.profile?.sampleUnique?.map(
+                                  (i) => i.toString()
+                                ) ||
+                                col.profile?.sampleUnique.map((i) =>
+                                  i.toString()
+                                ) ||
+                                [],
+                            },
                           };
                         }),
                       };
@@ -1215,16 +1254,16 @@ export function SchemaCtxClient({
                 "Generated successfully."
               );
             }
-            if (!resGen.ok) {
+            if (!resGen?.ok) {
               genErrors.push(
                 `${schemaInfo.name}.${schemaInfo.table.name}.${
                   schemaInfo.table.column.name
-                }: ${resGen.message || "Failed to generate schema context."}`
+                }: ${resGen?.message || "Failed to generate schema context."}`
               );
               onSetErrorFlag(
                 `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${column.id}`,
                 true,
-                resGen.message || "Failed to generate schema context."
+                resGen?.message || "Failed to generate schema context."
               );
             }
             // Clear busy
