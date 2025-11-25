@@ -309,116 +309,136 @@ export class NlqQaTopologyGenerationAdapter
         `[NlqQaTopologyGenerationAdapter] Generating tables and columns from query: ${data.query}`
       );
       const prompt = `
-          Given the following SQL query, extract every schema, table, and column reference used, and also the conditions (restrictions) applied to those columns.
+        Given the following SQL query, extract every schema, table, and column reference used, and also the conditions (restrictions) applied to those columns.
 
-          ### SQL Query:
-          ${data.query}
+        ### SQL Query:
+        ${data.query}
 
-          ### Extraction Rules:
+        ### Extraction Rules:
 
-          1. Normalize every column reference into a physical path with the format:
-            - "schema.table.column"
-            - If the schema is not present in the SQL, use "unknown" as the schema.
-            - If the table is not present in the SQL (column-only reference), use "unknown" as the table and "unknown" as the schema: "unknown.unknown.column".
+        1. Normalize every column reference into a physical path with the format:
+          - "schema.table.column"
+          - If the schema is not present in the SQL for that table, use "unknown" as the schema.
+          - If the column appears without any table and you cannot safely infer the table, use "unknown.unknown.column".
 
-          2. For every column that appears in a condition with a **literal value** (for example in WHERE, HAVING, or JOIN with a literal), also add an entry with the restriction, using this format:
-            - "schema.table.column.[restriction]"
+        2. For every **table reference** (in FROM, JOIN, subqueries, etc.) you MUST also include a table-level entry:
+          - "schema.table"
+          - If the schema is missing: "unknown.table".
 
-            The [restriction] MUST be based on **literal values only**, NOT on other columns.
+        3. When columns are referenced **without a table or alias prefix**:
+          - If there is exactly **one base table** in the FROM clause (ignoring joins), assume that all unqualified columns belong to that table.
+          - If there are multiple candidate tables and you cannot safely decide, treat the column as:
+            - "unknown.unknown.column".
 
-            Examples (valid):
-            - \`WHERE public.customer.customer_id = 1\`
-              → "public.customer.customer_id"
-              → "public.customer.customer_id.[1]"
+        4. For every column that appears in a condition with a **literal value** (for example in WHERE, HAVING, or JOIN conditions with a literal), also add an entry with the restriction, using this format:
+          - "schema.table.column.[restriction]"
 
-            - \`WHERE public.customer.first_name = 'JOHN'\`
-              → "public.customer.first_name"
-              → "public.customer.first_name.['JOHN']"
+          The [restriction] MUST be based on **literal values only**, NOT on other columns.
 
-            - \`WHERE c.id IN (1, 2, 3)\`
-              → "schema.table.id"
-              → "schema.table.id.[IN (1, 2, 3)]"
+          Examples (valid):
+          - \`WHERE public.customer.customer_id = 1\`
+            → "public.customer"
+            → "public.customer.customer_id"
+            → "public.customer.customer_id.[1]"
 
-            - \`WHERE created_at BETWEEN '2023-01-01' AND '2023-01-31'\`
-              → "schema.table.created_at"
-              → "schema.table.created_at.[BETWEEN '2023-01-01' AND '2023-01-31']"
+          - \`WHERE public.customer.first_name = 'JOHN'\`
+            → "public.customer"
+            → "public.customer.first_name"
+            → "public.customer.first_name.['JOHN']"
 
-          3. **Aggregates in HAVING (IMPORTANT)**  
-            - If an aggregate function like \`COUNT\`, \`SUM\`, \`AVG\`, \`MIN\`, \`MAX\` is applied to a column and the result is compared with a literal in HAVING, you MUST:
-              - Ignore the function name itself.
-              - Treat the argument of the function as the target column.
-              - Attach the literal as a restriction to that column.
-              
-            Example:
-            - \`HAVING COUNT(public.rental.rental_id) > 10\`
-              MUST produce:
-              - "public.rental.rental_id"
-              - "public.rental.rental_id.[> 10]"
+          - \`WHERE c.id IN (1, 2, 3)\`
+            → "schema.table"
+            → "schema.table.id"
+            → "schema.table.id.[IN (1, 2, 3)]"
 
-            Another example:
-            - \`HAVING SUM(sales.amount) >= 1000\`
-              → "schema.sales.amount"
-              → "schema.sales.amount.[>= 1000]"
+          - \`WHERE created_at BETWEEN '2023-01-01' AND '2023-01-31'\`
+            → "schema.table"
+            → "schema.table.created_at"
+            → "schema.table.created_at.[BETWEEN '2023-01-01' AND '2023-01-31']"
 
-          4. VERY IMPORTANT – Do NOT treat column = column as a restriction:
-            - If a condition compares a column with another column (e.g. \`a.city_id = b.city_id\`), DO NOT generate a restriction entry with brackets.
-            - In those cases, only include the plain column references, without \`[restriction]\`.
+          - \`WHERE code LIKE 'PA01%'\`
+            → "schema.table"
+            → "schema.table.code"
+            → "schema.table.code.[LIKE 'PA01%']"
 
-            Invalid (DO NOT generate):
-            - \`public.address.city_id = public.city.city_id\`
-              ✗ "public.address.city_id.[public.city.city_id]"
+        5. **Aggregates in HAVING (IMPORTANT)**  
+          If an aggregate function like \`COUNT\`, \`SUM\`, \`AVG\`, \`MIN\`, \`MAX\` is applied to a column and the result is compared with a literal in HAVING, you MUST:
+          - Ignore the function name itself.
+          - Treat the argument of the function as the target column.
+          - Attach the literal as a restriction to that column.
 
-            Valid behavior:
-            - "public.address.city_id"
-            - "public.city.city_id"
+          Example:
+          - \`HAVING COUNT(public.rental.rental_id) > 10\`
+            MUST produce:
+            - "public.rental"
+            - "public.rental.rental_id"
+            - "public.rental.rental_id.[> 10]"
 
-          5. Type/quoting rules for [restriction]:
-            - If the literal is numeric (e.g., 1, 10.5), return it without quotes: "[1]", "[10.5]".
-            - If the literal is a string, date, or other non-numeric type, return it with single quotes as in SQL: "['ACTIVE']", "['2023-01-01']".
-            - For complex conditions (IN, BETWEEN, LIKE, etc.), put the full literal expression inside the brackets, but only if the expression is based on literals, not on columns.
+          Another example:
+          - \`HAVING SUM(sales.amount) >= 1000\`
+            → "schema.sales"
+            → "schema.sales.amount"
+            → "schema.sales.amount.[>= 1000]"
 
-          6. Include columns referenced in:
-            - SELECT
-            - WHERE
-            - JOIN
-            - GROUP BY / HAVING
-            - ORDER BY
-            - subqueries
+        6. VERY IMPORTANT - Do NOT treat column = column as a restriction:
+          - If a condition compares a column with another column (e.g. \`a.city_id = b.city_id\`), DO NOT generate a restriction entry with brackets.
+          - In those cases, only include the plain table and column references, without \`[restriction]\`.
 
-          7. For aggregates:
-            - Ignore the function wrapper (e.g. do NOT return "COUNT(public.rental.rental_id)").
-            - Only work with the inner column (e.g. "public.rental.rental_id") and its comparison literals.
+          Invalid (DO NOT generate):
+          - \`public.address.city_id = public.city.city_id\`
+            ✗ "public.address.city_id.[public.city.city_id]"
 
-          8. Always expand table aliases to their base table names when possible.
+          Valid behavior:
+          - "public.address"
+          - "public.address.city_id"
+          - "public.city"
+          - "public.city.city_id"
+
+        7. Type/quoting rules for [restriction]:
+          - If the literal is numeric (e.g., 1, 10.5), return it without quotes: "[1]", "[10.5]".
+          - If the literal is a string, date, or other non-numeric type, return it with single quotes as in SQL: "['ACTIVE']", "['2023-01-01']".
+          - For complex conditions (IN, BETWEEN, LIKE, etc.), put the full literal expression inside the brackets, but only if the expression is based on literals, not on columns.
+
+        8. Include columns (and corresponding table-level entries) referenced in:
+          - SELECT
+          - WHERE
+          - JOIN
+          - GROUP BY / HAVING
+          - ORDER BY
+          - subqueries
+
+        9. For aggregates:
+          - Ignore the function wrapper (e.g. do NOT return "COUNT(public.rental.rental_id)").
+          - Only work with the inner column (e.g. "public.rental.rental_id") and its comparison literals.
+
+        10. Always expand table aliases to their base table names when possible.
             - If you cannot resolve the schema from the SQL, use "unknown" as schema.
             - If you cannot resolve the table, use "unknown" as table.
 
-          9. Do **not** include functions, operators, or literals by themselves (only within [restriction] on a column).
+        11. Do **not** include functions, operators, or literals by themselves (only within [restriction] on a column).
 
-          10. Do **not** infer columns that do not explicitly appear.
+        12. Do **not** infer tables or columns that do not explicitly appear or cannot be inferred safely from the FROM/JOIN structure.
 
-          11. Remove duplicates.
+        13. Remove duplicates.
 
-          12. Response format:
-              - Return ONLY a valid JSON array of strings.
-              - Do not include explanations, markdown, or code fences.
+        14. Response format:
+            - Return ONLY a valid JSON array of strings.
+            - Do not include explanations, markdown, or code fences.
 
-          ### Response Example:
+        ### Response Example:
 
-          For this query:
+        For this query:
 
-          HAVING COUNT(public.rental.rental_id) > 10
+        HAVING COUNT(public.rental.rental_id) > 10
 
-          a correct response MUST include:
+        A correct response MUST include:
 
-          [
-            "public.film.film_id",
-            "public.film.title",
-            "public.rental.rental_id",
-            "public.rental.rental_id.[> 10]"
-          ]
-
-      `;
+        [
+          "public.rental",
+          "public.rental.rental_id",
+          "public.rental.rental_id.[> 10]"
+        ]
+        `;
 
       const response = await this.openaiProvider.openai.chat.completions.create(
         {
@@ -445,6 +465,10 @@ export class NlqQaTopologyGenerationAdapter
       );
 
       const tcRes = response.choices[0]?.message?.content?.trim() || "";
+      this.logger.info(
+        `[NlqQaTopologyGenerationAdapter] Raw tables and columns response: `,
+        JSON.stringify(tcRes)
+      );
       if (tcRes.startsWith("[")) {
         const tablesColumns = JSON.parse(tcRes);
         this.logger.info(
