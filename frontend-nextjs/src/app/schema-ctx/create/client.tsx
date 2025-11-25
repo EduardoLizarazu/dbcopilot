@@ -1536,31 +1536,41 @@ export function SchemaCtxClient({
 
     const selectedId = selectedNlqGoodDiff?.id;
 
+    const findSchemaCtxDiffByNlqGood = await FindSchemaCtxDiffByNlqGoodAction(
+      schemaCtxDiff,
+      selectedNlqGoodDiff
+    );
+
     try {
       setNlqGoodDiffs((prev) => {
         return prev.map((n) => {
-          if (n.id === selectedId) {
+          if (
+            n.id === selectedId &&
+            n.executionStatus !== NlqQaGoodWithExecutionStatus.TO_DELETE
+          ) {
             return {
               ...n,
               newQuestion: "",
               newQuery: "",
               executionStatus: NlqQaGoodWithExecutionStatus.TO_DELETE,
             };
+          } else if (
+            n.id === selectedId &&
+            n.executionStatus === NlqQaGoodWithExecutionStatus.TO_DELETE
+          ) {
+            return {
+              ...n,
+              newQuestion: "",
+              newQuery: "",
+              executionStatus: NlqQaGoodWithExecutionStatus.FAILED,
+            };
           }
           return n;
         });
       });
-      onSetSuccessFlag(
-        EnumFb.DIALOG_NEW_RUN,
-        true,
-        "New question and query mark to deleted successfully."
-      );
+      onSetSuccessFlag(EnumFb.DIALOG_NEW_RUN, true, "successfully.");
     } catch (error) {
-      onSetErrorFlag(
-        EnumFb.DIALOG_NEW_RUN,
-        true,
-        "Failed to mark to delete new question and query."
-      );
+      onSetErrorFlag(EnumFb.DIALOG_NEW_RUN, true, "Failed");
     }
   };
 

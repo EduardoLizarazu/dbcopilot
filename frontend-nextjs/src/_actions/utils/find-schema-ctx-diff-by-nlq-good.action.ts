@@ -40,6 +40,9 @@ function filterSchemaCtxDiffBySelected(
     selectedNlqGoodDiff.tablesColumns ?? []
   );
 
+  console.log("TABLE COLUMNS", selectedNlqGoodDiff.tablesColumns);
+  console.log("USED FULL IDS", schemaCtxDiff);
+
   const filteredSchemas = schemaCtxDiff
     .map((schema) => {
       const filteredTables = (schema.tables ?? [])
@@ -109,6 +112,10 @@ export async function FindSchemaCtxDiffByNlqGoodAction(
     schemaCtxDiff,
     selectedNlqGoodDiff
   );
+
+  console.log("FILTERED SCHEMA CTX DIFF", filtered);
+  console.log("FILTERED SCHEMA CTX DIFF", JSON.stringify(filtered, null, 2));
+
   return filtered;
 }
 
