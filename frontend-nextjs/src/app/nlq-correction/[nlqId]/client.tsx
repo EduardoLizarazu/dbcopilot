@@ -222,7 +222,7 @@ export default function NlqCorrectionClient({
           Nlq Good Used ({initial.nlqQaGoodUsed?.length || 0})
         </Typography>
         <Stack spacing={1}>
-          {initial.nlqQaGoodUsed && initial.nlqQaGoodUsed.length > 0 ? (
+          {initial?.nlqQaGoodUsed && initial?.nlqQaGoodUsed?.length > 0 ? (
             <Accordion>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
@@ -235,10 +235,10 @@ export default function NlqCorrectionClient({
                 {initial.nlqQaGoodUsed.map((item, index) => (
                   <Box key={index} sx={{ mb: 2 }}>
                     <Typography variant="subtitle2" color="text">
-                      <b>Question:</b> {item.question || "—"}
+                      <b>Question:</b> {item?.question || "—"}
                     </Typography>
                     <Typography variant="subtitle2" color="text" sx={{ mt: 1 }}>
-                      <b>Query:</b> {item.query || "—"}
+                      <b>Query:</b> {item?.query || "—"}
                     </Typography>
                   </Box>
                 ))}
