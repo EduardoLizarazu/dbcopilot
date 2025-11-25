@@ -19,7 +19,7 @@ export async function ReadAllSchemaCtxAction(): Promise<
 
   if (!res.ok) {
     const errorData = await res.json();
-    console.error(
+    console.warn(
       "Error reading all schema contexts:",
       errorData.message || res.statusText
     );
