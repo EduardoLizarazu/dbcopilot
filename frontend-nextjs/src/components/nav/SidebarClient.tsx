@@ -106,11 +106,15 @@ export default function SidebarClient({
               icon={<CableIcon />}
               label="DB Connection"
             />
-            {/* <NavItem href="/schema" icon={<SchemaIcon />} label="Schema" /> */}
             <NavItem
               href="/vbd-splitter"
               icon={<ListIcon />}
               label="VBD Splitter"
+            />
+            <NavItem
+              href="/schema-ctx"
+              icon={<SchemaIcon />}
+              label="Schema Context"
             />
           </>
         )}
