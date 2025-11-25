@@ -21,6 +21,7 @@ import { ChatFeedbackBtn } from "@/components/chat/chatFeedbackBtn";
 import { CreateNlqQaAction } from "@/_actions/nlq-qa/create.action";
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
+import { SchemaCtxDrawerForAdminComponent } from "../schemaCtx/schemaCtxDrawerForAdmin";
 
 interface Props {
   props?: {
@@ -112,7 +113,7 @@ export function SingleChat({ props = null }: Props = { props: null }) {
             sx={{ justifyContent: "space-between", alignItems: "center" }}
           >
             <Typography variant="h4">Chat with your database</Typography>
-            {/* <SchemaCtxDrawerComponent dbConnectionId={dbConnId || ""} /> */}
+            <SchemaCtxDrawerForAdminComponent dbConnectionId={dbConnId || ""} />
           </Stack>
 
           {/* DB Connections */}
