@@ -1613,6 +1613,7 @@ export function SchemaCtxClient({
       resetDiffEditorState();
     }
   }
+
   // ================ FINALIZE SCHEMA CTX AND NLQ GOOD DIFFS - UP =================
 
   return (
