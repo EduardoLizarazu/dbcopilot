@@ -144,6 +144,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           similarKnowledgeBased: similarQuestionFromKnowledgeBase,
           dbType: dbConnWithSplitterAndSchemaQuery?.type || "ANSI SQL",
         });
+
       // 6. Generate SQL query from prompt template
       const genQueryFromPromptTemplate =
         await this.genQueryFromPromptTemplateStep.run({
