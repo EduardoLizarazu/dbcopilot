@@ -227,7 +227,9 @@ export class NlqQaInformationAdapter implements INlqQaInformationPort {
         error: error instanceof Error ? error.message : String(error),
         connection,
       });
-      throw new Error(error instanceof Error ? error.message : String(error));
+      throw new Error(
+        error.message || "Error extracting schema from connection"
+      );
     } finally {
       if (queryRunner) await queryRunner.release();
       if (dataSource) await dataSource.destroy();

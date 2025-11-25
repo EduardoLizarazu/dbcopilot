@@ -72,7 +72,12 @@ export class ProfileExtractorUseCase implements IProfileExtractorUseCase {
         this.logger.warn(
           "[ProfileExtractorUseCase] No matching connection found for the provided schema details."
         );
-        return null;
+        return {
+          success: false,
+          data: null,
+          message:
+            "No matching connection found for the provided schema details",
+        };
       }
 
       //   4. Execute profile on the found connection

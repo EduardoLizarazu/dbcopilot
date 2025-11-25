@@ -49,7 +49,7 @@ export class ExtractSchemaBasedStep implements IExtractSchemaBasedStep {
         `[ExtractSchemaBasedStep] Error occurred while extracting schema based information: ${error.message}`
       );
       throw new Error(
-        "Error extracting schema based information: " + error.message
+        error.message || "Failed to extract schema based information."
       );
     }
   }
