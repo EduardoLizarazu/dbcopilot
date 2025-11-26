@@ -171,14 +171,14 @@ export function SchemaCtxDrawerForAdminComponent({
 
                     return (
                       schemaCtxBase?.schemaCtx?.map((schema) =>
-                        schema.tables.map((table) =>
-                          table.columns.map((column, index) => {
+                        schema?.tables?.map((table) =>
+                          table?.columns?.map((column, index) => {
                             if (!matchesSearch(schema, table, column, tokens))
                               return null;
 
                             const rowKey =
-                              column.id ??
-                              `${schema.id ?? schema.name}-${table.id ?? table.name}-${column.name}-${index}`;
+                              column?.id ??
+                              `${schema?.id ?? schema?.name}-${table?.id ?? table?.name}-${column?.name}-${index}`;
 
                             return (
                               <React.Fragment key={rowKey}>
@@ -194,9 +194,9 @@ export function SchemaCtxDrawerForAdminComponent({
                                       )}
                                     </IconButton>
                                   </TableCell>
-                                  <TableCell>{schema.name}</TableCell>
-                                  <TableCell>{table.name}</TableCell>
-                                  <TableCell>{column.name}</TableCell>
+                                  <TableCell>{schema?.name}</TableCell>
+                                  <TableCell>{table?.name}</TableCell>
+                                  <TableCell>{column?.name}</TableCell>
                                 </TableRow>
                                 <TableRow>
                                   <TableCell
@@ -214,18 +214,18 @@ export function SchemaCtxDrawerForAdminComponent({
                                             variant="subtitle2"
                                             fontWeight={600}
                                           >
-                                            Schema: {schema.name}{" "}
+                                            Schema: {schema?.name}{" "}
                                           </Typography>
                                           <Typography variant="body2">
                                             <i>
                                               Description:{" "}
-                                              {schema.description || "..."}
+                                              {schema?.description || "..."}
                                             </i>
                                           </Typography>
                                           <Typography variant="body2">
                                             <i>
                                               Aliases:{" "}
-                                              {schema.aliases?.join(", ") ||
+                                              {schema?.aliases?.join(", ") ||
                                                 "..."}
                                             </i>
                                           </Typography>
@@ -236,18 +236,18 @@ export function SchemaCtxDrawerForAdminComponent({
                                             variant="subtitle2"
                                             fontWeight={600}
                                           >
-                                            Table: {table.name}{" "}
+                                            Table: {table?.name}{" "}
                                           </Typography>
                                           <Typography variant="body2">
                                             <i>
                                               Description:{" "}
-                                              {table.description || "..."}
+                                              {table?.description || "..."}
                                             </i>
                                           </Typography>
                                           <Typography variant="body2">
                                             <i>
                                               Aliases:{" "}
-                                              {table.aliases?.join(", ") ||
+                                              {table?.aliases?.join(", ") ||
                                                 "..."}
                                             </i>
                                           </Typography>
@@ -258,19 +258,19 @@ export function SchemaCtxDrawerForAdminComponent({
                                             variant="subtitle2"
                                             fontWeight={600}
                                           >
-                                            Column details:
+                                            Column: {column?.name || "..."}{" "}
                                           </Typography>
                                           <Typography variant="body2">
                                             <i>
                                               Description:{" "}
-                                              {column.description || "..."}
+                                              {column?.description || "..."}
                                             </i>
                                           </Typography>
                                           <Typography variant="body2">
                                             <i>
                                               {" "}
                                               Aliases:{" "}
-                                              {column.aliases.join(", ") ||
+                                              {column?.aliases?.join(", ") ||
                                                 "..."}
                                             </i>
                                           </Typography>
@@ -287,40 +287,40 @@ export function SchemaCtxDrawerForAdminComponent({
                                           <Typography variant="body2">
                                             <i>
                                               Max Value:{" "}
-                                              {column.profile
-                                                ? column.profile.maxValue
+                                              {column?.profile
+                                                ? column?.profile?.maxValue
                                                 : "..."}
                                             </i>
                                           </Typography>
                                           <Typography variant="body2">
                                             <i>
                                               Max Value:{" "}
-                                              {column.profile
-                                                ? column.profile.minValue
+                                              {column?.profile
+                                                ? column?.profile?.minValue
                                                 : "..."}
                                             </i>
                                           </Typography>
                                           <Typography variant="body2">
                                             <i>
                                               Records Count:{" "}
-                                              {column.profile
-                                                ? column.profile.countUnique
+                                              {column?.profile
+                                                ? column?.profile?.countUnique
                                                 : "..."}
                                             </i>
                                           </Typography>
                                           <Typography variant="body2">
                                             <i>
                                               Nulls Count:{" "}
-                                              {column.profile
-                                                ? column.profile.countNulls
+                                              {column?.profile
+                                                ? column?.profile?.countNulls
                                                 : "..."}
                                             </i>
                                           </Typography>
                                           <Typography variant="body2">
                                             <i>
                                               Distinct Values Count:{" "}
-                                              {column.profile
-                                                ? column.profile.sampleUnique?.join(
+                                              {column?.profile
+                                                ? column?.profile?.sampleUnique?.join(
                                                     ", "
                                                   )
                                                 : "..."}
