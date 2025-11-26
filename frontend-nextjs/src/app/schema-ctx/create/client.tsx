@@ -511,7 +511,7 @@ export function SchemaCtxClient({
         });
         setSchemaDiffCount(countSchemaDiffResult);
         const countNlqGoodResult = await CountNlqGoodChangesAction({
-          nlqGoodChanges: nlqGoodDiffs,
+          nlqGoodChanges: nlqGoodDiffs || [],
         });
         setNlqGoodDiffCount(countNlqGoodResult);
       }
@@ -1596,9 +1596,8 @@ export function SchemaCtxClient({
             message: resNlqGood.message || "Failed to update NLQ QA Good.",
           });
         }
+        console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
       }
-
-      console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
 
       const schemaCtxFormatted = await FromSchemaDiffToSchemaCtxAction({
         oldSchemaCtx: schemaCtx,
@@ -2740,6 +2739,20 @@ export function SchemaCtxClient({
                                                         ` → (old) ${col.oldName}`}
                                                       {col.newName &&
                                                         ` → (new) ${col.newName}`}
+                                                      <br />
+                                                      <Typography
+                                                        variant="body2"
+                                                        color={
+                                                          col?.dataType
+                                                            ?.status === 1
+                                                            ? "success"
+                                                            : "textSecondary"
+                                                        }
+                                                      >
+                                                        <i>
+                                                          {` [${col.dataType?.name || "unknown"}]`}
+                                                        </i>
+                                                      </Typography>
                                                     </TableCell>
                                                     <TableCell>
                                                       {col.status ===
