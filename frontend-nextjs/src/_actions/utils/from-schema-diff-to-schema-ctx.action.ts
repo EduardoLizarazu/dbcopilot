@@ -113,37 +113,40 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
 
           oldCol.id = colDiff.newId;
           oldCol.name = colDiff.newName;
+        }
+        if (colDiff?.dataType?.status === SchemaCtxDiffStatus.NEW) {
+          console.log("ENTERING DATA TYPE UPDATE FOR COLUMN:");
 
+          // Goal: update also the data type with the new column data type always
           // Split new id to get the data type
           // schema.table.column -> schema -> schema.table. -> schema.table.column
-
-          const newIdParts = colDiff.newId.split(".");
+          const newIdParts = colDiff.id.split(".");
           const [schemaId, tableId, columnId] = newIdParts;
           const newSchemaId = `${schemaId}`;
           const newTableId = `${schemaId}.${tableId}`;
           const newColumnId = `${schemaId}.${tableId}.${columnId}`;
+          console.log("Updating data type for column:", newColumnId);
 
-          // Track the new column column
-          const newSchemaDiff = schemasCtxDiff.find(
-            (s) => s.id === newSchemaId
-          );
-          if (!newSchemaDiff) continue;
+          const oldSchema = oldSchemaCtx.find((s) => s.id === newSchemaId);
+          if (!oldSchema) continue;
 
-          const newTableDiff = newSchemaDiff.tables?.find(
+          const oldTable = (oldSchema.tables || []).find(
             (t) => t.id === newTableId
           );
-          if (!newTableDiff) continue;
+          if (!oldTable) continue;
 
-          const newCol = newTableDiff.columns?.find(
+          const oldCol = (oldTable.columns || []).find(
             (c) => c.id === newColumnId
           );
-          if (!newCol) continue;
-          oldCol.dataType = newCol.dataType.name;
+          if (!oldCol) continue;
+          console.log("Old Column before data type update:", oldCol.dataType);
+          oldCol.dataType = colDiff.dataType.name;
+          console.log("Old Column after data type update:", oldCol.dataType);
         }
       }
     }
   }
-  console.log("Resulting SchemaCtx:", JSON.stringify(oldSchemaCtx, null, 2));
+  // console.log("Resulting SchemaCtx:", JSON.stringify(oldSchemaCtx, null, 2));
 
   const res = JSON.parse(JSON.stringify(oldSchemaCtx));
 
