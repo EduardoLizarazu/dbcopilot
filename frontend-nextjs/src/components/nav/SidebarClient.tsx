@@ -111,11 +111,11 @@ export default function SidebarClient({
               icon={<ListIcon />}
               label="VBD Splitter"
             />
-            <NavItem
+            {/* <NavItem
               href="/schema-ctx"
               icon={<SchemaIcon />}
               label="Schema Context"
-            />
+            /> */}
           </>
         )}
       </List>

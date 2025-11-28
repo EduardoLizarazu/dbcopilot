@@ -104,43 +104,44 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         schema_query: dbConnWithSplitterAndSchemaQuery?.schema_query || "",
       });
 
-      // 4.a Format raw schema data
-      const formattedRawSchema =
-        await this.formatRawSchemaStep.run(schemaBased);
+      // // 4.a Format raw schema data
+      // const formattedRawSchema =
+      //   await this.formatRawSchemaStep.run(schemaBased);
 
-      this.logger.info(
-        "[CreateNlqQaUseCase]: Formatted raw schema data",
-        formattedRawSchema
-      );
+      // this.logger.info(
+      //   "[CreateNlqQaUseCase]: Formatted raw schema data",
+      //   formattedRawSchema
+      // );
 
-      // 4.b Read schema context by connection id
-      const schemaCtx = await this.readSchemaCtxByConnIdStep.run({
-        connId: data.dbConnectionId,
-      });
-      this.logger.info(
-        "[CreateNlqQaUseCase]: Read schema context by connection id",
-        JSON.stringify(schemaCtx)
-      );
+      // // 4.b Read schema context by connection id
+      // const schemaCtx = await this.readSchemaCtxByConnIdStep.run({
+      //   connId: data.dbConnectionId,
+      // });
+      // this.logger.info(
+      //   "[CreateNlqQaUseCase]: Read schema context by connection id",
+      //   JSON.stringify(schemaCtx)
+      // );
 
-      // 4.c Merge raw schema based with schema context
-      let mergeSchemaCtx = null;
-      if (schemaCtx?.schemaCtx && schemaCtx?.schemaCtx.length > 0) {
-        const mergedSchemaCtxs = await this.mergeSchemaCtxsStep.run({
-          schemaCtxFromDb: formattedRawSchema,
-          schemaCtx: schemaCtx.schemaCtx,
-        });
-        mergeSchemaCtx = mergedSchemaCtxs;
-      }
-      this.logger.info(
-        "[CreateNlqQaUseCase]: Merged schema context",
-        JSON.stringify(mergeSchemaCtx)
-      );
+      // // 4.c Merge raw schema based with schema context
+      // let mergeSchemaCtx = null;
+      // if (schemaCtx?.schemaCtx && schemaCtx?.schemaCtx.length > 0) {
+      //   const mergedSchemaCtxs = await this.mergeSchemaCtxsStep.run({
+      //     schemaCtxFromDb: formattedRawSchema,
+      //     schemaCtx: schemaCtx.schemaCtx,
+      //   });
+      //   mergeSchemaCtx = mergedSchemaCtxs;
+      // }
+      // this.logger.info(
+      //   "[CreateNlqQaUseCase]: Merged schema context",
+      //   JSON.stringify(mergeSchemaCtx)
+      // );
 
       // 5. Create prompt template to generate SQL query
       const promptTemplateToGenQuery =
         await this.createPromptToGenQueryStep.run({
           question: data.question,
-          schemaBased: mergeSchemaCtx ?? formattedRawSchema, // SCHEMA CONTEXT
+          // schemaBased: mergeSchemaCtx ?? formattedRawSchema, // SCHEMA CONTEXT
+          schemaBased: schemaBased, // RAW SCHEMA ONLY
           similarKnowledgeBased: similarQuestionFromKnowledgeBase,
           dbType: dbConnWithSplitterAndSchemaQuery?.type || "ANSI SQL",
         });

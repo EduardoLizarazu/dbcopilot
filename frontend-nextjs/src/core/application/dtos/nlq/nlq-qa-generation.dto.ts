@@ -35,15 +35,15 @@ export const nlqQaGenerationSchema = z.object({
 });
 
 // Create prompt template 40190
-export const createNlqQaGenerationPromptTemplate = nlqQaGenerationSchema
-  .pick({
-    question: true,
-    similarKnowledgeBased: true,
-    dbType: true,
-  })
-  .extend({
-    schemaBased: z.array(schemaCtxSchema),
-  });
+export const createNlqQaGenerationPromptTemplate = nlqQaGenerationSchema.pick({
+  question: true,
+  similarKnowledgeBased: true,
+  dbType: true,
+  schemaBased: true,
+});
+// .extend({
+//   schemaBased: z.array(schemaCtxSchema), // SCHEMA CONTEXT
+// });
 
 export type TCreateNlqQaGenerationPromptTemplate = z.infer<
   typeof createNlqQaGenerationPromptTemplate
