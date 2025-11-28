@@ -117,9 +117,9 @@ export default function NlqCorrectionClient({
         <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
           Correct NLQ
         </Typography>
-        <SchemaCtxDrawerForAdminComponent
+        {/* <SchemaCtxDrawerForAdminComponent
           dbConnectionId={initial.dbConnection?.id || ""}
-        />
+        /> */}
       </Stack>
 
       {/* NLQ Details */}

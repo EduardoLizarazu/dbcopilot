@@ -113,7 +113,7 @@ export function SingleChat({ props = null }: Props = { props: null }) {
             sx={{ justifyContent: "space-between", alignItems: "center" }}
           >
             <Typography variant="h4">Chat with your database</Typography>
-            <SchemaCtxDrawerForAdminComponent dbConnectionId={dbConnId || ""} />
+            {/* <SchemaCtxDrawerForAdminComponent dbConnectionId={dbConnId || ""} /> */}
           </Stack>
 
           {/* DB Connections */}
