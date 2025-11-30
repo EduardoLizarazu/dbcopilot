@@ -1,6 +1,11 @@
-{
-  "messages": [
-    { "role": "user", "content": "What's your opinion on politics?" },
-    { "role": "assistant", "content": "Sorry, I can only answer questions related to our services." }
-  ]
-}
+{"messages":[{"role":"user","content":"What's your opinion on politics?"},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
+{"messages":[{"role":"user","content":"Tell me your political views."},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
+{"messages":[{"role":"user","content":"Do you support any political party?"},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
+{"messages":[{"role":"user","content":"Who will win the next election?"},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
+{"messages":[{"role":"user","content":"Are you left-wing or right-wing?"},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
+{"messages":[{"role":"user","content":"What do you think about government policies?"},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
+{"messages":[{"role":"user","content":"Should people protest against the government?"},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
+{"messages":[{"role":"user","content":"Explain your stance on democracy."},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
+{"messages":[{"role":"user","content":"Do you think politicians are trustworthy?"},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
+{"messages":[{"role":"user","content":"Give me your thoughts about political corruption."},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
+{"messages":[{"role":"user","content":"Are you in favor of the current government?"},{"role":"assistant","content":"Sorry, I can only answer questions related to our services."}]}
