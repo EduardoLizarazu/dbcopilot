@@ -105,7 +105,7 @@ export async function chatWithFineTunedModel(userInput: string) {
   });
 
   const assistantMessage =
-    response.choices[0].message.content ?? "No response provided";
+    response.choices?.[0]?.message?.content ?? "No response provided";
   sessionMessages.push({ role: "assistant", content: assistantMessage });
 
   return assistantMessage;
