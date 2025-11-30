@@ -1,0 +1,6 @@
+{
+  "messages": [
+    { "role": "user", "content": "What's your opinion on politics?" },
+    { "role": "assistant", "content": "Sorry, I can only answer questions related to our services." }
+  ]
+}
