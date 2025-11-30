@@ -1,13 +1,30 @@
 import { env } from "../env";
 import { openai } from "../service/openai";
 import fs from "fs";
+import { createInterface } from "readline";
 
 // Upload training data for fine-tuning:
 // First, upload your training data to OpenAI. Once uploaded,
 // you’ll receive a file ID that you’ll need to start the fine-tuning job.
 export async function UploadFile() {
   try {
-    const fileStream = fs.createReadStream("src/data/train-data.jsonl");
+    const filePath = "src/data/train-data.jsonl";
+
+    // Verify file is present and that at least some lines parse as JSON
+    const verify = await verifyTrainingFile(filePath, 50);
+    if (!verify.valid) {
+      throw new Error(
+        `Training file verification failed: ${verify.error ?? "invalid lines"}`
+      );
+    }
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.on("open", () =>
+      console.log("Read stream opened for training file")
+    );
+    fileStream.on("error", (err) =>
+      console.error("Read stream error:", err.message)
+    );
 
     const file = await openai.files.create({
       file: fileStream,
@@ -20,6 +37,73 @@ export async function UploadFile() {
     console.error("Error uploading file:", (error as Error).message);
     throw new Error("File upload failed");
   }
+}
+
+// Verify the `.jsonl` training file by checking existence and parsing the first N lines.
+export async function verifyTrainingFile(
+  filePath: string,
+  maxLines = 10
+): Promise<{ valid: boolean; linesChecked: number; error?: string }> {
+  try {
+    await fs.promises.access(filePath, fs.constants.R_OK);
+  } catch (err) {
+    return {
+      valid: false,
+      linesChecked: 0,
+      error: `File not found or not readable: ${(err as Error).message}`,
+    };
+  }
+
+  const stream = fs.createReadStream(filePath, { encoding: "utf8" });
+  const rl = createInterface({ input: stream, crlfDelay: Infinity });
+
+  let checked = 0;
+  try {
+    for await (const rawLine of rl) {
+      const line = rawLine.trim();
+      if (line === "") continue;
+      checked++;
+      try {
+        JSON.parse(line);
+      } catch (err) {
+        rl.close();
+        stream.destroy();
+        return {
+          valid: false,
+          linesChecked: checked,
+          error: `Line ${checked} is not valid JSON: ${(err as Error).message}`,
+        };
+      }
+      if (checked >= maxLines) break;
+    }
+    return { valid: true, linesChecked: checked };
+  } catch (err) {
+    return {
+      valid: false,
+      linesChecked: checked,
+      error: (err as Error).message,
+    };
+  } finally {
+    // graceful cleanup
+    try {
+      rl.close();
+    } catch {}
+    try {
+      stream.close?.();
+    } catch {}
+  }
+}
+
+// Simple CLI entry: `npx ts-node src/fine-tuning/fine-tuning.ts --verify-file`
+if (process.argv.includes("--verify-file")) {
+  (async () => {
+    const filePath = "src/data/train-data.jsonl";
+    console.log("Verifying training file:", filePath);
+    const result = await verifyTrainingFile(filePath, 100);
+    console.log("Verification result:", result);
+    if (!result.valid) process.exit(2);
+    process.exit(0);
+  })();
 }
 
 // Fine-Tune the Model with the uploaded file ID
@@ -122,7 +206,7 @@ export async function TestFineTuneOpenAi() {
   if (!jobId) throw new Error("Fine-tuning failed");
   console.log("Fine-tuning job started with ID:", jobId);
   await track(jobId);
-  await trackRealtime(jobId);
+  //   await trackRealtime(jobId);
 }
 
 export async function TestChatFineTunedModel() {
