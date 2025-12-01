@@ -7,7 +7,7 @@ export async function ReadAllRolesAction(): Promise<
   TResOutContent<TRoleOutRequestDto[]>
 > {
   console.log("Reading all roles...");
-  const rolesRes = await fetch(`/api/roles`, {
+  const rolesRes = await fetch(`${domain}/api/roles`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

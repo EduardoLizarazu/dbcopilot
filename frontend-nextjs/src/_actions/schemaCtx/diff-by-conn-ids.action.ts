@@ -19,7 +19,7 @@ export async function ReadDiffSchemaCtxAction(input: {
 > {
   console.log("Reading diff schema context (test)...", input);
 
-  const res = await fetch(`/api/schema-ctx/diff/compare`, {
+  const res = await fetch(`${domain}/api/schema-ctx/diff/compare`, {
     method: "POST",
     body: JSON.stringify(input),
     headers: {

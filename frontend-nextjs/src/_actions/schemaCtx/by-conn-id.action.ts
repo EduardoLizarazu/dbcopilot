@@ -9,7 +9,7 @@ export async function ReadSchemaCtxByConnIdAction(input: {
 }): Promise<TResOutContent<TSchemaCtxBaseDto>> {
   console.log("Creating schema context (test)...", input);
 
-  const res = await fetch(`/api/schema-ctx/by-connection`, {
+  const res = await fetch(`${domain}/api/schema-ctx/by-connection`, {
     method: "POST",
     body: JSON.stringify(input),
     headers: {
