@@ -9,7 +9,7 @@ export async function ReadByIdSchemaCtxAction(
 ): Promise<TResOutContent<TSchemaCtxBaseDto>> {
   console.log(`Reading schema context by id (test)...`, id);
 
-  const res = await fetch(`${domain}/api/schema-ctx/${id}`, {
+  const res = await fetch(`/api/schema-ctx/${id}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,

@@ -9,7 +9,7 @@ export async function ReadAllSchemaCtxAction(): Promise<
 > {
   console.log("Reading all schema contexts (test)...");
 
-  const res = await fetch(`${domain}/api/schema-ctx`, {
+  const res = await fetch(`/api/schema-ctx`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${await ReadTokenFromCookieAction()}`,
