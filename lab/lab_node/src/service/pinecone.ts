@@ -92,7 +92,7 @@ export async function Upsert(data: { question: string; query: string }) {
         values: denseVectors,
         metadata: {
           question: data.question,
-          query: data.query,
+          // query: data.query,
         },
       },
     ]);
@@ -105,7 +105,7 @@ export async function Upsert(data: { question: string; query: string }) {
         sparseValues: sparseValuesRecord,
         metadata: {
           question: data.question,
-          query: data.query,
+          // query: data.query,
         },
       },
     ]);
@@ -133,7 +133,7 @@ export async function queryDenseVector(
       id: match.id || "",
       score: match.score || 0,
       question: String(match.metadata?.question ?? ""),
-      query: String(match.metadata?.query ?? ""),
+      // query: String(match.metadata?.query ?? ""),
     }));
 
     return dto;
@@ -150,6 +150,7 @@ export async function querySparseVector(
     const sparseVectors = await GetSparseVectors({ question }); // get sparse vector
     const sparseValuesRecord = EnsureSparseVectorValues(sparseVectors);
     const result = await SparseIndex.namespace(PINECONE_NAMESPACE).query({
+      vector: [0], // Pinecone requires a dense vector here, but we use only sparseVector below
       sparseVector: sparseValuesRecord,
       topK,
       includeMetadata: true,
@@ -159,7 +160,7 @@ export async function querySparseVector(
       id: match.id || "",
       score: match.score || 0,
       question: String(match.metadata?.question ?? ""),
-      query: String(match.metadata?.query ?? ""),
+      // query: String(match.metadata?.query ?? ""),
     }));
     return dto;
   } catch (error) {

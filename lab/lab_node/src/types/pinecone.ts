@@ -7,5 +7,5 @@ export type TPineconeQueryResult = {
   id: string;
   score: number;
   question: string;
-  query: string;
+  query?: string;
 };
