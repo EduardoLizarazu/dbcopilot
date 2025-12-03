@@ -1,4 +1,4 @@
-const testQuestions = [
+export const testQuestions = [
   // --- GROUP A: CONCEPTUAL & SYNONYMS (Dense should win) ---
   // 1. Docs use "Productos más vendidos". Dense understands "Best sellers". Sparse might fail.
   "Show me the best sellers list.",
