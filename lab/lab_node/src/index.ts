@@ -5,8 +5,9 @@ import {
 
 async function main() {
   // await TestUpsertQuestion();
-  const question =
-    "Muestra todos los pedidos que se encuentran aprobados, incluyendo número de pedido, código de cliente y nombre asociado.";
+  const question = `
+  Filtrame aquellos pedidos asociados al azúcar que sigan figurando como pendientes aunque tengan estados contradictorios en el sistema (activo/inactivo, aprobado/reprobado, cancelado/no cancelado) y que además continúan sin chofer asignado.
+  `;
 
   console.log("Running main...");
   console.log("Question:", question);
