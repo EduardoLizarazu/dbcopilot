@@ -1,6 +1,7 @@
 import { testQuestions } from "../const/questionsOnly";
 import {
   deleteNamespace,
+  queryDenseVector,
   querySparseVector,
   upsertBuilder,
 } from "../service/pinecone";
@@ -27,7 +28,7 @@ export async function TestQueryQuestions(questions?: string) {
     //  Extract
     const q = questions || "";
     console.log(`Testing Query for questions...`);
-    const denseResults = await querySparseVector(q, 5);
+    const denseResults = await queryDenseVector(q, 5);
     console.log("Dense Results:", denseResults);
 
     const sparseResults = await querySparseVector(q, 5);
