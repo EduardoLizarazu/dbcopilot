@@ -262,9 +262,9 @@ export default function NlqCorrectionClient({
         <Typography variant="h6" fontWeight={800}>
           Correction
         </Typography>
-        <SchemaCtxDrawerForAdminComponent
+        {/* <SchemaCtxDrawerForAdminComponent
           dbConnectionId={initial.dbConnection?.id || ""}
-        />
+        /> */}
       </Stack>
 
       {/* Editors & runners */}
