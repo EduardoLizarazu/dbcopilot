@@ -14,6 +14,47 @@ export const pinecone = new Pinecone({
 export const DenseIndex = pinecone.Index(env.pineconeIndex);
 export const SparseIndex = pinecone.Index(env.sparsePineconeIndex);
 
+export function EnsureSparseVectorValues(data: SpladeVectors) {
+  const sparseVectors = data;
+  // Ensure sparseValues matches RecordSparseValues: { indices: number[]; values: number[] }
+  let sparseValuesRecord: SpladeVectors = {
+    indices: [],
+    values: [],
+  };
+
+  // If the returned sparseVectors already include indices, use them directly.
+  if (
+    (sparseVectors as any) &&
+    Array.isArray((sparseVectors as any).indices) &&
+    Array.isArray((sparseVectors as any).values)
+  ) {
+    sparseValuesRecord = {
+      indices: (sparseVectors as any).indices,
+      values: (sparseVectors as any).values,
+    };
+    return sparseValuesRecord;
+  } else {
+    // Otherwise build indices from non-zero entries in the values array.
+    const vals = Array.isArray((sparseVectors as any).values)
+      ? ((sparseVectors as any).values as number[])
+      : [];
+
+    const indices: number[] = [];
+    const values: number[] = [];
+
+    for (let i = 0; i < vals.length; i++) {
+      const v = vals[i];
+      if (v !== 0 && v !== null && v !== undefined) {
+        indices.push(i);
+        values.push(v);
+      }
+    }
+
+    sparseValuesRecord = { indices, values };
+    return sparseValuesRecord;
+  }
+}
+
 export async function GetSparseVectors(data: {
   question: string;
 }): Promise<SpladeVectors> {
@@ -56,41 +97,7 @@ export async function Upsert(data: { question: string; query: string }) {
       },
     ]);
 
-    // Ensure sparseValues matches RecordSparseValues: { indices: number[]; values: number[] }
-    let sparseValuesRecord: { indices: number[]; values: number[] } = {
-      indices: [],
-      values: [],
-    };
-
-    // If the returned sparseVectors already include indices, use them directly.
-    if (
-      (sparseVectors as any) &&
-      Array.isArray((sparseVectors as any).indices) &&
-      Array.isArray((sparseVectors as any).values)
-    ) {
-      sparseValuesRecord = {
-        indices: (sparseVectors as any).indices,
-        values: (sparseVectors as any).values,
-      };
-    } else {
-      // Otherwise build indices from non-zero entries in the values array.
-      const vals = Array.isArray((sparseVectors as any).values)
-        ? ((sparseVectors as any).values as number[])
-        : [];
-
-      const indices: number[] = [];
-      const values: number[] = [];
-
-      for (let i = 0; i < vals.length; i++) {
-        const v = vals[i];
-        if (v !== 0 && v !== null && v !== undefined) {
-          indices.push(i);
-          values.push(v);
-        }
-      }
-
-      sparseValuesRecord = { indices, values };
-    }
+    const sparseValuesRecord = EnsureSparseVectorValues(sparseVectors);
 
     await SparseIndex.namespace(PINECONE_NAMESPACE).upsert([
       {
