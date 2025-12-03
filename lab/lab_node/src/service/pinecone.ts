@@ -2,7 +2,7 @@ import { Pinecone } from "@pinecone-database/pinecone";
 import { env } from "../env";
 import { generateEmbedding } from "./openai";
 import { generateRandomId } from "./ramdom-id";
-import { SpladeVectors } from "../types/pinecone";
+import { SpladeVectors, TPineconeQueryResult } from "../types/pinecone";
 
 export const PINECONE_NAMESPACE = env.pineconeNameSpace;
 export const HF_URL = env.hfUrl;
@@ -109,17 +109,10 @@ export async function Upsert(data: { question: string; query: string }) {
   }
 }
 
-export async function queryByQuestion(
+export async function queryDenseVector(
   question: string,
   topK = 3
-): Promise<
-  {
-    id: string;
-    score: number;
-    question: string;
-    query: string;
-  }[]
-> {
+): Promise<TPineconeQueryResult[]> {
   try {
     const vector = await generateEmbedding(question);
     const result = await DenseIndex.namespace(PINECONE_NAMESPACE).query({
