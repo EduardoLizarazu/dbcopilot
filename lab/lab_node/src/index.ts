@@ -5,9 +5,12 @@ import {
 
 async function main() {
   // await TestUpsertQuestion();
-  const questions = "Sales breakdown by UM.";
+  const question =
+    "Muestra todos los pedidos que se encuentran aprobados, incluyendo número de pedido, código de cliente y nombre asociado.";
 
-  await TestQueryQuestions(questions);
+  console.log("Running main...");
+  console.log("Question:", question);
+  await TestQueryQuestions(question);
 }
 
 main();

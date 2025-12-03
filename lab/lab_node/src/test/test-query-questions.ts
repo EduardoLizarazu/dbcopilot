@@ -10,12 +10,13 @@ import {
 export async function TestUpsertQuestion() {
   try {
     //  Extract
-    const questions = knowledge1;
-    console.log(`Testing Upsert of ${questions.length} questions...`);
+    const withSQL = knowledge1;
+    const onlyQuestions = testQuestions.map((q: string) => ({ question: q }));
+    console.log(`Testing Upsert of ${onlyQuestions.length} questions...`);
 
     // Upsert
     await deleteNamespace("test");
-    await upsertBuilder(questions);
+    await upsertBuilder(onlyQuestions);
     console.log("Upsert test completed successfully.");
   } catch (error) {
     throw new Error(
