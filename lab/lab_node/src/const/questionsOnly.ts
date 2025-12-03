@@ -177,4 +177,113 @@ export const testQuestions = [
   // Mezcla de estado, negación y entidad específica.
   // Dense probablemente colapse aquí. Sparse debería encontrar los tokens clave.
   "Pedidos de Azucar en estado pendiente sin chofer.",
+  // ---------------------------------------------------------
+  // GRUPO J: CONCEPTOS FINANCIEROS OPUESTOS
+  // Dense agrupa todo esto como "Dinero/Finanzas".
+  // Sparse distingue la dirección del dinero.
+  // ---------------------------------------------------------
+
+  // 36. "Contado" vs "Crédito".
+  // Dense ve ambos como "Formas de pago".
+  "Mostrar facturas con condición de venta al contado.",
+
+  // 37. "Notas de Crédito" (Devolución de dinero).
+  // Dense puede confundirlo con "Facturas a crédito".
+  "Listar únicamente las Notas de Crédito emitidas.",
+
+  // 38. "Bonificaciones" o Descuentos.
+  // Concepto positivo para el cliente, negativo para el ingreso.
+  "Pedidos que incluyen bonificaciones o descuentos.",
+
+  // 39. "Precio Unitario" vs "Precio Total".
+  // Dense puede mezclarlos. Sparse busca la palabra exacta "Unitario".
+  "Comparar precio unitario por producto.",
+
+  // ---------------------------------------------------------
+  // GRUPO K: ESTADOS LOGÍSTICOS Y DE ERROR
+  // Palabras que cambian drásticamente el significado operativo.
+  // ---------------------------------------------------------
+
+  // 40. "Bloqueado".
+  // Un estado crítico que no es ni pendiente ni aprobado.
+  "Clientes con estado bloqueado o suspendido.",
+
+  // 41. "En tránsito".
+  // Diferente a "Enviado" o "Entregado".
+  "Pedidos que se encuentran actualmente en tránsito.",
+
+  // 42. "Devoluciones".
+  // Logística inversa. Dense puede traer "Envíos" o "Ventas".
+  "Resumen de devoluciones de mercancía.",
+
+  // 43. "Anulada".
+  // Una factura anulada existe pero no vale. Dense puede traer facturas válidas.
+  "Listado de facturas anuladas en el sistema.",
+
+  // ---------------------------------------------------------
+  // GRUPO L: ESTRUCTURA DE DATOS (Cabecera vs Detalle)
+  // Jerga técnica que los modelos generales suelen ignorar.
+  // ---------------------------------------------------------
+
+  // 44. "Cabecera".
+  // Datos generales del pedido.
+  "Mostrar solo datos de cabecera del pedido.",
+
+  // 45. "Detalle" o "Ítems".
+  // Datos específicos de productos.
+  "Mostrar solo el detalle de líneas de productos.",
+
+  // 46. "Duplicados".
+  // Búsqueda de errores de calidad de datos.
+  "Detectar posibles registros duplicados.",
+
+  // ---------------------------------------------------------
+  // GRUPO M: IDENTIFICADORES LEGALES Y FISCALES
+  // Palabras clave que funcionan como IDs únicos.
+  // ---------------------------------------------------------
+
+  // 47. "NIT" (Número de Identificación Tributaria).
+  // Acrónimo muy específico. Dense puede ignorarlo o confundirlo con "NOT".
+  "Buscar clientes por su número de NIT.",
+
+  // 48. "Razón Social".
+  // Diferente a "Nombre comercial".
+  "Listar la Razón Social de cada cliente.",
+
+  // 49. "Sucursal" o "Matriz".
+  // Dense puede agruparlos como "Ubicaciones".
+  "Ventas exclusivas de la casa matriz.",
+
+  // ---------------------------------------------------------
+  // GRUPO N: AGREGACIONES MATEMÁTICAS ESPECÍFICAS
+  // Dense entiende "cálculos", pero confunde el tipo de cálculo.
+  // ---------------------------------------------------------
+
+  // 50. "Promedio".
+  // Dense puede traer "Total" o "Suma".
+  "Calcular el precio promedio de venta.",
+
+  // 51. "Porcentaje".
+  // Dense puede traer números absolutos.
+  "Mostrar participación en porcentaje del total.",
+
+  // 52. "Margen".
+  // Concepto de ganancia, no de venta bruta.
+  "Análisis del margen de ganancia por producto.",
+
+  // ---------------------------------------------------------
+  // GRUPO O: VARIABLES TEMPORALES RELATIVAS
+  // ---------------------------------------------------------
+
+  // 53. "Vencido".
+  // Estado temporal crítico.
+  "Facturas con plazo de pago vencido.",
+
+  // 54. "Vigente".
+  // Lo opuesto a vencido o histórico.
+  "Lista de precios vigente a la fecha.",
+
+  // 55. "Trimestral".
+  // Frecuencia específica. Dense puede traer reportes "Mensuales".
+  "Resumen de ventas con corte trimestral.",
 ];
