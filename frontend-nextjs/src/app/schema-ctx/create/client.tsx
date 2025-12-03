@@ -893,6 +893,7 @@ export function SchemaCtxClient({
     });
 
     setDisplayOldFields(null);
+    console.log("Schema Ctx Diff after update field: ", schemaCtxDiff);
   };
 
   const onUndoUpdateSchemaCtxField = (data: {
@@ -2601,7 +2602,10 @@ export function SchemaCtxClient({
                                                           ? "secondary"
                                                           : "inherit"
                                                       }
-                                                      disabled={!!diff.newId}
+                                                      disabled={
+                                                        !!diff.newId ||
+                                                        Boolean(diff.oldId)
+                                                      }
                                                     >
                                                       <EditIcon fontSize="small" />
                                                     </IconButton>
@@ -2711,7 +2715,8 @@ export function SchemaCtxClient({
                                                               : "inherit"
                                                           }
                                                           disabled={
-                                                            !!table.newId
+                                                            !!table.newId ||
+                                                            Boolean(table.oldId)
                                                           }
                                                         >
                                                           <EditIcon fontSize="small" />
@@ -2841,7 +2846,10 @@ export function SchemaCtxClient({
                                                                   : "inherit"
                                                               }
                                                               disabled={
-                                                                !!col.newId
+                                                                !!col.newId ||
+                                                                Boolean(
+                                                                  col.oldId
+                                                                )
                                                               }
                                                             >
                                                               <EditIcon fontSize="small" />

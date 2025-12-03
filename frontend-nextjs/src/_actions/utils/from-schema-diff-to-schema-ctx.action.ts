@@ -19,58 +19,63 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
   // NON OF THEM A ARE HIERARCHICAL NEW/UPDATED/DELETED/UN_CHANGED RESPECT TO PARENT
 
   for (const schemaDiff of schemasCtxDiff) {
-    if (schemaDiff.status === SchemaCtxDiffStatus.DELETE) {
-      const schemaIndex = oldSchemaCtx.findIndex((s) => s.id === schemaDiff.id);
-      if (schemaIndex >= 0) oldSchemaCtx.splice(schemaIndex, 1);
-    }
-    if (schemaDiff.status === SchemaCtxDiffStatus.NEW) {
-      oldSchemaCtx.push({
-        id: schemaDiff.id,
-        name: schemaDiff.name,
-        description: "",
-        aliases: [],
-        tables: [],
-      });
-    }
-    if (schemaDiff.status === SchemaCtxDiffStatus.UPDATE) {
-      const oldSchema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
-      if (!oldSchema) continue;
-      oldSchema.id = schemaDiff.newId;
-      oldSchema.name = schemaDiff.newName;
-    }
-
     for (const tableDiff of schemaDiff.tables) {
-      if (tableDiff.status === SchemaCtxDiffStatus.DELETE) {
-        const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
-        if (!schema) continue;
-        const tableIndex = (schema.tables || []).findIndex(
-          (t) => t.id === tableDiff.id
-        );
-        if (tableIndex >= 0) (schema.tables || []).splice(tableIndex, 1);
-      }
-      if (tableDiff.status === SchemaCtxDiffStatus.NEW) {
-        const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
-        if (!schema) continue;
-        (schema.tables = schema.tables || []).push({
-          id: tableDiff.id,
-          name: tableDiff.name,
-          description: "",
-          aliases: [],
-          columns: [],
-        });
-      }
-      if (tableDiff.status === SchemaCtxDiffStatus.UPDATE) {
-        const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
-        if (!schema) continue;
-        const oldTable = (schema.tables || []).find(
-          (t) => t.id === tableDiff.id
-        );
-        if (!oldTable) continue;
-        oldTable.id = tableDiff.newId;
-        oldTable.name = tableDiff.newName;
-      }
-
       for (const colDiff of tableDiff.columns) {
+        // SCHEMA LEVEL CHANGES
+        if (schemaDiff.status === SchemaCtxDiffStatus.DELETE) {
+          const schemaIndex = oldSchemaCtx.findIndex(
+            (s) => s.id === schemaDiff.id
+          );
+          if (schemaIndex >= 0) oldSchemaCtx.splice(schemaIndex, 1);
+        }
+        if (schemaDiff.status === SchemaCtxDiffStatus.NEW) {
+          oldSchemaCtx.push({
+            id: schemaDiff.id,
+            name: schemaDiff.name,
+            description: "",
+            aliases: [],
+            tables: [],
+          });
+        }
+        if (schemaDiff.status === SchemaCtxDiffStatus.UPDATE) {
+          const oldSchema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
+          if (!oldSchema) continue;
+          oldSchema.id = schemaDiff.newId;
+          oldSchema.name = schemaDiff.newName;
+        }
+
+        // TABLE LEVEL CHANGES
+        if (tableDiff.status === SchemaCtxDiffStatus.DELETE) {
+          const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
+          if (!schema) continue;
+          const tableIndex = (schema.tables || []).findIndex(
+            (t) => t.id === tableDiff.id
+          );
+          if (tableIndex >= 0) (schema.tables || []).splice(tableIndex, 1);
+        }
+        if (tableDiff.status === SchemaCtxDiffStatus.NEW) {
+          const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
+          if (!schema) continue;
+          (schema.tables = schema.tables || []).push({
+            id: tableDiff.id,
+            name: tableDiff.name,
+            description: "",
+            aliases: [],
+            columns: [],
+          });
+        }
+        if (tableDiff.status === SchemaCtxDiffStatus.UPDATE) {
+          const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
+          if (!schema) continue;
+          const oldTable = (schema.tables || []).find(
+            (t) => t.id === tableDiff.id
+          );
+          if (!oldTable) continue;
+          oldTable.id = tableDiff.newId;
+          oldTable.name = tableDiff.newName;
+        }
+
+        // COLUMN LEVEL CHANGES
         if (colDiff.status === SchemaCtxDiffStatus.DELETE) {
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
@@ -114,6 +119,7 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
           oldCol.id = colDiff.newId;
           oldCol.name = colDiff.newName;
         }
+        // COLUMN DATA TYPE UPDATE
         if (colDiff?.dataType?.status === SchemaCtxDiffStatus.NEW) {
           console.log("ENTERING DATA TYPE UPDATE FOR COLUMN:");
 
