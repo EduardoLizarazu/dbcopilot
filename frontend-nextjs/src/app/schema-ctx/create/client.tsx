@@ -1588,16 +1588,16 @@ export function SchemaCtxClient({
       });
       const resNlqGoodFail = [];
       console.log("NLQ GOODS TO UPDATE: ", nlqGoodsToUpdate);
-      for (const nlqGood of nlqGoodsToUpdate || []) {
-        const resNlqGood = await UpdateNlqQaGoodAction(nlqGood);
-        if (!resNlqGood.ok) {
-          resNlqGoodFail.push({
-            nlqGood: nlqGood,
-            message: resNlqGood.message || "Failed to update NLQ QA Good.",
-          });
-        }
-        console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
-      }
+      // for (const nlqGood of nlqGoodsToUpdate || []) {
+      //   const resNlqGood = await UpdateNlqQaGoodAction(nlqGood);
+      //   if (!resNlqGood.ok) {
+      //     resNlqGoodFail.push({
+      //       nlqGood: nlqGood,
+      //       message: resNlqGood.message || "Failed to update NLQ QA Good.",
+      //     });
+      //   }
+      //   console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
+      // }
 
       const schemaCtxFormatted = await FromSchemaDiffToSchemaCtxAction({
         oldSchemaCtx: schemaCtx,
