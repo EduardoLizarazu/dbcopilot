@@ -348,6 +348,40 @@ export function SchemaCtxClient({
     ? getGroupKey(selectedBaseConn)
     : null;
 
+  // Client-side search for schema / table / column / data type
+  const [searchQuery, setSearchQuery] = React.useState<string>("");
+
+  const filteredSchemaCtx = React.useMemo(() => {
+    if (!schemaCtx || schemaCtx.length === 0) return schemaCtx;
+    const q = (searchQuery || "").trim().toLowerCase();
+    if (!q) return schemaCtx;
+
+    return schemaCtx
+      .map((schema) => {
+        const tables = (schema.tables || [])
+          .map((table) => {
+            const columns = (table.columns || []).filter((col) => {
+              const schemaName = (schema.name || "").toLowerCase();
+              const tableName = (table.name || "").toLowerCase();
+              const colName = (col.name || "").toLowerCase();
+              const dataType = ((col.dataType as string) || "").toLowerCase();
+
+              return (
+                schemaName.includes(q) ||
+                tableName.includes(q) ||
+                colName.includes(q) ||
+                dataType.includes(q)
+              );
+            });
+            return { ...table, columns };
+          })
+          .filter((t) => (t.columns || []).length > 0);
+
+        return { ...schema, tables };
+      })
+      .filter((s) => (s.tables || []).length > 0);
+  }, [schemaCtx, searchQuery]);
+
   const usedConnIdSet = new Set(allSchemaCtxConnIdsExcludingMain);
 
   const usedGroupKeys = new Set<string>();
@@ -1798,6 +1832,31 @@ export function SchemaCtxClient({
             </Stack>
           </Box>
           {/* Table Schema */}
+          <Box
+            sx={{
+              mb: 1,
+              display: "flex",
+              gap: 1,
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <TextField
+              size="small"
+              placeholder="Search schema, table, column, type"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{ width: "100%" }}
+            />
+            <Button
+              size="small"
+              onClick={() => setSearchQuery("")}
+              disabled={!searchQuery}
+            >
+              Clear
+            </Button>
+          </Box>
+
           <TableContainer component={Paper} elevation={0}>
             <Table size="small" aria-label="schema context table">
               <TableHead>
@@ -1812,8 +1871,8 @@ export function SchemaCtxClient({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {schemaCtx && schemaCtx.length > 0 ? (
-                  schemaCtx.map((schema) =>
+                {filteredSchemaCtx && filteredSchemaCtx.length > 0 ? (
+                  filteredSchemaCtx.map((schema) =>
                     schema.tables.map((table) =>
                       table.columns.map((col) => (
                         <TableRow
@@ -1862,7 +1921,9 @@ export function SchemaCtxClient({
                   <TableRow>
                     <TableCell colSpan={5}>
                       <Typography color="text.secondary">
-                        No schema rows available.
+                        {searchQuery
+                          ? "No matching schema rows found."
+                          : "No schema rows available."}
                       </Typography>
                     </TableCell>
                   </TableRow>
