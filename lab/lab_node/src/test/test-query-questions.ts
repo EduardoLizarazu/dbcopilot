@@ -1,3 +1,4 @@
+import { knowledge1 } from "../const/knowledge";
 import { testQuestions } from "../const/questionsOnly";
 import {
   deleteNamespace,
@@ -9,12 +10,12 @@ import {
 export async function TestUpsertQuestion() {
   try {
     //  Extract
-    const questions = testQuestions;
+    const questions = knowledge1;
     console.log(`Testing Upsert of ${questions.length} questions...`);
 
     // Upsert
     await deleteNamespace("test");
-    await upsertBuilder(questions.map((q) => ({ question: q })));
+    await upsertBuilder(questions);
     console.log("Upsert test completed successfully.");
   } catch (error) {
     throw new Error(

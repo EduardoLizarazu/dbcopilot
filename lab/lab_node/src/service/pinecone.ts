@@ -150,11 +150,11 @@ export async function querySparseVector(
     const sparseVectors = await GetSparseVectors({ question }); // get sparse vector
     const sparseValuesRecord = EnsureSparseVectorValues(sparseVectors);
     const result = await SparseIndex.namespace(PINECONE_NAMESPACE).query({
-      vector: [0], // Pinecone requires a dense vector here, but we use only sparseVector below
+      // vector: [0], // Pinecone requires a dense vector here, but we use only sparseVector below
       sparseVector: sparseValuesRecord,
       topK,
       includeMetadata: true,
-    });
+    } as any);
     const matches = result.matches || [];
     const dto = matches.map((match) => ({
       id: match.id || "",
