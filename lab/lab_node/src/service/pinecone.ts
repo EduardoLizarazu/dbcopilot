@@ -3,24 +3,24 @@ import { env } from "../env";
 import { generateEmbedding } from "./openai";
 import { generateRandomId } from "./ramdom-id";
 
+export const PINECONE_NAMESPACE = env.pineconeNameSpace;
+
 export const pinecone = new Pinecone({
   apiKey: env.pineconeKey,
 });
 
-export const index = pinecone.Index(env.pineconeIndex);
+export const DenseIndex = pinecone.Index(env.pineconeIndex);
 
-export async function upsert(data: { question: string; query: string }) {
+export async function Upsert(data: { question: string; query: string }) {
   try {
     const docId = await generateRandomId();
+    const denseVectors = await generateEmbedding(`${data.question}`);
 
-    const vector = await generateEmbedding(`${data.question}`);
-
-    await index.upsert([
+    await DenseIndex.namespace(PINECONE_NAMESPACE).upsert([
       {
         id: docId,
-        values: vector,
+        values: denseVectors,
         metadata: {
-          id: docId,
           question: data.question,
           query: data.query,
         },
@@ -46,7 +46,7 @@ export async function queryByQuestion(
 > {
   try {
     const vector = await generateEmbedding(question);
-    const result = await index.query({
+    const result = await DenseIndex.namespace(PINECONE_NAMESPACE).query({
       vector,
       topK,
       includeMetadata: true,
@@ -72,7 +72,7 @@ export async function upsertBuilder(
   try {
     const ids = await Promise.all(
       data.map(async (item) => {
-        return await upsert({
+        return await Upsert({
           question: item.question,
           query: item.query,
         });
@@ -81,6 +81,19 @@ export async function upsertBuilder(
   } catch (error) {
     throw new Error(
       "Error upserting data to Pinecone: " + (error as Error).message
+    );
+  }
+}
+
+// Delete all vectors in a namespace so you can restart with a clean slate.
+export async function deleteNamespace(namespace = "test") {
+  try {
+    // delete with deleteAll: true will remove all vectors in the namespace
+    await index.delete({ deleteAll: true, namespace });
+    return true;
+  } catch (error) {
+    throw new Error(
+      `Error deleting namespace '${namespace}': ` + (error as Error).message
     );
   }
 }
