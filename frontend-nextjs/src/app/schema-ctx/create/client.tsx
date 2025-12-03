@@ -621,12 +621,12 @@ export function SchemaCtxClient({
             };
           }) || [],
       });
-      if (res.ok) {
+      if (res?.ok) {
         setSuccess(res.message ?? "Schema Context update successfully.");
         // router.push("/schema-ctx");
       }
 
-      if (!res.ok) {
+      if (!res?.ok) {
         setError(res.message || "Failed to update Schema Context.");
       }
     } finally {
@@ -680,12 +680,12 @@ export function SchemaCtxClient({
             };
           }) || [],
       });
-      if (res.ok) {
+      if (res?.ok) {
         setSuccess(res.message ?? "Schema Context update successfully.");
         // router.push("/schema-ctx");
       }
 
-      if (!res.ok) {
+      if (!res?.ok) {
         setError(res.message || "Failed to update Schema Context.");
       }
     } finally {
@@ -998,7 +998,7 @@ export function SchemaCtxClient({
         schema: schemaInfo,
       });
 
-      if (res.ok && res?.data) {
+      if (res?.ok && res?.data) {
         setColumnProfile(res.data);
         onSetSuccessFlag(
           EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX,
@@ -1007,7 +1007,7 @@ export function SchemaCtxClient({
         );
       }
 
-      if (res.ok && !res?.data) {
+      if (res?.ok && !res?.data) {
         setColumnProfile(res.data);
         onSetErrorFlag(
           EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX,
@@ -1016,7 +1016,7 @@ export function SchemaCtxClient({
         );
       }
 
-      if (!res.ok)
+      if (!res?.ok)
         onSetErrorFlag(
           EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX,
           true,
@@ -1063,7 +1063,7 @@ export function SchemaCtxClient({
       };
       const res = await GenSchemaCtxAction(schemaInfo);
 
-      if (res.ok) {
+      if (res?.ok) {
         setSchemaDescription(res.data.description.toString() || "");
         setSchemaAliases(res.data.aliases.map((i) => i.toString()) || []);
         setTableDescription(res.data.table?.description.toString() || "");
@@ -1081,7 +1081,7 @@ export function SchemaCtxClient({
         );
       }
 
-      if (!res.ok)
+      if (!res?.ok)
         onSetErrorFlag(
           EnumFb.DIALOG_SIMPLE_EDITOR_SCHEMA_CTX,
           true,
@@ -1329,10 +1329,10 @@ export function SchemaCtxClient({
       const res = await ReadChangesWithExecBySchemaAction({
         dbConnectionIds: dbConnectionIds,
       });
-      if (res.ok) {
+      if (res?.ok) {
         setNlqGoodDiffs(res.data || []);
       }
-      if (!res.ok)
+      if (!res?.ok)
         setError(res.message || "Failed to execute NLQ QA Good changes.");
     } finally {
       setBusyFlag(EnumBusy.NLQ_QA_GOOD_EXEC, false);
