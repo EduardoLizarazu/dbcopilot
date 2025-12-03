@@ -80,7 +80,7 @@ export async function GetSparseVectors(data: {
   }
 }
 
-export async function Upsert(data: { question: string; query: string }) {
+export async function Upsert(data: { question: string; query?: string }) {
   try {
     const docId = await generateRandomId();
     const denseVectors = await generateEmbedding(`${data.question}`); // gen. dense vector
@@ -169,14 +169,14 @@ export async function querySparseVector(
 }
 
 export async function upsertBuilder(
-  data: { question: string; query: string }[]
+  data: { question: string; query?: string }[]
 ) {
   try {
-    const ids = await Promise.all(
+    await Promise.all(
       data.map(async (item) => {
         return await Upsert({
           question: item.question,
-          query: item.query,
+          // query: item.query,
         });
       })
     );
