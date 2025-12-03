@@ -142,6 +142,31 @@ export async function queryDenseVector(
   }
 }
 
+export async function querySparseVector(
+  question: string,
+  topK = 3
+): Promise<TPineconeQueryResult[]> {
+  try {
+    const sparseVectors = await GetSparseVectors({ question }); // get sparse vector
+    const sparseValuesRecord = EnsureSparseVectorValues(sparseVectors);
+    const result = await SparseIndex.namespace(PINECONE_NAMESPACE).query({
+      sparseVector: sparseValuesRecord,
+      topK,
+      includeMetadata: true,
+    });
+    const matches = result.matches || [];
+    const dto = matches.map((match) => ({
+      id: match.id || "",
+      score: match.score || 0,
+      question: String(match.metadata?.question ?? ""),
+      query: String(match.metadata?.query ?? ""),
+    }));
+    return dto;
+  } catch (error) {
+    throw new Error("Error querying Pinecone: " + (error as Error).message);
+  }
+}
+
 export async function upsertBuilder(
   data: { question: string; query: string }[]
 ) {
