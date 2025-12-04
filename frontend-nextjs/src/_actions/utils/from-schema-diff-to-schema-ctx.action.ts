@@ -67,12 +67,12 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
         if (tableDiff.status === SchemaCtxDiffStatus.UPDATE) {
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
-          const oldTable = (schema.tables || []).find(
-            (t) => t.id === tableDiff.id
+          const oldTable = (schema?.tables || []).find(
+            (t) => t.id === tableDiff.oldId || t.id === tableDiff.id
           );
           if (!oldTable) continue;
-          oldTable.id = tableDiff.newId;
-          oldTable.name = tableDiff.newName;
+          oldTable.id = tableDiff.id;
+          oldTable.name = tableDiff.name;
         }
 
         // COLUMN LEVEL CHANGES
@@ -118,8 +118,8 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
           );
           if (!oldCol) continue;
 
-          oldCol.id = colDiff.newId;
-          oldCol.name = colDiff.newName;
+          oldCol.id = colDiff.id;
+          oldCol.name = colDiff.name;
         }
         // COLUMN DATA TYPE UPDATE
         if (colDiff?.dataType?.status === SchemaCtxDiffStatus.NEW) {
