@@ -68,15 +68,16 @@ export function FromSchemaDiffToSchemaCtxAction(data: {
             columns: [],
           });
         }
+
         if (tableDiff.status === SchemaCtxDiffStatus.UPDATE) {
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
-          const oldTable = (schema.tables || []).find(
-            (t) => t.id === tableDiff.id
+          const oldTable = (schema?.tables || []).find(
+            (t) => t.id === tableDiff.oldId || t.id === tableDiff.id
           );
           if (!oldTable) continue;
-          oldTable.id = tableDiff.newId;
-          oldTable.name = tableDiff.newName;
+          oldTable.id = tableDiff.id;
+          oldTable.name = tableDiff.name;
         }
 
         // COLUMN LEVEL CHANGES
@@ -93,9 +94,6 @@ export function FromSchemaDiffToSchemaCtxAction(data: {
           if (colIndex >= 0) (table.columns || []).splice(colIndex, 1);
         }
         if (colDiff.status === SchemaCtxDiffStatus.NEW) {
-          if (colDiff.id === "tmprd.sc6301.c6_obs") {
-            console.log("Adding new column:", colDiff);
-          }
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
           const table = (schema.tables || []).find(
@@ -118,6 +116,9 @@ export function FromSchemaDiffToSchemaCtxAction(data: {
           });
         }
         if (colDiff.status === SchemaCtxDiffStatus.UPDATE) {
+          // if (colDiff.id === "tmprd.sc6301.c6_id_change") {
+          //   console.log("Found column to update:", colDiff);
+          // }
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
 
@@ -126,11 +127,13 @@ export function FromSchemaDiffToSchemaCtxAction(data: {
           );
           if (!table) continue;
 
-          const oldCol = (table.columns || []).find((c) => c.id === colDiff.id);
+          const oldCol = (table.columns || []).find(
+            (c) => c.id === colDiff.id || c.id === colDiff.oldId
+          );
           if (!oldCol) continue;
 
-          oldCol.id = colDiff.newId;
-          oldCol.name = colDiff.newName;
+          oldCol.id = colDiff.id;
+          oldCol.name = colDiff.name;
         }
         // COLUMN DATA TYPE UPDATE
         if (colDiff?.dataType?.status === SchemaCtxDiffStatus.NEW) {
