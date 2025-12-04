@@ -38,10 +38,12 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
           });
         }
         if (schemaDiff.status === SchemaCtxDiffStatus.UPDATE) {
-          const oldSchema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
+          const oldSchema = oldSchemaCtx.find(
+            (s) => s.id === schemaDiff.id || s.id === schemaDiff.oldId
+          );
           if (!oldSchema) continue;
-          oldSchema.id = schemaDiff.newId;
-          oldSchema.name = schemaDiff.newName;
+          oldSchema.id = schemaDiff.id;
+          oldSchema.name = schemaDiff.name;
         }
 
         // TABLE LEVEL CHANGES
