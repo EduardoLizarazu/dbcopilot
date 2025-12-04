@@ -49,6 +49,8 @@ export function checkMerge(schemaCtxMerged: SchemaCtx): TestResults {
     dropColumn_sd3300_estorno: { status: false, message: "Not checked" },
   };
 
+  let pb7300HistProcessed = false;
+
   for (const schema of schemaCtxMerged) {
     for (const table of schema.tables || []) {
       // Test 1: Check table rename sc6300 → sc6301
@@ -62,7 +64,8 @@ export function checkMerge(schemaCtxMerged: SchemaCtx): TestResults {
       }
 
       // Test 4: Check new table pb7300_hist was created
-      if (table.id === "tmprd.pb7300_hist") {
+      if (table.id === "tmprd.pb7300_hist" && !pb7300HistProcessed) {
+        pb7300HistProcessed = true;
         testResults.newTable_pb7300_hist.status = true;
         testResults.newTable_pb7300_hist.message = `✓ New table created: ${table.name} (id: ${table.id})`;
 

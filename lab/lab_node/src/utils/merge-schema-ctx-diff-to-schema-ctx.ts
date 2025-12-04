@@ -96,7 +96,7 @@ export function FromSchemaDiffToSchemaCtxAction(data: {
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
           const table = (schema.tables || []).find(
-            (t) => t.id === tableDiff.id || t.id === tableDiff.oldId
+            (t) => t.id === tableDiff.id
           );
           if (!table) continue;
           (table.columns = table.columns || []).push({
@@ -123,9 +123,7 @@ export function FromSchemaDiffToSchemaCtxAction(data: {
           );
           if (!table) continue;
 
-          const oldCol = (table.columns || []).find(
-            (c) => c.id === colDiff.id || c.id === colDiff.oldId
-          );
+          const oldCol = (table.columns || []).find((c) => c.id === colDiff.id);
           if (!oldCol) continue;
 
           oldCol.id = colDiff.newId;
