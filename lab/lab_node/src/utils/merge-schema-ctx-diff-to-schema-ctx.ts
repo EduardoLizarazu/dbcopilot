@@ -10,10 +10,10 @@ enum SchemaCtxDiffStatus {
 type SchemaCtx = typeof schemaCtx;
 type SchemaCtxDiff = typeof schemaCtxDiff;
 
-export async function FromSchemaDiffToSchemaCtxAction(data: {
+export function FromSchemaDiffToSchemaCtxAction(data: {
   oldSchemaCtx: SchemaCtx;
   schemasCtxDiff: SchemaCtxDiff;
-}): Promise<SchemaCtx> {
+}): SchemaCtx {
   const { oldSchemaCtx, schemasCtxDiff } = data;
 
   // UN_CHANGED: means that the item is the same (schema/table/column)
