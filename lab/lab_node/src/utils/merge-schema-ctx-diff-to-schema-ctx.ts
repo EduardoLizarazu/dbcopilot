@@ -93,6 +93,9 @@ export function FromSchemaDiffToSchemaCtxAction(data: {
           if (colIndex >= 0) (table.columns || []).splice(colIndex, 1);
         }
         if (colDiff.status === SchemaCtxDiffStatus.NEW) {
+          if (colDiff.id === "tmprd.sc6301.c6_obs") {
+            console.log("Adding new column:", colDiff);
+          }
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
           const table = (schema.tables || []).find(
@@ -131,7 +134,7 @@ export function FromSchemaDiffToSchemaCtxAction(data: {
         }
         // COLUMN DATA TYPE UPDATE
         if (colDiff?.dataType?.status === SchemaCtxDiffStatus.NEW) {
-          console.log("ENTERING DATA TYPE UPDATE FOR COLUMN:");
+          // console.log("ENTERING DATA TYPE UPDATE FOR COLUMN:");
 
           // Goal: update also the data type with the new column data type always
           // Split new id to get the data type
@@ -141,7 +144,7 @@ export function FromSchemaDiffToSchemaCtxAction(data: {
           const newSchemaId = `${schemaId}`;
           const newTableId = `${schemaId}.${tableId}`;
           const newColumnId = `${schemaId}.${tableId}.${columnId}`;
-          console.log("Updating data type for column:", newColumnId);
+          // console.log("Updating data type for column:", newColumnId);
 
           const oldSchema = oldSchemaCtx.find((s) => s.id === newSchemaId);
           if (!oldSchema) continue;
@@ -155,9 +158,9 @@ export function FromSchemaDiffToSchemaCtxAction(data: {
             (c) => c.id === newColumnId
           );
           if (!oldCol) continue;
-          console.log("Old Column before data type update:", oldCol.dataType);
+          // console.log("Old Column before data type update:", oldCol.dataType);
           oldCol.dataType = colDiff.dataType.name;
-          console.log("Old Column after data type update:", oldCol.dataType);
+          // console.log("Old Column after data type update:", oldCol.dataType);
         }
       }
     }
