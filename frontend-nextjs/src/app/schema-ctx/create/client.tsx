@@ -1633,13 +1633,13 @@ export function SchemaCtxClient({
       //   }
       //   console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
       // }
-
+      console.log("SCHEMA CTX BEFORE MERGE DIFFS: ", schemaCtx);
+      console.log("SCHEMA CTX DIFFS: ", schemaCtxDiff);
       const schemaCtxFormatted = await FromSchemaDiffToSchemaCtxAction({
         oldSchemaCtx: schemaCtx,
         schemasCtxDiff: schemaCtxDiff,
       });
-      console.log("SCHEMA CTX DIFFS: ", schemaCtxDiff);
-      console.log("MERGED SCHEMA CTX WITH DIFFS: ", schemaCtxFormatted);
+      console.log("AFTER MERGED SCHEMA CTX WITH DIFFS: ", schemaCtxFormatted);
       setSchemaCtx(schemaCtxFormatted);
     } finally {
       setBusyFlag(EnumBusy.BTN_FINISH_SCHEMA_DIFF_AND_NLQ_GOOD, false);
