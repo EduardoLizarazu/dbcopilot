@@ -1,15 +1,19 @@
-"use server";
+import { schemaCtx } from "../const/schemaCtx";
+import { schemaCtxDiff } from "../const/schemaCtxDiff";
 
-import {
-  SchemaCtxDiffStatus,
-  TSchemaCtxDiffSchemaDto,
-  TSchemaCtxSchemaDto,
-} from "@/core/application/dtos/schemaCtx.dto";
+enum SchemaCtxDiffStatus {
+  DELETE = 2,
+  NEW = 1,
+  UPDATE = 3,
+}
 
-export async function FromSchemaDiffToSchemaCtxAction(data: {
-  oldSchemaCtx: TSchemaCtxSchemaDto[];
-  schemasCtxDiff: TSchemaCtxDiffSchemaDto[];
-}): Promise<TSchemaCtxSchemaDto[]> {
+type SchemaCtx = typeof schemaCtx;
+type SchemaCtxDiff = typeof schemaCtxDiff;
+
+export function FromSchemaDiffToSchemaCtxAction(data: {
+  oldSchemaCtx: SchemaCtx;
+  schemasCtxDiff: SchemaCtxDiff;
+}): SchemaCtx {
   const { oldSchemaCtx, schemasCtxDiff } = data;
 
   // UN_CHANGED: means that the item is the same (schema/table/column)
@@ -66,6 +70,7 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
             columns: [],
           });
         }
+
         if (tableDiff.status === SchemaCtxDiffStatus.UPDATE) {
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
@@ -94,7 +99,7 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
           const table = (schema.tables || []).find(
-            (t) => t.id === tableDiff.id || t.id === tableDiff.oldId
+            (t) => t.id === tableDiff.id
           );
           if (!table) continue;
           (table.columns = table.columns || []).push({
@@ -103,10 +108,19 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
             description: "",
             aliases: [],
             dataType: colDiff.dataType?.name || "unknown",
-            profile: {},
+            profile: {
+              minValue: "",
+              countNulls: 0,
+              countUnique: 0,
+              maxValue: "",
+              sampleUnique: [],
+            },
           });
         }
         if (colDiff.status === SchemaCtxDiffStatus.UPDATE) {
+          // if (colDiff.id === "tmprd.sc6301.c6_id_change") {
+          //   console.log("Found column to update:", colDiff);
+          // }
           const schema = oldSchemaCtx.find((s) => s.id === schemaDiff.id);
           if (!schema) continue;
 
@@ -125,7 +139,7 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
         }
         // COLUMN DATA TYPE UPDATE
         if (colDiff?.dataType?.status === SchemaCtxDiffStatus.NEW) {
-          console.log("ENTERING DATA TYPE UPDATE FOR COLUMN:");
+          // console.log("ENTERING DATA TYPE UPDATE FOR COLUMN:");
 
           // Goal: update also the data type with the new column data type always
           // Split new id to get the data type
@@ -135,7 +149,7 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
           const newSchemaId = `${schemaId}`;
           const newTableId = `${schemaId}.${tableId}`;
           const newColumnId = `${schemaId}.${tableId}.${columnId}`;
-          console.log("Updating data type for column:", newColumnId);
+          // console.log("Updating data type for column:", newColumnId);
 
           const oldSchema = oldSchemaCtx.find((s) => s.id === newSchemaId);
           if (!oldSchema) continue;
@@ -149,9 +163,9 @@ export async function FromSchemaDiffToSchemaCtxAction(data: {
             (c) => c.id === newColumnId
           );
           if (!oldCol) continue;
-          console.log("Old Column before data type update:", oldCol.dataType);
+          // console.log("Old Column before data type update:", oldCol.dataType);
           oldCol.dataType = colDiff.dataType.name;
-          console.log("Old Column after data type update:", oldCol.dataType);
+          // console.log("Old Column after data type update:", oldCol.dataType);
         }
       }
     }

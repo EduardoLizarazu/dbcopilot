@@ -5,6 +5,7 @@ import { IReadDbConnByIdStep } from "../../steps/dbconn/read-dbconn-by-id.step";
 import { IDeleteOnKnowledgeBaseByIdStep } from "../../steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
 import { IReadNlqQaGoodByDbConnIdStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-dbconn-id.step";
 import { IRemoveDbConnOnNlqQaGoodByIdStep } from "../../steps/nlq-qa-good/remove-dbconn-on-nlq-qa-good.step";
+import { IDeleteAnyDbConnectionFromSchemaCtxStep } from "../../steps/schemaCtx/delete-any-dbconn-by-id.step";
 import { IReadVbdSplitterByIdStep } from "../../steps/vbd-splitter/read-vbd-splitter-by-id.step";
 
 export interface IDeleteDbConnectionUseCase {
@@ -34,7 +35,8 @@ export class DeleteDbConnectionUseCase implements IDeleteDbConnectionUseCase {
     private readonly readNlqQaGoodByDbConnId: IReadNlqQaGoodByDbConnIdStep,
     private readonly deleteOnKnowledgeBaseById: IDeleteOnKnowledgeBaseByIdStep,
     private readonly removeDbConnOnNlqQaGoodById: IRemoveDbConnOnNlqQaGoodByIdStep,
-    private readonly deleteDbConnStep: IDeleteDbConnStep
+    private readonly deleteDbConnStep: IDeleteDbConnStep,
+    private readonly deleteAnyDbConnectionFromSchemaCtxStep: IDeleteAnyDbConnectionFromSchemaCtxStep
   ) {}
   async execute(id: string): Promise<TResponseDto<null>> {
     try {
@@ -75,6 +77,9 @@ export class DeleteDbConnectionUseCase implements IDeleteDbConnectionUseCase {
           nlqQaGoodId: nlq.id,
         });
       }
+
+      // 6.1 Delete the connection from the schema context
+      await this.deleteAnyDbConnectionFromSchemaCtxStep.run({ dbConnId: id });
 
       // 7. Delete db connection
       await this.deleteDbConnStep.run(id);
