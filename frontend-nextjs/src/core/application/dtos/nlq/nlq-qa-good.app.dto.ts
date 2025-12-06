@@ -21,6 +21,9 @@ export const nlqQaGoodSchema = z.object({
     .nativeEnum(NlqQaGoodWithExecutionStatus)
     .default(NlqQaGoodWithExecutionStatus.OK),
 
+  queryHash: z.string().default(""), // hash of the query for comparison
+  questionQueryHash: z.string().default(""), // hash of question+query for comparison
+
   // VDB
   knowledgeSourceId: z.string().default(""), // VDB - Same as this.id
   isOnKnowledgeSource: z.boolean().default(false), // If the question is on the VDB
