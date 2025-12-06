@@ -1,7 +1,7 @@
-import { TestFineTuneOpenAi } from "./fine-tuning/fine-tuning";
+import { TestMergeSchemaCtxWithSchemaCtxDiff } from "./test/testMergeSchemaCtxWithSchemaCtxDiff";
 
-async function main() {
-  await TestFineTuneOpenAi();
+export function Main() {
+  TestMergeSchemaCtxWithSchemaCtxDiff();
 }
 
-main();
+Main();
