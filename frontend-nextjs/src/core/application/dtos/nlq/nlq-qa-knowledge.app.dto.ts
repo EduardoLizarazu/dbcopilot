@@ -7,9 +7,13 @@ const nlqQaKnowledgeSchema = z.object({
   namespace: z.string().min(2),
   query: z.string().min(2),
   tablesColumns: z.array(z.string()).default([""]), // ["[TABLE].[COLUMN]"]
+  questionQueryHash: z.string().optional().default(""),
+  queryHash: z.string().optional().default(""),
   values: z.array(z.number()).min(1).optional(), // Embedding vector
   score: z.number().min(0),
 });
+
+export type TNlqQaKnowledgeDto = z.infer<typeof nlqQaKnowledgeSchema>;
 
 export const createNlqQaKnowledgeSchema = nlqQaKnowledgeSchema.omit({
   values: true,

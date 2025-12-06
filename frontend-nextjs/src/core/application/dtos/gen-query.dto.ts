@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { schemaCtxDiffSchema, schemaCtxSchema } from "./schemaCtx.dto";
+import { EnumDecision } from "./nlq/nlq-qa-feedback.app.dto";
 
 export enum ESchemaChangeStatus {
   DELETE = "DELETE",
@@ -37,3 +38,21 @@ export const genQueryCorrectionDto = z.object({
 });
 
 export type TGenQueryCorrectionDto = z.infer<typeof genQueryCorrectionDto>;
+
+export const SGenJudgePositiveFbDto = z.object({
+  prevQuestion: z.string().min(1),
+  prevQuery: z.string().min(1),
+  currentQuestion: z.string().min(1),
+  currentQuery: z.string().min(1),
+  schemaCtx: z.array(schemaCtxSchema).default([]),
+});
+export type TGenJudgePositiveFbDto = z.infer<typeof SGenJudgePositiveFbDto>;
+
+export const SGenJudgePositiveVbOutDto = z.object({
+  decision: z.nativeEnum(EnumDecision),
+  query: z.string().default(""),
+  question: z.string().default(""),
+});
+export type TGenJudgePositiveVbOutDto = z.infer<
+  typeof SGenJudgePositiveVbOutDto
+>;

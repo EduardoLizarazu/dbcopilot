@@ -34,3 +34,19 @@ export const nlqQaFeedbackInOrqDto = nlqQaFeedbackSchema
     comment: z.string().max(8000).optional(),
   });
 export type TNlqQaFeedbackInOrqDto = z.infer<typeof nlqQaFeedbackInOrqDto>;
+
+export enum EnumDecision {
+  REPLACE = 0,
+  KEEP_BOTH = 1,
+  DISCARD_NEW = 2,
+  ADD_AS_NEW = 3,
+  COMBINED = 4,
+}
+
+export const SDecision = z.object({
+  decision: z.nativeEnum(EnumDecision),
+  question: z.string().optional().default(""),
+  query: z.string().optional().default(""),
+});
+
+export type TDecision = z.infer<typeof SDecision>;

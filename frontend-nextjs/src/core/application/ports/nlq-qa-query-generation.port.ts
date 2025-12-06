@@ -1,7 +1,10 @@
 import {
+  TGenJudgePositiveFbDto,
+  TGenJudgePositiveVbOutDto,
   TGenNewQuestionQueryFromOldDto,
   TGenQueryCorrectionDto,
 } from "../dtos/gen-query.dto";
+import { EnumDecision } from "../dtos/nlq/nlq-qa-feedback.app.dto";
 import { TCreateNlqQaGenerationPromptTemplate } from "../dtos/nlq/nlq-qa-generation.dto";
 
 export interface INlqQaQueryGenerationPort {
@@ -20,4 +23,7 @@ export interface INlqQaQueryGenerationPort {
     data: TGenNewQuestionQueryFromOldDto
   ): Promise<{ question: string; query: string }>;
   genCorrectQuery(data: TGenQueryCorrectionDto): Promise<{ query: string }>;
+  genJudgePositiveFb(
+    data: TGenJudgePositiveFbDto
+  ): Promise<TGenJudgePositiveVbOutDto>;
 }
