@@ -8,9 +8,7 @@ import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ISimpleHashQueryHelp } from "@/core/application/helps/simple-hash-query.help";
 import { ISimpleHashQuestionAndQueryHelp } from "@/core/application/helps/simple-hash-question-and-query.help";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { INlqQaQueryGenerationPort } from "@/core/application/ports/nlq-qa-query-generation.port";
 import { IReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
-import { IGenCurateJudgePositiveFbStep } from "@/core/application/steps/genQuery/gen-prune-judge-positive-fb.step";
 import { IGenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
 import { IAddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/add-to-knowledge-base.step";
 import { IDeleteOnKnowledgeBaseByIdStep } from "@/core/application/steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
@@ -63,7 +61,6 @@ export class CreateNlqQaPositiveFeedbackUseCase
     private readonly deleteNlqQaGoodByIdStep: IDeleteNlqQaGoodStep,
     private readonly updateNlqQaGoodFieldFromGoodByIdStep: IUpdateNlqQaGoodFieldFromGoodStep,
     private readonly genTableColumnsStep: IGenTableColumnsStep,
-    private readonly genCurateJudgePositiveFbStep: IGenCurateJudgePositiveFbStep
   ) {}
   async execute(
     data: TCreateNlqQaFeedbackDto
@@ -192,21 +189,21 @@ export class CreateNlqQaPositiveFeedbackUseCase
         newQuestion: "",
       };
       // Use LLM to decide only if score > 0.95 and hashes of the query are different
-      if (
-        topKnowledgeSource.score > 0.95 &&
-        topKnowledgeSource?.queryHash !== currentQueryHash.queryHash
-      ) {
-        const judgeRes = await this.genCurateJudgePositiveFbStep.run({
-          prevQuestion: topKnowledgeSource.question,
-          prevQuery: topKnowledgeSource.query,
-          currentQuestion: nlqQa.question,
-          currentQuery: nlqQa.query,
-          schemaCtx: [],
-        });
-        decision = judgeRes.decision;
-        combined.newQuestion = judgeRes.question;
-        combined.newQuery = judgeRes.query;
-      }
+      // if (
+      //   topKnowledgeSource.score > 0.95 &&
+      //   topKnowledgeSource?.queryHash !== currentQueryHash.queryHash
+      // ) {
+      //   const judgeRes = await this.genCurateJudgePositiveFbStep.run({
+      //     prevQuestion: topKnowledgeSource.question,
+      //     prevQuery: topKnowledgeSource.query,
+      //     currentQuestion: nlqQa.question,
+      //     currentQuery: nlqQa.query,
+      //     schemaCtx: [],
+      //   });
+      //   decision = judgeRes.decision;
+      //   combined.newQuestion = judgeRes.question;
+      //   combined.newQuery = judgeRes.query;
+      // }
 
       if (decision === null) decision = EnumDecision.ADD_AS_NEW; // default action
 

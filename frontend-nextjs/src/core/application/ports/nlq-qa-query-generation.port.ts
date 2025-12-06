@@ -23,7 +23,4 @@ export interface INlqQaQueryGenerationPort {
     data: TGenNewQuestionQueryFromOldDto
   ): Promise<{ question: string; query: string }>;
   genCorrectQuery(data: TGenQueryCorrectionDto): Promise<{ query: string }>;
-  genJudgePositiveFb(
-    data: TGenJudgePositiveFbDto
-  ): Promise<TGenJudgePositiveVbOutDto>;
 }
