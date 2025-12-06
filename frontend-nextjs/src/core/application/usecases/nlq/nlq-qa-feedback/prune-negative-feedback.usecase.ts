@@ -11,6 +11,8 @@
  * 9. Return decision.
  *
  * Note: Ones it's corrected, it must be remove from (negative) knowledge base as well.
+ * Note: Remember to implement the hash on the creation of negative feedbacks.
+ * Note: Remember to include the IGNORE LOGIC
  */
 
 export interface IPruneNegativeFbUseCase {
