@@ -13,6 +13,9 @@ import { IGenTableColumnsStep } from "@/core/application/steps/genTepology/gen-t
 import { ISearchSimilarQuestionOnKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/search-similar-question-on-knowledge-base.step";
 import { IReadNlqQaByIdStep } from "@/core/application/steps/nlq-qa/read-nlq-qa-by-id.step";
 import { IReadNlqQaByQuestionQueryHashStep } from "../../steps/nlq-qa/read-nlq-qa-by-question-query-hash.step";
+import { IReadNlqQaGoodByQuestionQueryHashStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-question-query-hash.step";
+import { IReadNlqQaGoodByQueryHashStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-query-hash.step";
+import { IReadNlqQaGoodByIdStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-id.step";
 
 /**
  * Use case interface for curating positive feedback in NLQ QA:
@@ -33,35 +36,40 @@ import { IReadNlqQaByQuestionQueryHashStep } from "../../steps/nlq-qa/read-nlq-q
  * 6. Return success or error message.
  */
 
-export interface ICreateNlqQaGoodDuplicateFlow {
-  execute(
-    data: TCreateNlqQaFeedbackDto
-  ): Promise<TResponseDto<TCurateDecision>>;
+export interface ICurateNlqQaGoodDuplicateFlow {
+  execute(data: {
+    currentQuestion: string;
+    currentQuery: string;
+    currentNamespace: string;
+  }): Promise<TResponseDto<TCurateDecision>>;
 }
 
-export class CreateNlqQaGoodDuplicateFlow
-  implements ICreateNlqQaGoodDuplicateFlow
+export class CurateNlqQaGoodDuplicateFlow
+  implements ICurateNlqQaGoodDuplicateFlow
 {
   constructor(
     private readonly logger: ILogger,
-    private readonly readNlqQaByIdStep: IReadNlqQaByIdStep,
-    private readonly readNlqQaByQuestionAndQueryHashStep: IReadNlqQaByQuestionQueryHashStep,
-    private readonly readNlqQaByQuestionQueryHashStep: IReadNlqQaByQuestionQueryHashStep,
-    private readonly readDbConnWithSplitterStep: IReadDbConnectionWithSplitterAndSchemaQueryStep,
+    private readonly readNlqQaGoodByQuestionQueryHashStep: IReadNlqQaGoodByQuestionQueryHashStep,
     private readonly hashQuestionAndQueryHelp: ISimpleHashQuestionAndQueryHelp,
     private readonly hashQueryHelp: ISimpleHashQueryHelp,
     private readonly searchKnowledgeSourceQueriesStep: ISearchSimilarQuestionOnKnowledgeBaseStep,
     private readonly genTableColumnsStep: IGenTableColumnsStep
   ) {}
-  async execute(
-    data: TCreateNlqQaFeedbackDto
-  ): Promise<TResponseDto<TCurateDecision>> {
+  async execute(data: {
+    currentQuestion: string;
+    currentQuery: string;
+    currentNamespace: string;
+  }): Promise<TResponseDto<TCurateDecision>> {
     try {
       let decision: EnumCurateDecision | null = null;
       // 0. Validate input data.
-      if (!data?.nlqQaId || data?.isGood !== true) {
+      if (
+        !data?.currentQuestion ||
+        !data?.currentQuery ||
+        !data?.currentNamespace
+      ) {
         this.logger.error(
-          "[ICreateNlqQaGoodDuplicateFlow] Invalid input data.",
+          "[ICurateNlqQaGoodDuplicateFlow] Invalid input data.",
           data
         );
         return {
@@ -71,83 +79,32 @@ export class CreateNlqQaGoodDuplicateFlow
         };
       }
 
-      // 1. Retrieve NLQ QA by ID.
-      const nlqQa = await this.readNlqQaByIdStep.run(data.nlqQaId);
-      if (!nlqQa) {
-        this.logger.error(
-          `[ICreateNlqQaGoodDuplicateFlow] NLQ QA with ID ${data.nlqQaId} not found.`
-        );
-        return {
-          success: false,
-          message: `NLQ QA not found.`,
-          data: null,
-        };
-      }
-
-      //  2. If check if isGood is true, create positive feedback entry, else error or dbConnection does not exist.
-      if (
-        !nlqQa?.isGood ||
-        !nlqQa?.dbConnectionId ||
-        !nlqQa?.question ||
-        !nlqQa?.query
-      ) {
-        this.logger.error(
-          `[ICreateNlqQaGoodDuplicateFlow] NLQ QA a field is missing`,
-          nlqQa
-        );
-        return {
-          success: false,
-          message: `NLQ QA is missing required fields for positive feedback curation.`,
-          data: null,
-        };
-      }
-
       // 2.0.0 Generate table columns from query of NLQ QA
       const currentNlqQaTableColumns = await this.genTableColumnsStep.run({
-        query: nlqQa.query,
+        query: data.currentQuery,
       });
 
       //   2.1 Generate hash for question and query.
       const currentQuestionQueryHash = await this.hashQuestionAndQueryHelp.help(
         {
-          question: nlqQa.question,
-          query: nlqQa.query,
+          question: data.currentQuestion,
+          query: data.currentQuery,
         }
       );
 
       // 2.2 Generate hash for the query alone.
       const queryHash = await this.hashQueryHelp.help({
-        query: nlqQa.query,
+        query: data.currentQuery,
       });
       const currentQueryHash = queryHash.queryHash;
 
-      // 3. With the nlqQa retrieve the connectionDb used with the namespace of knowledge source.
-      const dbConn = await this.readDbConnWithSplitterStep.run({
-        dbConnectionId: nlqQa.dbConnectionId,
-      });
-
-      //   3.1 Check if splitter name exists
-      if (!dbConn?.vbd_splitter?.name) {
-        this.logger.error(
-          "[ICreateNlqQaGoodDuplicateFlow] Splitter name does not exist."
-        );
-        return {
-          success: false,
-          message: "Splitter name does not exist.",
-          data: null,
-        };
-      }
-
-      const existingNlqQaByQuestionQueryHash =
-        await this.readNlqQaByQuestionAndQueryHashStep.run(
+      const existingNlqQaGoodByQuestionQueryHash =
+        await this.readNlqQaGoodByQuestionQueryHashStep.run(
           currentQuestionQueryHash
         );
-      const existingNlqQaByQueryHash =
-        await this.readNlqQaByQuestionQueryHashStep.run(currentQueryHash);
-
-      if (existingNlqQaByQuestionQueryHash) {
+      if (existingNlqQaGoodByQuestionQueryHash) {
         this.logger.info(
-          "[ICreateNlqQaGoodDuplicateFlow] Existing NLQ QA found with the same question and query hash. Discarding new query."
+          "[ICurateNlqQaGoodDuplicateFlow] Existing NLQ QA found with the same question and query hash. Discarding new query."
         );
         return {
           success: true,
@@ -158,27 +115,12 @@ export class CreateNlqQaGoodDuplicateFlow
 
       // 4. With the namespace retrieve top-1 relevant query from the vector DB according to the question.
       const knowledgeSources = await this.searchKnowledgeSourceQueriesStep.run({
-        question: nlqQa?.question,
-        splitterName: dbConn?.vbd_splitter?.name,
+        question: data?.currentQuestion,
+        splitterName: data?.currentNamespace,
       });
-      //   4.0 Keep the highest scored knowledge source
-      const topKnowledgeSource = knowledgeSources?.[0];
-      if (!topKnowledgeSource?.questionQueryHash) {
-        const topKwSourceHash = await this.hashQuestionAndQueryHelp.help({
-          question: topKnowledgeSource.question,
-          query: topKnowledgeSource.query,
-        });
-        topKnowledgeSource.questionQueryHash = topKwSourceHash;
-      }
-
-      if (!topKnowledgeSource.queryHash) {
-        const topKwSourceQueryHash = await this.hashQueryHelp.help({
-          query: topKnowledgeSource.query,
-        });
-        topKnowledgeSource.queryHash = topKwSourceQueryHash.queryHash;
-      }
 
       // 4.2 If score is above threshold (<0.90), then save it as new relevant query.
+      const topKnowledgeSource = knowledgeSources[0];
       if (topKnowledgeSource.score < 0.9)
         decision = EnumCurateDecision.ADD_AS_NEW;
 
