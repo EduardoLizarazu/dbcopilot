@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
 import { useFeedbackContext } from "@/contexts/feedback.context";
@@ -121,12 +122,16 @@ export default function DbConnectionClient({
       {/* Filters */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <TextField
-            label="Filter by name or description"
-            size="small"
-            value={nameFilter}
-            onChange={(e) => setNameFilter(e.target.value)}
-          />
+          <Box className="flex items-center gap-2 mb-3">
+            <SearchIcon fontSize="small" />
+            <TextField
+              label="Filter by name or description"
+              size="small"
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+            />
+          </Box>
+
           <TextField
             label="Created From"
             size="small"
@@ -166,7 +171,7 @@ export default function DbConnectionClient({
             <CircularProgress />
           </Box>
         ) : (
-          <TableContainer>
+          <TableContainer component={Paper} elevation={0}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -196,16 +201,33 @@ export default function DbConnectionClient({
                     const isDeleting = deleteBusy.has(row.id);
                     return (
                       <TableRow key={row.id} hover>
-                        <TableCell>{row.name}</TableCell>
-                        <TableCell>
-                          {row.description
-                            ? row.description.length > 50
-                              ? `${row.description.substring(0, 50)}...`
-                              : row.description
-                            : "-"}
+                        <TableCell sx={{ whiteSpace: "nowrap" }}>
+                          {row.name}
+                        </TableCell>
+                        {/* No wrap */}
+                        <TableCell sx={{ whiteSpace: "nowrap" }}>
+                          <Tooltip title={row.description || "-"}>
+                            <span>
+                              {row.description
+                                ? row.description.length > 30
+                                  ? `${row.description.slice(0, 30)}...`
+                                  : row.description
+                                : "-"}
+                            </span>
+                          </Tooltip>
                         </TableCell>
                         <TableCell>{row.type}</TableCell>
-                        <TableCell>{row.host}</TableCell>
+                        <TableCell>
+                          <Tooltip title={row.host || "-"}>
+                            <span>
+                              {row.host
+                                ? row.host.length > 40
+                                  ? `${row.host.slice(0, 40)}...`
+                                  : row.host
+                                : "-"}
+                            </span>
+                          </Tooltip>
+                        </TableCell>
                         <TableCell>{row.port}</TableCell>
                         <TableCell>{row.username}</TableCell>
                         <TableCell>
