@@ -143,7 +143,14 @@ export default function VbdSplitterClient({
       {/* Filters */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
         <Box sx={{ display: "grid", gap: 2 }}>
-          <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
             <TextField
               label="Created From"
               size="small"
@@ -160,17 +167,17 @@ export default function VbdSplitterClient({
               onChange={(e) => setDateTo(e.target.value)}
               InputLabelProps={{ shrink: true }}
             />
-          </Stack>
-        </Box>
-        <Box className="flex items-center gap-2 mb-2 mt-3">
-          <SearchIcon fontSize="small" />
-          <TextField
-            label="Search by splitter name or user email"
-            size="small"
-            value={nameFilter}
-            onChange={(e) => setNameFilter(e.target.value)}
-            fullWidth
-          />
+          </Box>
+          <Box className="flex items-center gap-2 mb-2 mt-3">
+            <SearchIcon fontSize="small" />
+            <TextField
+              label="Search by splitter name or user email"
+              size="small"
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+              fullWidth
+            />
+          </Box>
         </Box>
       </Paper>
 

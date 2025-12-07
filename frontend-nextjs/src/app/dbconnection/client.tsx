@@ -135,7 +135,14 @@ export default function DbConnectionClient({
       {/* Filters */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
         <Box sx={{ display: "grid", gap: 2 }}>
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
             <TextField
               label="Created From"
               size="small"
