@@ -202,7 +202,15 @@ export default function DbConnectionClient({
                     return (
                       <TableRow key={row.id} hover>
                         <TableCell sx={{ whiteSpace: "nowrap" }}>
-                          {row.name}
+                          <Tooltip title={row.name || "-"}>
+                            <span>
+                              {row.name
+                                ? row.name.length > 30
+                                  ? `${row.name.slice(0, 30)}...`
+                                  : row.name
+                                : "-"}
+                            </span>
+                          </Tooltip>
                         </TableCell>
                         {/* No wrap */}
                         <TableCell sx={{ whiteSpace: "nowrap" }}>
