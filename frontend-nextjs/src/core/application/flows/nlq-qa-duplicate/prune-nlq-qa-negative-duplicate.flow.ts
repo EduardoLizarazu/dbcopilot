@@ -16,5 +16,9 @@
  */
 
 export interface IPruneNegativeFbUseCase {
-  execute(data: { nlqQaId: string }): Promise<void>;
+  execute(data: {
+    currQuestion: string;
+    currQuery: string;
+    currNamespace: string;
+  }): Promise<void>;
 }
