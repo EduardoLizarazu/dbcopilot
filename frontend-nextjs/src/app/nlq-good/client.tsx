@@ -32,7 +32,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import CloudOffIcon from "@mui/icons-material/CloudOff";
 import CloudDoneIcon from "@mui/icons-material/CloudDone";
 import DeleteIcon from "@mui/icons-material/Delete";
-
+import SearchIcon from "@mui/icons-material/Search";
 import { TNlqQaGoodOutWithUserAndConnRequestDto } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { ReadAllNlqQaGoodAction } from "@/_actions/nlq-qa-good/read-all.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
@@ -292,14 +292,17 @@ export default function NlqGoodClient({
             Create
           </Button>
         </Stack>
-        <TextField
-          label="Search question or email"
-          size="small"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search question text or user email"
-          sx={{ width: "100%", mt: 2 }}
-        />
+        <Box className="flex items-center gap-2 mb-3 mt-3">
+          <SearchIcon fontSize="small" />
+          <TextField
+            label="Search question or email"
+            size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search question text or user email"
+            sx={{ width: "100%" }}
+          />
+        </Box>
       </Paper>
 
       {error && <Alert severity="error">{error}</Alert>}
