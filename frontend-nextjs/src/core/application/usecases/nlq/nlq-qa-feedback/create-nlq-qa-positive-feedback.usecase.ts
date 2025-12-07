@@ -1,5 +1,5 @@
 import {
-  EnumDecision,
+  EnumCurateDecision,
   TCreateNlqQaFeedbackDto,
   TNlqQaFeedbackOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
@@ -31,7 +31,7 @@ import { IUpdateNlqQaGoodFieldFromGoodStep } from "@/core/application/steps/nlq-
  * 4.3 If score is below threshold (>0.95), then compare the new query with the existing one.
  * 4.4 If they are identical, discard the new query.
  * 4.5 If there is a conflict, use the LLM as Judge to decide: replace existing, keep both, discard new.
- * 5. Decision EnumDecision:
+ * 5. Decision EnumCurateDecision:
  *    - REPLACE = 0
  *    - KEEP_BOTH = 1
  *    - DISCARD_NEW = 2
@@ -60,13 +60,13 @@ export class CreateNlqQaPositiveFeedbackUseCase
     private readonly deleteOnKnowledgeBaseByIdStep: IDeleteOnKnowledgeBaseByIdStep,
     private readonly deleteNlqQaGoodByIdStep: IDeleteNlqQaGoodStep,
     private readonly updateNlqQaGoodFieldFromGoodByIdStep: IUpdateNlqQaGoodFieldFromGoodStep,
-    private readonly genTableColumnsStep: IGenTableColumnsStep,
+    private readonly genTableColumnsStep: IGenTableColumnsStep
   ) {}
   async execute(
     data: TCreateNlqQaFeedbackDto
   ): Promise<TResponseDto<TNlqQaFeedbackOutRequestDto>> {
     try {
-      let decision: EnumDecision | null = null;
+      let decision: EnumCurateDecision | null = null;
       // 0. Validate input data.
       if (!data?.nlqQaId || data?.isGood !== true) {
         this.logger.error(
@@ -169,11 +169,12 @@ export class CreateNlqQaPositiveFeedbackUseCase
 
       // 4.1 If hash of question+query matches existing, discard new query.
       if (currentHash === topKnowledgeSource.questionQueryHash) {
-        decision = EnumDecision.DISCARD_NEW;
+        decision = EnumCurateDecision.DISCARD_NEW;
       }
 
       // 4.2 If score is above threshold (<0.90), then save it as new relevant query.
-      if (topKnowledgeSource.score < 0.9) decision = EnumDecision.ADD_AS_NEW;
+      if (topKnowledgeSource.score < 0.9)
+        decision = EnumCurateDecision.ADD_AS_NEW;
 
       // 4.3 If score is below threshold (>0.95), then compare the new query with the existing one.
       // 4.4 If they are identical, discard the new query.
@@ -181,7 +182,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
         topKnowledgeSource.score > 0.95 &&
         topKnowledgeSource?.queryHash === currentQueryHash.queryHash
       )
-        decision = EnumDecision.DISCARD_NEW;
+        decision = EnumCurateDecision.DISCARD_NEW;
 
       // 4.5 If there is a conflict, use the LLM as Judge to decide: replace existing, keep both, discard new.
       const combined = {
@@ -205,11 +206,11 @@ export class CreateNlqQaPositiveFeedbackUseCase
       //   combined.newQuery = judgeRes.query;
       // }
 
-      if (decision === null) decision = EnumDecision.ADD_AS_NEW; // default action
+      if (decision === null) decision = EnumCurateDecision.ADD_AS_NEW; // default action
 
       if (
-        decision === EnumDecision.ADD_AS_NEW ||
-        decision === EnumDecision.KEEP_BOTH
+        decision === EnumCurateDecision.ADD_AS_NEW ||
+        decision === EnumCurateDecision.KEEP_BOTH
       ) {
         // 4.2.1 Create nlqQaGood entry and retrieve its ID.
         const NlqQaGoodId = await this.createNlqQaGoodStep.run({
@@ -252,7 +253,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
           data: updatedNlqQaGood,
         };
       }
-      if (decision === EnumDecision.REPLACE) {
+      if (decision === EnumCurateDecision.REPLACE) {
         // Delete existing from knowledge base.
         await this.deleteOnKnowledgeBaseByIdStep.run({
           id: topKnowledgeSource.id,
@@ -302,7 +303,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
           data: updatedNlqQaGood,
         };
       }
-      if (decision === EnumDecision.DISCARD_NEW) {
+      if (decision === EnumCurateDecision.DISCARD_NEW) {
         // Only update isGood and nlqQaGoodId on nlqQa entry.
         await this.updateNlqQaGoodFieldFromGoodByIdStep.run({
           id: nlqQa.id,
@@ -317,7 +318,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
         };
       }
       if (
-        decision === EnumDecision.COMBINED &&
+        decision === EnumCurateDecision.COMBINED &&
         combined.newQuery &&
         combined.newQuestion
       ) {

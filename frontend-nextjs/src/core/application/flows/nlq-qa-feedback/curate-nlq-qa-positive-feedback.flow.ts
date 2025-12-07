@@ -1,8 +1,8 @@
 import {
-  EnumDecision,
-  SDecision,
+  EnumCurateDecision,
+  SCurateDecision,
   TCreateNlqQaFeedbackDto,
-  TDecision,
+  TCurateDecision,
 } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ISimpleHashQueryHelp } from "@/core/application/helps/simple-hash-query.help";
@@ -33,7 +33,9 @@ import { IReadNlqQaByIdStep } from "@/core/application/steps/nlq-qa/read-nlq-qa-
  */
 
 export interface ICreateNlqQaPositiveFeedbackFlow {
-  execute(data: TCreateNlqQaFeedbackDto): Promise<TResponseDto<TDecision>>;
+  execute(
+    data: TCreateNlqQaFeedbackDto
+  ): Promise<TResponseDto<TCurateDecision>>;
 }
 
 export class CreateNlqQaPositiveFeedbackFlow
@@ -50,9 +52,9 @@ export class CreateNlqQaPositiveFeedbackFlow
   ) {}
   async execute(
     data: TCreateNlqQaFeedbackDto
-  ): Promise<TResponseDto<TDecision>> {
+  ): Promise<TResponseDto<TCurateDecision>> {
     try {
-      let decision: EnumDecision | null = null;
+      let decision: EnumCurateDecision | null = null;
       // 0. Validate input data.
       if (!data?.nlqQaId || data?.isGood !== true) {
         this.logger.error(
@@ -155,11 +157,12 @@ export class CreateNlqQaPositiveFeedbackFlow
 
       // 4.1 If hash of question+query matches existing, discard new query.
       if (currentHash === topKnowledgeSource.questionQueryHash) {
-        decision = EnumDecision.DISCARD_NEW;
+        decision = EnumCurateDecision.DISCARD_NEW;
       }
 
       // 4.2 If score is above threshold (<0.90), then save it as new relevant query.
-      if (topKnowledgeSource.score < 0.9) decision = EnumDecision.ADD_AS_NEW;
+      if (topKnowledgeSource.score < 0.9)
+        decision = EnumCurateDecision.ADD_AS_NEW;
 
       // 4.3 If score is below threshold (>0.95), then compare the new query with the existing one.
       // 4.4 If they are identical, discard the new query.
@@ -167,7 +170,7 @@ export class CreateNlqQaPositiveFeedbackFlow
         topKnowledgeSource.score > 0.95 &&
         topKnowledgeSource?.queryHash === currentQueryHash.queryHash
       )
-        decision = EnumDecision.DISCARD_NEW;
+        decision = EnumCurateDecision.DISCARD_NEW;
 
       // 4.5 If there is a conflict, use the LLM as Judge to decide: replace existing, keep both, discard new.
       const combined = {
@@ -191,9 +194,9 @@ export class CreateNlqQaPositiveFeedbackFlow
       //   combined.newQuery = judgeRes.query;
       // }
 
-      if (decision === null) decision = EnumDecision.ADD_AS_NEW; // default action
+      if (decision === null) decision = EnumCurateDecision.ADD_AS_NEW; // default action
 
-      const vOut = await SDecision.safeParseAsync({
+      const vOut = await SCurateDecision.safeParseAsync({
         decision,
         question: combined.newQuestion,
         query: combined.newQuery,
