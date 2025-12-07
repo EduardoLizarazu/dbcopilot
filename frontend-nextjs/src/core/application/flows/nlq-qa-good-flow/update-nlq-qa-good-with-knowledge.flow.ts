@@ -17,7 +17,7 @@ import { ISimpleHashQuestionAndQueryHelp } from "../../helps/simple-hash-questio
 import { ISimpleHashQueryHelp } from "../../helps/simple-hash-query.help";
 
 export interface IUpdateNlqQaGoodFlow {
-  execute(
+  flow(
     id: string,
     data: TUpdateNlqQaGoodDto,
     namespace: string
@@ -46,7 +46,7 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
     private readonly deleteNlqQaGoodStep: IDeleteNlqQaGoodStep,
     private readonly updateNlqQaGoodStep: IUpdateNlqQaGoodStep
   ) {}
-  async execute(
+  async flow(
     id: string,
     data: TUpdateNlqQaGoodInRqDto,
     namespace: string

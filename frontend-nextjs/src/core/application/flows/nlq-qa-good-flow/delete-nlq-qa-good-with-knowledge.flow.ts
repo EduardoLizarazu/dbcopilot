@@ -6,7 +6,7 @@ import { IDeleteNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/delet
 import { IReadNlqQaGoodByIdStep } from "@/core/application/steps/nlq-qa-good/read-nlq-qa-good-by-id.step";
 
 export interface IDeleteNlqQaGoodFlow {
-  execute(id: string): Promise<TResponseDto<null>>;
+  flow(id: string): Promise<TResponseDto<null>>;
 }
 
 /**
@@ -31,7 +31,7 @@ export class DeleteNlqQaGoodFlow implements IDeleteNlqQaGoodFlow {
     private readonly deleteOnKnowledgeBaseByIdStep: IDeleteOnKnowledgeBaseByIdStep,
     private readonly deleteNlqQaGoodStep: IDeleteNlqQaGoodStep
   ) {}
-  async execute(id: string): Promise<TResponseDto<null>> {
+  async flow(id: string): Promise<TResponseDto<null>> {
     try {
       // 1. Validate the provided ID
       // 2. Check if the item exists in the database

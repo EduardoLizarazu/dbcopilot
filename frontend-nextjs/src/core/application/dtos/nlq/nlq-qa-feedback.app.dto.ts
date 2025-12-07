@@ -47,6 +47,7 @@ export const SCurateDecision = z.object({
   decision: z.nativeEnum(EnumCurateDecision),
   question: z.string().optional().default(""),
   query: z.string().optional().default(""),
+  deleteId: z.string().optional().default(""),
 });
 
 export type TCurateDecision = z.infer<typeof SCurateDecision>;

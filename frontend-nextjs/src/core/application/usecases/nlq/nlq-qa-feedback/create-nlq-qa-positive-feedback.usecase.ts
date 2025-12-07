@@ -5,19 +5,19 @@ import {
 } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
 import { NlqQaGoodWithExecutionStatus } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
+import { ICurateNlqQaGoodDuplicateFlow } from "@/core/application/flows/nlq-qa-duplicate/curate-nlq-qa-good-duplicate.flow";
+import { ICreateNlqQaGoodWithKnowledgeBasedFlow } from "@/core/application/flows/nlq-qa-good-flow/create-nlq-qa-good-with-knowledge.flow";
+import { IDeleteNlqQaGoodFlow } from "@/core/application/flows/nlq-qa-good-flow/delete-nlq-qa-good-with-knowledge.flow";
 import { ISimpleHashQueryHelp } from "@/core/application/helps/simple-hash-query.help";
 import { ISimpleHashQuestionAndQueryHelp } from "@/core/application/helps/simple-hash-question-and-query.help";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { IReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
 import { IGenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
-import { IAddToTheKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/add-to-knowledge-base.step";
 import { IDeleteOnKnowledgeBaseByIdStep } from "@/core/application/steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
 import { ISearchSimilarQuestionOnKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/search-similar-question-on-knowledge-base.step";
-import { ICreateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/create-nlq-qa-good.step";
 import { IDeleteNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/delete-nlq-qa-good.step";
 import { IUpdateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good.step";
 import { IReadNlqQaByIdStep } from "@/core/application/steps/nlq-qa/read-nlq-qa-by-id.step";
-import { IUpdateNlqQaGoodFieldFromGoodStep } from "@/core/application/steps/nlq-qa/update-nlq-qa-good-field-from-good.step";
 
 /**
  * Use case interface for curating positive feedback in NLQ QA:
@@ -53,20 +53,15 @@ export class CreateNlqQaPositiveFeedbackUseCase
     private readonly readDbConnWithSplitterStep: IReadDbConnectionWithSplitterAndSchemaQueryStep,
     private readonly hashQuestionAndQueryHelp: ISimpleHashQuestionAndQueryHelp,
     private readonly hashQueryHelp: ISimpleHashQueryHelp,
-    private readonly searchKnowledgeSourceQueriesStep: ISearchSimilarQuestionOnKnowledgeBaseStep,
-    private readonly createNlqQaGoodStep: ICreateNlqQaGoodStep,
-    private readonly updateNlqQaGoodByIdStep: IUpdateNlqQaGoodStep,
-    private readonly addToKnowledgeBaseStep: IAddToTheKnowledgeBaseStep,
-    private readonly deleteOnKnowledgeBaseByIdStep: IDeleteOnKnowledgeBaseByIdStep,
-    private readonly deleteNlqQaGoodByIdStep: IDeleteNlqQaGoodStep,
-    private readonly updateNlqQaGoodFieldFromGoodByIdStep: IUpdateNlqQaGoodFieldFromGoodStep,
+    private readonly curateNlqQaGoodDuplicateFlow: ICurateNlqQaGoodDuplicateFlow,
+    private readonly createNlqQaGoodFlow: ICreateNlqQaGoodWithKnowledgeBasedFlow,
+    private readonly deleteNlqQaGoodFlow: IDeleteNlqQaGoodFlow,
     private readonly genTableColumnsStep: IGenTableColumnsStep
   ) {}
   async execute(
     data: TCreateNlqQaFeedbackDto
   ): Promise<TResponseDto<TNlqQaFeedbackOutRequestDto>> {
     try {
-      let decision: EnumCurateDecision | null = null;
       // 0. Validate input data.
       if (!data?.nlqQaId || data?.isGood !== true) {
         this.logger.error(
@@ -117,10 +112,12 @@ export class CreateNlqQaPositiveFeedbackUseCase
       });
 
       //   2.1 Generate hash for question and query.
-      const currentHash = await this.hashQuestionAndQueryHelp.help({
-        question: nlqQa.question,
-        query: nlqQa.query,
-      });
+      const currentQuestionQueryHash = await this.hashQuestionAndQueryHelp.help(
+        {
+          question: nlqQa.question,
+          query: nlqQa.query,
+        }
+      );
 
       // 2.2 Generate hash for the query alone.
       const currentQueryHash = await this.hashQueryHelp.help({
@@ -145,241 +142,66 @@ export class CreateNlqQaPositiveFeedbackUseCase
         };
       }
 
-      // 4. With the namespace retrieve top-1 relevant query from the vector DB according to the question.
-      const knowledgeSources = await this.searchKnowledgeSourceQueriesStep.run({
-        question: nlqQa?.question,
-        splitterName: dbConn?.vbd_splitter?.name,
+      // Prune
+      const curateDecision = await this.curateNlqQaGoodDuplicateFlow.flow({
+        currentQuestion: nlqQa.question,
+        currentQuery: nlqQa.query,
+        currentNamespace: dbConn.vbd_splitter.name,
+        currentQuestionQueryHash: currentQuestionQueryHash,
+        currentQueryHash: queryHash,
       });
-      //   4.0 Keep the highest scored knowledge source
-      const topKnowledgeSource = knowledgeSources?.[0];
-      if (!topKnowledgeSource?.questionQueryHash) {
-        const topKwSourceHash = await this.hashQuestionAndQueryHelp.help({
-          question: topKnowledgeSource.question,
-          query: topKnowledgeSource.query,
-        });
-        topKnowledgeSource.questionQueryHash = topKwSourceHash;
-      }
 
-      if (!topKnowledgeSource.queryHash) {
-        const topKwSourceQueryHash = await this.hashQueryHelp.help({
-          query: topKnowledgeSource.query,
-        });
-        topKnowledgeSource.queryHash = topKwSourceQueryHash.queryHash;
-      }
-
-      // 4.1 If hash of question+query matches existing, discard new query.
-      if (currentHash === topKnowledgeSource.questionQueryHash) {
-        decision = EnumCurateDecision.DISCARD_NEW;
-      }
-
-      // 4.2 If score is above threshold (<0.90), then save it as new relevant query.
-      if (topKnowledgeSource.score < 0.9)
-        decision = EnumCurateDecision.ADD_AS_NEW;
-
-      // 4.3 If score is below threshold (>0.95), then compare the new query with the existing one.
-      // 4.4 If they are identical, discard the new query.
-      if (
-        topKnowledgeSource.score > 0.95 &&
-        topKnowledgeSource?.queryHash === currentQueryHash.queryHash
-      )
-        decision = EnumCurateDecision.DISCARD_NEW;
-
-      // 4.5 If there is a conflict, use the LLM as Judge to decide: replace existing, keep both, discard new.
-      const combined = {
-        newQuery: "",
-        newQuestion: "",
-      };
-      // Use LLM to decide only if score > 0.95 and hashes of the query are different
-      // if (
-      //   topKnowledgeSource.score > 0.95 &&
-      //   topKnowledgeSource?.queryHash !== currentQueryHash.queryHash
-      // ) {
-      //   const judgeRes = await this.genCurateJudgePositiveFbStep.run({
-      //     prevQuestion: topKnowledgeSource.question,
-      //     prevQuery: topKnowledgeSource.query,
-      //     currentQuestion: nlqQa.question,
-      //     currentQuery: nlqQa.query,
-      //     schemaCtx: [],
-      //   });
-      //   decision = judgeRes.decision;
-      //   combined.newQuestion = judgeRes.question;
-      //   combined.newQuery = judgeRes.query;
-      // }
-
-      if (decision === null) decision = EnumCurateDecision.ADD_AS_NEW; // default action
-
-      if (
-        decision === EnumCurateDecision.ADD_AS_NEW ||
-        decision === EnumCurateDecision.KEEP_BOTH
-      ) {
-        // 4.2.1 Create nlqQaGood entry and retrieve its ID.
-        const NlqQaGoodId = await this.createNlqQaGoodStep.run({
-          question: nlqQa.question,
-          query: nlqQa.query,
-          executionStatus: NlqQaGoodWithExecutionStatus.OK,
-          originId: nlqQa.id,
-          isOnKnowledgeSource: false,
-          dbConnectionId: nlqQa.dbConnectionId,
-          questionBy: nlqQa.createdBy,
-          createdBy: nlqQa.createdBy,
-          detailQuestion: "",
-          tablesColumns: currentNlqQaTableColumns.tablesColumns || [],
-        });
-        // 4.2.2 Add to knowledge base with the id.
-        const kwId = await this.addToKnowledgeBaseStep.run({
-          id: NlqQaGoodId.id,
-          question: nlqQa.question,
-          nlqQaGoodId: NlqQaGoodId.id,
-          query: nlqQa.query,
-          tablesColumns: currentNlqQaTableColumns.tablesColumns || [],
-          namespace: dbConn.vbd_splitter.name,
-        });
-
-        const updatedNlqQaGood = await this.updateNlqQaGoodByIdStep.run({
-          id: NlqQaGoodId.id,
-          isOnKnowledgeSource: true,
-          knowledgeSourceId: kwId.id,
-        });
-
-        // 4.2.3 Update isGood field on nlqQa entry and add the nlqQaGoodId.
-        await this.updateNlqQaGoodFieldFromGoodByIdStep.run({
-          id: nlqQa.id,
-          isGood: true,
-          nlqQaGoodId: NlqQaGoodId.id,
-        });
+      // 4. Based on decision, create or not the positive feedback entry.
+      if (curateDecision.decision === EnumCurateDecision.DISCARD_NEW) {
+        // Discard new entry
+        this.logger.info(
+          `[ICuratePositiveFeedbackUseCase] Discarding new positive feedback for NLQ QA ID ${data.nlqQaId} based on duplicate curation decision.`
+        );
         return {
           success: true,
-          message: "Positive feedback curated successfully. New query added.",
-          data: updatedNlqQaGood,
-        };
-      }
-      if (decision === EnumCurateDecision.REPLACE) {
-        // Delete existing from knowledge base.
-        await this.deleteOnKnowledgeBaseByIdStep.run({
-          id: topKnowledgeSource.id,
-          splitterName: dbConn.vbd_splitter.name,
-        });
-        await this.deleteNlqQaGoodByIdStep.run(topKnowledgeSource.nlqQaGoodId);
-        // Add new to knowledge base with existing id.
-        // Create nlqQaGood entry and retrieve its ID.
-        const NlqQaGoodId = await this.createNlqQaGoodStep.run({
-          question: nlqQa.question,
-          query: nlqQa.query,
-          executionStatus: NlqQaGoodWithExecutionStatus.OK,
-          originId: nlqQa.id,
-          isOnKnowledgeSource: false,
-          dbConnectionId: nlqQa.dbConnectionId,
-          questionBy: nlqQa.createdBy,
-          createdBy: nlqQa.createdBy,
-          detailQuestion: "",
-          tablesColumns: currentNlqQaTableColumns.tablesColumns || [],
-        });
-        // Add to knowledge base with the id.
-        const kwId = await this.addToKnowledgeBaseStep.run({
-          id: NlqQaGoodId.id,
-          question: nlqQa.question,
-          nlqQaGoodId: NlqQaGoodId.id,
-          query: nlqQa.query,
-          tablesColumns: currentNlqQaTableColumns.tablesColumns || [],
-          namespace: dbConn.vbd_splitter.name,
-        });
-
-        const updatedNlqQaGood = await this.updateNlqQaGoodByIdStep.run({
-          id: NlqQaGoodId.id,
-          isOnKnowledgeSource: true,
-          knowledgeSourceId: kwId.id,
-        });
-
-        // Update isGood field on nlqQa entry and add the nlqQaGoodId.
-        await this.updateNlqQaGoodFieldFromGoodByIdStep.run({
-          id: nlqQa.id,
-          isGood: true,
-          nlqQaGoodId: NlqQaGoodId.id,
-        });
-        return {
-          success: true,
-          message:
-            "Positive feedback curated successfully. Delete and replaced old query",
-          data: updatedNlqQaGood,
-        };
-      }
-      if (decision === EnumCurateDecision.DISCARD_NEW) {
-        // Only update isGood and nlqQaGoodId on nlqQa entry.
-        await this.updateNlqQaGoodFieldFromGoodByIdStep.run({
-          id: nlqQa.id,
-          isGood: true,
-          nlqQaGoodId: topKnowledgeSource.nlqQaGoodId,
-        });
-        return {
-          success: true,
-          message:
-            "Positive feedback curated successfully. New query discarded.",
+          message: "Positive feedback discarded based on duplicate curation.",
           data: null,
         };
       }
-      if (
-        decision === EnumCurateDecision.COMBINED &&
-        combined.newQuery &&
-        combined.newQuestion
-      ) {
-        const tableColumn = await this.genTableColumnsStep.run({
-          query: combined.newQuery,
-        });
+      if (curateDecision.decision === EnumCurateDecision.REPLACE) {
+        // Delete existing good entry
+        await this.deleteNlqQaGoodFlow.flow(curateDecision.deleteId || "");
 
-        // Delete existing from knowledge base.
-        await this.deleteOnKnowledgeBaseByIdStep.run({
-          id: topKnowledgeSource.id,
-          splitterName: dbConn.vbd_splitter.name,
-        });
-        await this.deleteNlqQaGoodByIdStep.run(topKnowledgeSource.nlqQaGoodId);
-        // Add new to knowledge base with existing id.
-        // Create nlqQaGood entry and retrieve its ID.
-        const NlqQaGoodId = await this.createNlqQaGoodStep.run({
-          question: combined.newQuestion,
-          query: combined.newQuery,
-          executionStatus: NlqQaGoodWithExecutionStatus.OK,
-          originId: nlqQa.id,
-          isOnKnowledgeSource: false,
-          dbConnectionId: nlqQa.dbConnectionId,
-          questionBy: nlqQa.createdBy,
-          createdBy: nlqQa.createdBy,
-          detailQuestion: "",
-          tablesColumns: tableColumn.tablesColumns || [],
-        });
-        // Add to knowledge base with the id.
-        const kwId = await this.addToKnowledgeBaseStep.run({
-          id: NlqQaGoodId.id,
-          question: combined.newQuestion,
-          nlqQaGoodId: NlqQaGoodId.id,
-          query: combined.newQuery,
-          tablesColumns: tableColumn.tablesColumns || [],
-          namespace: dbConn.vbd_splitter.name,
-        });
-
-        const updatedNlqQaGood = await this.updateNlqQaGoodByIdStep.run({
-          id: NlqQaGoodId.id,
-          isOnKnowledgeSource: true,
-          knowledgeSourceId: kwId.id,
-        });
-
-        // Update isGood field on nlqQa entry and add the nlqQaGoodId.
-        await this.updateNlqQaGoodFieldFromGoodByIdStep.run({
-          id: nlqQa.id,
-          isGood: true,
-          nlqQaGoodId: NlqQaGoodId.id,
-        });
-
-        return {
-          success: true,
-          message:
-            "Positive feedback curated successfully. Combined decision made.",
-          data: null,
-        };
+        // Create new good entry
+        await this.createNlqQaGoodFlow.flow(
+          {
+            question: curateDecision.question,
+            query: curateDecision.query,
+            dbConnectionId: nlqQa.dbConnectionId,
+            tablesColumns: currentNlqQaTableColumns.tablesColumns || [],
+            questionQueryHash: currentQuestionQueryHash,
+            queryHash: queryHash,
+            createdBy: data.createdBy,
+          },
+          dbConn.vbd_splitter.name
+        );
       }
-
+      if (
+        curateDecision.decision === EnumCurateDecision.KEEP_BOTH ||
+        curateDecision.decision === EnumCurateDecision.ADD_AS_NEW
+      ) {
+        // Create new good entry
+        await this.createNlqQaGoodFlow.flow(
+          {
+            question: nlqQa.question,
+            query: nlqQa.query,
+            dbConnectionId: nlqQa.dbConnectionId,
+            tablesColumns: currentNlqQaTableColumns.tablesColumns || [],
+            questionQueryHash: currentQuestionQueryHash,
+            queryHash: queryHash,
+            createdBy: data.createdBy,
+          },
+          dbConn.vbd_splitter.name
+        );
+      }
       return {
-        success: false,
-        message: "Unhandled decision case in positive feedback curation.",
+        success: true,
+        message: "Positive feedback curated successfully.",
         data: null,
       };
     } catch (error) {

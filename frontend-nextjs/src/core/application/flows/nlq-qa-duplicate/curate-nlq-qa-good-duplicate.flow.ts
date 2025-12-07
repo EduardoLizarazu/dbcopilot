@@ -1,21 +1,11 @@
 import {
   EnumCurateDecision,
   SCurateDecision,
-  TCreateNlqQaFeedbackDto,
   TCurateDecision,
 } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
-import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
-import { ISimpleHashQueryHelp } from "@/core/application/helps/simple-hash-query.help";
-import { ISimpleHashQuestionAndQueryHelp } from "@/core/application/helps/simple-hash-question-and-query.help";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { IReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
-import { IGenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
 import { ISearchSimilarQuestionOnKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/search-similar-question-on-knowledge-base.step";
-import { IReadNlqQaByIdStep } from "@/core/application/steps/nlq-qa/read-nlq-qa-by-id.step";
-import { IReadNlqQaByQuestionQueryHashStep } from "../../steps/nlq-qa/read-nlq-qa-by-question-query-hash.step";
 import { IReadNlqQaGoodByQuestionQueryHashStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-question-query-hash.step";
-import { IReadNlqQaGoodByQueryHashStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-query-hash.step";
-import { IReadNlqQaGoodByIdStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-id.step";
 
 /**
  * Use case interface for curating positive feedback in NLQ QA:
@@ -37,10 +27,12 @@ import { IReadNlqQaGoodByIdStep } from "../../steps/nlq-qa-good/read-nlq-qa-good
  */
 
 export interface ICurateNlqQaGoodDuplicateFlow {
-  execute(data: {
+  flow(data: {
     currentQuestion: string;
     currentQuery: string;
     currentNamespace: string;
+    currentQuestionQueryHash: string;
+    currentQueryHash: string;
   }): Promise<TCurateDecision | null>;
 }
 
@@ -52,7 +44,7 @@ export class CurateNlqQaGoodDuplicateFlow
     private readonly readNlqQaGoodByQuestionQueryHashStep: IReadNlqQaGoodByQuestionQueryHashStep,
     private readonly searchKnowledgeSourceQueriesStep: ISearchSimilarQuestionOnKnowledgeBaseStep
   ) {}
-  async execute(data: {
+  async flow(data: {
     currentQuestion: string;
     currentQuery: string;
     currentNamespace: string;

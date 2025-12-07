@@ -15,8 +15,8 @@
  * Note: Remember to include the IGNORE LOGIC
  */
 
-export interface IPruneNegativeFbUseCase {
-  execute(data: {
+export interface IPruneNlqQaNegativeDuplicateFlow {
+  flow(data: {
     currQuestion: string;
     currQuery: string;
     currNamespace: string;
