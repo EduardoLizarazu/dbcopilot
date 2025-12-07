@@ -6,6 +6,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { headers } from "next/headers";
 import Sidebar from "@/components/nav/Sidebar";
 import { Grid, Grid2 } from "@mui/material";
+import ThemeRegistry from "@/components/theme/ThemeRegistry";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,18 +37,20 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
-        <AuthProvider initialRoles={userRoles}>
-          <FeedbackContextProvider>
-            <Grid2 container>
-              <Grid2 size={3}>
-                <Sidebar />
+        <ThemeRegistry>
+          <AuthProvider initialRoles={userRoles}>
+            <FeedbackContextProvider>
+              <Grid2 container spacing={2} sx={{ flexGrow: 1 }}>
+                <Grid2 size={3}>
+                  <Sidebar />
+                </Grid2>
+                <Grid2 size={8} sx={{ marginTop: 6 }}>
+                  {children}
+                </Grid2>
               </Grid2>
-              <Grid2 size={8} sx={{ marginTop: 6 }}>
-                {children}
-              </Grid2>
-            </Grid2>
-          </FeedbackContextProvider>
-        </AuthProvider>
+            </FeedbackContextProvider>
+          </AuthProvider>
+        </ThemeRegistry>
       </body>
     </html>
   );
