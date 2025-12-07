@@ -174,7 +174,7 @@ export default function UsersClient({
                         {u.rolesDetail.map((role) => role.name).join(", ") ||
                           "—"}
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                         <Tooltip title="Edit">
                           <IconButton
                             component={Link}
