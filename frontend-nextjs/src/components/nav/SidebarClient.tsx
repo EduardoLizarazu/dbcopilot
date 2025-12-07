@@ -76,7 +76,7 @@ export default function SidebarClient({
     >
       <Box sx={{ p: 2 }}>
         <Typography variant="h6" fontWeight={800}>
-          MyApp
+          HABLAGUAI
         </Typography>
         <Typography variant="body2" color="text.secondary" noWrap title={email}>
           {email}
@@ -134,7 +134,7 @@ export default function SidebarClient({
             <MenuIcon />
           </IconButton>
           <Typography variant="subtitle1" fontWeight={700}>
-            MyApp
+            HABLAGUAI
           </Typography>
           <Box width={40} />
         </Box>
