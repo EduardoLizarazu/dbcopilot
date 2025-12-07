@@ -22,6 +22,7 @@ import {
   Select,
   MenuItem,
   Alert,
+  TableContainer,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useFeedbackContext } from "@/contexts/feedback.context";
@@ -315,124 +316,146 @@ export default function NlqGoodClient({
             <CircularProgress />
           </Box>
         ) : (
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Upload</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>VBD createdAt</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>
-                  Connection Status
-                </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700 }}>
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredSorted.length === 0 ? (
+          <TableContainer component={Paper} elevation={0}>
+            <Table size="small">
+              <TableHead>
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    align="center"
-                    sx={{ py: 6, color: "text.secondary" }}
-                  >
-                    No results found.
+                  <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Upload</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>VBD createdAt</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>
+                    Connection Status
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    Actions
                   </TableCell>
                 </TableRow>
-              ) : (
-                filteredSorted.map((r) => {
-                  const isUploading = uploadBusy.has(r.id);
-                  const isDeleting = deleteBusy.has(r.id);
-                  return (
-                    <TableRow key={r.id} hover>
-                      <TableCell>{r.user.email || "—"}</TableCell>
-                      <TableCell sx={{ maxWidth: 480 }}>
-                        <Box
-                          sx={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {r.question?.length > 15
-                            ? `${r.question.slice(0, 15)}...`
-                            : r.question || "—"}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        {r.isOnKnowledgeSource ? (
-                          <Chip size="small" color="success" label="true" />
-                        ) : (
-                          <Chip size="small" variant="outlined" label="false" />
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {r.createdAt ? (
-                          <LocalTime
-                            fb_date={
-                              r.createdAt
-                                ? (r.createdAt as unknown as {
-                                    _seconds: number;
-                                    _nanoseconds: number;
-                                  })
-                                : undefined
-                            }
-                          />
-                        ) : (
-                          "—"
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {r.dbConnection ? (
-                          r.dbConnection && r.dbConnection.id_vbd_splitter ? (
-                            <Chip
-                              size="small"
-                              color="success"
-                              label="Connected"
-                            />
-                          ) : r.dbConnection &&
-                            !r.dbConnection.id_vbd_splitter ? (
-                            <Chip
-                              size="small"
-                              color="warning"
-                              label="Not Splitter"
-                            />
+              </TableHead>
+              <TableBody>
+                {filteredSorted.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      align="center"
+                      sx={{ py: 6, color: "text.secondary" }}
+                    >
+                      No results found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredSorted.map((r) => {
+                    const isUploading = uploadBusy.has(r.id);
+                    const isDeleting = deleteBusy.has(r.id);
+                    return (
+                      <TableRow key={r.id} hover>
+                        <TableCell>{r.user.email || "—"}</TableCell>
+                        <TableCell sx={{ maxWidth: 480 }}>
+                          <Tooltip title={r.question || ""}>
+                            <span>
+                              {r.question?.length > 15
+                                ? `${r.question.slice(0, 15)}...`
+                                : r.question || "—"}
+                            </span>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>
+                          {r.isOnKnowledgeSource ? (
+                            <Chip size="small" color="success" label="true" />
                           ) : (
                             <Chip
                               size="small"
                               variant="outlined"
+                              label="false"
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {r.createdAt ? (
+                            <LocalTime
+                              fb_date={
+                                r.createdAt
+                                  ? (r.createdAt as unknown as {
+                                      _seconds: number;
+                                      _nanoseconds: number;
+                                    })
+                                  : undefined
+                              }
+                            />
+                          ) : (
+                            "—"
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {r.dbConnection ? (
+                            r.dbConnection && r.dbConnection.id_vbd_splitter ? (
+                              <Chip
+                                size="small"
+                                color="success"
+                                label="Connected"
+                              />
+                            ) : r.dbConnection &&
+                              !r.dbConnection.id_vbd_splitter ? (
+                              <Chip
+                                size="small"
+                                color="warning"
+                                label="Not Splitter"
+                              />
+                            ) : (
+                              <Chip
+                                size="small"
+                                variant="outlined"
+                                label="Disconnected"
+                              />
+                            )
+                          ) : (
+                            <Chip
+                              size="small"
+                              color="error"
                               label="Disconnected"
                             />
-                          )
-                        ) : (
-                          <Chip
-                            size="small"
-                            color="error"
-                            label="Disconnected"
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Tooltip title="Edit">
-                          <IconButton
-                            component={Link}
-                            href={`/nlq-good/${r.id}`}
-                            size="small"
-                            aria-label="edit"
-                            sx={{ ml: 0.5 }}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        {r.isOnKnowledgeSource ? (
-                          <>
-                            <Tooltip title="Remove">
+                          )}
+                        </TableCell>
+                        <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                          <Tooltip title="Edit">
+                            <IconButton
+                              component={Link}
+                              href={`/nlq-good/${r.id}`}
+                              size="small"
+                              aria-label="edit"
+                              sx={{ ml: 0.5 }}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          {r.isOnKnowledgeSource ? (
+                            <>
+                              <Tooltip title="Remove">
+                                <span>
+                                  <IconButton
+                                    onClick={() =>
+                                      onRemove({
+                                        nlqId: r.id,
+                                        dbConnectionId: r.dbConnectionId,
+                                        question: r.question,
+                                        query: r.query,
+                                      })
+                                    }
+                                    size="small"
+                                    aria-label="remove"
+                                    loading={isUploading}
+                                  >
+                                    <CloudDoneIcon fontSize="small" />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                            </>
+                          ) : (
+                            <Tooltip title="Upload">
                               <span>
                                 <IconButton
                                   onClick={() =>
-                                    onRemove({
+                                    onUpload({
                                       nlqId: r.id,
                                       dbConnectionId: r.dbConnectionId,
                                       question: r.question,
@@ -440,55 +463,35 @@ export default function NlqGoodClient({
                                     })
                                   }
                                   size="small"
-                                  aria-label="remove"
+                                  aria-label="upload"
                                   loading={isUploading}
                                 >
-                                  <CloudDoneIcon fontSize="small" />
+                                  <CloudOffIcon fontSize="small" />
                                 </IconButton>
                               </span>
                             </Tooltip>
-                          </>
-                        ) : (
-                          <Tooltip title="Upload">
+                          )}
+                          <Tooltip title="Delete">
                             <span>
                               <IconButton
-                                onClick={() =>
-                                  onUpload({
-                                    nlqId: r.id,
-                                    dbConnectionId: r.dbConnectionId,
-                                    question: r.question,
-                                    query: r.query,
-                                  })
-                                }
                                 size="small"
-                                aria-label="upload"
-                                loading={isUploading}
+                                aria-label="delete"
+                                sx={{ ml: 0.5 }}
+                                onClick={() => onDelete(r.id)}
+                                loading={isDeleting}
                               >
-                                <CloudOffIcon fontSize="small" />
+                                <DeleteIcon fontSize="small" />
                               </IconButton>
                             </span>
                           </Tooltip>
-                        )}
-                        <Tooltip title="Delete">
-                          <span>
-                            <IconButton
-                              size="small"
-                              aria-label="delete"
-                              sx={{ ml: 0.5 }}
-                              onClick={() => onDelete(r.id)}
-                              loading={isDeleting}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
       </Paper>
     </Box>
