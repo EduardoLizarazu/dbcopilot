@@ -18,6 +18,73 @@ export class NlqQaAppRepository implements INlqQaRepository {
     private readonly logger: ILogger,
     private readonly fbAdminProvider: FirebaseAdminProvider
   ) {}
+  async findByQuestionQueryHash(
+    queryQueryHash: string
+  ): Promise<TNlqQaOutRequestDto | null> {
+    try {
+      this.logger.info(
+        "[NlqQaAppRepository] Finding NLQ QA by Question Query Hash",
+        { queryQueryHash }
+      );
+      const snapshot = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
+        .where("questionQueryHash", "==", queryQueryHash)
+        .limit(1)
+        .get();
+      if (snapshot.empty) {
+        this.logger.info(
+          "[NlqQaAppRepository] No NLQ QA found for the given Question Query Hash",
+          { queryQueryHash }
+        );
+        return null;
+      }
+
+      const doc = snapshot.docs[0];
+      return { id: doc.id, ...doc.data() } as TNlqQaOutRequestDto;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaAppRepository] Error finding NLQ QA by Question Query Hash",
+        {
+          message: error.message,
+        }
+      );
+      throw new Error(
+        error.message || "Error finding NLQ QA by Question Query Hash"
+      );
+    }
+  }
+  async findByQueryHash(
+    queryHash: string
+  ): Promise<TNlqQaOutRequestDto | null> {
+    try {
+      this.logger.info("[NlqQaAppRepository] Finding NLQ QA by Query Hash", {
+        queryHash,
+      });
+      const snapshot = await this.fbAdminProvider.db
+        .collection(this.fbAdminProvider.coll.NLQ_QA)
+        .where("queryHash", "==", queryHash)
+        .limit(1)
+        .get();
+      if (snapshot.empty) {
+        this.logger.info(
+          "[NlqQaAppRepository] No NLQ QA found for the given Query Hash",
+          { queryHash }
+        );
+        return null;
+      }
+
+      const doc = snapshot.docs[0];
+      return { id: doc.id, ...doc.data() } as TNlqQaOutRequestDto;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaAppRepository] Error finding NLQ QA by Query Hash",
+        {
+          message: error.message,
+        }
+      );
+      throw new Error(error.message || "Error finding NLQ QA by Query Hash");
+    }
+  }
   async findAllByUserId(userId: string): Promise<TNlqQaHistoryOutDto[]> {
     try {
       this.logger.info("[NlqQaAppRepository] Finding NLQ QA by User ID", {

@@ -13,6 +13,9 @@ export const nlqQaSchema = z.object({
   timeQuestion: z.date().default(new Date()),
   timeQuery: z.date().default(new Date()),
   userDeleted: z.boolean().default(false),
+  queryHash: z.string().min(2).default(""),
+  questionQueryHash: z.string().min(2).default(""),
+  isIgnore: z.boolean().default(false),
 
   feedbackId: z.string().default(""),
   knowledgeSourceUsedId: z.array(z.string()),

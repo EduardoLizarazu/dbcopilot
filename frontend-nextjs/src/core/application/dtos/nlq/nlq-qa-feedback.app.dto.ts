@@ -35,7 +35,7 @@ export const nlqQaFeedbackInOrqDto = nlqQaFeedbackSchema
   });
 export type TNlqQaFeedbackInOrqDto = z.infer<typeof nlqQaFeedbackInOrqDto>;
 
-export enum EnumDecision {
+export enum EnumCurateDecision {
   REPLACE = 0,
   KEEP_BOTH = 1,
   DISCARD_NEW = 2,
@@ -43,10 +43,10 @@ export enum EnumDecision {
   COMBINED = 4,
 }
 
-export const SDecision = z.object({
-  decision: z.nativeEnum(EnumDecision),
+export const SCurateDecision = z.object({
+  decision: z.nativeEnum(EnumCurateDecision),
   question: z.string().optional().default(""),
   query: z.string().optional().default(""),
 });
 
-export type TDecision = z.infer<typeof SDecision>;
+export type TCurateDecision = z.infer<typeof SCurateDecision>;

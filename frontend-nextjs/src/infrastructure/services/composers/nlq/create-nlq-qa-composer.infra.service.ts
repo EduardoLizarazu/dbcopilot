@@ -31,6 +31,8 @@ import { FormatSchemaCtxStep } from "@/core/application/steps/schemaCtx/format-s
 import { ReadSchemaCtxByConnIdStep } from "@/core/application/steps/schemaCtx/read-schema-ctx-by-conn-id.step";
 import { MergeSchemaCtxsStep } from "@/core/application/steps/schemaCtx/merge-schema-ctxs.step";
 import { SchemaCtxRepository } from "@/infrastructure/repository/schemaCtx.repo";
+import { SimpleHashQuestionAndQueryHelp } from "@/core/application/helps/simple-hash-question-and-query.help";
+import { SimpleHashQueryHelp } from "@/core/application/helps/simple-hash-query.help";
 
 export function createNlqQaComposer(): IController {
   // Providers
@@ -142,10 +144,17 @@ export function createNlqQaComposer(): IController {
   );
   const mergeSchemaCtxsStep = new MergeSchemaCtxsStep(loggerProvider);
 
+  const questionQueryHashStep = new SimpleHashQuestionAndQueryHelp(
+    loggerProvider
+  );
+  const queryHashStep = new SimpleHashQueryHelp(loggerProvider);
+
   // Use cases
   const createNlqQaUseCase = new CreateNlqQaUseCase(
     loggerProvider,
     validateInputStep,
+    questionQueryHashStep,
+    queryHashStep,
     extractDbConnWithSplitterAndSchemaQueryStep,
     searchSimilarQuestionOnKnowledgeBaseStep,
     extractSchemaBasedStep,

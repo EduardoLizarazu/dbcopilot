@@ -23,6 +23,8 @@ import {
 import { IReadSchemaCtxByConnIdStep } from "@/core/application/steps/schemaCtx/read-schema-ctx-by-conn-id.step";
 import { IFormatSchemaCtxStep } from "@/core/application/steps/schemaCtx/format-schema-ctx.step";
 import { IMergeSchemaCtxsStep } from "@/core/application/steps/schemaCtx/merge-schema-ctxs.step";
+import { ISimpleHashQuestionAndQueryHelp } from "@/core/application/helps/simple-hash-question-and-query.help";
+import { ISimpleHashQueryHelp } from "@/core/application/helps/simple-hash-query.help";
 
 /**
  * Create NLQ QA Use Case:
@@ -51,6 +53,8 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly validInput: IValidateInputOnCreateNlqQaStep,
+    private readonly questionQueryHashHelp: ISimpleHashQuestionAndQueryHelp,
+    private readonly queryHashHelp: ISimpleHashQueryHelp,
     private readonly extractDbConnWithSplitterAndSchemaQueryStep: IReadDbConnectionWithSplitterAndSchemaQueryStep,
     private readonly searchSimilarQuestionOnKnowledgeBaseStep: ISearchSimilarQuestionOnKnowledgeBaseStep,
     private readonly extractSchemaBasedStep: IExtractSchemaBasedStep,
@@ -104,44 +108,45 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         schema_query: dbConnWithSplitterAndSchemaQuery?.schema_query || "",
       });
 
-      // // 4.a Format raw schema data
-      // const formattedRawSchema =
-      //   await this.formatRawSchemaStep.run(schemaBased);
+      // 4.a Format raw schema data
+      const formattedRawSchema = await this.formatRawSchemaStep.run(
+        schemaBased
+      );
 
-      // this.logger.info(
-      //   "[CreateNlqQaUseCase]: Formatted raw schema data",
-      //   formattedRawSchema
-      // );
+      this.logger.info(
+        "[CreateNlqQaUseCase]: Formatted raw schema data",
+        formattedRawSchema
+      );
 
-      // // 4.b Read schema context by connection id
-      // const schemaCtx = await this.readSchemaCtxByConnIdStep.run({
-      //   connId: data.dbConnectionId,
-      // });
-      // this.logger.info(
-      //   "[CreateNlqQaUseCase]: Read schema context by connection id",
-      //   JSON.stringify(schemaCtx)
-      // );
+      // 4.b Read schema context by connection id
+      const schemaCtx = await this.readSchemaCtxByConnIdStep.run({
+        connId: data.dbConnectionId,
+      });
+      this.logger.info(
+        "[CreateNlqQaUseCase]: Read schema context by connection id",
+        JSON.stringify(schemaCtx)
+      );
 
-      // // 4.c Merge raw schema based with schema context
-      // let mergeSchemaCtx = null;
-      // if (schemaCtx?.schemaCtx && schemaCtx?.schemaCtx.length > 0) {
-      //   const mergedSchemaCtxs = await this.mergeSchemaCtxsStep.run({
-      //     schemaCtxFromDb: formattedRawSchema,
-      //     schemaCtx: schemaCtx.schemaCtx,
-      //   });
-      //   mergeSchemaCtx = mergedSchemaCtxs;
-      // }
-      // this.logger.info(
-      //   "[CreateNlqQaUseCase]: Merged schema context",
-      //   JSON.stringify(mergeSchemaCtx)
-      // );
+      // 4.c Merge raw schema based with schema context
+      let mergeSchemaCtx = null;
+      if (schemaCtx?.schemaCtx && schemaCtx?.schemaCtx.length > 0) {
+        const mergedSchemaCtxs = await this.mergeSchemaCtxsStep.run({
+          schemaCtxFromDb: formattedRawSchema,
+          schemaCtx: schemaCtx.schemaCtx,
+        });
+        mergeSchemaCtx = mergedSchemaCtxs;
+      }
+      this.logger.info(
+        "[CreateNlqQaUseCase]: Merged schema context",
+        JSON.stringify(mergeSchemaCtx)
+      );
 
       // 5. Create prompt template to generate SQL query
       const promptTemplateToGenQuery =
         await this.createPromptToGenQueryStep.run({
           question: data.question,
-          // schemaBased: mergeSchemaCtx ?? formattedRawSchema, // SCHEMA CONTEXT
-          schemaBased: schemaBased, // RAW SCHEMA ONLY
+          schemaBased: mergeSchemaCtx ?? formattedRawSchema, // SCHEMA CONTEXT
+          // schemaBased: schemaBased, // RAW SCHEMA ONLY
           similarKnowledgeBased: similarQuestionFromKnowledgeBase,
           dbType: dbConnWithSplitterAndSchemaQuery?.type || "ANSI SQL",
         });
@@ -176,6 +181,18 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           query: extractQueryFromGenQuery.query,
         });
 
+      // X.1 Log the generated query and its hash
+      const questionQueryHash = await this.questionQueryHashHelp.help({
+        question: dateValidate.question,
+        query: extractQueryFromGenQuery.query,
+      });
+      const queryHash = await this.queryHashHelp.help({
+        query: extractQueryFromGenQuery.query,
+      });
+      this.logger.info(
+        `[CreateNlqQaUseCase]: Generated Query: ${extractQueryFromGenQuery.query}, Question+Query Hash: ${questionQueryHash}, Query Hash: ${queryHash}`
+      );
+
       // 6.a.4 If not safe, save on nlq_qa_error and reference nlq qa and return with error
       if (!safePolicyUnMutationQuery.isSafe) {
         const error = await this.createNlqQaErrorStep.run({
@@ -196,6 +213,8 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
             (q) => q.id
           ),
+          queryHash: queryHash.queryHash,
+          questionQueryHash: questionQueryHash,
           dbConnectionId: data.dbConnectionId,
           createdBy: dateValidate.actorId,
           updatedBy: dateValidate.actorId,
@@ -241,6 +260,8 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
             (q) => q.id
           ),
+          queryHash: queryHash.queryHash,
+          questionQueryHash: questionQueryHash,
           dbConnectionId: data.dbConnectionId,
           createdBy: dateValidate.actorId,
           updatedBy: dateValidate.actorId,
@@ -254,13 +275,15 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
 
       // 8. Create NLQ QA entry
       const createdNlqQa = await this.createNlqQaStep.run({
-        question: data.question,
+        question: dateValidate.question,
         query: extractQueryFromGenQuery.query,
         isGood: true,
         nlqErrorId: "",
         knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
           (q) => q.id
         ),
+        queryHash: queryHash.queryHash,
+        questionQueryHash: questionQueryHash,
         dbConnectionId: data.dbConnectionId,
         createdBy: dateValidate.actorId,
         updatedBy: dateValidate.actorId,

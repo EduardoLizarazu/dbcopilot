@@ -1,4 +1,6 @@
 import {
+  TGenJudgePositiveFbDto,
+  TGenJudgePositiveVbOutDto,
   TGenNewQuestionQueryFromOldDto,
   TGenQueryCorrectionDto,
 } from "@/core/application/dtos/gen-query.dto";
@@ -281,7 +283,11 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
 
         Use this diff to understand how to map old physical references to new ones:
 
-        ${data.schemaCtxDiff ? JSON.stringify(data.schemaCtxDiff, null, 2) : "[]"}
+        ${
+          data.schemaCtxDiff
+            ? JSON.stringify(data.schemaCtxDiff, null, 2)
+            : "[]"
+        }
 
         ### Extra Context (extraMessage)
         You may receive additional hints to help you generate a better, more accurate SQL adaptation.
