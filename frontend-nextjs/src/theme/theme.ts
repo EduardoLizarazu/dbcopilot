@@ -1,6 +1,12 @@
 // src/theme/theme.ts
 import { createTheme } from "@mui/material/styles";
 
+/**
+ * AGUAI - THEME
+ * #f0601d
+ * #257c49
+ */
+
 const theme = createTheme({
   palette: {
     // primary: {

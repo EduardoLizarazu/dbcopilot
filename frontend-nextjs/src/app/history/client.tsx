@@ -179,10 +179,19 @@ export default function HistoryClient({
             <Table size="small" aria-label="nlq history table">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Created At</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                  <TableCell sx={{ fontWeight: 700, whiteSpace: "nowrap" }}>
+                    Email
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, whiteSpace: "nowrap" }}>
+                    Question
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, whiteSpace: "nowrap" }}>
+                    Created At
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{ fontWeight: 700, whiteSpace: "nowrap" }}
+                  >
                     Actions
                   </TableCell>
                 </TableRow>
@@ -201,35 +210,35 @@ export default function HistoryClient({
                 ) : (
                   displayed.map((r) => (
                     <TableRow key={r.id} hover>
-                      <TableCell sx={{ maxWidth: 640 }}>
-                        <div
-                          style={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {r.user?.email || "—"}
-                        </div>
+                      <TableCell
+                        sx={{
+                          maxWidth: 640,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {r.user?.email || "—"}
                       </TableCell>
-                      <TableCell sx={{ maxWidth: 640 }}>
+                      <TableCell
+                        sx={{
+                          maxWidth: 640,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
                         <Tooltip title={r.question || ""}>
-                          <div
-                            style={{
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
+                          <span>
                             {r.question
                               ? r.question.length > 50
                                 ? `${r.question.slice(0, 50)}...`
                                 : r.question
                               : "—"}
-                          </div>
+                          </span>
                         </Tooltip>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
                         {r.createdAt ? (
                           <LocalTime
                             fb_date={
@@ -245,7 +254,7 @@ export default function HistoryClient({
                           "—"
                         )}
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                         <Tooltip title="Edit">
                           <IconButton
                             component={Link}
