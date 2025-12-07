@@ -20,8 +20,8 @@ import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { IReadNlqQaByQuestionQueryHashStep } from "../../steps/nlq-qa/read-nlq-qa-by-question-query-hash.step";
 import { IReadNlqQaByQueryHashStep } from "../../steps/nlq-qa/read-nlq-qa-by-query-hash.step";
 
-export interface IPruneNegativeFbUseCase {
-  execute(data: {
+export interface IPruneNegativeFbFlow {
+  flow(data: {
     currQuestion: string;
     currQuery: string;
     currNamespace: string;
@@ -30,13 +30,13 @@ export interface IPruneNegativeFbUseCase {
   }): Promise<{ isIgnored: boolean }>;
 }
 
-export class PruneNegativeFbUseCase implements IPruneNegativeFbUseCase {
+export class PruneNegativeFbFlow implements IPruneNegativeFbFlow {
   constructor(
     private readonly logger: ILogger,
     private readonly readNlqQaByQuestionQueryHash: IReadNlqQaByQuestionQueryHashStep,
     private readonly readNlqQaByQueryHashStep: IReadNlqQaByQueryHashStep
   ) {}
-  async execute(data: {
+  async flow(data: {
     currQuestion: string;
     currQuery: string;
     currNamespace: string;

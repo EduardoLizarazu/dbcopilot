@@ -60,7 +60,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
       // 0. Validate input data.
       if (!data?.nlqQaId || data?.isGood !== true) {
         this.logger.error(
-          "[ICuratePositiveFeedbackUseCase] Invalid input data.",
+          "[ICreateNlqQaPositiveFeedbackUseCase] Invalid input data.",
           data
         );
         return {
@@ -74,7 +74,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
       const nlqQa = await this.readNlqQaByIdStep.run(data.nlqQaId);
       if (!nlqQa) {
         this.logger.error(
-          `[ICuratePositiveFeedbackUseCase] NLQ QA with ID ${data.nlqQaId} not found.`
+          `[ICreateNlqQaPositiveFeedbackUseCase] NLQ QA with ID ${data.nlqQaId} not found.`
         );
         return {
           success: false,
@@ -91,7 +91,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
         !nlqQa?.query
       ) {
         this.logger.error(
-          `[ICuratePositiveFeedbackUseCase] NLQ QA a field is missing`,
+          `[ICreateNlqQaPositiveFeedbackUseCase] NLQ QA a field is missing`,
           nlqQa
         );
         return {
@@ -128,7 +128,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
       //   3.1 Check if splitter name exists
       if (!dbConn?.vbd_splitter?.name) {
         this.logger.error(
-          "[ICuratePositiveFeedbackUseCase] Splitter name does not exist."
+          "[ICreateNlqQaPositiveFeedbackUseCase] Splitter name does not exist."
         );
         return {
           success: false,
@@ -150,7 +150,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
       if (curateDecision.decision === EnumCurateDecision.DISCARD_NEW) {
         // Discard new entry
         this.logger.info(
-          `[ICuratePositiveFeedbackUseCase] Discarding new positive feedback for NLQ QA ID ${data.nlqQaId} based on duplicate curation decision.`
+          `[ICreateNlqQaPositiveFeedbackUseCase] Discarding new positive feedback for NLQ QA ID ${data.nlqQaId} based on duplicate curation decision.`
         );
         return {
           success: true,
@@ -193,7 +193,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
         );
       } else {
         this.logger.error(
-          `[ICuratePositiveFeedbackUseCase] Unknown curation decision for NLQ QA ID ${data.nlqQaId}.`
+          `[ICreateNlqQaPositiveFeedbackUseCase] Unknown curation decision for NLQ QA ID ${data.nlqQaId}.`
         );
         return {
           success: false,
