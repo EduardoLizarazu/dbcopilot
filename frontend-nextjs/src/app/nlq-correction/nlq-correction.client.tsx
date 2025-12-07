@@ -24,6 +24,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
@@ -104,64 +105,67 @@ export default function NlqCorrectionsClient({
 
       {/* Filters */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <TextField
-            label="Search..."
-            size="small"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <TextField
-            label="time_question from"
-            size="small"
-            type="datetime-local"
-            value={tqFrom}
-            onChange={(e) => setTqFrom(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="time_question to"
-            size="small"
-            type="datetime-local"
-            value={tqTo}
-            onChange={(e) => setTqTo(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
+        <Box sx={{ display: "grid", gap: 2 }}>
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <TextField
+              label="time_question from"
+              size="small"
+              type="datetime-local"
+              value={tqFrom}
+              onChange={(e) => setTqFrom(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="time_question to"
+              size="small"
+              type="datetime-local"
+              value={tqTo}
+              onChange={(e) => setTqTo(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
 
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel id="kind-label">Show</InputLabel>
-            <Select
-              labelId="kind-label"
-              label="Show"
-              value={kind}
-              onChange={(e) => setKind(e.target.value as any)}
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel id="kind-label">Show</InputLabel>
+              <Select
+                labelId="kind-label"
+                label="Show"
+                value={kind}
+                onChange={(e) => setKind(e.target.value as any)}
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="feedback">Feedback</MenuItem>
+                <MenuItem value="error">Error</MenuItem>
+              </Select>
+            </FormControl>
+            <Button variant="contained" onClick={fetchRows}>
+              Search
+            </Button>
+            <Button
+              variant="text"
+              startIcon={<RefreshIcon />}
+              onClick={() => {
+                setEmail("");
+                setTqFrom("");
+                setTqTo("");
+                setKind("all");
+                setSearch("");
+                fetchRows();
+              }}
             >
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="feedback">Feedback</MenuItem>
-              <MenuItem value="error">Error</MenuItem>
-            </Select>
-          </FormControl>
-        </Stack>
-
-        <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-          <Button variant="contained" onClick={fetchRows}>
-            Search
-          </Button>
-          <Button
-            variant="text"
-            startIcon={<RefreshIcon />}
-            onClick={() => {
-              setEmail("");
-              setTqFrom("");
-              setTqTo("");
-              setKind("all");
-              setSearch("");
-              fetchRows();
-            }}
-          >
-            Reset
-          </Button>
-        </Stack>
+              Reset
+            </Button>
+          </Box>
+          <Box className="flex items-center gap-2 mb-3">
+            <SearchIcon fontSize="small" />
+            <TextField
+              label="Search..."
+              size="small"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              fullWidth
+            />
+          </Box>
+        </Box>
       </Paper>
 
       {/* Table */}
