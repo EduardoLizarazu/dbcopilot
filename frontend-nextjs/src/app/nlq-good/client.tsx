@@ -257,54 +257,62 @@ export default function NlqGoodClient({
 
       {/* Filters + Refresh */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <TextField
-            label="VBD createdAt from"
-            size="small"
-            type="datetime-local"
-            value={vbdFrom}
-            onChange={(e) => setVbdFrom(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="VBD createdAt to"
-            size="small"
-            type="datetime-local"
-            value={vbdTo}
-            onChange={(e) => setVbdTo(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <FormControl size="small" sx={{ minWidth: 200 }}>
-            <InputLabel id="order-label">Order by VBD createdAt</InputLabel>
-            <Select
-              labelId="order-label"
-              label="Order by VBD createdAt"
-              value={sortDir}
-              onChange={(e) => setSortDir(e.target.value as any)}
-            >
-              <MenuItem value="desc">Newest first</MenuItem>
-              <MenuItem value="asc">Oldest first</MenuItem>
-            </Select>
-          </FormControl>
-          <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={refresh}
-            sx={{ ml: { md: "auto" } }}
+        <Box sx={{ display: "grid", gap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
           >
-            Refresh
-          </Button>
-        </Stack>
-        <Box className="flex items-center gap-2 mb-3 mt-3">
-          <SearchIcon fontSize="small" />
-          <TextField
-            label="Search question or email"
-            size="small"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search question text or user email"
-            sx={{ width: "100%" }}
-          />
+            <TextField
+              label="VBD createdAt from"
+              size="small"
+              type="datetime-local"
+              value={vbdFrom}
+              onChange={(e) => setVbdFrom(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="VBD createdAt to"
+              size="small"
+              type="datetime-local"
+              value={vbdTo}
+              onChange={(e) => setVbdTo(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel id="order-label">Order by VBD createdAt</InputLabel>
+              <Select
+                labelId="order-label"
+                label="Order by VBD createdAt"
+                value={sortDir}
+                onChange={(e) => setSortDir(e.target.value as any)}
+              >
+                <MenuItem value="desc">Newest first</MenuItem>
+                <MenuItem value="asc">Oldest first</MenuItem>
+              </Select>
+            </FormControl>
+            <Button
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={refresh}
+            >
+              Refresh
+            </Button>
+          </Box>
+          <Box className="flex items-center gap-2 mb-3 mt-3">
+            <SearchIcon fontSize="small" />
+            <TextField
+              label="Search question or email"
+              size="small"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search question text or user email"
+              sx={{ width: "100%" }}
+            />
+          </Box>
         </Box>
       </Paper>
 
