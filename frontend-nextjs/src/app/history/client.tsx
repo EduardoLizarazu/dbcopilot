@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
@@ -180,13 +181,16 @@ export default function HistoryClient({
           </Box>
 
           {/* Search Bar - Full Width */}
-          <TextField
-            size="small"
-            placeholder="Search by email or question..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            fullWidth
-          />
+          <Box className="flex items-center gap-2 mb-3">
+            <SearchIcon fontSize="small" />
+            <TextField
+              size="small"
+              placeholder="Search by email or question..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              fullWidth
+            />
+          </Box>
         </Box>
       </Paper>
 
