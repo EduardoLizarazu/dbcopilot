@@ -13,8 +13,11 @@
  * Note: Ones it's corrected, it must be remove from (negative) knowledge base as well.
  * Note: Remember to implement the hash on the creation of negative feedbacks.
  * Note: Remember to include the IGNORE LOGIC
+ * Note: I will have to update the knowledge base delete step to handle multiple deletions by filter.
  */
 
-export interface IPruneNegativeFbUseCase {
-  execute(data: { nlqQaId: string }): Promise<void>;
+import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
+
+export interface ICreateNegativeFbUseCase {
+  execute(data: {}): Promise<void>;
 }

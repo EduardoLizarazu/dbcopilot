@@ -13,12 +13,72 @@
  * Note: Ones it's corrected, it must be remove from (negative) knowledge base as well.
  * Note: Remember to implement the hash on the creation of negative feedbacks.
  * Note: Remember to include the IGNORE LOGIC
+ * Note: I will have to update the knowledge base delete step to handle multiple deletions by filter.
  */
 
-export interface IPruneNlqQaNegativeDuplicateFlow {
-  flow(data: {
+import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
+import { IReadNlqQaByQuestionQueryHashStep } from "../../steps/nlq-qa/read-nlq-qa-by-question-query-hash.step";
+import { IReadNlqQaByQueryHashStep } from "../../steps/nlq-qa/read-nlq-qa-by-query-hash.step";
+
+export interface IPruneNegativeFbUseCase {
+  execute(data: {
     currQuestion: string;
     currQuery: string;
     currNamespace: string;
-  }): Promise<void>;
+    currQuestionQueryHash: string;
+    currQueryHash: string;
+  }): Promise<{ isIgnored: boolean }>;
+}
+
+export class PruneNegativeFbUseCase implements IPruneNegativeFbUseCase {
+  constructor(
+    private readonly logger: ILogger,
+    private readonly readNlqQaByQuestionQueryHash: IReadNlqQaByQuestionQueryHashStep,
+    private readonly readNlqQaByQueryHashStep: IReadNlqQaByQueryHashStep
+  ) {}
+  async execute(data: {
+    currQuestion: string;
+    currQuery: string;
+    currNamespace: string;
+    currQuestionQueryHash: string;
+    currQueryHash: string;
+  }): Promise<{ isIgnored: boolean }> {
+    try {
+      this.logger.info(
+        "[IPruneNegativeFbUseCase] Method not implemented.",
+        data
+      );
+
+      if (
+        !data?.currQuestion ||
+        !data?.currQuery ||
+        !data?.currNamespace ||
+        !data?.currQuestionQueryHash ||
+        !data?.currQueryHash
+      ) {
+        this.logger.error(
+          "[IPruneNegativeFbUseCase] Invalid input data.",
+          data
+        );
+        throw new Error("Invalid input data");
+      }
+
+      const nlqQaByQuestionQueryHash =
+        await this.readNlqQaByQuestionQueryHash.run(data.currQuestionQueryHash);
+
+      const nlqQaByQueryHash = await this.readNlqQaByQueryHashStep.run(
+        data.currQueryHash
+      );
+
+      if (nlqQaByQuestionQueryHash || nlqQaByQueryHash) {
+        return { isIgnored: true };
+      }
+    } catch (error) {
+      this.logger.error(
+        "[IPruneNegativeFbUseCase] Method not implemented.",
+        error.message
+      );
+      throw new Error(error.message || "Method not implemented.");
+    }
+  }
 }
