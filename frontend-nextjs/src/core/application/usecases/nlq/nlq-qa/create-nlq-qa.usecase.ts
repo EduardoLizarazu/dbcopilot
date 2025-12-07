@@ -23,6 +23,8 @@ import {
 import { IReadSchemaCtxByConnIdStep } from "@/core/application/steps/schemaCtx/read-schema-ctx-by-conn-id.step";
 import { IFormatSchemaCtxStep } from "@/core/application/steps/schemaCtx/format-schema-ctx.step";
 import { IMergeSchemaCtxsStep } from "@/core/application/steps/schemaCtx/merge-schema-ctxs.step";
+import { ISimpleHashQuestionAndQueryHelp } from "@/core/application/helps/simple-hash-question-and-query.help";
+import { ISimpleHashQueryHelp } from "@/core/application/helps/simple-hash-query.help";
 
 /**
  * Create NLQ QA Use Case:
@@ -51,6 +53,8 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
   constructor(
     private readonly logger: ILogger,
     private readonly validInput: IValidateInputOnCreateNlqQaStep,
+    private readonly questionQueryHashHelp: ISimpleHashQuestionAndQueryHelp,
+    private readonly queryHashHelp: ISimpleHashQueryHelp,
     private readonly extractDbConnWithSplitterAndSchemaQueryStep: IReadDbConnectionWithSplitterAndSchemaQueryStep,
     private readonly searchSimilarQuestionOnKnowledgeBaseStep: ISearchSimilarQuestionOnKnowledgeBaseStep,
     private readonly extractSchemaBasedStep: IExtractSchemaBasedStep,
@@ -177,6 +181,18 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           query: extractQueryFromGenQuery.query,
         });
 
+      // X.1 Log the generated query and its hash
+      const questionQueryHash = await this.questionQueryHashHelp.help({
+        question: dateValidate.question,
+        query: extractQueryFromGenQuery.query,
+      });
+      const queryHash = await this.queryHashHelp.help({
+        query: extractQueryFromGenQuery.query,
+      });
+      this.logger.info(
+        `[CreateNlqQaUseCase]: Generated Query: ${extractQueryFromGenQuery.query}, Question+Query Hash: ${questionQueryHash}, Query Hash: ${queryHash}`
+      );
+
       // 6.a.4 If not safe, save on nlq_qa_error and reference nlq qa and return with error
       if (!safePolicyUnMutationQuery.isSafe) {
         const error = await this.createNlqQaErrorStep.run({
@@ -197,6 +213,8 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
             (q) => q.id
           ),
+          queryHash: queryHash.queryHash,
+          questionQueryHash: questionQueryHash,
           dbConnectionId: data.dbConnectionId,
           createdBy: dateValidate.actorId,
           updatedBy: dateValidate.actorId,
@@ -242,6 +260,8 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
             (q) => q.id
           ),
+          queryHash: queryHash.queryHash,
+          questionQueryHash: questionQueryHash,
           dbConnectionId: data.dbConnectionId,
           createdBy: dateValidate.actorId,
           updatedBy: dateValidate.actorId,
@@ -255,13 +275,15 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
 
       // 8. Create NLQ QA entry
       const createdNlqQa = await this.createNlqQaStep.run({
-        question: data.question,
+        question: dateValidate.question,
         query: extractQueryFromGenQuery.query,
         isGood: true,
         nlqErrorId: "",
         knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
           (q) => q.id
         ),
+        queryHash: queryHash.queryHash,
+        questionQueryHash: questionQueryHash,
         dbConnectionId: data.dbConnectionId,
         createdBy: dateValidate.actorId,
         updatedBy: dateValidate.actorId,
