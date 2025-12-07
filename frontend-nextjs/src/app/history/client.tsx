@@ -140,7 +140,7 @@ export default function HistoryClient({
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        NLQ History
+        Chat history
       </Typography>
 
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
