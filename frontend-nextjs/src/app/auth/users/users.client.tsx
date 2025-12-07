@@ -101,9 +101,8 @@ export default function UsersClient({
           href="/auth/users/create"
           variant="contained"
           startIcon={<AddIcon />}
-          sx={{ textTransform: "none" }}
         >
-          Create User
+          Create
         </Button>
       </Box>
 

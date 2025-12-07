@@ -241,9 +241,19 @@ export default function NlqGoodClient({
 
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
-      <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        NLQ Goods
-      </Typography>
+      <Box className="flex items-center justify-between mb-4">
+        <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
+          NLQ Goods
+        </Typography>
+        <Button
+          component={Link}
+          href="/nlq-good/create"
+          variant="contained"
+          startIcon={<AddIcon />}
+        >
+          Create
+        </Button>
+      </Box>
 
       {/* Filters + Refresh */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
@@ -277,20 +287,12 @@ export default function NlqGoodClient({
             </Select>
           </FormControl>
           <Button
-            variant="contained"
+            variant="outlined"
             startIcon={<RefreshIcon />}
             onClick={refresh}
             sx={{ ml: { md: "auto" } }}
           >
             Refresh
-          </Button>
-          <Button
-            component={Link}
-            href="/nlq-good/create"
-            variant="outlined"
-            startIcon={<AddIcon />}
-          >
-            Create
           </Button>
         </Stack>
         <Box className="flex items-center gap-2 mb-3 mt-3">
