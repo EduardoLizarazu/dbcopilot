@@ -213,19 +213,21 @@ export default function HistoryClient({
                         </div>
                       </TableCell>
                       <TableCell sx={{ maxWidth: 640 }}>
-                        <div
-                          style={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {r.question
-                            ? r.question.length > 100
-                              ? `${r.question.slice(0, 100)}...`
-                              : r.question
-                            : "—"}
-                        </div>
+                        <Tooltip title={r.question || ""}>
+                          <div
+                            style={{
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {r.question
+                              ? r.question.length > 50
+                                ? `${r.question.slice(0, 50)}...`
+                                : r.question
+                              : "—"}
+                          </div>
+                        </Tooltip>
                       </TableCell>
                       <TableCell>
                         {r.createdAt ? (
