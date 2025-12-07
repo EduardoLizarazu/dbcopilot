@@ -19,7 +19,8 @@ import { ISimpleHashQueryHelp } from "../../helps/simple-hash-query.help";
 export interface IUpdateNlqQaGoodFlow {
   execute(
     id: string,
-    data: TUpdateNlqQaGoodDto
+    data: TUpdateNlqQaGoodDto,
+    namespace: string
   ): Promise<TResponseDto<TNlqQaGoodOutRequestDto>>;
 }
 
@@ -39,19 +40,16 @@ export interface IUpdateNlqQaGoodFlow {
 export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
   constructor(
     private readonly logger: ILogger,
-    private readonly questionQueryHashHelp: ISimpleHashQuestionAndQueryHelp,
-    private readonly queryHashHelp: ISimpleHashQueryHelp,
     private readonly validateUpdateNlqQaGoodInputDataStep: IValidateUpdateNlqQaGoodInputDataStep,
-    private readonly ensureDbConnWithSplitterExistsStep: IReadDbConnectionWithSplitterAndSchemaQueryStep,
     private readonly addToKnowledgeBaseStep: IAddToTheKnowledgeBaseStep,
     private readonly deleteOnKnowledgeBaseByIdStep: IDeleteOnKnowledgeBaseByIdStep,
     private readonly deleteNlqQaGoodStep: IDeleteNlqQaGoodStep,
-    private readonly updateNlqQaGoodStep: IUpdateNlqQaGoodStep,
-    private readonly genTableColumnsStep: IGenTableColumnsStep
+    private readonly updateNlqQaGoodStep: IUpdateNlqQaGoodStep
   ) {}
   async execute(
     id: string,
-    data: TUpdateNlqQaGoodInRqDto
+    data: TUpdateNlqQaGoodInRqDto,
+    namespace: string
   ): Promise<TResponseDto<TNlqQaGoodOutRequestDto>> {
     try {
       this.logger.info(
@@ -66,26 +64,12 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
           id,
         });
 
-      //   1.1 Hashes
-      const questionQueryHashRes = await this.questionQueryHashHelp.help({
-        question: validInputData.question,
-        query: validInputData.query,
-      });
-      const queryHashRes = await this.queryHashHelp.help({
-        query: validInputData.query,
-      });
-
-      // 2. Ensure dbConnection exists with splitter
-      const dbConn = await this.ensureDbConnWithSplitterExistsStep.run({
-        dbConnectionId: validInputData.dbConnectionId,
-      });
-
       // 3. Handle knowledge base updates based on isOnKnowledgeSource flag
       if (validInputData.isOnKnowledgeSource === false) {
         // 3.a. If false, remove from knowledge base
         await this.deleteOnKnowledgeBaseByIdStep.run({
           id: validInputData.knowledgeSourceId || id,
-          splitterName: dbConn.vbd_splitter.name,
+          splitterName: namespace,
         });
         this.logger.info(
           `[UpdateNlqQaGoodFlow] Removed NLQ QA Good with ID: ${id} from knowledge base as isOnKnowledgeSource is false`
@@ -94,7 +78,7 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
         // 3.b. If true, delete existing and add updated to knowledge base
         await this.deleteOnKnowledgeBaseByIdStep.run({
           id: validInputData.knowledgeSourceId || id,
-          splitterName: dbConn.vbd_splitter.name,
+          splitterName: namespace,
         });
         this.logger.info(
           `[UpdateNlqQaGoodFlow] Deleted existing NLQ QA Good with ID: ${id} from knowledge base before re-adding`
@@ -105,7 +89,7 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
           query: validInputData.query,
           nlqQaGoodId: validInputData.id,
           tablesColumns: validInputData.tablesColumns,
-          namespace: dbConn.vbd_splitter.name,
+          namespace: namespace,
         });
         this.logger.info(
           `[UpdateNlqQaGoodFlow] Added updated NLQ QA Good with ID: ${id} to knowledge base`
@@ -128,18 +112,10 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
         };
       }
 
-      // Generate tablesColumns if not provided
-      const schemaRepresentation = await this.genTableColumnsStep.run({
-        query: validInputData.query,
-      });
-
       // 4. Update the NLQ QA Good entry in the repository
       const { actorId, ...restData } = validInputData; // Exclude actorId from update
       const updatedEntry = await this.updateNlqQaGoodStep.run({
         ...restData,
-        questionQueryHash: questionQueryHashRes,
-        queryHash: queryHashRes.queryHash,
-        tablesColumns: schemaRepresentation.tablesColumns,
         updatedBy: validInputData.actorId,
       });
       this.logger.info(

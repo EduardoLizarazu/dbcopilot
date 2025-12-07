@@ -50,15 +50,14 @@ export class CurateNlqQaGoodDuplicateFlow
   constructor(
     private readonly logger: ILogger,
     private readonly readNlqQaGoodByQuestionQueryHashStep: IReadNlqQaGoodByQuestionQueryHashStep,
-    private readonly hashQuestionAndQueryHelp: ISimpleHashQuestionAndQueryHelp,
-    private readonly hashQueryHelp: ISimpleHashQueryHelp,
-    private readonly searchKnowledgeSourceQueriesStep: ISearchSimilarQuestionOnKnowledgeBaseStep,
-    private readonly genTableColumnsStep: IGenTableColumnsStep
+    private readonly searchKnowledgeSourceQueriesStep: ISearchSimilarQuestionOnKnowledgeBaseStep
   ) {}
   async execute(data: {
     currentQuestion: string;
     currentQuery: string;
     currentNamespace: string;
+    currentQuestionQueryHash: string;
+    currentQueryHash: string;
   }): Promise<TCurateDecision | null> {
     try {
       let decision: EnumCurateDecision | null = null;
@@ -66,7 +65,9 @@ export class CurateNlqQaGoodDuplicateFlow
       if (
         !data?.currentQuestion ||
         !data?.currentQuery ||
-        !data?.currentNamespace
+        !data?.currentNamespace ||
+        !data?.currentQuestionQueryHash ||
+        !data?.currentQueryHash
       ) {
         this.logger.error(
           "[ICurateNlqQaGoodDuplicateFlow] Invalid input data.",
@@ -77,28 +78,9 @@ export class CurateNlqQaGoodDuplicateFlow
         );
       }
 
-      // 2.0.0 Generate table columns from query of NLQ QA
-      const currentNlqQaTableColumns = await this.genTableColumnsStep.run({
-        query: data.currentQuery,
-      });
-
-      //   2.1 Generate hash for question and query.
-      const currentQuestionQueryHash = await this.hashQuestionAndQueryHelp.help(
-        {
-          question: data.currentQuestion,
-          query: data.currentQuery,
-        }
-      );
-
-      // 2.2 Generate hash for the query alone.
-      const queryHash = await this.hashQueryHelp.help({
-        query: data.currentQuery,
-      });
-      const currentQueryHash = queryHash.queryHash;
-
       const existingNlqQaGoodByQuestionQueryHash =
         await this.readNlqQaGoodByQuestionQueryHashStep.run(
-          currentQuestionQueryHash
+          data.currentQuestionQueryHash
         );
       if (existingNlqQaGoodByQuestionQueryHash) {
         this.logger.info(
@@ -127,7 +109,7 @@ export class CurateNlqQaGoodDuplicateFlow
       // 4.4 If they are identical, discard the new query.
       if (
         topKnowledgeSource.score > 0.95 &&
-        topKnowledgeSource?.queryHash === currentQueryHash
+        topKnowledgeSource?.queryHash === data.currentQueryHash
       )
         decision = EnumCurateDecision.DISCARD_NEW;
 
