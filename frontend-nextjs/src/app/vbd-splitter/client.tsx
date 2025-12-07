@@ -162,7 +162,7 @@ export default function VbdSplitterClient({
             />
           </Stack>
         </Box>
-        <Box className="flex items-center gap-2 mb-3 mt-3">
+        <Box className="flex items-center gap-2 mb-2 mt-3">
           <SearchIcon fontSize="small" />
           <TextField
             label="Search by splitter name or user email"
