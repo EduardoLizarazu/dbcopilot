@@ -1,21 +1,11 @@
 import {
   EnumCurateDecision,
   SCurateDecision,
-  TCreateNlqQaFeedbackDto,
   TCurateDecision,
 } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
-import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
-import { ISimpleHashQueryHelp } from "@/core/application/helps/simple-hash-query.help";
-import { ISimpleHashQuestionAndQueryHelp } from "@/core/application/helps/simple-hash-question-and-query.help";
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
-import { IReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
-import { IGenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
 import { ISearchSimilarQuestionOnKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/search-similar-question-on-knowledge-base.step";
-import { IReadNlqQaByIdStep } from "@/core/application/steps/nlq-qa/read-nlq-qa-by-id.step";
-import { IReadNlqQaByQuestionQueryHashStep } from "../../steps/nlq-qa/read-nlq-qa-by-question-query-hash.step";
 import { IReadNlqQaGoodByQuestionQueryHashStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-question-query-hash.step";
-import { IReadNlqQaGoodByQueryHashStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-query-hash.step";
-import { IReadNlqQaGoodByIdStep } from "../../steps/nlq-qa-good/read-nlq-qa-good-by-id.step";
 
 /**
  * Use case interface for curating positive feedback in NLQ QA:
@@ -37,10 +27,12 @@ import { IReadNlqQaGoodByIdStep } from "../../steps/nlq-qa-good/read-nlq-qa-good
  */
 
 export interface ICurateNlqQaGoodDuplicateFlow {
-  execute(data: {
+  flow(data: {
     currentQuestion: string;
     currentQuery: string;
     currentNamespace: string;
+    currentQuestionQueryHash: string;
+    currentQueryHash: string;
   }): Promise<TCurateDecision | null>;
 }
 
@@ -50,15 +42,14 @@ export class CurateNlqQaGoodDuplicateFlow
   constructor(
     private readonly logger: ILogger,
     private readonly readNlqQaGoodByQuestionQueryHashStep: IReadNlqQaGoodByQuestionQueryHashStep,
-    private readonly hashQuestionAndQueryHelp: ISimpleHashQuestionAndQueryHelp,
-    private readonly hashQueryHelp: ISimpleHashQueryHelp,
-    private readonly searchKnowledgeSourceQueriesStep: ISearchSimilarQuestionOnKnowledgeBaseStep,
-    private readonly genTableColumnsStep: IGenTableColumnsStep
+    private readonly searchKnowledgeSourceQueriesStep: ISearchSimilarQuestionOnKnowledgeBaseStep
   ) {}
-  async execute(data: {
+  async flow(data: {
     currentQuestion: string;
     currentQuery: string;
     currentNamespace: string;
+    currentQuestionQueryHash: string;
+    currentQueryHash: string;
   }): Promise<TCurateDecision | null> {
     try {
       let decision: EnumCurateDecision | null = null;
@@ -66,7 +57,9 @@ export class CurateNlqQaGoodDuplicateFlow
       if (
         !data?.currentQuestion ||
         !data?.currentQuery ||
-        !data?.currentNamespace
+        !data?.currentNamespace ||
+        !data?.currentQuestionQueryHash ||
+        !data?.currentQueryHash
       ) {
         this.logger.error(
           "[ICurateNlqQaGoodDuplicateFlow] Invalid input data.",
@@ -77,28 +70,9 @@ export class CurateNlqQaGoodDuplicateFlow
         );
       }
 
-      // 2.0.0 Generate table columns from query of NLQ QA
-      const currentNlqQaTableColumns = await this.genTableColumnsStep.run({
-        query: data.currentQuery,
-      });
-
-      //   2.1 Generate hash for question and query.
-      const currentQuestionQueryHash = await this.hashQuestionAndQueryHelp.help(
-        {
-          question: data.currentQuestion,
-          query: data.currentQuery,
-        }
-      );
-
-      // 2.2 Generate hash for the query alone.
-      const queryHash = await this.hashQueryHelp.help({
-        query: data.currentQuery,
-      });
-      const currentQueryHash = queryHash.queryHash;
-
       const existingNlqQaGoodByQuestionQueryHash =
         await this.readNlqQaGoodByQuestionQueryHashStep.run(
-          currentQuestionQueryHash
+          data.currentQuestionQueryHash
         );
       if (existingNlqQaGoodByQuestionQueryHash) {
         this.logger.info(
@@ -127,7 +101,7 @@ export class CurateNlqQaGoodDuplicateFlow
       // 4.4 If they are identical, discard the new query.
       if (
         topKnowledgeSource.score > 0.95 &&
-        topKnowledgeSource?.queryHash === currentQueryHash
+        topKnowledgeSource?.queryHash === data.currentQueryHash
       )
         decision = EnumCurateDecision.DISCARD_NEW;
 
