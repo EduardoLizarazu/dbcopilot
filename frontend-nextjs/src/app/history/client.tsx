@@ -25,7 +25,6 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
-import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { DeleteHistoryByIdAction } from "@/_actions/nlq-qa/history/delete-history-by-id.action";

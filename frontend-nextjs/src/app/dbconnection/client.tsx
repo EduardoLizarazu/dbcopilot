@@ -121,43 +121,48 @@ export default function DbConnectionClient({
 
       {/* Filters */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <Box className="flex items-center gap-2 mb-3">
-            <SearchIcon fontSize="small" />
+        <Box sx={{ display: "grid", gap: 2 }}>
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <TextField
-              label="Filter by name or description"
+              label="Created From"
               size="small"
-              value={nameFilter}
-              onChange={(e) => setNameFilter(e.target.value)}
+              type="datetime-local"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              InputLabelProps={{ shrink: true }}
             />
+            <TextField
+              label="Created To"
+              size="small"
+              type="datetime-local"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <Button
+              component={Link}
+              href="/dbconnection/create"
+              variant="contained"
+              sx={{ textTransform: "none" }}
+            >
+              Create
+            </Button>
           </Box>
-
-          <TextField
-            label="Created From"
-            size="small"
-            type="datetime-local"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Created To"
-            size="small"
-            type="datetime-local"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Stack>
-        <Box sx={{ mt: 2 }}>
-          <Button
-            component={Link}
-            href="/dbconnection/create"
-            variant="contained"
-            sx={{ textTransform: "none" }}
-          >
-            Create DB Connection
-          </Button>
+          <Box className="flex items-center gap-2 mb-3" sx={{ width: "100%" }}>
+            <Box
+              className="flex items-center gap-2 mb-3"
+              sx={{ width: "100%" }}
+            >
+              <SearchIcon fontSize="small" />
+              <TextField
+                label="Filter by name or description"
+                size="small"
+                value={nameFilter}
+                onChange={(e) => setNameFilter(e.target.value)}
+                sx={{ width: "100%" }}
+              />
+            </Box>
+          </Box>
         </Box>
       </Paper>
 
