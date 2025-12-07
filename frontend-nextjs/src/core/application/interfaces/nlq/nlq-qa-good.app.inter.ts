@@ -21,4 +21,8 @@ export interface INlqQaGoodRepository
   findByUserId(uid: string): Promise<TNlqQaGoodOutRequestDto[]>;
   switchSoftDelete(id: string): Promise<void>;
   findAllByNlqQaId(nlqQaId: string): Promise<TNlqQaGoodDto[]>;
+  findByQuestionQueryHash(
+    questionQueryHash: string
+  ): Promise<TNlqQaGoodDto | null>;
+  findByQueryHash(queryHash: string): Promise<TNlqQaGoodDto | null>;
 }

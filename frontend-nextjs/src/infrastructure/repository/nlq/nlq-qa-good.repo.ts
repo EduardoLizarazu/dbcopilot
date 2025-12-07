@@ -14,6 +14,56 @@ export class NlqQaGoodRepository implements INlqQaGoodRepository {
     private readonly logger: ILogger,
     private readonly fbAdminProvider: FirebaseAdminProvider
   ) {}
+  async findByQuestionQueryHash(
+    questionQueryHash: string
+  ): Promise<TNlqQaGoodDto | null> {
+    try {
+      const db = this.fbAdminProvider.db;
+      const doc = await db
+        .collection(this.fbAdminProvider.coll.NLQ_GOODS)
+        .where("questionQueryHash", "==", questionQueryHash)
+        .limit(1)
+        .get();
+
+      if (doc.empty) {
+        return null;
+      }
+      const goodDoc = doc.docs[0];
+      return { id: goodDoc.id, ...goodDoc.data() } as TNlqQaGoodDto;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaGoodRepository] Error finding NLQ QA Good by question query hash",
+        error.message
+      );
+      throw new Error(
+        error.message || "Error finding NLQ QA Good by question query hash"
+      );
+    }
+  }
+  async findByQueryHash(queryHash: string): Promise<TNlqQaGoodDto | null> {
+    try {
+      const db = this.fbAdminProvider.db;
+      const doc = await db
+        .collection(this.fbAdminProvider.coll.NLQ_GOODS)
+        .where("queryHash", "==", queryHash)
+        .limit(1)
+        .get();
+
+      if (doc.empty) {
+        return null;
+      }
+      const goodDoc = doc.docs[0];
+      return { id: goodDoc.id, ...goodDoc.data() } as TNlqQaGoodDto;
+    } catch (error) {
+      this.logger.error(
+        "[NlqQaGoodRepository] Error finding NLQ QA Good by query hash",
+        error.message
+      );
+      throw new Error(
+        error.message || "Error finding NLQ QA Good by query hash"
+      );
+    }
+  }
   async findAllByNlqQaId(nlqQaId: string): Promise<TNlqQaGoodDto[]> {
     try {
       const db = this.fbAdminProvider.db;
