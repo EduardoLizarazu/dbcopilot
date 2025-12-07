@@ -32,14 +32,14 @@ import { IReadNlqQaByIdStep } from "@/core/application/steps/nlq-qa/read-nlq-qa-
  * 6. Return success or error message.
  */
 
-export interface ICreateNlqQaPositiveFeedbackFlow {
+export interface ICreateNlqQaGoodDuplicateFlow {
   execute(
     data: TCreateNlqQaFeedbackDto
   ): Promise<TResponseDto<TCurateDecision>>;
 }
 
-export class CreateNlqQaPositiveFeedbackFlow
-  implements ICreateNlqQaPositiveFeedbackFlow
+export class CreateNlqQaGoodDuplicateFlow
+  implements ICreateNlqQaGoodDuplicateFlow
 {
   constructor(
     private readonly logger: ILogger,
@@ -58,7 +58,7 @@ export class CreateNlqQaPositiveFeedbackFlow
       // 0. Validate input data.
       if (!data?.nlqQaId || data?.isGood !== true) {
         this.logger.error(
-          "[ICuratePositiveFeedbackFlow] Invalid input data.",
+          "[ICreateNlqQaGoodDuplicateFlow] Invalid input data.",
           data
         );
         return {
@@ -72,7 +72,7 @@ export class CreateNlqQaPositiveFeedbackFlow
       const nlqQa = await this.readNlqQaByIdStep.run(data.nlqQaId);
       if (!nlqQa) {
         this.logger.error(
-          `[ICuratePositiveFeedbackFlow] NLQ QA with ID ${data.nlqQaId} not found.`
+          `[ICreateNlqQaGoodDuplicateFlow] NLQ QA with ID ${data.nlqQaId} not found.`
         );
         return {
           success: false,
@@ -89,7 +89,7 @@ export class CreateNlqQaPositiveFeedbackFlow
         !nlqQa?.query
       ) {
         this.logger.error(
-          `[ICuratePositiveFeedbackFlow] NLQ QA a field is missing`,
+          `[ICreateNlqQaGoodDuplicateFlow] NLQ QA a field is missing`,
           nlqQa
         );
         return {
@@ -124,7 +124,7 @@ export class CreateNlqQaPositiveFeedbackFlow
       //   3.1 Check if splitter name exists
       if (!dbConn?.vbd_splitter?.name) {
         this.logger.error(
-          "[ICuratePositiveFeedbackFlow] Splitter name does not exist."
+          "[ICreateNlqQaGoodDuplicateFlow] Splitter name does not exist."
         );
         return {
           success: false,
