@@ -41,7 +41,7 @@ export interface ICurateNlqQaGoodDuplicateFlow {
     currentQuestion: string;
     currentQuery: string;
     currentNamespace: string;
-  }): Promise<TResponseDto<TCurateDecision>>;
+  }): Promise<TCurateDecision | null>;
 }
 
 export class CurateNlqQaGoodDuplicateFlow
@@ -59,7 +59,7 @@ export class CurateNlqQaGoodDuplicateFlow
     currentQuestion: string;
     currentQuery: string;
     currentNamespace: string;
-  }): Promise<TResponseDto<TCurateDecision>> {
+  }): Promise<TCurateDecision | null> {
     try {
       let decision: EnumCurateDecision | null = null;
       // 0. Validate input data.
@@ -72,11 +72,9 @@ export class CurateNlqQaGoodDuplicateFlow
           "[ICurateNlqQaGoodDuplicateFlow] Invalid input data.",
           data
         );
-        return {
-          success: false,
-          message: "Invalid input data",
-          data: null,
-        };
+        throw new Error(
+          "Invalid input data for curating NLQ QA good duplicate."
+        );
       }
 
       // 2.0.0 Generate table columns from query of NLQ QA
@@ -106,10 +104,11 @@ export class CurateNlqQaGoodDuplicateFlow
         this.logger.info(
           "[ICurateNlqQaGoodDuplicateFlow] Existing NLQ QA found with the same question and query hash. Discarding new query."
         );
+        decision = EnumCurateDecision.DISCARD_NEW;
         return {
-          success: true,
-          message: "Duplicate NLQ QA found. Discarding new query.",
-          data: null,
+          decision,
+          question: "",
+          query: "",
         };
       }
 
@@ -167,29 +166,18 @@ export class CurateNlqQaGoodDuplicateFlow
           "[CuratePositiveFeedbackUseCase]: Invalid decision output.",
           vOut.error.format()
         );
-        return {
-          success: false,
-          message: "Validation failed for decision output.",
-          data: null,
-        };
+        throw new Error(
+          "Invalid decision output in curating positive feedback."
+        );
       }
 
-      return {
-        success: false,
-        message: "Unhandled decision case in positive feedback curation.",
-        data: vOut.data,
-      };
+      return vOut.data;
     } catch (error) {
       this.logger.error(
         "[CuratePositiveFeedbackUseCase]:",
         error.message || "Unknown error"
       );
-      return {
-        success: false,
-        message:
-          error.message || "Failed to curate positive feedback for NLQ QA.",
-        data: null,
-      };
+      throw new Error(error.message || "Error in curating positive feedback.");
     }
   }
 }
