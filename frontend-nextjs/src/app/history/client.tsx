@@ -42,19 +42,8 @@ export default function HistoryClient({
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
-
-  const filtered = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((r) => {
-      const question = (r.question || "").toLowerCase();
-      const email = (r.user?.email || "").toLowerCase();
-      return question.includes(q) || email.includes(q);
-    });
-  }, [rows, query]);
-
-  const [sortDir, setSortDir] = React.useState<"desc" | "asc">("desc");
-
+  const [startDate, setStartDate] = React.useState<string>("");
+  const [endDate, setEndDate] = React.useState<string>("");
   const getTime = (val: any) => {
     if (!val) return 0;
     // Firestore-like timestamp
@@ -70,6 +59,26 @@ export default function HistoryClient({
     const d = new Date(val);
     return isNaN(d.getTime()) ? 0 : d.getTime();
   };
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const start = startDate ? new Date(startDate).getTime() : 0;
+    const end = endDate ? new Date(endDate).getTime() : Infinity;
+
+    return rows.filter((r) => {
+      // Text search
+      if (q) {
+        const question = (r.question || "").toLowerCase();
+        const email = (r.user?.email || "").toLowerCase();
+        if (!question.includes(q) && !email.includes(q)) return false;
+      }
+      // Date range search
+      const rTime = getTime(r.createdAt);
+      if (rTime < start || rTime > end) return false;
+      return true;
+    });
+  }, [rows, query, startDate, endDate]);
+
+  const [sortDir, setSortDir] = React.useState<"desc" | "asc">("desc");
 
   const displayed = React.useMemo(() => {
     const arr = filtered.slice();
@@ -135,7 +144,42 @@ export default function HistoryClient({
       </Typography>
 
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <Box sx={{ display: "grid", gap: 2 }}>
+          {/* Date Range */}
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <TextField
+              size="small"
+              label="From"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 180 }}
+            />
+            <TextField
+              size="small"
+              label="To"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 180 }}
+            />
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel id="sort-label">Sort</InputLabel>
+              <Select
+                labelId="sort-label"
+                label="Sort"
+                value={sortDir}
+                onChange={(e) => setSortDir(e.target.value as any)}
+              >
+                <MenuItem value="desc">Newest</MenuItem>
+                <MenuItem value="asc">Oldest</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+          {/* Search Bar - Full Width */}
           <TextField
             size="small"
             placeholder="Search by email or question..."
@@ -143,18 +187,6 @@ export default function HistoryClient({
             onChange={(e) => setQuery(e.target.value)}
             fullWidth
           />
-          <FormControl size="small" sx={{ minWidth: 200 }}>
-            <InputLabel id="sort-label">Sort by createdAt</InputLabel>
-            <Select
-              labelId="sort-label"
-              label="Sort by createdAt"
-              value={sortDir}
-              onChange={(e) => setSortDir(e.target.value as any)}
-            >
-              <MenuItem value="desc">Newest first</MenuItem>
-              <MenuItem value="asc">Oldest first</MenuItem>
-            </Select>
-          </FormControl>
         </Box>
       </Paper>
 
