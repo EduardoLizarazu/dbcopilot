@@ -146,7 +146,14 @@ export default function HistoryClient({
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
         <Box sx={{ display: "grid", gap: 2 }}>
           {/* Date Range */}
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
             <TextField
               size="small"
               label="From"
