@@ -123,9 +123,8 @@ export function SchemaCtxClient({
           href="/schema-ctx/create"
           variant="contained"
           startIcon={<AddIcon />}
-          sx={{ textTransform: "none" }}
         >
-          Create Schema Context
+          Create
         </Button>
       </Box>
 
