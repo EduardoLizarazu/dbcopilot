@@ -1,4 +1,5 @@
 import {
+  createNlqQaGoodSchema,
   TCreateNlqQaGoodDto,
   TNlqQaGoodDto,
 } from "../../dtos/nlq/nlq-qa-good.app.dto";
@@ -10,7 +11,6 @@ import { IGenTableColumnsStep } from "../../steps/genTepology/gen-table-columns.
 import { IAddToTheKnowledgeBaseStep } from "../../steps/knowledgeBased/add-to-knowledge-base.step";
 import { ICreateNlqQaGoodStep } from "../../steps/nlq-qa-good/create-nlq-qa-good.step";
 import { IUpdateNlqQaGoodKnowledgeStep } from "../../steps/nlq-qa-good/update-nlq-qa-good-knowledge.step";
-import { IValidateCreateNlqQaGoodInputDataStep } from "../../steps/nlq-qa-good/validate-create-nlq-qa-good-input-data.step";
 import { IUpdateNlqQaGoodFieldFromGoodStep } from "../../steps/nlq-qa/update-nlq-qa-good-field-from-good.step";
 
 export interface ICreateNlqQaGoodWithKnowledgeBasedFlow {
@@ -38,6 +38,17 @@ export class CreateNlqQaGoodWithKnowledgeBasedFlow
         `[CreateNlqQaGoodWithKnowledgeBasedFlow] Starting flow with data: `,
         data
       );
+
+      const vData = await createNlqQaGoodSchema.safeParseAsync(data);
+      if (!vData.success) {
+        this.logger.error(
+          `[CreateNlqQaGoodWithKnowledgeBasedFlow] Validation failed: `,
+          vData.error.errors
+        );
+        throw new Error("Validation failed");
+      }
+      data = { ...vData.data };
+
       const dbConnectionWithSplitter =
         await this.readDbConnWithSplitterStep.run({
           dbConnectionId: data.dbConnectionId,
