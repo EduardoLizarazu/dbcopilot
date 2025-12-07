@@ -23,6 +23,8 @@ import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
+
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
 import { useFeedbackContext } from "@/contexts/feedback.context";
@@ -115,9 +117,20 @@ export default function DbConnectionClient({
 
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
-      <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        DB Connections
-      </Typography>
+      <Box className="flex items-center justify-between mb-4">
+        <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
+          DB Connections
+        </Typography>
+        <Button
+          component={Link}
+          href="/dbconnection/create"
+          variant="contained"
+          sx={{ textTransform: "none" }}
+          startIcon={<AddIcon />}
+        >
+          CREATE
+        </Button>
+      </Box>
 
       {/* Filters */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
@@ -139,14 +152,6 @@ export default function DbConnectionClient({
               onChange={(e) => setDateTo(e.target.value)}
               InputLabelProps={{ shrink: true }}
             />
-            <Button
-              component={Link}
-              href="/dbconnection/create"
-              variant="contained"
-              sx={{ textTransform: "none" }}
-            >
-              Create
-            </Button>
           </Box>
           <Box className="flex items-center gap-2 mb-3" sx={{ width: "100%" }}>
             <Box
