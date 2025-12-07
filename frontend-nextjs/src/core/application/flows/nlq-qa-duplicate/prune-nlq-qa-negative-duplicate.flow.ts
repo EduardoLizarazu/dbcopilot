@@ -14,6 +14,7 @@
  * Note: Remember to implement the hash on the creation of negative feedbacks.
  * Note: Remember to include the IGNORE LOGIC
  * Note: I will have to update the knowledge base delete step to handle multiple deletions by filter.
+ * Note: HOW DO I REMOVE THE PREVIOUS FEEDBACK IF IT'S ALREADY IN THE KNOWLEDGE BASE?
  */
 
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
