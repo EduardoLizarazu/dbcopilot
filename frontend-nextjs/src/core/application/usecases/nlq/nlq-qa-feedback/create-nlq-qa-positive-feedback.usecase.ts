@@ -3,7 +3,6 @@ import {
   TCreateNlqQaFeedbackDto,
   TNlqQaFeedbackOutRequestDto,
 } from "@/core/application/dtos/nlq/nlq-qa-feedback.app.dto";
-import { NlqQaGoodWithExecutionStatus } from "@/core/application/dtos/nlq/nlq-qa-good.app.dto";
 import { TResponseDto } from "@/core/application/dtos/utils/response.app.dto";
 import { ICurateNlqQaGoodDuplicateFlow } from "@/core/application/flows/nlq-qa-duplicate/curate-nlq-qa-good-duplicate.flow";
 import { ICreateNlqQaGoodWithKnowledgeBasedFlow } from "@/core/application/flows/nlq-qa-good-flow/create-nlq-qa-good-with-knowledge.flow";
@@ -13,10 +12,6 @@ import { ISimpleHashQuestionAndQueryHelp } from "@/core/application/helps/simple
 import { ILogger } from "@/core/application/interfaces/ilog.app.inter";
 import { IReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/application/steps/dbconn/read-dbconnection-with-splitter-and-schema-query.usecase.step";
 import { IGenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
-import { IDeleteOnKnowledgeBaseByIdStep } from "@/core/application/steps/knowledgeBased/delete-on-knowledge-base-by-id.step";
-import { ISearchSimilarQuestionOnKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/search-similar-question-on-knowledge-base.step";
-import { IDeleteNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/delete-nlq-qa-good.step";
-import { IUpdateNlqQaGoodStep } from "@/core/application/steps/nlq-qa-good/update-nlq-qa-good.step";
 import { IReadNlqQaByIdStep } from "@/core/application/steps/nlq-qa/read-nlq-qa-by-id.step";
 
 /**
@@ -162,8 +157,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
           message: "Positive feedback discarded based on duplicate curation.",
           data: null,
         };
-      }
-      if (curateDecision.decision === EnumCurateDecision.REPLACE) {
+      } else if (curateDecision.decision === EnumCurateDecision.REPLACE) {
         // Delete existing good entry
         await this.deleteNlqQaGoodFlow.flow(curateDecision.deleteId || "");
 
@@ -180,8 +174,7 @@ export class CreateNlqQaPositiveFeedbackUseCase
           },
           dbConn.vbd_splitter.name
         );
-      }
-      if (
+      } else if (
         curateDecision.decision === EnumCurateDecision.KEEP_BOTH ||
         curateDecision.decision === EnumCurateDecision.ADD_AS_NEW
       ) {
@@ -198,6 +191,15 @@ export class CreateNlqQaPositiveFeedbackUseCase
           },
           dbConn.vbd_splitter.name
         );
+      } else {
+        this.logger.error(
+          `[ICuratePositiveFeedbackUseCase] Unknown curation decision for NLQ QA ID ${data.nlqQaId}.`
+        );
+        return {
+          success: false,
+          message: "Unknown curation decision.",
+          data: null,
+        };
       }
       return {
         success: true,
