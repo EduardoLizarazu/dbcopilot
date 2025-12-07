@@ -210,7 +210,7 @@ export default function HistoryClient({
             <CircularProgress />
           </Box>
         ) : (
-          <TableContainer>
+          <TableContainer component={Paper} elevation={0}>
             <Table size="small" aria-label="nlq history table">
               <TableHead>
                 <TableRow>

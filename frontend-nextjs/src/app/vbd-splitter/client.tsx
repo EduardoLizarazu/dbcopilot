@@ -23,6 +23,8 @@ import { LocalTime } from "@/components/shared/LocalTime";
 import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 import { IconButton, Tooltip } from "@mui/material";
 import { DeleteVbdSplitterAction } from "@/_actions/vbd-splitter/delete.action";
 import { ReadAllVbdSplitterAction } from "@/_actions/vbd-splitter/read-all.action";
@@ -124,45 +126,51 @@ export default function VbdSplitterClient({
 
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
-      <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        VBD Splitters
-      </Typography>
+      <Box className="flex items-center justify-between mb-4">
+        <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
+          VBD Splitters
+        </Typography>
+        <Button
+          component={Link}
+          href="/vbd-splitter/create"
+          variant="contained"
+          startIcon={<AddIcon />}
+        >
+          Create
+        </Button>
+      </Box>
 
       {/* Filters */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+        <Box sx={{ display: "grid", gap: 2 }}>
+          <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+            <TextField
+              label="Created From"
+              size="small"
+              type="datetime-local"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Created To"
+              size="small"
+              type="datetime-local"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Stack>
+        </Box>
+        <Box className="flex items-center gap-2 mb-3 mt-3">
+          <SearchIcon fontSize="small" />
           <TextField
             label="Search by splitter name or user email"
             size="small"
             value={nameFilter}
             onChange={(e) => setNameFilter(e.target.value)}
+            fullWidth
           />
-          <TextField
-            label="Created From"
-            size="small"
-            type="datetime-local"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Created To"
-            size="small"
-            type="datetime-local"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Stack>
-        <Box sx={{ mt: 2 }}>
-          <Button
-            component={Link}
-            href="/vbd-splitter/create"
-            variant="contained"
-            sx={{ textTransform: "none" }}
-          >
-            Create VBD Splitter
-          </Button>
         </Box>
       </Paper>
 
@@ -185,7 +193,7 @@ export default function VbdSplitterClient({
             <CircularProgress />
           </Box>
         ) : (
-          <TableContainer>
+          <TableContainer component={Paper} elevation={0}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -211,10 +219,10 @@ export default function VbdSplitterClient({
                     <TableRow key={row.id} hover>
                       <TableCell>{row.name || "-"}</TableCell>
                       <TableCell>{row?.user?.email || "-"}</TableCell>
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
                         <LocalTime fb_date={row.createdAt as any} />
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
                         <Stack direction="row" spacing={1}>
                           <Tooltip title="Edit">
                             <IconButton
