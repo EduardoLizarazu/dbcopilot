@@ -12,6 +12,7 @@ import { IReadDbConnectionWithSplitterAndSchemaQueryStep } from "@/core/applicat
 import { IGenTableColumnsStep } from "@/core/application/steps/genTepology/gen-table-columns.step";
 import { ISearchSimilarQuestionOnKnowledgeBaseStep } from "@/core/application/steps/knowledgeBased/search-similar-question-on-knowledge-base.step";
 import { IReadNlqQaByIdStep } from "@/core/application/steps/nlq-qa/read-nlq-qa-by-id.step";
+import { IReadNlqQaByQuestionQueryHashStep } from "../../steps/nlq-qa/read-nlq-qa-by-question-query-hash.step";
 
 /**
  * Use case interface for curating positive feedback in NLQ QA:
@@ -44,6 +45,8 @@ export class CreateNlqQaGoodDuplicateFlow
   constructor(
     private readonly logger: ILogger,
     private readonly readNlqQaByIdStep: IReadNlqQaByIdStep,
+    private readonly readNlqQaByQuestionAndQueryHashStep: IReadNlqQaByQuestionQueryHashStep,
+    private readonly readNlqQaByQuestionQueryHashStep: IReadNlqQaByQuestionQueryHashStep,
     private readonly readDbConnWithSplitterStep: IReadDbConnectionWithSplitterAndSchemaQueryStep,
     private readonly hashQuestionAndQueryHelp: ISimpleHashQuestionAndQueryHelp,
     private readonly hashQueryHelp: ISimpleHashQueryHelp,
@@ -105,16 +108,18 @@ export class CreateNlqQaGoodDuplicateFlow
       });
 
       //   2.1 Generate hash for question and query.
-      const currentHash = await this.hashQuestionAndQueryHelp.help({
-        question: nlqQa.question,
-        query: nlqQa.query,
-      });
+      const currentQuestionQueryHash = await this.hashQuestionAndQueryHelp.help(
+        {
+          question: nlqQa.question,
+          query: nlqQa.query,
+        }
+      );
 
       // 2.2 Generate hash for the query alone.
-      const currentQueryHash = await this.hashQueryHelp.help({
+      const queryHash = await this.hashQueryHelp.help({
         query: nlqQa.query,
       });
-      const queryHash = currentQueryHash.queryHash;
+      const currentQueryHash = queryHash.queryHash;
 
       // 3. With the nlqQa retrieve the connectionDb used with the namespace of knowledge source.
       const dbConn = await this.readDbConnWithSplitterStep.run({
@@ -129,6 +134,24 @@ export class CreateNlqQaGoodDuplicateFlow
         return {
           success: false,
           message: "Splitter name does not exist.",
+          data: null,
+        };
+      }
+
+      const existingNlqQaByQuestionQueryHash =
+        await this.readNlqQaByQuestionAndQueryHashStep.run(
+          currentQuestionQueryHash
+        );
+      const existingNlqQaByQueryHash =
+        await this.readNlqQaByQuestionQueryHashStep.run(currentQueryHash);
+
+      if (existingNlqQaByQuestionQueryHash) {
+        this.logger.info(
+          "[ICreateNlqQaGoodDuplicateFlow] Existing NLQ QA found with the same question and query hash. Discarding new query."
+        );
+        return {
+          success: true,
+          message: "Duplicate NLQ QA found. Discarding new query.",
           data: null,
         };
       }
@@ -155,11 +178,6 @@ export class CreateNlqQaGoodDuplicateFlow
         topKnowledgeSource.queryHash = topKwSourceQueryHash.queryHash;
       }
 
-      // 4.1 If hash of question+query matches existing, discard new query.
-      if (currentHash === topKnowledgeSource.questionQueryHash) {
-        decision = EnumCurateDecision.DISCARD_NEW;
-      }
-
       // 4.2 If score is above threshold (<0.90), then save it as new relevant query.
       if (topKnowledgeSource.score < 0.9)
         decision = EnumCurateDecision.ADD_AS_NEW;
@@ -168,7 +186,7 @@ export class CreateNlqQaGoodDuplicateFlow
       // 4.4 If they are identical, discard the new query.
       if (
         topKnowledgeSource.score > 0.95 &&
-        topKnowledgeSource?.queryHash === currentQueryHash.queryHash
+        topKnowledgeSource?.queryHash === currentQueryHash
       )
         decision = EnumCurateDecision.DISCARD_NEW;
 
