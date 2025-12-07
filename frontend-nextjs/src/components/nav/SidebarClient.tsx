@@ -129,13 +129,13 @@ export default function SidebarClient({
     <>
       {/* Mobile header with burger */}
       <Box className="md:hidden sticky top-0 z-50">
-        <Box className="flex items-center justify-between px-3 py-2 bg-white/70 backdrop-blur border-b">
+        <Box className="flex items-center justify-between px-3 py-2 bg-white/70 backdrop-blur ">
           <IconButton onClick={() => setOpen(true)} aria-label="Open menu">
             <MenuIcon />
           </IconButton>
-          <Typography variant="subtitle1" fontWeight={700}>
+          {/* <Typography variant="subtitle1" fontWeight={700}>
             HABLAGUAI
-          </Typography>
+          </Typography> */}
           <Box width={40} />
         </Box>
       </Box>
