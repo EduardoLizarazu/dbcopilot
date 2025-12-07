@@ -55,7 +55,7 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
   ): Promise<TResponseDto<TNlqQaGoodOutRequestDto>> {
     try {
       this.logger.info(
-        `[UpdateNlqQaGoodUseCase] Updating NLQ QA Good with ID: ${id}`,
+        `[UpdateNlqQaGoodFlow] Updating NLQ QA Good with ID: ${id}`,
         data
       );
 
@@ -88,7 +88,7 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
           splitterName: dbConn.vbd_splitter.name,
         });
         this.logger.info(
-          `[UpdateNlqQaGoodUseCase] Removed NLQ QA Good with ID: ${id} from knowledge base as isOnKnowledgeSource is false`
+          `[UpdateNlqQaGoodFlow] Removed NLQ QA Good with ID: ${id} from knowledge base as isOnKnowledgeSource is false`
         );
       } else if (validInputData.isOnKnowledgeSource === true) {
         // 3.b. If true, delete existing and add updated to knowledge base
@@ -97,7 +97,7 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
           splitterName: dbConn.vbd_splitter.name,
         });
         this.logger.info(
-          `[UpdateNlqQaGoodUseCase] Deleted existing NLQ QA Good with ID: ${id} from knowledge base before re-adding`
+          `[UpdateNlqQaGoodFlow] Deleted existing NLQ QA Good with ID: ${id} from knowledge base before re-adding`
         );
         await this.addToKnowledgeBaseStep.run({
           id: validInputData.id,
@@ -108,7 +108,7 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
           namespace: dbConn.vbd_splitter.name,
         });
         this.logger.info(
-          `[UpdateNlqQaGoodUseCase] Added updated NLQ QA Good with ID: ${id} to knowledge base`
+          `[UpdateNlqQaGoodFlow] Added updated NLQ QA Good with ID: ${id} to knowledge base`
         );
       }
 
@@ -119,7 +119,7 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
       ) {
         await this.deleteNlqQaGoodStep.run(id);
         this.logger.info(
-          `[UpdateNlqQaGoodUseCase] Deleted NLQ QA Good with ID: ${id} as executionStatus is TO_DELETE`
+          `[UpdateNlqQaGoodFlow] Deleted NLQ QA Good with ID: ${id} as executionStatus is TO_DELETE`
         );
         return {
           success: true,
@@ -143,7 +143,7 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
         updatedBy: validInputData.actorId,
       });
       this.logger.info(
-        `[UpdateNlqQaGoodUseCase] Updated NLQ QA Good with ID: ${id}`,
+        `[UpdateNlqQaGoodFlow] Updated NLQ QA Good with ID: ${id}`,
         updatedEntry
       );
 
@@ -162,7 +162,7 @@ export class UpdateNlqQaGoodFlow implements IUpdateNlqQaGoodFlow {
           : JSON.stringify(error);
 
       this.logger.error(
-        `[UpdateNlqQaGoodUseCase] Failed to update NLQ QA Good with ID: ${id}:`,
+        `[UpdateNlqQaGoodFlow] Failed to update NLQ QA Good with ID: ${id}:`,
         errorMessage
       );
 
