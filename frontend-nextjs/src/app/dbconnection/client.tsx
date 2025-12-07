@@ -153,18 +153,15 @@ export default function DbConnectionClient({
               InputLabelProps={{ shrink: true }}
             />
           </Box>
-          <Box className="flex items-center gap-2 mb-3" sx={{ width: "100%" }}>
-            <Box
-              className="flex items-center gap-2 mb-3"
-              sx={{ width: "100%" }}
-            >
+          <Box className="flex items-center gap-2 mb-3">
+            <Box className="flex items-center gap-2" sx={{ width: "100%" }}>
               <SearchIcon fontSize="small" />
               <TextField
                 label="Filter by name or description"
                 size="small"
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
-                sx={{ width: "100%" }}
+                fullWidth
               />
             </Box>
           </Box>
