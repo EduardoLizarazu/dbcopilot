@@ -180,8 +180,18 @@ export default function RolesPage() {
                   return (
                     <TableRow key={r.id} hover>
                       <TableCell>{r.name}</TableCell>
-                      <TableCell>{r.description || "—"}</TableCell>
-                      <TableCell align="right">
+                      <TableCell sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 300 }}>
+                        <Tooltip title={r.description || ""}>
+                          <span>
+                            {r.description
+                              ? r.description.length > 50
+                                ? `${r.description.slice(0, 50)}...`
+                                : r.description
+                              : "—"}
+                          </span>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                         <Tooltip title="Edit">
                           <IconButton
                             component={Link}
