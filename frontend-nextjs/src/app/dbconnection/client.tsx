@@ -27,7 +27,6 @@ import AddIcon from "@mui/icons-material/Add";
 
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
-import { useFeedbackContext } from "@/contexts/feedback.context";
 import { DeleteDbConnectionAction } from "@/_actions/dbconnection/delete.action";
 import React from "react";
 
@@ -40,16 +39,25 @@ export default function DbConnectionClient({
     initialData || []
   );
   const [loading, setLoading] = useState(false);
+  const [createBtnLoading, setCreateBtnLoading] = useState(false);
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
+  const [updateBusy, setUpdateBusy] = React.useState<Set<string>>(new Set());
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [nameFilter, setNameFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const { setFeedback } = useFeedbackContext();
 
   const markDeleting = (id: string, on: boolean) => {
     setDeleteBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
+
+  const markUpdating = (id: string, on: boolean) => {
+    setUpdateBusy((prev) => {
       const s = new Set(prev);
       on ? s.add(id) : s.delete(id);
       return s;
@@ -111,6 +119,7 @@ export default function DbConnectionClient({
       setSuccess(null);
       setError(null);
       setDeleteBusy(new Set());
+      setUpdateBusy(new Set());
       await refresh();
     }, 2000);
   };
@@ -125,8 +134,10 @@ export default function DbConnectionClient({
           component={Link}
           href="/dbconnection/create"
           variant="contained"
-          sx={{ textTransform: "none" }}
           startIcon={<AddIcon />}
+          disabled={createBtnLoading}
+          loading={createBtnLoading}
+          onClick={() => setCreateBtnLoading(true)}
         >
           CREATE
         </Button>
@@ -213,6 +224,7 @@ export default function DbConnectionClient({
                 ) : (
                   filteredRows.map((row) => {
                     const isDeleting = deleteBusy.has(row.id);
+                    const isUpdating = updateBusy.has(row.id);
                     return (
                       <TableRow key={row.id} hover>
                         <TableCell sx={{ whiteSpace: "nowrap" }}>
@@ -275,6 +287,9 @@ export default function DbConnectionClient({
                                 href={`/dbconnection/${row.id}`}
                                 aria-label="Edit DB Connection"
                                 size="small"
+                                disabled={isDeleting || isUpdating}
+                                loading={isUpdating}
+                                onClick={() => markUpdating(row.id, true)}
                               >
                                 <EditIcon fontSize="small" />
                               </IconButton>
@@ -292,6 +307,7 @@ export default function DbConnectionClient({
                                     onDelete(row.id);
                                   }
                                 }}
+                                disabled={isUpdating || isDeleting}
                                 loading={isDeleting}
                               >
                                 <DeleteIcon fontSize="small" />

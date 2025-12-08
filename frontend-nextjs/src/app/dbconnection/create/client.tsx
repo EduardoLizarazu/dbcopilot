@@ -44,6 +44,7 @@ export default function DbConnectionClient({
     initial ? initial.id_vbd_splitter || "" : ""
   );
   const [loading, setLoading] = React.useState(false);
+  const [cancelBtnLoading, setCancelBtnLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [isUpdate, setIsUpdate] = React.useState(!!initial);
@@ -73,34 +74,36 @@ export default function DbConnectionClient({
     setSchemaLoading(true);
     setSchemaSuccess(false);
 
-    const res = await ExtractSchemaAction({
-      type: ["mysql", "postgres", "mssql", "oracle"].includes(
-        dbConn?.type as string
-      )
-        ? (dbConn?.type as "mysql" | "postgres" | "mssql" | "oracle")
-        : "mysql",
-      host: dbConn?.host.trim() || "",
-      port: dbConn?.port || 0,
-      database: dbConn?.database.trim() || "",
-      username: dbConn?.username.trim() || "",
-      password: dbConn?.password.trim() || "",
-      sid: dbConn?.sid || null,
-      schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
-    });
+    try {
+      const res = await ExtractSchemaAction({
+        type: ["mysql", "postgres", "mssql", "oracle"].includes(
+          dbConn?.type as string
+        )
+          ? (dbConn?.type as "mysql" | "postgres" | "mssql" | "oracle")
+          : "mysql",
+        host: dbConn?.host.trim() || "",
+        port: dbConn?.port || 0,
+        database: dbConn?.database.trim() || "",
+        username: dbConn?.username.trim() || "",
+        password: dbConn?.password.trim() || "",
+        sid: dbConn?.sid || null,
+        schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
+      });
 
-    if (res.ok && res.data) {
-      setRows(res.data || null);
-      console.log("DB Connection run:", res);
-      setSchemaSuccess(true);
-      setSuccess("Schema extracted successfully.");
+      if (res.ok && res.data) {
+        setRows(res.data || null);
+        console.log("DB Connection run:", res);
+        setSchemaSuccess(true);
+        setSuccess("Schema extracted successfully.");
+      }
+
+      if (!res.ok) {
+        setError(res.message || "Failed to extract schema.");
+        setSchemaSuccess(false);
+      }
+    } finally {
+      setSchemaLoading(false);
     }
-
-    if (!res.ok) {
-      setError(res.message || "Failed to extract schema.");
-      setSchemaSuccess(false);
-    }
-
-    setSchemaLoading(false);
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -120,28 +123,31 @@ export default function DbConnectionClient({
     setError(null);
     setSuccess(null);
     setLoading(true);
-    const res = await CreateDbConnectionAction({
-      name: dbConn?.name || "",
-      description: dbConn?.description || "",
-      type: dbConn?.type || "mysql",
-      host: dbConn?.host || "",
-      port: dbConn?.port || 0,
-      database: dbConn?.database || "",
-      username: dbConn?.username || "",
-      password: dbConn?.password || "",
-      sid: dbConn?.sid || "",
-      schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
-      id_vbd_splitter: vbdSplitterId,
-    });
-    console.log("DB Connection created:", res);
+    try {
+      const res = await CreateDbConnectionAction({
+        name: dbConn?.name || "",
+        description: dbConn?.description || "",
+        type: dbConn?.type || "mysql",
+        host: dbConn?.host || "",
+        port: dbConn?.port || 0,
+        database: dbConn?.database || "",
+        username: dbConn?.username || "",
+        password: dbConn?.password || "",
+        sid: dbConn?.sid || "",
+        schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
+        id_vbd_splitter: vbdSplitterId,
+      });
+      console.log("DB Connection created:", res);
 
-    if (res.ok) {
-      setSuccess(res.message || "DB Connection created successfully.");
-      setTimeout(() => router.replace("/dbconnection"), 800);
-    }
+      if (res.ok) {
+        setSuccess(res.message || "DB Connection created successfully.");
+        setTimeout(() => router.replace("/dbconnection"), 800);
+      }
 
-    if (!res.ok) {
-      setError(res.message || "Failed to create DB Connection.");
+      if (!res.ok) {
+        setError(res.message || "Failed to create DB Connection.");
+      }
+    } finally {
     }
 
     setLoading(false);
@@ -152,33 +158,35 @@ export default function DbConnectionClient({
     setError(null);
     setSuccess(null);
     setLoading(true);
-    const res = await UpdateDbConnectionAction(initial!.id, {
-      id: initial!.id,
-      name: dbConn?.name.toLowerCase().trim() || "",
-      description:
-        dbConn?.description.toLowerCase().trimStart().trimEnd() || "",
-      type: dbConn?.type || "mysql",
-      host: dbConn?.host.trim() || "",
-      port: dbConn?.port || 0,
-      database: dbConn?.database.trim() || "",
-      username: dbConn?.username.trim() || "",
-      password: dbConn?.password.trim() || "",
-      sid: dbConn?.sid.trim() || "",
-      schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
-      id_vbd_splitter: vbdSplitterId,
-    });
-    console.log("DB Connection updated:", res);
+    try {
+      const res = await UpdateDbConnectionAction(initial!.id, {
+        id: initial!.id,
+        name: dbConn?.name.toLowerCase().trim() || "",
+        description:
+          dbConn?.description.toLowerCase().trimStart().trimEnd() || "",
+        type: dbConn?.type || "mysql",
+        host: dbConn?.host.trim() || "",
+        port: dbConn?.port || 0,
+        database: dbConn?.database.trim() || "",
+        username: dbConn?.username.trim() || "",
+        password: dbConn?.password.trim() || "",
+        sid: dbConn?.sid.trim() || "",
+        schema_query: dbConn?.schema_query.trimStart().trimEnd() || "",
+        id_vbd_splitter: vbdSplitterId,
+      });
+      console.log("DB Connection updated:", res);
 
-    if (res.ok) {
-      setSuccess("DB Connection updated successfully. Redirecting to list…");
-      setTimeout(() => router.replace("/dbconnection"), 800);
+      if (res.ok) {
+        setSuccess("DB Connection updated successfully. Redirecting to list…");
+        setTimeout(() => router.replace("/dbconnection"), 800);
+      }
+
+      if (!res.ok) {
+        setError(res.message || "Failed to update DB Connection.");
+      }
+    } finally {
+      setLoading(false);
     }
-
-    if (!res.ok) {
-      setError(res.message || "Failed to update DB Connection.");
-    }
-
-    setLoading(false);
   };
 
   return (
@@ -352,30 +360,28 @@ export default function DbConnectionClient({
                 variant="outlined"
                 onClick={onRun}
                 disabled={schemaLoading || !dbConn?.schema_query}
+                loading={schemaLoading}
               >
-                {schemaLoading ? <CircularProgress size={18} /> : "Run"}
+                Run
               </Button>
 
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading || !schemaSuccess}
+                disabled={loading || !schemaSuccess || cancelBtnLoading}
+                loading={loading}
                 sx={{ textTransform: "none" }}
               >
-                {loading ? (
-                  <CircularProgress size={22} />
-                ) : isUpdate ? (
-                  "Update"
-                ) : (
-                  "Create"
-                )}
+                {isUpdate ? "Update" : "Create"}
               </Button>
 
               <Button
                 component={Link}
                 href="/dbconnection"
                 variant="outlined"
-                disabled={loading}
+                disabled={loading || cancelBtnLoading}
+                loading={cancelBtnLoading}
+                onClick={() => setCancelBtnLoading(true)}
                 sx={{ textTransform: "none" }}
               >
                 Cancel
@@ -383,7 +389,7 @@ export default function DbConnectionClient({
             </Box>
           </Box>
         </form>
-        {loading ? (
+        {schemaLoading ? (
           <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
             <CircularProgress />
           </Box>
