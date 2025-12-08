@@ -46,10 +46,21 @@ export default async function RootLayout({
                 container
                 sx={{ display: "flex", justifyContent: "center" }}
               >
-                <Grid2 size={2}>
+                <Grid2
+                  size={{
+                    md: 2,
+                    xs: 2,
+                    sm: 0,
+                    lg: 2,
+                    xl: 2,
+                  }}
+                >
                   <Sidebar />
                 </Grid2>
-                <Grid2 size={8} sx={{ marginTop: 6 }}>
+                <Grid2
+                  size={8}
+                  sx={{ marginTop: 6, xs: 8, sm: 8, md: 8, lg: 8, xl: 8 }}
+                >
                   {children}
                 </Grid2>
               </Grid2>
