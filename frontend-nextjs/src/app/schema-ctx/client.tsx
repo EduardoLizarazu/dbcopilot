@@ -203,15 +203,15 @@ export function SchemaCtxClient({
               </TableHead>
               <TableBody>
                 {filtered.map((ctx) => {
-                  const isDeleting = deleteBusy.has(ctx.id);
-                  const isUpdating = updateBusy.has(ctx.id);
-                  const desc = (ctx.description || "") as string;
+                  const isDeleting = deleteBusy.has(ctx?.id);
+                  const isUpdating = updateBusy.has(ctx?.id);
+                  const desc = (ctx?.description || "") as string;
                   const shortDesc =
                     desc.length > 40 ? `${desc.slice(0, 40)}...` : desc;
-                  const connCount = (ctx.dbConnectionIds || []).length;
+                  const connCount = (ctx?.dbConnectionIds || []).length;
                   return (
-                    <TableRow key={ctx.id} hover>
-                      <TableCell>{ctx.name}</TableCell>
+                    <TableRow key={ctx?.id} hover>
+                      <TableCell>{ctx?.name}</TableCell>
                       <TableCell>
                         <Tooltip title={desc}>
                           <span>{shortDesc}</span>
@@ -222,19 +222,19 @@ export function SchemaCtxClient({
                         <Tooltip title="Edit">
                           <IconButton
                             component={Link}
-                            href={`/schema-ctx/${ctx.id}`}
+                            href={`/schema-ctx/${ctx?.id}`}
                             aria-label="Edit schema context"
                             size="small"
                             disabled={isDeleting || isUpdating}
                             loading={isUpdating}
-                            onClick={() => markUpdating(ctx.id, true)}
+                            onClick={() => markUpdating(ctx?.id, true)}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Remove">
                           <IconButton
-                            onClick={() => onDelete(ctx.id)}
+                            onClick={() => onDelete(ctx?.id)}
                             aria-label="Remove schema context"
                             size="small"
                             disabled={isDeleting || isUpdating}
