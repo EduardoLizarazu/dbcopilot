@@ -100,22 +100,20 @@ export default function UserEditClient({
               fullWidth
             />
 
-            <Box className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <TextField
-                label="Name"
-                value={name}
-                required
-                onChange={(e) => setName(e.target.value)}
-                fullWidth
-              />
-              <TextField
-                label="Lastname"
-                value={lastname}
-                required
-                onChange={(e) => setLastname(e.target.value)}
-                fullWidth
-              />
-            </Box>
+            <TextField
+              label="Name"
+              value={name}
+              required
+              onChange={(e) => setName(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Lastname"
+              value={lastname}
+              required
+              onChange={(e) => setLastname(e.target.value)}
+              fullWidth
+            />
 
             {/* ✅ Optional Password field */}
             <TextField
