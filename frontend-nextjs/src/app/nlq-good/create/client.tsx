@@ -90,6 +90,7 @@ export default function NlqClient({
   const [rows, setRows] = React.useState<any[] | null>(null);
 
   const [saving, setSaving] = React.useState(false);
+  const [cancelBtnLoading, setCancelBtnLoading] = React.useState(false);
   const disabledRun = !nlq?.question.trim() || !nlq?.query.trim();
   const disabledSave = !ranOk || saving;
 
@@ -264,18 +265,27 @@ export default function NlqClient({
             <Button
               variant="outlined"
               onClick={onRun}
-              disabled={disabledRun || running}
+              disabled={disabledRun || running || saving}
+              loading={running}
             >
-              {running ? <CircularProgress size={18} /> : "Run SQL"}
+              Run SQL
             </Button>
             <Button
               variant="contained"
               onClick={onSubmit}
-              disabled={disabledSave}
+              disabled={disabledSave || saving || running}
+              loading={saving}
             >
-              {saving ? <CircularProgress size={18} /> : "Save"}
+              Save
             </Button>
-            <Button onClick={onCancel}>Cancel</Button>
+            <Button
+              onClick={onCancel}
+              loading={cancelBtnLoading}
+              disabled={cancelBtnLoading || saving || running}
+              onClickCapture={() => setCancelBtnLoading(true)}
+            >
+              Cancel
+            </Button>
           </Stack>
 
           {error && <Alert severity="error">{error}</Alert>}
