@@ -37,6 +37,8 @@ export function SchemaCtxClient({
   const [loading, setLoading] = React.useState<boolean>(!initialRows);
   const [q, setQ] = React.useState("");
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
+  const [updateBusy, setUpdateBusy] = React.useState<Set<string>>(new Set());
+  const [createBtnBusy, setCreateBtnBusy] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
 
@@ -48,8 +50,17 @@ export function SchemaCtxClient({
     });
   };
 
+  const markUpdating = (id: string, on: boolean) => {
+    setUpdateBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
+
   const refresh = async () => {
     setLoading(true);
+    setSuccess(null);
     setError(null);
     try {
       const res = await ReadAllSchemaCtxAction();
@@ -92,6 +103,7 @@ export function SchemaCtxClient({
     if (!yes) return;
     setError(null);
     setSuccess(null);
+    markUpdating(id, false);
     markDeleting(id, true);
     try {
       const res = await DeleteSchemaCtxByIdAction(id);
@@ -105,10 +117,6 @@ export function SchemaCtxClient({
       setError(err?.message || "Failed to delete schema context");
     } finally {
       markDeleting(id, false);
-      setTimeout(() => {
-        setError(null);
-        setSuccess(null);
-      }, 2500);
     }
   };
 
@@ -123,6 +131,9 @@ export function SchemaCtxClient({
           href="/schema-ctx/create"
           variant="contained"
           startIcon={<AddIcon />}
+          disabled={createBtnBusy}
+          loading={createBtnBusy}
+          onClick={() => setCreateBtnBusy(true)}
         >
           Create
         </Button>
@@ -140,8 +151,16 @@ export function SchemaCtxClient({
           />
         </Box>
 
-        {error && <Alert severity="error">{error}</Alert>}
-        {success && <Alert severity="success">{success}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {success}
+          </Alert>
+        )}
 
         {loading && (
           <Box className="flex items-center justify-center py-12">
@@ -164,7 +183,7 @@ export function SchemaCtxClient({
               startIcon={<AddIcon />}
               sx={{ mt: 2, textTransform: "none" }}
             >
-              Create Schema Context
+              Create
             </Button>
           </Box>
         )}
@@ -185,14 +204,19 @@ export function SchemaCtxClient({
               <TableBody>
                 {filtered.map((ctx) => {
                   const isDeleting = deleteBusy.has(ctx.id);
+                  const isUpdating = updateBusy.has(ctx.id);
                   const desc = (ctx.description || "") as string;
                   const shortDesc =
-                    desc.length > 10 ? `${desc.slice(0, 10)}...` : desc;
+                    desc.length > 40 ? `${desc.slice(0, 40)}...` : desc;
                   const connCount = (ctx.dbConnectionIds || []).length;
                   return (
                     <TableRow key={ctx.id} hover>
                       <TableCell>{ctx.name}</TableCell>
-                      <TableCell>{shortDesc || "—"}</TableCell>
+                      <TableCell>
+                        <Tooltip title={desc}>
+                          <span>{shortDesc}</span>
+                        </Tooltip>
+                      </TableCell>
                       <TableCell>{connCount}</TableCell>
                       <TableCell align="right">
                         <Tooltip title="Edit">
@@ -201,6 +225,9 @@ export function SchemaCtxClient({
                             href={`/schema-ctx/${ctx.id}`}
                             aria-label="Edit schema context"
                             size="small"
+                            disabled={isDeleting || isUpdating}
+                            loading={isUpdating}
+                            onClick={() => markUpdating(ctx.id, true)}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
@@ -210,7 +237,8 @@ export function SchemaCtxClient({
                             onClick={() => onDelete(ctx.id)}
                             aria-label="Remove schema context"
                             size="small"
-                            disabled={isDeleting}
+                            disabled={isDeleting || isUpdating}
+                            loading={isDeleting}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
