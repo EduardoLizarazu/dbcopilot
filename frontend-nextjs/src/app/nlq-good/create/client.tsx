@@ -17,6 +17,7 @@ import {
   Select,
   MenuItem,
   Switch,
+  Link,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { ChatResultTable } from "@/components/chat/result/chatResultTable";
@@ -265,7 +266,7 @@ export default function NlqClient({
             <Button
               variant="outlined"
               onClick={onRun}
-              disabled={disabledRun || running || saving}
+              disabled={disabledRun || running || saving || cancelBtnLoading}
               loading={running}
             >
               Run SQL
@@ -273,12 +274,14 @@ export default function NlqClient({
             <Button
               variant="contained"
               onClick={onSubmit}
-              disabled={disabledSave || saving || running}
+              disabled={disabledSave || saving || running || cancelBtnLoading}
               loading={saving}
             >
               Save
             </Button>
             <Button
+              href={`/nlq-good/`}
+              component={Link}
               onClick={onCancel}
               loading={cancelBtnLoading}
               disabled={cancelBtnLoading || saving || running}
