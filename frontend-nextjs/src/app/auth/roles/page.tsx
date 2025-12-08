@@ -108,7 +108,6 @@ export default function RolesPage() {
         setError(res.message || "Failed to remove role.");
       }
     } finally {
-      setError(null);
       setSuccess(null);
       setLoading(false);
       markDeleting(id, false);
