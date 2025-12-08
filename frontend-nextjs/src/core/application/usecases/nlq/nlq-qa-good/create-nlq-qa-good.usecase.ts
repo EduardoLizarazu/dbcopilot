@@ -53,9 +53,9 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
       const validData = await this.validateInputDataStep.run(data);
 
       // Generate tablesColumns if not provided
-      // const schemaRepresentation = await this.genTableColumnsStep.run({
-      //   query: validData.query,
-      // });
+      const schemaRepresentation = await this.genTableColumnsStep.run({
+        query: validData.query,
+      });
 
       // Step 2: Ensure dbConnection exists with splitter
       const dbConn = await this.ensureDbConnWithSplitterExistsStep.run({
@@ -74,8 +74,8 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         createdBy: validData.actorId,
         detailQuestion: validData.detailQuestion,
         think: validData.think,
-        tablesColumns: validData.tablesColumns,
-        // tablesColumns: schemaRepresentation?.tablesColumns,
+        // tablesColumns: validData.tablesColumns,
+        tablesColumns: schemaRepresentation?.tablesColumns,
         semanticFields: validData.semanticFields,
         semanticTables: validData.semanticTables,
         flags: validData.flags,
@@ -126,8 +126,8 @@ export class CreateNlqQaGoodUseCase implements ICreateNlqQaGoodUseCase {
         error instanceof Error
           ? error.message
           : typeof error === "string"
-            ? error
-            : JSON.stringify(error);
+          ? error
+          : JSON.stringify(error);
 
       this.logger.error(
         "[CreateNlqQaGoodUseCase] Error creating NLQ QA Good:",
