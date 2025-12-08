@@ -129,9 +129,7 @@ export class UpdateVbdSplitterController implements IController {
             ...useCase,
           }
         );
-        const error = this.httpErrors.error_400(
-          "Error retrieving VBD Splitter: " + useCase.message
-        );
+        const error = this.httpErrors.error_400(useCase.message);
         return new HttpResponse(error.statusCode, error.body);
       }
 
@@ -143,7 +141,9 @@ export class UpdateVbdSplitterController implements IController {
       return new HttpResponse(success.statusCode, success.body);
     } catch (error) {
       this.logger.error("[ReadVbdSplitterByIdController] Error:", error);
-      const httpError = this.httpErrors.error_500("Internal server error");
+      const httpError = this.httpErrors.error_500(
+        error.message || "Internal server error"
+      );
       return new HttpResponse(httpError.statusCode, httpError.body);
     }
   }
