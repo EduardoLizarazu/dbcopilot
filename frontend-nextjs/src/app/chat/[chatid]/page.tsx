@@ -5,8 +5,9 @@ import { NotFound } from "@/components/shared/notFound";
 type Params = { chatid: string };
 
 export default async function ChatIdPage({ params }: { params: Params }) {
-  console.log("Chat id: ", await params);
-  const chatId = await params.chatid;
+  // console.log("Chat id: ", await params);
+  const { chatid } = await params;
+  const chatId = await chatid;
 
   const initial = await ReadNlqQaHistoryById({ nlqId: chatId });
 
