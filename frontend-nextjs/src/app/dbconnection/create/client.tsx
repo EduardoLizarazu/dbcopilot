@@ -9,7 +9,6 @@ import {
   TextField,
   Button,
   Alert,
-  CircularProgress,
   MenuItem,
   Select,
   FormControl,
@@ -120,9 +119,6 @@ export default function DbConnectionClient({
 
   const onCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
     try {
       const res = await CreateDbConnectionAction({
         name: dbConn?.name || "",
@@ -148,16 +144,12 @@ export default function DbConnectionClient({
         setError(res.message || "Failed to create DB Connection.");
       }
     } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const onUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
     try {
       const res = await UpdateDbConnectionAction(initial!.id, {
         id: initial!.id,
@@ -359,7 +351,12 @@ export default function DbConnectionClient({
               <Button
                 variant="outlined"
                 onClick={onRun}
-                disabled={schemaLoading || !dbConn?.schema_query}
+                disabled={
+                  schemaLoading ||
+                  !dbConn?.schema_query ||
+                  cancelBtnLoading ||
+                  loading
+                }
                 loading={schemaLoading}
               >
                 Run
@@ -368,7 +365,9 @@ export default function DbConnectionClient({
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading || !schemaSuccess || cancelBtnLoading}
+                disabled={
+                  loading || !schemaSuccess || cancelBtnLoading || schemaLoading
+                }
                 loading={loading}
                 sx={{ textTransform: "none" }}
               >
@@ -389,11 +388,7 @@ export default function DbConnectionClient({
             </Box>
           </Box>
         </form>
-        {schemaLoading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-            <CircularProgress />
-          </Box>
-        ) : rows?.data ? (
+        {rows?.data ? (
           <Box sx={{ mt: 2 }}>
             <ChatResultTable data={rows.data} />
           </Box>
