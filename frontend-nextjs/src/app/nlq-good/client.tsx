@@ -147,8 +147,8 @@ export default function NlqGoodClient({
   const onRemove = async (data: TOnKnowledgeSource) => {
     setSuccess(null);
     setError(null);
-    markDeleting(data.nlqId, true);
-    markUpdating(data.nlqId, false);
+    markDeleting(data.nlqId, false);
+    markUpdating(data.nlqId, true);
     try {
       const res = await UpdateNlqQaGoodAction({
         id: data.nlqId,
@@ -168,6 +168,7 @@ export default function NlqGoodClient({
       }
     } finally {
       markDeleting(data.nlqId, false);
+      markUpdating(data.nlqId, false);
     }
   };
 
