@@ -15,7 +15,6 @@ import {
   Tooltip,
   CircularProgress,
   Button,
-  Stack,
   TextField,
   FormControl,
   InputLabel,
@@ -25,7 +24,6 @@ import {
   TableContainer,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "next/link";
@@ -39,7 +37,6 @@ import { ReadAllNlqQaGoodAction } from "@/_actions/nlq-qa-good/read-all.action";
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
 import { DeleteNqlQaGoodByIdAction } from "@/_actions/nlq-qa-good/delete.action";
-import { set } from "zod";
 
 type TOnKnowledgeSource = {
   nlqId: string;
@@ -53,10 +50,10 @@ export default function NlqGoodClient({
 }: {
   initialRows: TNlqQaGoodOutWithUserAndConnRequestDto[];
 }) {
-  const { setFeedback } = useFeedbackContext();
   const [rows, setRows] =
     React.useState<TNlqQaGoodOutWithUserAndConnRequestDto[]>(initialRows);
   const [loading, setLoading] = React.useState(false);
+  const [createBtnLoading, setCreateBtnLoading] = React.useState(false);
 
   // Filters & ordering for VBD createdAt
   const [vbdFrom, setVbdFrom] = React.useState("");
@@ -72,6 +69,7 @@ export default function NlqGoodClient({
   // Per-row busy states (no dialogs)
   const [uploadBusy, setUploadBusy] = React.useState<Set<string>>(new Set());
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
+  const [updateBusy, setUpdateBusy] = React.useState<Set<string>>(new Set());
 
   const refresh = async () => {
     setLoading(true);
@@ -99,6 +97,14 @@ export default function NlqGoodClient({
     });
   };
 
+  const markUpdating = (id: string, on: boolean) => {
+    setUpdateBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
+
   const markDeleting = (id: string, on: boolean) => {
     setDeleteBusy((prev) => {
       const s = new Set(prev);
@@ -111,25 +117,30 @@ export default function NlqGoodClient({
 
   const onUpload = async (data: TOnKnowledgeSource) => {
     markUploading(data.nlqId, true);
+    markDeleting(data.nlqId, false);
+    markUpdating(data.nlqId, false);
     setSuccess(null);
     setError(null);
 
-    const res = await UpdateNlqQaGoodAction({
-      id: data.nlqId,
-      dbConnectionId: data.dbConnectionId,
-      isOnKnowledgeSource: true,
-      question: data.question,
-      query: data.query,
-    });
+    try {
+      const res = await UpdateNlqQaGoodAction({
+        id: data.nlqId,
+        dbConnectionId: data.dbConnectionId,
+        isOnKnowledgeSource: true,
+        question: data.question,
+        query: data.query,
+      });
 
-    if (res.ok) {
-      setSuccess(res.message || "Uploaded to successfully.");
-      await refresh();
+      if (res.ok) {
+        setSuccess(res.message || "Uploaded to successfully.");
+        await refresh();
+      }
+      if (!res.ok) {
+        setError(res?.message ?? "Upload failed");
+      }
+    } finally {
+      markUploading(data.nlqId, false);
     }
-    if (!res.ok) {
-      setError(res?.message ?? "Upload failed");
-    }
-    markUploading(data.nlqId, false);
   };
 
   // DELETE:from knowledge source
@@ -137,43 +148,50 @@ export default function NlqGoodClient({
     setSuccess(null);
     setError(null);
     markDeleting(data.nlqId, true);
-    const res = await UpdateNlqQaGoodAction({
-      id: data.nlqId,
-      isOnKnowledgeSource: false,
-      dbConnectionId: data.dbConnectionId,
-      question: data.question,
-      query: data.query,
-    });
+    markUpdating(data.nlqId, false);
+    try {
+      const res = await UpdateNlqQaGoodAction({
+        id: data.nlqId,
+        isOnKnowledgeSource: false,
+        dbConnectionId: data.dbConnectionId,
+        question: data.question,
+        query: data.query,
+      });
 
-    if (res.ok) {
-      setSuccess(res.message || "Deleted from Pinecone & VBD successfully.");
-      await refresh();
-    }
+      if (res.ok) {
+        setSuccess(res.message || "Deleted from Pinecone & VBD successfully.");
+        await refresh();
+      }
 
-    if (!res.ok) {
-      setError(res?.message ?? "Delete failed");
+      if (!res.ok) {
+        setError(res?.message ?? "Delete failed");
+      }
+    } finally {
+      markDeleting(data.nlqId, false);
     }
-    markDeleting(data.nlqId, false);
   };
 
   // REMOVE ITEM from everything
   const onDelete = async (id: string) => {
     markDeleting(id, true);
+    markUpdating(id, false);
     setSuccess(null);
     setError(null);
 
-    const res = await DeleteNqlQaGoodByIdAction(id);
+    try {
+      const res = await DeleteNqlQaGoodByIdAction(id);
 
-    if (res.ok) {
-      setSuccess(res.message || "Deleted successfully.");
-      await refresh();
+      if (res.ok) {
+        setSuccess(res.message || "Deleted successfully.");
+        await refresh();
+      }
+
+      if (!res.ok) {
+        setError(res?.message ?? "Delete failed");
+      }
+    } finally {
+      markDeleting(id, false);
     }
-
-    if (!res.ok) {
-      setError(res?.message ?? "Delete failed");
-    }
-
-    markDeleting(id, false);
   };
 
   // Apply VBD date filters + ordering on the client
@@ -250,6 +268,9 @@ export default function NlqGoodClient({
           href="/nlq-good/create"
           variant="contained"
           startIcon={<AddIcon />}
+          disabled={createBtnLoading}
+          loading={createBtnLoading}
+          onClick={() => setCreateBtnLoading(true)}
         >
           Create
         </Button>
@@ -283,15 +304,15 @@ export default function NlqGoodClient({
               InputLabelProps={{ shrink: true }}
             />
             <FormControl size="small" sx={{ minWidth: 200 }}>
-              <InputLabel id="order-label">Order by VBD createdAt</InputLabel>
+              <InputLabel id="order-label">Order by</InputLabel>
               <Select
                 labelId="order-label"
-                label="Order by VBD createdAt"
+                label="Order by"
                 value={sortDir}
                 onChange={(e) => setSortDir(e.target.value as any)}
               >
-                <MenuItem value="desc">Newest first</MenuItem>
-                <MenuItem value="asc">Oldest first</MenuItem>
+                <MenuItem value="desc">Newest</MenuItem>
+                <MenuItem value="asc">Oldest</MenuItem>
               </Select>
             </FormControl>
             <Button
@@ -357,6 +378,7 @@ export default function NlqGoodClient({
                   filteredSorted.map((r) => {
                     const isUploading = uploadBusy.has(r.id);
                     const isDeleting = deleteBusy.has(r.id);
+                    const isUpdating = updateBusy.has(r.id);
                     return (
                       <TableRow key={r.id} hover>
                         <TableCell>{r.user.email || "—"}</TableCell>
@@ -434,6 +456,9 @@ export default function NlqGoodClient({
                               size="small"
                               aria-label="edit"
                               sx={{ ml: 0.5 }}
+                              disabled={isUploading || isDeleting || isUpdating}
+                              loading={isUpdating}
+                              onClick={() => markUpdating(r.id, true)}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
@@ -454,6 +479,9 @@ export default function NlqGoodClient({
                                     size="small"
                                     aria-label="remove"
                                     loading={isUploading}
+                                    disabled={
+                                      isUploading || isDeleting || isUpdating
+                                    }
                                   >
                                     <CloudDoneIcon fontSize="small" />
                                   </IconButton>
@@ -475,6 +503,9 @@ export default function NlqGoodClient({
                                   size="small"
                                   aria-label="upload"
                                   loading={isUploading}
+                                  disabled={
+                                    isUploading || isDeleting || isUpdating
+                                  }
                                 >
                                   <CloudOffIcon fontSize="small" />
                                 </IconButton>
@@ -489,6 +520,9 @@ export default function NlqGoodClient({
                                 sx={{ ml: 0.5 }}
                                 onClick={() => onDelete(r.id)}
                                 loading={isDeleting}
+                                disabled={
+                                  isUploading || isDeleting || isUpdating
+                                }
                               >
                                 <DeleteIcon fontSize="small" />
                               </IconButton>
