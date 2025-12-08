@@ -66,8 +66,6 @@ export default function DbConnectionClient({
 
   const refresh = async () => {
     setLoading(true);
-    setError(null);
-    setSuccess(null);
 
     const res = await ReadAllDbConnectionAction();
 
@@ -105,23 +103,23 @@ export default function DbConnectionClient({
 
   const onDelete = async (id: string) => {
     markDeleting(id, true);
-    const res = await DeleteDbConnectionAction(id);
-    if (res.ok) {
-      setSuccess(res.message || "DB Connection deleted successfully.");
-    }
-    if (!res.ok) {
-      console.log("error", res);
-      setError(res.message || "Failed to delete DB Connection.");
-    }
-
-    setTimeout(async () => {
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await DeleteDbConnectionAction(id);
+      if (res.ok) {
+        setSuccess(res.message || "DB Connection deleted successfully.");
+      }
+      if (!res.ok) {
+        console.log("error", res);
+        setError(res.message || "Failed to delete DB Connection.");
+      }
+    } finally {
       markDeleting(id, false);
-      setSuccess(null);
-      setError(null);
       setDeleteBusy(new Set());
       setUpdateBusy(new Set());
       await refresh();
-    }, 2000);
+    }
   };
 
   return (
@@ -186,8 +184,16 @@ export default function DbConnectionClient({
         </Box>
       </Paper>
 
-      {error && <Alert severity="error">{error}</Alert>}
-      {success && <Alert severity="success">{success}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
 
       {/* Table */}
       <Paper elevation={1}>
