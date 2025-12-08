@@ -27,6 +27,7 @@ export default function EditRoleClient({
     initialRole.description ?? ""
   );
   const [loading, setLoading] = React.useState(false);
+  const [cancelBtnLoading, setCancelBtnLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
 
@@ -35,19 +36,22 @@ export default function EditRoleClient({
     setError(null);
     setSuccess(null);
     setLoading(true);
-    const res = await UpdateRoleAction({
-      id: initialRole.id,
-      name,
-      description,
-    });
-    if (res.ok) {
-      setSuccess(res.message || "Role updated successfully.");
-      setTimeout(() => router.replace("/auth/roles"), 800);
+    try {
+      const res = await UpdateRoleAction({
+        id: initialRole.id,
+        name,
+        description,
+      });
+      if (res.ok) {
+        setSuccess(res.message || "Role updated successfully.");
+        setTimeout(() => router.replace("/auth/roles"), 800);
+      }
+      if (!res.ok) {
+        setError(res.message || "Failed to update role.");
+      }
+    } finally {
+      setLoading(false);
     }
-    if (!res.ok) {
-      setError(res.message || "Failed to update role.");
-    }
-    setLoading(false);
   };
 
   return (
@@ -85,18 +89,21 @@ export default function EditRoleClient({
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading}
+                disabled={loading || cancelBtnLoading}
+                loading={loading}
                 sx={{ textTransform: "none" }}
               >
-                {loading ? <CircularProgress size={22} /> : "Update"}
+                Update
               </Button>
 
               <Button
                 component={Link}
                 href="/auth/roles"
                 variant="outlined"
-                disabled={loading}
                 sx={{ textTransform: "none" }}
+                disabled={loading || cancelBtnLoading}
+                loading={cancelBtnLoading}
+                onClick={() => setCancelBtnLoading(true)}
               >
                 Cancel
               </Button>

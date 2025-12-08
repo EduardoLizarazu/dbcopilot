@@ -20,6 +20,7 @@ export default function CreateRolePage() {
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [cancelBtnLoading, setCancelBtnLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
 
@@ -29,17 +30,20 @@ export default function CreateRolePage() {
     setSuccess(null);
     setLoading(true);
 
-    const res = await CreateRoleAction({ name, description });
-    console.log("Role created:", res);
-    if (res.ok) {
-      setSuccess(res.message || "Role created successfully.");
-      // short delay so user sees feedback, then go back to list
-      setTimeout(() => router.replace("/auth/roles"), 800);
+    try {
+      const res = await CreateRoleAction({ name, description });
+      console.log("Role created:", res);
+      if (res.ok) {
+        setSuccess(res.message || "Role created successfully.");
+        // short delay so user sees feedback, then go back to list
+        setTimeout(() => router.replace("/auth/roles"), 800);
+      }
+      if (!res.ok) {
+        setError(res.message || "Failed to create role.");
+      }
+    } finally {
+      setLoading(false);
     }
-    if (!res.ok) {
-      setError(res.message || "Failed to create role.");
-    }
-    setLoading(false);
   };
 
   return (
@@ -76,18 +80,21 @@ export default function CreateRolePage() {
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading}
+                disabled={loading || cancelBtnLoading}
+                loading={loading}
                 sx={{ textTransform: "none" }}
               >
-                {loading ? <CircularProgress size={22} /> : "Create"}
+                Create
               </Button>
 
               <Button
                 component={Link}
                 href="/auth/roles"
                 variant="outlined"
-                disabled={loading}
+                disabled={loading || cancelBtnLoading}
+                loading={cancelBtnLoading}
                 sx={{ textTransform: "none" }}
+                onClick={() => setCancelBtnLoading(true)}
               >
                 Cancel
               </Button>
