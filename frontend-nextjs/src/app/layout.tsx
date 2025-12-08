@@ -40,8 +40,13 @@ export default async function RootLayout({
         <ThemeRegistry>
           <AuthProvider initialRoles={userRoles}>
             <FeedbackContextProvider>
-              <Grid2 container spacing={2} sx={{ flexGrow: 1 }}>
-                <Grid2 size={3}>
+              {/* <Grid2 container spacing={2} sx={{ flexGrow: 1 }}>
+                <Grid2 size={3}></Grid2> */}
+              <Grid2
+                container
+                sx={{ display: "flex", justifyContent: "center" }}
+              >
+                <Grid2 size={2}>
                   <Sidebar />
                 </Grid2>
                 <Grid2 size={8} sx={{ marginTop: 6 }}>
