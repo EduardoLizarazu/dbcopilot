@@ -1623,16 +1623,18 @@ export function SchemaCtxClient({
       });
       const resNlqGoodFail = [];
       console.log("NLQ GOODS TO UPDATE: ", nlqGoodsToUpdate);
-      // for (const nlqGood of nlqGoodsToUpdate || []) {
-      //   const resNlqGood = await UpdateNlqQaGoodAction(nlqGood);
-      //   if (!resNlqGood.ok) {
-      //     resNlqGoodFail.push({
-      //       nlqGood: nlqGood,
-      //       message: resNlqGood.message || "Failed to update NLQ QA Good.",
-      //     });
-      //   }
-      //   console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
-      // }
+      if (nlqGoodsToUpdate || nlqGoodsToUpdate?.length !== 0) {
+        for (const nlqGood of nlqGoodsToUpdate || []) {
+          const resNlqGood = await UpdateNlqQaGoodAction(nlqGood);
+          if (!resNlqGood.ok) {
+            resNlqGoodFail.push({
+              nlqGood: nlqGood,
+              message: resNlqGood.message || "Failed to update NLQ QA Good.",
+            });
+          }
+          console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
+        }
+      }
       console.log("SCHEMA CTX BEFORE MERGE DIFFS: ", schemaCtx);
       console.log("SCHEMA CTX DIFFS: ", schemaCtxDiff);
       const schemaCtxFormatted = await FromSchemaDiffToSchemaCtxAction({
@@ -1895,10 +1897,10 @@ export function SchemaCtxClient({
                                   )
                                     ? "error"
                                     : isSuccessFlag(
-                                          `${EnumFb.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${col.id}`
-                                        )
-                                      ? "success"
-                                      : "inherit"
+                                        `${EnumFb.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${col.id}`
+                                      )
+                                    ? "success"
+                                    : "inherit"
                                 }
                                 disabled={isBusy(
                                   `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${col.id}`
@@ -2186,7 +2188,7 @@ export function SchemaCtxClient({
                             sampleUnique: [],
                           }),
                           maxValue: e.target.value,
-                        }) as TSchemaCtxColumnProfileDto
+                        } as TSchemaCtxColumnProfileDto)
                     )
                   }
                   fullWidth
@@ -2207,7 +2209,7 @@ export function SchemaCtxClient({
                             sampleUnique: [],
                           }),
                           minValue: e.target.value,
-                        }) as TSchemaCtxColumnProfileDto
+                        } as TSchemaCtxColumnProfileDto)
                     )
                   }
                   fullWidth
@@ -2229,7 +2231,7 @@ export function SchemaCtxClient({
                             sampleUnique: [],
                           }),
                           countNulls: Number(e.target.value || 0),
-                        }) as TSchemaCtxColumnProfileDto
+                        } as TSchemaCtxColumnProfileDto)
                     )
                   }
                   fullWidth
@@ -2251,7 +2253,7 @@ export function SchemaCtxClient({
                             sampleUnique: [],
                           }),
                           countUnique: Number(e.target.value || 0),
-                        }) as TSchemaCtxColumnProfileDto
+                        } as TSchemaCtxColumnProfileDto)
                     )
                   }
                   fullWidth
@@ -2277,7 +2279,7 @@ export function SchemaCtxClient({
                               ...((p?.sampleUnique as string[]) || []),
                               "",
                             ],
-                          }) as TSchemaCtxColumnProfileDto
+                          } as TSchemaCtxColumnProfileDto)
                       )
                     }
                     startIcon={<AddIcon />}
@@ -2310,7 +2312,7 @@ export function SchemaCtxClient({
                               sampleUnique: (p?.sampleUnique || []).map(
                                 (v, i) => (i === idx ? e.target.value : v)
                               ),
-                            }) as TSchemaCtxColumnProfileDto
+                            } as TSchemaCtxColumnProfileDto)
                         )
                       }
                       fullWidth
@@ -2333,7 +2335,7 @@ export function SchemaCtxClient({
                               sampleUnique: (p?.sampleUnique || []).filter(
                                 (_, i) => i !== idx
                               ),
-                            }) as TSchemaCtxColumnProfileDto
+                            } as TSchemaCtxColumnProfileDto)
                         )
                       }
                     >
@@ -2816,7 +2818,11 @@ export function SchemaCtxClient({
                                                         }
                                                       >
                                                         <i>
-                                                          {` [${col.dataType?.name || "unknown"}]`}
+                                                          {` [${
+                                                            col.dataType
+                                                              ?.name ||
+                                                            "unknown"
+                                                          }]`}
                                                         </i>
                                                       </Typography>
                                                     </TableCell>

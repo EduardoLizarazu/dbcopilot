@@ -9,7 +9,9 @@ export default async function EditSchemaCtxPage({
 }: {
   params: { id: string };
 }) {
-  const initial = await ReadByIdSchemaCtxAction(await params.id); // my schema ctx
+  const { id } = await params;
+
+  const initial = await ReadByIdSchemaCtxAction(await id); // my schema ctx
   console.log("READ SCHEMA CTX", initial);
 
   if (!initial.ok || !initial.data) {
