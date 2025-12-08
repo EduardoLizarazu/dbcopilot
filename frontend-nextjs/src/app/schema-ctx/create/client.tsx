@@ -79,7 +79,7 @@ enum SchemaCtxDiffLevel {
 }
 
 enum EnumBusy {
-  SUBMIT = "submit",
+  BTN_SUBMIT = "submit",
   TABLE = "table",
   TABLE_DIFF = "table-diff",
   PROFILE = "profile",
@@ -94,6 +94,7 @@ enum EnumBusy {
   BTN_GEN_SCHEMA_CTX_AND_PROFILE = "btnGenSchemaCtxAndProfile",
   BTN_EDIT_SINGLE_SCHEMA_CTX = "btnEditSingleSchemaCtx",
   BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY = "btnIndivGenNlqGoodNewQuestionQuery",
+  BTN_BACK = "btnBack",
 }
 
 enum EnumFb {
@@ -576,7 +577,7 @@ export function SchemaCtxClient({
   };
 
   const onCreate = async () => {
-    setBusyFlag("submit", true);
+    setBusyFlag(EnumBusy.BTN_SUBMIT, true);
     try {
       const res = await CreateSchemaCtxAction({
         name,
@@ -630,11 +631,11 @@ export function SchemaCtxClient({
         setError(res.message || "Failed to update Schema Context.");
       }
     } finally {
-      setBusyFlag("submit", false);
+      setBusyFlag(EnumBusy.BTN_SUBMIT, false);
     }
   };
   const onUpdate = async () => {
-    setBusyFlag("submit", true);
+    setBusyFlag(EnumBusy.BTN_SUBMIT, true);
     try {
       const res = await UpdateSchemaCtxAction(initial?.id || null, {
         id: initial?.id || null,
@@ -689,7 +690,7 @@ export function SchemaCtxClient({
         setError(res.message || "Failed to update Schema Context.");
       }
     } finally {
-      setBusyFlag("submit", false);
+      setBusyFlag(EnumBusy.BTN_SUBMIT, false);
     }
   };
 
@@ -1753,10 +1754,10 @@ export function SchemaCtxClient({
               <Button
                 type="submit"
                 variant="contained"
-                disabled={isBusy("submit")}
+                disabled={isBusy(EnumBusy.BTN_SUBMIT)}
                 sx={{ textTransform: "none" }}
                 onClick={onSubmit}
-                loading={isBusy("submit")}
+                loading={isBusy(EnumBusy.BTN_SUBMIT)}
               >
                 Save
               </Button>
@@ -1764,7 +1765,7 @@ export function SchemaCtxClient({
                 type="button"
                 color="secondary"
                 variant="outlined"
-                disabled={isBusy("submit")}
+                disabled={isBusy(EnumBusy.BTN_SUBMIT)}
                 sx={{ textTransform: "none" }}
                 onClick={onResetBtn}
               >
@@ -1774,8 +1775,10 @@ export function SchemaCtxClient({
                 component={Link}
                 href="/schema-ctx/"
                 variant="outlined"
-                disabled={isBusy("submit")}
+                disabled={isBusy(EnumBusy.BTN_SUBMIT)}
+                loading={isBusy(EnumBusy.BTN_BACK)}
                 sx={{ textTransform: "none" }}
+                onClick={() => setBusyFlag(EnumBusy.BTN_BACK, true)}
               >
                 Back
               </Button>
@@ -2357,7 +2360,7 @@ export function SchemaCtxClient({
               <Button
                 type="button"
                 variant="contained"
-                disabled={isBusy("submit")}
+                disabled={isBusy(EnumBusy.BTN_SUBMIT)}
                 sx={{ textTransform: "none" }}
                 onClick={() => saveSingleEditor()}
               >
@@ -2391,7 +2394,7 @@ export function SchemaCtxClient({
                 type="button"
                 variant="outlined"
                 color="error"
-                disabled={isBusy("submit")}
+                disabled={isBusy(EnumBusy.BTN_SUBMIT)}
                 sx={{ textTransform: "none" }}
                 onClick={() => {
                   setOpenSingleSchemaEditor(false);
