@@ -7,7 +7,9 @@ export default async function EditDbConnectionPage({
 }: {
   params: { id: string };
 }) {
-  const initialData = await ReadDbConnectionByIdAction(params.id);
+  const { id } = await params;
+
+  const initialData = await ReadDbConnectionByIdAction(await id);
 
   if (!initialData.data) {
     return <NotFound />;

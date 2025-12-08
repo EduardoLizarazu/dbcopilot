@@ -7,8 +7,9 @@ import { NotFound } from "@/components/shared/notFound";
 type Params = { roleId: string };
 
 export default async function EditRolePage({ params }: { params: Params }) {
-  console.log("EditRolePage params:", await params);
-  const role = await ReadRoleByIdAction(await params.roleId);
+  // console.log("EditRolePage params:", await params);
+  const { roleId } = await params;
+  const role = await ReadRoleByIdAction(await roleId);
   console.log("EditRolePage role data:", role);
   if (role.data === null) {
     // You could render a nicer UI instead of notFound()
