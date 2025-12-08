@@ -148,7 +148,7 @@ export default function NlqGoodClient({
     setSuccess(null);
     setError(null);
     markDeleting(data.nlqId, false);
-    markUpdating(data.nlqId, true);
+    markUploading(data.nlqId, true);
     try {
       const res = await UpdateNlqQaGoodAction({
         id: data.nlqId,
@@ -168,7 +168,7 @@ export default function NlqGoodClient({
       }
     } finally {
       markDeleting(data.nlqId, false);
-      markUpdating(data.nlqId, false);
+      markUploading(data.nlqId, false);
     }
   };
 
