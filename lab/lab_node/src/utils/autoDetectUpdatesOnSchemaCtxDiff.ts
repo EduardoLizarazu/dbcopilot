@@ -1,4 +1,4 @@
-import { schemaCtxDiff } from "../const/schemaCtxDiff";
+import { schemaCtxDiffUnSolve } from "../const/schemaCtxDiffUnSolve";
 import { SchemaCtxDiffStatus, TSchemaCtxDiff } from "../types/schemaCtxDiff";
 import { jaroWinklerScore } from "./similarityScoreJaroWinkler";
 import { similarityScore } from "./similarityScoreLevenshtein";
@@ -167,7 +167,7 @@ export function TestAutoDetectUpdatesOnSchemaCtxDiff() {
   // Aquí podrías crear un conjunto de datos de prueba (schemasDiff)
   // y llamar a autoDetectSchemaUpdates(schemasDiff)
   // para ver los resultados y logs generados.
-  const res = autoDetectSchemaUpdates(schemaCtxDiff);
+  const res = autoDetectSchemaUpdates(schemaCtxDiffUnSolve);
   console.log("Logs de Auto-Detección de Updates:");
   res.logs.forEach((log) => console.log(log));
 }
