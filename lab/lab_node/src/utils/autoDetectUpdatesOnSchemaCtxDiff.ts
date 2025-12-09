@@ -1,4 +1,4 @@
-import { TSchemaCtxDiff } from "../types/schemaCtxDiff";
+import { SchemaCtxDiffStatus, TSchemaCtxDiff } from "../types/schemaCtxDiff";
 
 export function autoDetectUpdates(schemas: TSchemaCtxDiff[], threshold = 0.8) {
   for (const schema of schemas) {
