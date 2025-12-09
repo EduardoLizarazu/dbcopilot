@@ -1,4 +1,5 @@
 import { SchemaCtxDiffStatus, TSchemaCtxDiff } from "../types/schemaCtxDiff";
+import { similarityScore } from "./similarityScoreLevenshtein";
 
 export function autoDetectUpdates(schemas: TSchemaCtxDiff[], threshold = 0.8) {
   for (const schema of schemas) {
@@ -8,10 +9,10 @@ export function autoDetectUpdates(schemas: TSchemaCtxDiff[], threshold = 0.8) {
       if (!table.columns) continue;
 
       const news = table.columns.filter(
-        (c) => c.status === SchemaCtxDiffStatus.NEW
+        (c: any) => c.status === SchemaCtxDiffStatus.NEW
       );
       const deletes = table.columns.filter(
-        (c) => c.status === SchemaCtxDiffStatus.DELETE
+        (c: any) => c.status === SchemaCtxDiffStatus.DELETE
       );
 
       for (const n of news) {
