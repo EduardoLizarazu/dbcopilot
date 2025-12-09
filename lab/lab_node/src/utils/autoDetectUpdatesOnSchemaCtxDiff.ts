@@ -8,7 +8,7 @@ import { similarityScore } from "./similarityScoreLevenshtein";
 // ---------------------------------------------------------
 
 // Umbral de sensibilidad (0 a 1). 0.85 suele ser bueno para Jaro-Winkler.
-const THRESHOLD = 0.85;
+const THRESHOLD = 0.7;
 
 interface AutoProcessResult {
   schemas: TSchemaCtxDiff;
