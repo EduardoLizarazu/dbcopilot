@@ -38,7 +38,7 @@ function jaroDistance(s1: string, s2: string): number {
   );
 }
 
-function jaroWinklerScore(s1: string, s2: string): number {
+export function jaroWinklerScore(s1: string, s2: string): number {
   const jaro = jaroDistance(s1, s2);
   let prefix = 0;
   for (let i = 0; i < Math.min(4, s1.length, s2.length); i++) {

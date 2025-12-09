@@ -1,51 +1,173 @@
+import { schemaCtxDiff } from "../const/schemaCtxDiff";
 import { SchemaCtxDiffStatus, TSchemaCtxDiff } from "../types/schemaCtxDiff";
+import { jaroWinklerScore } from "./similarityScoreJaroWinkler";
 import { similarityScore } from "./similarityScoreLevenshtein";
 
-export function autoDetectUpdates(schemas: TSchemaCtxDiff[], threshold = 0.8) {
-  for (const schema of schemas) {
-    if (!schema.tables) continue;
+// ---------------------------------------------------------
+// 3. LÓGICA DE PROCESAMIENTO AUTOMÁTICO
+// ---------------------------------------------------------
 
-    for (const table of schema.tables) {
-      if (!table.columns) continue;
+// Umbral de sensibilidad (0 a 1). 0.85 suele ser bueno para Jaro-Winkler.
+const THRESHOLD = 0.85;
 
-      const news = table.columns.filter(
-        (c: any) => c.status === SchemaCtxDiffStatus.NEW
-      );
-      const deletes = table.columns.filter(
-        (c: any) => c.status === SchemaCtxDiffStatus.DELETE
-      );
+interface AutoProcessResult {
+  schemas: TSchemaCtxDiff;
+  logs: string[];
+}
 
-      for (const n of news) {
-        let bestMatch: { col: typeof n; score: number } | null = null;
+export function autoDetectSchemaUpdates(
+  schemas: TSchemaCtxDiff
+): AutoProcessResult {
+  const logs: string[] = [];
 
-        for (const d of deletes) {
-          const score = similarityScore(n.name ?? "", d.name ?? "");
-          if (!bestMatch || score > bestMatch.score) {
-            bestMatch = { col: d, score };
-          }
-        }
+  // --- HELPER: Función genérica de Matching ---
+  // T: Tipo del elemento (Schema, Table, Column)
+  // ContextFn: Función para procesar hijos si hay match (Callback)
+  function findAndLinkMatches<
+    T extends {
+      id?: string;
+      name?: string;
+      status?: SchemaCtxDiffStatus;
+      oldId?: string;
+      oldName?: string;
+      newId?: string;
+      newName?: string;
+      matchScore?: string;
+    }
+  >(
+    items: T[],
+    typeLabel: string, // Para el log (ej: "Tabla", "Columna")
+    processChildren?: (newItem: T, oldItem: T) => void
+  ) {
+    if (!items || items.length === 0) return;
 
-        if (bestMatch && bestMatch.score >= threshold) {
-          // Marcar ambos como UPDATE
-          n.status = SchemaCtxDiffStatus.UPDATE;
-          n.oldId = bestMatch.col.id;
-          n.oldName = bestMatch.col.name;
-          n.newId = "";
-          n.newName = "";
+    // Filtramos candidatos
+    const newItems = items.filter((x) => x.status === SchemaCtxDiffStatus.NEW);
+    const delItems = items.filter(
+      (x) => x.status === SchemaCtxDiffStatus.DELETE
+    );
 
-          bestMatch.col.status = SchemaCtxDiffStatus.UPDATE;
-          bestMatch.col.newId = n.id;
-          bestMatch.col.newName = n.name;
-          bestMatch.col.oldId = "";
-          bestMatch.col.oldName = "";
+    newItems.forEach((newItem) => {
+      let bestMatch: T | null = null;
+      let highestScore = 0;
 
-          // Guardar probabilidad
-          (n as any).probability = Math.round(bestMatch.score * 100);
-          (bestMatch.col as any).probability = Math.round(
-            bestMatch.score * 100
-          );
+      // Buscamos el mejor candidato entre los eliminados
+      for (const delItem of delItems) {
+        // Si ya fue emparejado por otra iteración, lo saltamos
+        if (delItem.status === SchemaCtxDiffStatus.UPDATE) continue;
+
+        const score = jaroWinklerScore(newItem.name || "", delItem.name || "");
+
+        if (score > highestScore) {
+          highestScore = score;
+          bestMatch = delItem;
         }
       }
-    }
+
+      // Si superamos el umbral
+      if (bestMatch && highestScore >= THRESHOLD) {
+        const percentage = (highestScore * 100).toFixed(2) + "%";
+
+        // 1. Log
+        logs.push(
+          `[${typeLabel}] MATCH ${percentage}: '${bestMatch.name}' (DELETE) -> '${newItem.name}' (NEW)`
+        );
+
+        // 2. Actualizar estados a UPDATE
+        newItem.status = SchemaCtxDiffStatus.UPDATE;
+        newItem.oldId = bestMatch.id || "";
+        newItem.oldName = bestMatch.name || "";
+        newItem.matchScore = percentage;
+
+        bestMatch.status = SchemaCtxDiffStatus.UPDATE;
+        bestMatch.newId = newItem.id || "";
+        bestMatch.newName = newItem.name || "";
+        bestMatch.matchScore = percentage;
+
+        // 3. Procesar Hijos (Jerarquía)
+        // Aquí ocurre la magia: Si encontramos que TableA es TableB,
+        // forzamos la comparación de sus columnas inmediatamente.
+        if (processChildren) {
+          processChildren(newItem, bestMatch);
+        }
+      }
+    });
   }
+
+  // --- PROCESADORES POR NIVEL ---
+
+  // Nivel 3: Columnas
+  function processColumns(newCols: any[], oldCols: any[]) {
+    // Unimos listas para que el matcher las filtre
+    const combinedCols = [...(newCols || []), ...(oldCols || [])];
+
+    findAndLinkMatches(combinedCols, "Columna", (newCol, oldCol) => {
+      // Si la columna hizo match, actualizamos también su DataType
+      if (newCol.dataType && oldCol.dataType) {
+        newCol.dataType.status = SchemaCtxDiffStatus.UPDATE;
+        newCol.dataType.oldId = oldCol.dataType.id; // O oldCol.dataType.oldId dependiendo de tu estructura de origen
+        newCol.dataType.oldName = oldCol.dataType.name;
+
+        oldCol.dataType.status = SchemaCtxDiffStatus.UPDATE;
+        oldCol.dataType.newId = newCol.dataType.id;
+        oldCol.dataType.newName = newCol.dataType.name;
+      }
+    });
+  }
+
+  // Nivel 2: Tablas
+  function processTables(newTables: any[], oldTables: any[]) {
+    const combinedTables = [...(newTables || []), ...(oldTables || [])];
+
+    findAndLinkMatches(combinedTables, "Tabla", (newTable, oldTable) => {
+      // Callback: Se ejecuta cuando encontramos que una tabla es un UPDATE.
+      // Cruzamos las columnas de la tabla nueva (NEW) con las de la vieja (DELETE).
+      // Al ser la misma tabla, las columnas que se llamen igual tendrán score 1.0 (100%)
+      processColumns(newTable.columns, oldTable.columns);
+    });
+
+    // IMPORTANTE: También procesar columnas de tablas que NO cambiaron (UN_CHANGE).
+    // Puede que la tabla sea la misma, pero le cambiaron el nombre a una columna.
+    const unchangedTables = combinedTables.filter(
+      (t) => t.status === SchemaCtxDiffStatus.UN_CHANGE
+    );
+    unchangedTables.forEach((table) => {
+      if (table.columns) {
+        // Pasamos las mismas columnas como "nuevas" y "viejas" porque están en la misma lista
+        // El 'findAndLinkMatches' sabrá separar NEW de DELETE internamente.
+        processColumns(table.columns, []); // El segundo param puede ir vacio si pasamos todo en el primero,
+        // pero por consistencia con mi lógica de arriba,
+        // 'processColumns' espera listas separadas o combinadas.
+        // Modificaré processColumns ligeramente para aceptar un solo array arriba.
+        processColumns(table.columns, []);
+      }
+    });
+  }
+
+  // Nivel 1: Esquemas (Root)
+  findAndLinkMatches(schemas, "Esquema", (newSchema, oldSchema) => {
+    // Callback: Si el esquema fue renombrado (UPDATE)
+    processTables(newSchema.tables, oldSchema.tables);
+  });
+
+  // Procesar tablas de esquemas que no cambiaron
+  const unchangedSchemas = schemas.filter(
+    (s) => s.status === SchemaCtxDiffStatus.UN_CHANGE
+  );
+  unchangedSchemas.forEach((schema) => {
+    // Buscamos updates de tablas dentro del mismo esquema
+    // Aquí 'schema.tables' contiene NEWs y DELETEs mezclados
+    processTables(schema.tables, []);
+  });
+
+  return { schemas, logs };
+}
+
+export function TestAutoDetectUpdatesOnSchemaCtxDiff() {
+  // Aquí podrías crear un conjunto de datos de prueba (schemasDiff)
+  // y llamar a autoDetectSchemaUpdates(schemasDiff)
+  // para ver los resultados y logs generados.
+  const res = autoDetectSchemaUpdates(schemaCtxDiff);
+  console.log("Logs de Auto-Detección de Updates:");
+  res.logs.forEach((log) => console.log(log));
 }
