@@ -69,6 +69,8 @@ import {
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 import { FromNlqGoodDiffToNlqGood } from "@/_actions/utils/from-nlq-good-diff-to-nlq-good-update.action";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
+import { AutoDetectSchemaUpdatesOnSchemaCtxDiffAction } from "@/_actions/utils/auto-detect-updates-on-schema-ctx-diff.action";
+import { set } from "zod";
 const steps = ["Schema Differences", "Knowledge source", "Summary"];
 
 enum SchemaCtxDiffLevel {
@@ -95,6 +97,7 @@ enum EnumBusy {
   BTN_EDIT_SINGLE_SCHEMA_CTX = "btnEditSingleSchemaCtx",
   BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY = "btnIndivGenNlqGoodNewQuestionQuery",
   BTN_BACK = "btnBack",
+  AUTO_DETECT_SCHEMA_UPDATES = "autoDetectSchemaUpdates",
 }
 
 enum EnumFb {
@@ -976,6 +979,18 @@ export function SchemaCtxClient({
       });
     });
     setDisplayOldFields(null);
+  };
+
+  const onAutoDetectSchemaCtxDiffFields = async () => {
+    setBusyFlag(EnumBusy.AUTO_DETECT_SCHEMA_UPDATES, true);
+    try {
+      const res = await AutoDetectSchemaUpdatesOnSchemaCtxDiffAction(
+        schemaCtxDiff || []
+      );
+      setSchemaCtxDiff(res.schemaDeepCopy);
+    } finally {
+      setBusyFlag(EnumBusy.AUTO_DETECT_SCHEMA_UPDATES, false);
+    }
   };
 
   const onProfile = async () => {
@@ -3365,6 +3380,26 @@ export function SchemaCtxClient({
               </Alert>
             )}
             <Box sx={{ flex: "1 1 auto" }} />
+            {activeStep === 0 && (
+              <>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => onAutoDetectSchemaCtxDiffFields()}
+                  sx={{
+                    mr: 4,
+                  }}
+                  disabled={
+                    isBusy(EnumBusy.AUTO_DETECT_SCHEMA_UPDATES) ||
+                    !schemaCtxDiff ||
+                    schemaCtxDiff?.length === 0
+                  }
+                  loading={isBusy(EnumBusy.AUTO_DETECT_SCHEMA_UPDATES)}
+                >
+                  Auto-detect Updates
+                </Button>
+              </>
+            )}
             {activeStep === 1 && (
               <>
                 {isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL) && (
