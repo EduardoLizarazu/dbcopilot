@@ -1,0 +1,33 @@
+model_id: Qwen/Qwen2.5-7B-Instruct
+dataset_id: b-mc2/sql-create-context
+test_size: 0.02
+seed: 42
+
+output_dir: artifacts/qwen_text2sql_lora
+adapter_dir: artifacts/qwen_text2sql_adapter
+
+max_seq_length: 2048
+
+train:
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 16
+  learning_rate: 2e-4
+  warmup_steps: 50
+  logging_steps: 10
+  save_steps: 200
+  save_total_limit: 2
+  fp16: true
+  bf16: false
+  optim: paged_adamw_8bit
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+
+bnb:
+  load_in_4bit: true
+  quant_type: nf4
+  double_quant: true
+  compute_dtype: float16
