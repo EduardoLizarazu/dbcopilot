@@ -33,7 +33,7 @@ trainer = run_sft(
         "logging_steps": 10,
         "save_steps": 200,
         "save_total_limit": 2,
-        "fp16": True,
+        "fp16": False,
         "bf16": False,
         "optim": "paged_adamw_8bit",
     },
