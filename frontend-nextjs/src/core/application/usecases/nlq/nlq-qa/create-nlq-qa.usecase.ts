@@ -170,55 +170,54 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       //   };
       // }
 
-      // 6.a.3 If query is not null, validate SQL Query policy (no mutation)
-      // const safePolicyUnMutationQuery =
-      //   await this.safePolicyUnMutationQueryStep.run({
-      //     query: extractQueryFromGenQuery.query,
-      //   });
-
-      // 6.a.4 If not safe, save on nlq_qa_error and reference nlq qa and return with error
-      // if (!safePolicyUnMutationQuery.isSafe) {
-      //   const error = await this.createNlqQaErrorStep.run({
-      //     question: data.question,
-      //     query: extractQueryFromGenQuery.query,
-      //     knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
-      //       (q) => q.id,
-      //     ),
-      //     errorMessage: "Generated query is not policy safe.",
-      //     createdBy: dateValidate.actorId,
-      //   });
-
-      //   await this.createNlqQaStep.run({
-      //     question: data.question,
-      //     query: extractQueryFromGenQuery.query,
-      //     isGood: false,
-      //     nlqErrorId: error.id,
-      //     knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
-      //       (q) => q.id,
-      //     ),
-      //     dbConnectionId: data.dbConnectionId,
-      //     createdBy: dateValidate.actorId,
-      //     updatedBy: dateValidate.actorId,
-      //   });
-
-      //   return {
-      //     data: null,
-      //     success: false,
-      //     message: `Generated query is not policy safe.`,
-      //   };
-      // }
-
-      // 7.a Execute query
       const query = `
-SELECT C6.C6_NUM AS NUMERO_PEDIDO, 
-       A1.A1_NOME AS NOMBRE_CLIENTE, 
-       B1.B1_DESC AS DESCRIPCION_PRODUCTO 
-FROM TMPRD.SC6300 C6 
-JOIN TMPRD.SA1300 A1 ON C6.C6_CLI = A1.A1_COD 
-JOIN TMPRD.SB1300 B1 ON C6.C6_PRODUTO = B1.B1_COD 
-WHERE B1.B1_UM = 'KG'
+DROP TABLE clientes;
+
       `; // PONER QUERY AQUI
 
+      const extractQueryFromGenQuery = {
+        query: query,
+      }; // COMENTAR ESTA LINEA CUANDO NO SE NECESITE SOBREESCRIBIR EL QUERY GENERADO
+
+      // 6.a.3 If query is not null, validate SQL Query policy (no mutation)
+      const safePolicyUnMutationQuery =
+        await this.safePolicyUnMutationQueryStep.run({
+          query: extractQueryFromGenQuery.query,
+        });
+
+      // 6.a.4 If not safe, save on nlq_qa_error and reference nlq qa and return with error
+      if (!safePolicyUnMutationQuery.isSafe) {
+        const error = await this.createNlqQaErrorStep.run({
+          question: data.question,
+          query: extractQueryFromGenQuery.query,
+          knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
+            (q) => q.id,
+          ),
+          errorMessage: "Generated query is not policy safe.",
+          createdBy: dateValidate.actorId,
+        });
+
+        await this.createNlqQaStep.run({
+          question: data.question,
+          query: extractQueryFromGenQuery.query,
+          isGood: false,
+          nlqErrorId: error.id,
+          knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
+            (q) => q.id,
+          ),
+          dbConnectionId: data.dbConnectionId,
+          createdBy: dateValidate.actorId,
+          updatedBy: dateValidate.actorId,
+        });
+
+        return {
+          data: null,
+          success: false,
+          message: `Generated query is not policy safe.`,
+        };
+      }
+
+      // 7.a Execute query
       let queryResult: TNlqInformationData | null = null;
       try {
         const executeQueryDto: TNlqInfoExtractorDto = {
@@ -229,8 +228,7 @@ WHERE B1.B1_UM = 'KG'
           username: dbConnWithSplitterAndSchemaQuery?.username || "",
           password: dbConnWithSplitterAndSchemaQuery?.password || "",
           sid: dbConnWithSplitterAndSchemaQuery?.sid || undefined,
-          // query: extractQueryFromGenQuery.query,
-          query: query,
+          query: extractQueryFromGenQuery.query,
         };
         queryResult = await this.executeQueryStep.run(executeQueryDto);
       } catch (error) {
