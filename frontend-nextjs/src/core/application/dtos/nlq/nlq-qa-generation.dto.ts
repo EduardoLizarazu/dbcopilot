@@ -11,7 +11,7 @@ export const nlqQaGenerationSchema = z.object({
       query: z.string().min(2),
       tablesColumns: z.array(z.string()), // ["[TABLE].[COLUMN]"]
       score: z.number(),
-    })
+    }),
   ),
   schemaBased: z.array(
     z.object({
@@ -28,7 +28,7 @@ export const nlqQaGenerationSchema = z.object({
       REFERENCED_TABLE_SCHEMA: z.string().nullable().optional(),
       REFERENCED_TABLE_NAME: z.string().nullable().optional(),
       REFERENCED_COLUMN_NAME: z.string().nullable().optional(),
-    })
+    }),
   ),
   answer: z.string(),
   dbType: z.string(),
@@ -39,7 +39,7 @@ export const createNlqQaGenerationPromptTemplate = nlqQaGenerationSchema.pick({
   question: true,
   similarKnowledgeBased: true,
   dbType: true,
-  schemaBased: true,
+  schemaBased: true, // comment  RAW SCHEMA ONLY
 });
 // .extend({
 //   schemaBased: z.array(schemaCtxSchema), // SCHEMA CONTEXT

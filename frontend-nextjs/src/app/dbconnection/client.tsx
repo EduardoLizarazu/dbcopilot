@@ -22,9 +22,11 @@ import {
 import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
+
 import { TDbConnectionOutRequestDtoWithVbAndUser } from "@/core/application/dtos/dbconnection.dto";
 import { ReadAllDbConnectionAction } from "@/_actions/dbconnection/read-all.action";
-import { useFeedbackContext } from "@/contexts/feedback.context";
 import { DeleteDbConnectionAction } from "@/_actions/dbconnection/delete.action";
 import React from "react";
 
@@ -37,13 +39,14 @@ export default function DbConnectionClient({
     initialData || []
   );
   const [loading, setLoading] = useState(false);
+  const [createBtnLoading, setCreateBtnLoading] = useState(false);
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
+  const [updateBusy, setUpdateBusy] = React.useState<Set<string>>(new Set());
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [nameFilter, setNameFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const { setFeedback } = useFeedbackContext();
 
   const markDeleting = (id: string, on: boolean) => {
     setDeleteBusy((prev) => {
@@ -53,10 +56,16 @@ export default function DbConnectionClient({
     });
   };
 
+  const markUpdating = (id: string, on: boolean) => {
+    setUpdateBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
+
   const refresh = async () => {
     setLoading(true);
-    setError(null);
-    setSuccess(null);
 
     const res = await ReadAllDbConnectionAction();
 
@@ -94,70 +103,97 @@ export default function DbConnectionClient({
 
   const onDelete = async (id: string) => {
     markDeleting(id, true);
-    const res = await DeleteDbConnectionAction(id);
-    if (res.ok) {
-      setSuccess(res.message || "DB Connection deleted successfully.");
-    }
-    if (!res.ok) {
-      console.log("error", res);
-      setError(res.message || "Failed to delete DB Connection.");
-    }
-
-    setTimeout(async () => {
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await DeleteDbConnectionAction(id);
+      if (res.ok) {
+        setSuccess(res.message || "DB Connection deleted successfully.");
+      }
+      if (!res.ok) {
+        console.log("error", res);
+        setError(res.message || "Failed to delete DB Connection.");
+      }
+    } finally {
       markDeleting(id, false);
-      setSuccess(null);
-      setError(null);
       setDeleteBusy(new Set());
+      setUpdateBusy(new Set());
       await refresh();
-    }, 2000);
+    }
   };
 
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
-      <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        DB Connections
-      </Typography>
+      <Box className="flex items-center justify-between mb-4">
+        <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
+          DB Connections
+        </Typography>
+        <Button
+          component={Link}
+          href="/dbconnection/create"
+          variant="contained"
+          startIcon={<AddIcon />}
+          disabled={createBtnLoading}
+          loading={createBtnLoading}
+          onClick={() => setCreateBtnLoading(true)}
+        >
+          CREATE
+        </Button>
+      </Box>
 
       {/* Filters */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <TextField
-            label="Filter by name or description"
-            size="small"
-            value={nameFilter}
-            onChange={(e) => setNameFilter(e.target.value)}
-          />
-          <TextField
-            label="Created From"
-            size="small"
-            type="datetime-local"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Created To"
-            size="small"
-            type="datetime-local"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Stack>
-        <Box sx={{ mt: 2 }}>
-          <Button
-            component={Link}
-            href="/dbconnection/create"
-            variant="contained"
-            sx={{ textTransform: "none" }}
+        <Box sx={{ display: "grid", gap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
           >
-            Create DB Connection
-          </Button>
+            <TextField
+              label="Created From"
+              size="small"
+              type="datetime-local"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Created To"
+              size="small"
+              type="datetime-local"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Box>
+          <Box className="flex items-center gap-2 mb-3">
+            <Box className="flex items-center gap-2" sx={{ width: "100%" }}>
+              <SearchIcon fontSize="small" />
+              <TextField
+                label="Filter by name or description"
+                size="small"
+                value={nameFilter}
+                onChange={(e) => setNameFilter(e.target.value)}
+                fullWidth
+              />
+            </Box>
+          </Box>
         </Box>
       </Paper>
 
-      {error && <Alert severity="error">{error}</Alert>}
-      {success && <Alert severity="success">{success}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
 
       {/* Table */}
       <Paper elevation={1}>
@@ -166,7 +202,7 @@ export default function DbConnectionClient({
             <CircularProgress />
           </Box>
         ) : (
-          <TableContainer>
+          <TableContainer component={Paper} elevation={0}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -194,18 +230,44 @@ export default function DbConnectionClient({
                 ) : (
                   filteredRows.map((row) => {
                     const isDeleting = deleteBusy.has(row.id);
+                    const isUpdating = updateBusy.has(row.id);
                     return (
                       <TableRow key={row.id} hover>
-                        <TableCell>{row.name}</TableCell>
-                        <TableCell>
-                          {row.description
-                            ? row.description.length > 50
-                              ? `${row.description.substring(0, 50)}...`
-                              : row.description
-                            : "-"}
+                        <TableCell sx={{ whiteSpace: "nowrap" }}>
+                          <Tooltip title={row.name || "-"}>
+                            <span>
+                              {row.name
+                                ? row.name.length > 30
+                                  ? `${row.name.slice(0, 30)}...`
+                                  : row.name
+                                : "-"}
+                            </span>
+                          </Tooltip>
+                        </TableCell>
+                        {/* No wrap */}
+                        <TableCell sx={{ whiteSpace: "nowrap" }}>
+                          <Tooltip title={row.description || "-"}>
+                            <span>
+                              {row.description
+                                ? row.description.length > 30
+                                  ? `${row.description.slice(0, 30)}...`
+                                  : row.description
+                                : "-"}
+                            </span>
+                          </Tooltip>
                         </TableCell>
                         <TableCell>{row.type}</TableCell>
-                        <TableCell>{row.host}</TableCell>
+                        <TableCell>
+                          <Tooltip title={row.host || "-"}>
+                            <span>
+                              {row.host
+                                ? row.host.length > 40
+                                  ? `${row.host.slice(0, 40)}...`
+                                  : row.host
+                                : "-"}
+                            </span>
+                          </Tooltip>
+                        </TableCell>
                         <TableCell>{row.port}</TableCell>
                         <TableCell>{row.username}</TableCell>
                         <TableCell>
@@ -231,6 +293,9 @@ export default function DbConnectionClient({
                                 href={`/dbconnection/${row.id}`}
                                 aria-label="Edit DB Connection"
                                 size="small"
+                                disabled={isDeleting || isUpdating}
+                                loading={isUpdating}
+                                onClick={() => markUpdating(row.id, true)}
                               >
                                 <EditIcon fontSize="small" />
                               </IconButton>
@@ -248,6 +313,7 @@ export default function DbConnectionClient({
                                     onDelete(row.id);
                                   }
                                 }}
+                                disabled={isUpdating || isDeleting}
                                 loading={isDeleting}
                               >
                                 <DeleteIcon fontSize="small" />

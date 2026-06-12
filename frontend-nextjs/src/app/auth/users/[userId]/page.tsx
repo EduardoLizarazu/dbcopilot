@@ -6,8 +6,10 @@ import { NotFound } from "@/components/shared/notFound";
 type Params = { userId: string };
 
 export default async function UserEditPage({ params }: { params: Params }) {
+  const { userId } = await params;
+
   const [user, roles] = await Promise.all([
-    ReadUserByIdAction(params.userId),
+    ReadUserByIdAction(await userId),
     ReadAllRolesAction(),
   ]);
 

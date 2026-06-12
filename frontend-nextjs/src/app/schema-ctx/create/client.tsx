@@ -69,6 +69,8 @@ import {
 import { UpdateNlqQaGoodAction } from "@/_actions/nlq-qa-good/update.action";
 import { FromNlqGoodDiffToNlqGood } from "@/_actions/utils/from-nlq-good-diff-to-nlq-good-update.action";
 import { UpdateSchemaCtxAction } from "@/_actions/schemaCtx/update.action";
+import { AutoDetectSchemaUpdatesOnSchemaCtxDiffAction } from "@/_actions/utils/auto-detect-updates-on-schema-ctx-diff.action";
+import { set } from "zod";
 const steps = ["Schema Differences", "Knowledge source", "Summary"];
 
 enum SchemaCtxDiffLevel {
@@ -79,7 +81,7 @@ enum SchemaCtxDiffLevel {
 }
 
 enum EnumBusy {
-  SUBMIT = "submit",
+  BTN_SUBMIT = "submit",
   TABLE = "table",
   TABLE_DIFF = "table-diff",
   PROFILE = "profile",
@@ -94,6 +96,8 @@ enum EnumBusy {
   BTN_GEN_SCHEMA_CTX_AND_PROFILE = "btnGenSchemaCtxAndProfile",
   BTN_EDIT_SINGLE_SCHEMA_CTX = "btnEditSingleSchemaCtx",
   BTN_INDIV_GEN_NLQ_GOOD_NEW_QUESTION_QUERY = "btnIndivGenNlqGoodNewQuestionQuery",
+  BTN_BACK = "btnBack",
+  AUTO_DETECT_SCHEMA_UPDATES = "autoDetectSchemaUpdates",
 }
 
 enum EnumFb {
@@ -576,7 +580,7 @@ export function SchemaCtxClient({
   };
 
   const onCreate = async () => {
-    setBusyFlag("submit", true);
+    setBusyFlag(EnumBusy.BTN_SUBMIT, true);
     try {
       const res = await CreateSchemaCtxAction({
         name,
@@ -630,11 +634,11 @@ export function SchemaCtxClient({
         setError(res.message || "Failed to update Schema Context.");
       }
     } finally {
-      setBusyFlag("submit", false);
+      setBusyFlag(EnumBusy.BTN_SUBMIT, false);
     }
   };
   const onUpdate = async () => {
-    setBusyFlag("submit", true);
+    setBusyFlag(EnumBusy.BTN_SUBMIT, true);
     try {
       const res = await UpdateSchemaCtxAction(initial?.id || null, {
         id: initial?.id || null,
@@ -689,7 +693,7 @@ export function SchemaCtxClient({
         setError(res.message || "Failed to update Schema Context.");
       }
     } finally {
-      setBusyFlag("submit", false);
+      setBusyFlag(EnumBusy.BTN_SUBMIT, false);
     }
   };
 
@@ -975,6 +979,18 @@ export function SchemaCtxClient({
       });
     });
     setDisplayOldFields(null);
+  };
+
+  const onAutoDetectSchemaCtxDiffFields = async () => {
+    setBusyFlag(EnumBusy.AUTO_DETECT_SCHEMA_UPDATES, true);
+    try {
+      const res = await AutoDetectSchemaUpdatesOnSchemaCtxDiffAction(
+        schemaCtxDiff || []
+      );
+      setSchemaCtxDiff(res.schemaDeepCopy);
+    } finally {
+      setBusyFlag(EnumBusy.AUTO_DETECT_SCHEMA_UPDATES, false);
+    }
   };
 
   const onProfile = async () => {
@@ -1623,16 +1639,18 @@ export function SchemaCtxClient({
       });
       const resNlqGoodFail = [];
       console.log("NLQ GOODS TO UPDATE: ", nlqGoodsToUpdate);
-      // for (const nlqGood of nlqGoodsToUpdate || []) {
-      //   const resNlqGood = await UpdateNlqQaGoodAction(nlqGood);
-      //   if (!resNlqGood.ok) {
-      //     resNlqGoodFail.push({
-      //       nlqGood: nlqGood,
-      //       message: resNlqGood.message || "Failed to update NLQ QA Good.",
-      //     });
-      //   }
-      //   console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
-      // }
+      if (nlqGoodsToUpdate || nlqGoodsToUpdate?.length !== 0) {
+        for (const nlqGood of nlqGoodsToUpdate || []) {
+          const resNlqGood = await UpdateNlqQaGoodAction(nlqGood);
+          if (!resNlqGood.ok) {
+            resNlqGoodFail.push({
+              nlqGood: nlqGood,
+              message: resNlqGood.message || "Failed to update NLQ QA Good.",
+            });
+          }
+          console.log("NLQ-GOOD-FAIL: ", resNlqGoodFail);
+        }
+      }
       console.log("SCHEMA CTX BEFORE MERGE DIFFS: ", schemaCtx);
       console.log("SCHEMA CTX DIFFS: ", schemaCtxDiff);
       const schemaCtxFormatted = await FromSchemaDiffToSchemaCtxAction({
@@ -1751,10 +1769,10 @@ export function SchemaCtxClient({
               <Button
                 type="submit"
                 variant="contained"
-                disabled={isBusy("submit")}
+                disabled={isBusy(EnumBusy.BTN_SUBMIT)}
                 sx={{ textTransform: "none" }}
                 onClick={onSubmit}
-                loading={isBusy("submit")}
+                loading={isBusy(EnumBusy.BTN_SUBMIT)}
               >
                 Save
               </Button>
@@ -1762,7 +1780,7 @@ export function SchemaCtxClient({
                 type="button"
                 color="secondary"
                 variant="outlined"
-                disabled={isBusy("submit")}
+                disabled={isBusy(EnumBusy.BTN_SUBMIT)}
                 sx={{ textTransform: "none" }}
                 onClick={onResetBtn}
               >
@@ -1772,8 +1790,10 @@ export function SchemaCtxClient({
                 component={Link}
                 href="/schema-ctx/"
                 variant="outlined"
-                disabled={isBusy("submit")}
+                disabled={isBusy(EnumBusy.BTN_SUBMIT)}
+                loading={isBusy(EnumBusy.BTN_BACK)}
                 sx={{ textTransform: "none" }}
+                onClick={() => setBusyFlag(EnumBusy.BTN_BACK, true)}
               >
                 Back
               </Button>
@@ -1895,10 +1915,10 @@ export function SchemaCtxClient({
                                   )
                                     ? "error"
                                     : isSuccessFlag(
-                                          `${EnumFb.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${col.id}`
-                                        )
-                                      ? "success"
-                                      : "inherit"
+                                        `${EnumFb.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${col.id}`
+                                      )
+                                    ? "success"
+                                    : "inherit"
                                 }
                                 disabled={isBusy(
                                   `${EnumBusy.BTN_EDIT_SINGLE_SCHEMA_CTX}-${schema.id}-${table.id}-${col.id}`
@@ -2186,7 +2206,7 @@ export function SchemaCtxClient({
                             sampleUnique: [],
                           }),
                           maxValue: e.target.value,
-                        }) as TSchemaCtxColumnProfileDto
+                        } as TSchemaCtxColumnProfileDto)
                     )
                   }
                   fullWidth
@@ -2207,7 +2227,7 @@ export function SchemaCtxClient({
                             sampleUnique: [],
                           }),
                           minValue: e.target.value,
-                        }) as TSchemaCtxColumnProfileDto
+                        } as TSchemaCtxColumnProfileDto)
                     )
                   }
                   fullWidth
@@ -2229,7 +2249,7 @@ export function SchemaCtxClient({
                             sampleUnique: [],
                           }),
                           countNulls: Number(e.target.value || 0),
-                        }) as TSchemaCtxColumnProfileDto
+                        } as TSchemaCtxColumnProfileDto)
                     )
                   }
                   fullWidth
@@ -2251,7 +2271,7 @@ export function SchemaCtxClient({
                             sampleUnique: [],
                           }),
                           countUnique: Number(e.target.value || 0),
-                        }) as TSchemaCtxColumnProfileDto
+                        } as TSchemaCtxColumnProfileDto)
                     )
                   }
                   fullWidth
@@ -2277,7 +2297,7 @@ export function SchemaCtxClient({
                               ...((p?.sampleUnique as string[]) || []),
                               "",
                             ],
-                          }) as TSchemaCtxColumnProfileDto
+                          } as TSchemaCtxColumnProfileDto)
                       )
                     }
                     startIcon={<AddIcon />}
@@ -2310,7 +2330,7 @@ export function SchemaCtxClient({
                               sampleUnique: (p?.sampleUnique || []).map(
                                 (v, i) => (i === idx ? e.target.value : v)
                               ),
-                            }) as TSchemaCtxColumnProfileDto
+                            } as TSchemaCtxColumnProfileDto)
                         )
                       }
                       fullWidth
@@ -2333,7 +2353,7 @@ export function SchemaCtxClient({
                               sampleUnique: (p?.sampleUnique || []).filter(
                                 (_, i) => i !== idx
                               ),
-                            }) as TSchemaCtxColumnProfileDto
+                            } as TSchemaCtxColumnProfileDto)
                         )
                       }
                     >
@@ -2355,7 +2375,7 @@ export function SchemaCtxClient({
               <Button
                 type="button"
                 variant="contained"
-                disabled={isBusy("submit")}
+                disabled={isBusy(EnumBusy.BTN_SUBMIT)}
                 sx={{ textTransform: "none" }}
                 onClick={() => saveSingleEditor()}
               >
@@ -2389,7 +2409,7 @@ export function SchemaCtxClient({
                 type="button"
                 variant="outlined"
                 color="error"
-                disabled={isBusy("submit")}
+                disabled={isBusy(EnumBusy.BTN_SUBMIT)}
                 sx={{ textTransform: "none" }}
                 onClick={() => {
                   setOpenSingleSchemaEditor(false);
@@ -2816,7 +2836,11 @@ export function SchemaCtxClient({
                                                         }
                                                       >
                                                         <i>
-                                                          {` [${col.dataType?.name || "unknown"}]`}
+                                                          {` [${
+                                                            col.dataType
+                                                              ?.name ||
+                                                            "unknown"
+                                                          }]`}
                                                         </i>
                                                       </Typography>
                                                     </TableCell>
@@ -3356,6 +3380,26 @@ export function SchemaCtxClient({
               </Alert>
             )}
             <Box sx={{ flex: "1 1 auto" }} />
+            {activeStep === 0 && (
+              <>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => onAutoDetectSchemaCtxDiffFields()}
+                  sx={{
+                    mr: 4,
+                  }}
+                  disabled={
+                    isBusy(EnumBusy.AUTO_DETECT_SCHEMA_UPDATES) ||
+                    !schemaCtxDiff ||
+                    schemaCtxDiff?.length === 0
+                  }
+                  loading={isBusy(EnumBusy.AUTO_DETECT_SCHEMA_UPDATES)}
+                >
+                  Auto-detect Updates
+                </Button>
+              </>
+            )}
             {activeStep === 1 && (
               <>
                 {isBusy(EnumBusy.NLQ_GOOD_NEW_GEN_ALL) && (

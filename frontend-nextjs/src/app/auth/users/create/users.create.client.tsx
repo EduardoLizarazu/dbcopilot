@@ -35,6 +35,7 @@ export default function UsersCreateClient({
 
   const [selectedRoleIds, setSelectedRoleIds] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [cancelLoading, setCancelLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
 
@@ -49,21 +50,24 @@ export default function UsersCreateClient({
     setError(null);
     setSuccess(null);
     setLoading(true);
-    const res = await CreateUserAction({
-      email,
-      name,
-      lastname,
-      password,
-      roles: selectedRoleIds,
-    });
-    if (res.ok && res.data) {
-      setSuccess(res.message ?? "User created successfully.");
-      setTimeout(() => router.replace("/auth/users"), 800);
+    try {
+      const res = await CreateUserAction({
+        email,
+        name,
+        lastname,
+        password,
+        roles: selectedRoleIds,
+      });
+      if (res.ok && res.data) {
+        setSuccess(res.message ?? "User created successfully.");
+        setTimeout(() => router.replace("/auth/users"), 800);
+      }
+      if (!res.ok) {
+        setError(res.message ?? "Failed to create user.");
+      }
+    } finally {
+      setLoading(false);
     }
-    if (!res.ok) {
-      setError(res.message ?? "Failed to create user.");
-    }
-    setLoading(false);
   };
 
   return (
@@ -165,17 +169,20 @@ export default function UsersCreateClient({
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading}
+                disabled={loading || cancelLoading}
+                loading={loading}
                 sx={{ textTransform: "none" }}
               >
-                {loading ? <CircularProgress size={22} /> : "Create"}
+                Create
               </Button>
 
               <Button
                 component={Link}
                 href="/auth/users"
                 variant="outlined"
-                disabled={loading}
+                disabled={loading || cancelLoading}
+                loading={cancelLoading}
+                onClick={() => setCancelLoading(true)}
                 sx={{ textTransform: "none" }}
               >
                 Cancel

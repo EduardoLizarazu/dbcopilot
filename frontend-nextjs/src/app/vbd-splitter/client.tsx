@@ -23,10 +23,11 @@ import { LocalTime } from "@/components/shared/LocalTime";
 import { convertFbDateToISO } from "@/_actions/utils/date-transf.action";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 import { IconButton, Tooltip } from "@mui/material";
 import { DeleteVbdSplitterAction } from "@/_actions/vbd-splitter/delete.action";
 import { ReadAllVbdSplitterAction } from "@/_actions/vbd-splitter/read-all.action";
-import { useFeedbackContext } from "@/contexts/feedback.context";
 
 export default function VbdSplitterClient({
   initialRows,
@@ -35,41 +36,45 @@ export default function VbdSplitterClient({
 }) {
   const [rows, setRows] = useState<TVbdSplitterWithUserDto[]>(initialRows);
   const [loading, setLoading] = useState(false);
+  const [createBtnLoading, setCreateBtnLoading] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState<Set<string>>(new Set());
+  const [updateBusy, setUpdateBusy] = useState<Set<string>>(new Set());
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [nameFilter, setNameFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const { setFeedback } = useFeedbackContext();
-  const [deleteLoading, setDeleteLoading] = useState({
-    id: "",
-    loading: false,
-  });
 
-  const [fb, setFb] = useState<{
-    isActive: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({
-    isActive: false,
-    message: "",
-    severity: "success",
-  });
+  const markDeleting = (id: string, on: boolean) => {
+    setDeleteBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
+
+  const markUpdating = (id: string, on: boolean) => {
+    setUpdateBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
 
   const refresh = async () => {
     setLoading(true);
-    const r = await ReadAllVbdSplitterAction();
-    if (r.ok) {
-      setRows(r.data || []);
-    }
+    try {
+      const r = await ReadAllVbdSplitterAction();
+      if (r.ok) {
+        setRows(r.data || []);
+      }
 
-    if (!r.ok) {
-      console.error("Error fetching VBD Splitters:", r.message);
-      setFeedback({
-        message: "Error fetching VBD Splitters",
-        severity: "error",
-        isActive: true,
-      });
+      if (!r.ok) {
+        console.warn("Error fetching VBD Splitters:", r.message);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const filteredRows = rows.filter((row) => {
@@ -99,83 +104,100 @@ export default function VbdSplitterClient({
   });
 
   const onDelete = async (id: string) => {
-    setDeleteLoading({ id, loading: true });
-    const r = await DeleteVbdSplitterAction(id);
+    markDeleting(id, true);
+    markUpdating(id, false);
+    setError(null);
+    setSuccess(null);
+    setLoading(false);
+    try {
+      const r = await DeleteVbdSplitterAction(id);
 
-    if (r.ok) {
-      setFb({
-        message: "VBD Splitter deleted successfully",
-        severity: "success",
-        isActive: true,
-      });
-      await refresh();
-    }
+      if (r.ok) {
+        setSuccess(r.message || "VBD Splitter deleted successfully.");
+        await refresh();
+      }
 
-    if (!r.ok) {
-      console.error("Error deleting VBD Splitter:", r.message);
-      setFb({
-        message: "Error deleting VBD Splitter",
-        severity: "error",
-        isActive: true,
-      });
+      if (!r.ok) {
+        console.error("Error deleting VBD Splitter:", r.message);
+        setError(r.message || "Failed to delete VBD Splitter.");
+      }
+    } finally {
+      markDeleting(id, false);
+      setDeleteBusy(new Set());
+      setUpdateBusy(new Set());
     }
-    setDeleteLoading({ id: "", loading: false });
   };
 
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
-      <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        VBD Splitters
-      </Typography>
+      <Box className="flex items-center justify-between mb-4">
+        <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
+          VBD Splitters
+        </Typography>
+        <Button
+          component={Link}
+          href="/vbd-splitter/create"
+          variant="contained"
+          startIcon={<AddIcon />}
+          loading={createBtnLoading}
+          disabled={createBtnLoading}
+          onClick={() => setCreateBtnLoading(true)}
+        >
+          Create
+        </Button>
+      </Box>
 
       {/* Filters */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <TextField
-            label="Search by splitter name or user email"
-            size="small"
-            value={nameFilter}
-            onChange={(e) => setNameFilter(e.target.value)}
-          />
-          <TextField
-            label="Created From"
-            size="small"
-            type="datetime-local"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Created To"
-            size="small"
-            type="datetime-local"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Stack>
-        <Box sx={{ mt: 2 }}>
-          <Button
-            component={Link}
-            href="/vbd-splitter/create"
-            variant="contained"
-            sx={{ textTransform: "none" }}
+        <Box sx={{ display: "grid", gap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
           >
-            Create VBD Splitter
-          </Button>
+            <TextField
+              label="Created From"
+              size="small"
+              type="datetime-local"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Created To"
+              size="small"
+              type="datetime-local"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Box>
+          <Box className="flex items-center gap-2 mb-2 mt-3">
+            <SearchIcon fontSize="small" />
+            <TextField
+              label="Search by splitter name or user email"
+              size="small"
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+              fullWidth
+            />
+          </Box>
         </Box>
       </Paper>
 
       {/* Feedback Snackbar */}
-      {fb.isActive && (
-        <Box sx={{ mb: 2 }}>
-          <Alert
-            severity={fb.severity}
-            onClose={() => setFb({ ...fb, isActive: false })}
-          >
-            {fb.message}
-          </Alert>
-        </Box>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
       )}
 
       {/* Table */}
@@ -185,7 +207,7 @@ export default function VbdSplitterClient({
             <CircularProgress />
           </Box>
         ) : (
-          <TableContainer>
+          <TableContainer component={Paper} elevation={0}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -207,49 +229,55 @@ export default function VbdSplitterClient({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredRows.map((row) => (
-                    <TableRow key={row.id} hover>
-                      <TableCell>{row.name || "-"}</TableCell>
-                      <TableCell>{row?.user?.email || "-"}</TableCell>
-                      <TableCell>
-                        <LocalTime fb_date={row.createdAt as any} />
-                      </TableCell>
-                      <TableCell>
-                        <Stack direction="row" spacing={1}>
-                          <Tooltip title="Edit">
-                            <IconButton
-                              component={Link}
-                              href={`/vbd-splitter/${row.id}`}
-                              aria-label="Edit VBD Splitter"
-                              size="small"
-                            >
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Delete">
-                            <IconButton
-                              aria-label="Delete VBD Splitter"
-                              size="small"
-                              loading={
-                                deleteLoading && deleteLoading.id === row.id
-                              }
-                              onClick={() => {
-                                if (
-                                  confirm(
-                                    "Are you sure you want to delete this item?"
-                                  )
-                                ) {
-                                  onDelete(row.id);
-                                }
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  filteredRows.map((row) => {
+                    const isDeleting = deleteBusy.has(row.id);
+                    const isUpdating = updateBusy.has(row.id);
+                    return (
+                      <TableRow key={row.id} hover>
+                        <TableCell>{row.name || "-"}</TableCell>
+                        <TableCell>{row?.user?.email || "-"}</TableCell>
+                        <TableCell sx={{ whiteSpace: "nowrap" }}>
+                          <LocalTime fb_date={row.createdAt as any} />
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: "nowrap" }}>
+                          <Stack direction="row" spacing={1}>
+                            <Tooltip title="Edit">
+                              <IconButton
+                                component={Link}
+                                href={`/vbd-splitter/${row.id}`}
+                                aria-label="Edit VBD Splitter"
+                                size="small"
+                                disabled={isDeleting || isUpdating}
+                                loading={isUpdating}
+                                onClick={() => markUpdating(row.id, true)}
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <IconButton
+                                aria-label="Delete VBD Splitter"
+                                size="small"
+                                disabled={isDeleting || isUpdating}
+                                loading={isDeleting}
+                                onClick={() => {
+                                  if (
+                                    confirm(
+                                      "Are you sure you want to delete this item?"
+                                    )
+                                  ) {
+                                    onDelete(row.id);
+                                  }
+                                }}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>

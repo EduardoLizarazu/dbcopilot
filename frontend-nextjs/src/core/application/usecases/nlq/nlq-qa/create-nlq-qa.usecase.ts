@@ -64,15 +64,15 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
     private readonly safePolicyUnMutationQueryStep: IPolicySafeUnMutableQueryStep,
     private readonly executeQueryStep: IExecuteQueryStep,
     private readonly createNlqQaStep: ICreateNlqQaStep,
-    private readonly createNlqQaErrorStep: ICreateNlqQaErrorStep
+    private readonly createNlqQaErrorStep: ICreateNlqQaErrorStep,
   ) {}
 
   async execute(
-    data: TNlqQaInRequestDto
+    data: TNlqQaInRequestDto,
   ): Promise<TResponseDto<TNlqQaOutRequestDto>> {
     try {
       this.logger.info(
-        "[CreateNlqQaUseCase]: Starting NLQ QA creation process"
+        "[CreateNlqQaUseCase]: Starting NLQ QA creation process",
       );
 
       // 1. Validate input data
@@ -103,14 +103,14 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
         sid: dbConnWithSplitterAndSchemaQuery?.sid,
         schema_query: dbConnWithSplitterAndSchemaQuery?.schema_query || "",
       });
-
+      // COMMENT
       // // 4.a Format raw schema data
       // const formattedRawSchema =
       //   await this.formatRawSchemaStep.run(schemaBased);
 
       // this.logger.info(
       //   "[CreateNlqQaUseCase]: Formatted raw schema data",
-      //   formattedRawSchema
+      //   formattedRawSchema,
       // );
 
       // // 4.b Read schema context by connection id
@@ -119,7 +119,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       // });
       // this.logger.info(
       //   "[CreateNlqQaUseCase]: Read schema context by connection id",
-      //   JSON.stringify(schemaCtx)
+      //   JSON.stringify(schemaCtx),
       // );
 
       // // 4.c Merge raw schema based with schema context
@@ -133,15 +133,15 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       // }
       // this.logger.info(
       //   "[CreateNlqQaUseCase]: Merged schema context",
-      //   JSON.stringify(mergeSchemaCtx)
+      //   JSON.stringify(mergeSchemaCtx),
       // );
-
+      // END COMMENT
       // 5. Create prompt template to generate SQL query
       const promptTemplateToGenQuery =
         await this.createPromptToGenQueryStep.run({
           question: data.question,
           // schemaBased: mergeSchemaCtx ?? formattedRawSchema, // SCHEMA CONTEXT
-          schemaBased: schemaBased, // RAW SCHEMA ONLY
+          schemaBased: schemaBased, // RAW SCHEMA ONLY - CHECK FILE nlq-qa-generation.dto.ts
           similarKnowledgeBased: similarQuestionFromKnowledgeBase,
           dbType: dbConnWithSplitterAndSchemaQuery?.type || "ANSI SQL",
         });
@@ -169,6 +169,16 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           message: `Failed to generate SQL query. Suggestion: ${suggestion.suggestion}`,
         };
       }
+      // TEST - START COMMENT
+      //       const query = `
+      // DROP TABLE clientes;
+
+      //       `; // PONER QUERY AQUI
+
+      //       const extractQueryFromGenQuery = {
+      //         query: query,
+      //       }; // COMENTAR ESTA LINEA CUANDO NO SE NECESITE SOBREESCRIBIR EL QUERY GENERADO
+      // TEST - END COMMENT
 
       // 6.a.3 If query is not null, validate SQL Query policy (no mutation)
       const safePolicyUnMutationQuery =
@@ -182,7 +192,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           question: data.question,
           query: extractQueryFromGenQuery.query,
           knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
-            (q) => q.id
+            (q) => q.id,
           ),
           errorMessage: "Generated query is not policy safe.",
           createdBy: dateValidate.actorId,
@@ -194,7 +204,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           isGood: false,
           nlqErrorId: error.id,
           knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
-            (q) => q.id
+            (q) => q.id,
           ),
           dbConnectionId: data.dbConnectionId,
           createdBy: dateValidate.actorId,
@@ -228,7 +238,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           question: data.question,
           query: extractQueryFromGenQuery.query,
           knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
-            (q) => q.id
+            (q) => q.id,
           ),
           errorMessage: error instanceof Error ? error.message : String(error),
           createdBy: dateValidate.actorId,
@@ -239,7 +249,7 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           isGood: false,
           nlqErrorId: errorEntry.id,
           knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
-            (q) => q.id
+            (q) => q.id,
           ),
           dbConnectionId: data.dbConnectionId,
           createdBy: dateValidate.actorId,
@@ -253,13 +263,14 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       }
 
       // 8. Create NLQ QA entry
+
       const createdNlqQa = await this.createNlqQaStep.run({
         question: data.question,
         query: extractQueryFromGenQuery.query,
         isGood: true,
         nlqErrorId: "",
         knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
-          (q) => q.id
+          (q) => q.id,
         ),
         dbConnectionId: data.dbConnectionId,
         createdBy: dateValidate.actorId,
@@ -268,14 +279,29 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
 
       // 9. Return response with information
 
-      this.logger.info(
-        "[CreateNlqQaUseCase]: NLQ QA creation process completed successfully",
-        JSON.stringify({
-          data: createdNlqQa,
-          queryResult: queryResult,
-        })
-      );
-
+      // this.logger.info(
+      //   "[CreateNlqQaUseCase]: NLQ QA creation process completed successfully",
+      //   JSON.stringify({
+      //     data: createdNlqQa,
+      //     queryResult: queryResult,
+      //   }),
+      // );
+      // TEST - COMMENT
+      // const createdNlqQa = {
+      //   id: "generated-nlq-qa-id",
+      //   question: data.question,
+      //   query: query,
+      //   isGood: true,
+      //   nlqErrorId: "",
+      //   knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
+      //     (q) => q.id,
+      //   ),
+      //   dbConnectionId: data.dbConnectionId,
+      //   createdBy: dateValidate.actorId,
+      //   updatedBy: dateValidate.actorId,
+      // };
+      // TEST -END COMMENT
+      //
       return {
         success: true,
         message: "NLQ QA created successfully",

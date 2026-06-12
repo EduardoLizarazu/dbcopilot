@@ -22,8 +22,10 @@ import {
   Select,
   FormControl,
   InputLabel,
+  TableContainer,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useFeedbackContext } from "@/contexts/feedback.context";
 import { LocalTime } from "@/components/shared/LocalTime";
@@ -104,64 +106,74 @@ export default function NlqCorrectionsClient({
 
       {/* Filters */}
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <TextField
-            label="Search..."
-            size="small"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <TextField
-            label="time_question from"
-            size="small"
-            type="datetime-local"
-            value={tqFrom}
-            onChange={(e) => setTqFrom(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="time_question to"
-            size="small"
-            type="datetime-local"
-            value={tqTo}
-            onChange={(e) => setTqTo(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel id="kind-label">Show</InputLabel>
-            <Select
-              labelId="kind-label"
-              label="Show"
-              value={kind}
-              onChange={(e) => setKind(e.target.value as any)}
-            >
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="feedback">Feedback</MenuItem>
-              <MenuItem value="error">Error</MenuItem>
-            </Select>
-          </FormControl>
-        </Stack>
-
-        <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-          <Button variant="contained" onClick={fetchRows}>
-            Search
-          </Button>
-          <Button
-            variant="text"
-            startIcon={<RefreshIcon />}
-            onClick={() => {
-              setEmail("");
-              setTqFrom("");
-              setTqTo("");
-              setKind("all");
-              setSearch("");
-              fetchRows();
+        <Box sx={{ display: "grid", gap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              flexWrap: "wrap",
             }}
           >
-            Reset
-          </Button>
-        </Stack>
+            <TextField
+              label="time_question from"
+              size="small"
+              type="datetime-local"
+              value={tqFrom}
+              onChange={(e) => setTqFrom(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="time_question to"
+              size="small"
+              type="datetime-local"
+              value={tqTo}
+              onChange={(e) => setTqTo(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel id="kind-label">Show</InputLabel>
+              <Select
+                labelId="kind-label"
+                label="Show"
+                value={kind}
+                onChange={(e) => setKind(e.target.value as any)}
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="feedback">Feedback</MenuItem>
+                <MenuItem value="error">Error</MenuItem>
+              </Select>
+            </FormControl>
+            <Button variant="contained" onClick={fetchRows}>
+              Search
+            </Button>
+            <Button
+              variant="text"
+              startIcon={<RefreshIcon />}
+              onClick={() => {
+                setEmail("");
+                setTqFrom("");
+                setTqTo("");
+                setKind("all");
+                setSearch("");
+                fetchRows();
+              }}
+            >
+              Reset
+            </Button>
+          </Box>
+          <Box className="flex items-center gap-2 mb-3">
+            <SearchIcon fontSize="small" />
+            <TextField
+              label="Search..."
+              size="small"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              fullWidth
+            />
+          </Box>
+        </Box>
       </Paper>
 
       {/* Table */}
@@ -171,94 +183,107 @@ export default function NlqCorrectionsClient({
             <CircularProgress />
           </Box>
         ) : (
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>time_question</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700 }}>
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredRows.length === 0 ? (
+          <TableContainer component={Paper} elevation={0}>
+            <Table size="small">
+              <TableHead>
                 <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    align="center"
-                    sx={{ py: 6, color: "text.secondary" }}
-                  >
-                    No pending corrections 🎉
+                  <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>time_question</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    Actions
                   </TableCell>
                 </TableRow>
-              ) : (
-                filteredRows.map((r) => (
-                  <TableRow key={r.id} hover>
-                    <TableCell>{r.user?.email || "—"}</TableCell>
-                    <TableCell sx={{ maxWidth: 360 }}>
-                      <Box
-                        sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {r.question || "—"}
-                      </Box>
-                    </TableCell>
-                    <TableCell sx={{ maxWidth: 360 }}>
-                      <Box
-                        sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {!!r.feedback &&
-                          (r.feedback.isGood ? (
-                            <Chip
-                              label="Feedback"
-                              color="success"
-                              size="small"
-                            />
-                          ) : (
-                            <Chip label="Feedback" color="error" size="small" />
-                          ))}
-                        {!!r.error ? (
-                          <Chip label="Error" color="error" size="small" />
-                        ) : null}
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <LocalTime
-                        fb_date={
-                          r.timeQuestion as unknown as {
-                            _seconds: number;
-                            _nanoseconds: number;
-                          }
-                        }
-                      />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Tooltip title="Edit correction">
-                        <IconButton
-                          component={Link}
-                          href={`/nlq-correction/${r.id}`}
-                          size="small"
-                          aria-label="edit"
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+              </TableHead>
+              <TableBody>
+                {filteredRows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      align="center"
+                      sx={{ py: 6, color: "text.secondary" }}
+                    >
+                      No pending corrections 🎉
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filteredRows.map((r) => (
+                    <TableRow key={r.id} hover>
+                      <TableCell>{r.user?.email || "—"}</TableCell>
+                      <TableCell
+                        sx={{
+                          maxWidth: 360,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        <Tooltip title={r.question || "—"}>
+                          <span>
+                            {r.question
+                              ? r.question.length > 30
+                                ? `${r.question.slice(0, 30)}...`
+                                : r.question
+                              : "—"}
+                          </span>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell sx={{ maxWidth: 360 }}>
+                        <Box
+                          sx={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {!!r.feedback &&
+                            (r.feedback.isGood ? (
+                              <Chip
+                                label="Feedback"
+                                color="success"
+                                size="small"
+                              />
+                            ) : (
+                              <Chip
+                                label="Feedback"
+                                color="error"
+                                size="small"
+                              />
+                            ))}
+                          {!!r.error ? (
+                            <Chip label="Error" color="error" size="small" />
+                          ) : null}
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
+                        <LocalTime
+                          fb_date={
+                            r.timeQuestion as unknown as {
+                              _seconds: number;
+                              _nanoseconds: number;
+                            }
+                          }
+                        />
+                      </TableCell>
+                      <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                        <Tooltip title="Edit correction">
+                          <IconButton
+                            component={Link}
+                            href={`/nlq-correction/${r.id}`}
+                            size="small"
+                            aria-label="edit"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
       </Paper>
     </Box>

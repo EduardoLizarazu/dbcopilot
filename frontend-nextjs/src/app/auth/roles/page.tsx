@@ -26,17 +26,28 @@ import AddIcon from "@mui/icons-material/Add";
 import { ReadAllRolesAction } from "@/_actions/roles/read-all.action";
 import { DeleteRoleAction } from "@/_actions/roles/delete.action";
 import { TRoleOutRequestDto } from "@/core/application/dtos/role.app.dto";
+import { set } from "zod";
 
 export default function RolesPage() {
   const [roles, setRoles] = React.useState<TRoleOutRequestDto[] | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
+  const [updateBusy, setUpdateBusy] = React.useState<Set<string>>(new Set());
+  const [createLoadingBtn, setCreateLoadingBtn] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [q, setQ] = React.useState("");
 
   const markDeleting = (id: string, on: boolean) => {
     setDeleteBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
+
+  const markUpdating = (id: string, on: boolean) => {
+    setUpdateBusy((prev) => {
       const s = new Set(prev);
       on ? s.add(id) : s.delete(id);
       return s;
@@ -85,24 +96,24 @@ export default function RolesPage() {
     setError(null);
     setSuccess(null);
     markDeleting(id, true);
-
-    const res = await DeleteRoleAction(id);
-    if (res.ok) {
-      setSuccess(res.message || "Role removed successfully.");
-      const data = await ReadAllRolesAction();
-      setLoading(true);
-      setRoles(data.data);
-    } else {
-      setError(res.message || "Failed to remove role.");
-    }
-
-    setTimeout(() => {
-      setError(null);
-      setSuccess(null);
+    markUpdating(id, false);
+    try {
+      const res = await DeleteRoleAction(id);
+      if (res.ok) {
+        setSuccess(res.message || "Role removed successfully.");
+        const data = await ReadAllRolesAction();
+        setLoading(true);
+        setRoles(data.data);
+      } else {
+        setError(res.message || "Failed to remove role.");
+      }
+    } finally {
       setLoading(false);
       markDeleting(id, false);
+      markUpdating(id, false);
       setDeleteBusy(new Set());
-    }, 2000);
+      setUpdateBusy(new Set());
+    }
   };
 
   return (
@@ -117,6 +128,9 @@ export default function RolesPage() {
           variant="contained"
           startIcon={<AddIcon />}
           sx={{ textTransform: "none" }}
+          disabled={createLoadingBtn}
+          loading={createLoadingBtn}
+          onClick={() => setCreateLoadingBtn(true)}
         >
           Create Role
         </Button>
@@ -177,17 +191,38 @@ export default function RolesPage() {
               <TableBody>
                 {filteredRoles.map((r) => {
                   const isDeleting = deleteBusy.has(r.id);
+                  const isUpdating = updateBusy.has(r.id);
                   return (
                     <TableRow key={r.id} hover>
                       <TableCell>{r.name}</TableCell>
-                      <TableCell>{r.description || "—"}</TableCell>
-                      <TableCell align="right">
+                      <TableCell
+                        sx={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: 300,
+                        }}
+                      >
+                        <Tooltip title={r.description || ""}>
+                          <span>
+                            {r.description
+                              ? r.description.length > 50
+                                ? `${r.description.slice(0, 50)}...`
+                                : r.description
+                              : "—"}
+                          </span>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                         <Tooltip title="Edit">
                           <IconButton
                             component={Link}
                             href={`/auth/roles/${r.id}`}
                             aria-label="Edit role"
                             size="small"
+                            loading={isUpdating}
+                            disabled={isDeleting || isUpdating}
+                            onClick={() => markUpdating(r.id, true)}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
@@ -200,6 +235,7 @@ export default function RolesPage() {
                             aria-label="Remove role"
                             size="small"
                             loading={isDeleting}
+                            disabled={isDeleting || isUpdating}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>

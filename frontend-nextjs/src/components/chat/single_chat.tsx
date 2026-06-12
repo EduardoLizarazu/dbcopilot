@@ -170,7 +170,7 @@ export function SingleChat({ props = null }: Props = { props: null }) {
             handleReset={handleReset}
           />
           {/* Error (inline) */}
-          {success ? <Alert severity="success">{success}</Alert> : null}
+          {success ? <Alert severity="success">Success</Alert> : null}
           {error ? <Alert severity="error">{error}</Alert> : null}
           {warn ? <Alert severity="warning">{warn}</Alert> : null}
 

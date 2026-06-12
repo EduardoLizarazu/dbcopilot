@@ -11,7 +11,7 @@ import { COOKIE_ROLES, JWT_COOKIE_NAME } from "@/utils/constants";
  * - On missing/invalid token or insufficient role: clear cookie and redirect to /login
  */
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Allow Next.js internals and static assets

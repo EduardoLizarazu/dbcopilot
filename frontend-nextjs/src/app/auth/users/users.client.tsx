@@ -38,10 +38,20 @@ export default function UsersClient({
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
+  const [updateBusy, setUpdateBusy] = React.useState<Set<string>>(new Set());
+  const [loadingCreateBtn, setLoadingCreateBtn] = React.useState(false);
   const [q, setQ] = React.useState("");
 
   const markDeleting = (id: string, on: boolean) => {
     setDeleteBusy((prev) => {
+      const s = new Set(prev);
+      on ? s.add(id) : s.delete(id);
+      return s;
+    });
+  };
+
+  const markUpdating = (id: string, on: boolean) => {
+    setUpdateBusy((prev) => {
       const s = new Set(prev);
       on ? s.add(id) : s.delete(id);
       return s;
@@ -63,6 +73,11 @@ export default function UsersClient({
     );
   });
 
+  // Remove user by id from the list
+  const removeUserById = (id: string) => {
+    setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+  };
+
   const onDelete = async (id: string) => {
     const yes = window.confirm("Remove this user? This cannot be undone.");
     if (!yes) return;
@@ -71,23 +86,23 @@ export default function UsersClient({
     setError(null);
     setSuccess(null);
     markDeleting(id, true);
-    const res = await DeleteUserAction(id);
-    if (res.ok) {
-      const data = await ReadAllUserAction();
-      setUsers(data.data || []);
-      setSuccess("User removed successfully.");
-      setLoading(true);
-    }
-    if (!res.ok) {
-      setError(res.message || "Failed to remove user.");
-    }
-    setTimeout(() => {
-      setError(null);
-      setSuccess(null);
+    markUpdating(id, false); // in case it's being updated
+    try {
+      const res = await DeleteUserAction(id);
+      if (res.ok) {
+        const data = await ReadAllUserAction();
+        setUsers(data.data || []);
+        setSuccess("User removed successfully.");
+        setLoading(true);
+        removeUserById(id);
+      }
+      if (!res.ok) {
+        setError(res.message || "Failed to remove user.");
+      }
+    } finally {
       markDeleting(id, false);
-      setDeleteBusy(new Set());
       setLoading(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -101,9 +116,11 @@ export default function UsersClient({
           href="/auth/users/create"
           variant="contained"
           startIcon={<AddIcon />}
-          sx={{ textTransform: "none" }}
+          disabled={loadingCreateBtn}
+          loading={loadingCreateBtn}
+          onClick={() => setLoadingCreateBtn(true)}
         >
-          Create User
+          Create
         </Button>
       </Box>
 
@@ -164,6 +181,7 @@ export default function UsersClient({
               <TableBody>
                 {filteredUsers.map((u) => {
                   const isDeleting = deleteBusy.has(u.id);
+                  const isUpdating = updateBusy.has(u.id);
                   return (
                     <TableRow key={u.id} hover>
                       <TableCell>
@@ -174,13 +192,16 @@ export default function UsersClient({
                         {u.rolesDetail.map((role) => role.name).join(", ") ||
                           "—"}
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                         <Tooltip title="Edit">
                           <IconButton
                             component={Link}
                             href={`/auth/users/${u.id}`}
                             aria-label="Edit user"
                             size="small"
+                            loading={isUpdating}
+                            disabled={isUpdating}
+                            onClick={() => markUpdating(u.id, true)}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
@@ -190,6 +211,7 @@ export default function UsersClient({
                             onClick={() => onDelete(u.id)}
                             aria-label="Remove user"
                             size="small"
+                            disabled={isDeleting}
                             loading={isDeleting}
                           >
                             <DeleteIcon fontSize="small" />

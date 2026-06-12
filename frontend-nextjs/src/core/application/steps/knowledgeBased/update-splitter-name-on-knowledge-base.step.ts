@@ -36,7 +36,9 @@ export class UpdateSplitterNameOnKnowledgeBaseStep
         await updateSplitterNameOnKnowledgeBaseDto.safeParseAsync(data);
       if (!validData.success) {
         this.logger.error(
-          `[UpdateSplitterNameOnKnowledgeBaseStep] Invalid input data: ${JSON.stringify(validData.error)}`
+          `[UpdateSplitterNameOnKnowledgeBaseStep] Invalid input data: ${JSON.stringify(
+            validData.error
+          )}`
         );
         throw new Error("Invalid input data: " + validData.error.message);
       }
@@ -54,8 +56,8 @@ export class UpdateSplitterNameOnKnowledgeBaseStep
         `[UpdateSplitterNameOnKnowledgeBaseStep] Error updating splitter name in knowledge base: ${error}`
       );
       throw new Error(
-        "Error updating splitter name in knowledge base: " +
-          (error as Error).message
+        (error as Error)?.message ||
+          "Failed to update splitter name in knowledge base"
       );
     }
   }

@@ -8,7 +8,10 @@ export default async function UpdateVbdSplitterPage({
   params: { id: string };
 }) {
   // Fetch data on the server side
-  const initial = await ReadVbdSplitterByIdAction(await params.id);
+
+  const { id } = await params;
+
+  const initial = await ReadVbdSplitterByIdAction(await id);
 
   if (initial.data === null) return <NotFound />;
 

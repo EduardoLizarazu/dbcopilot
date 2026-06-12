@@ -9,7 +9,9 @@ export default async function NlqGoodEditPage({
 }: {
   params: { nlqId: string };
 }) {
-  const initial = await ReadNlqQaGoodByIdAction(await params.nlqId);
+  const { nlqId } = await params;
+
+  const initial = await ReadNlqQaGoodByIdAction(await nlqId);
   if (initial.data === null) return <NotFound />;
   return <NlqGoodEditClient initial={initial.data} />;
 }

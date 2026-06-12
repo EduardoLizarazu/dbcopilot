@@ -122,7 +122,9 @@ export class DeleteVbdSplitterController implements IController {
       return new HttpResponse(success.statusCode, success.body);
     } catch (error) {
       this.logger.error("[DeleteVbdSplitterController] Error:", error.message);
-      const httpError = this.httpErrors.error_500(error.message);
+      const httpError = this.httpErrors.error_500(
+        error.message || "Unknown error"
+      );
       return new HttpResponse(httpError.statusCode, httpError.body);
     }
   }

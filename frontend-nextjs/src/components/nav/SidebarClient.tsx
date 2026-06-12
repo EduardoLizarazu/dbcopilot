@@ -14,6 +14,7 @@ import {
   Box,
   Divider,
   Typography,
+  Paper,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardIcon from "@mui/icons-material/SpaceDashboard";
@@ -40,6 +41,9 @@ export default function SidebarClient({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  // COMPONENT: Navigation item
+  // This is a reusable component for each navigation item in the sidebar.
+  // It takes a href, icon, and label as props.
   const NavItem = ({
     href,
     icon,
@@ -68,7 +72,7 @@ export default function SidebarClient({
     <Box
       role="navigation"
       sx={{
-        width: DRAWER_WIDTH,
+        // width: DRAWER_WIDTH,
         display: "flex",
         flexDirection: "column",
         height: "100%",
@@ -76,7 +80,7 @@ export default function SidebarClient({
     >
       <Box sx={{ p: 2 }}>
         <Typography variant="h6" fontWeight={800}>
-          MyApp
+          HABLAGUAI
         </Typography>
         <Typography variant="body2" color="text.secondary" noWrap title={email}>
           {email}
@@ -129,14 +133,14 @@ export default function SidebarClient({
     <>
       {/* Mobile header with burger */}
       <Box className="md:hidden sticky top-0 z-50">
-        <Box className="flex items-center justify-between px-3 py-2 bg-white/70 backdrop-blur border-b">
+        <Box className="flex items-center justify-between px-3 py-2 bg-white/70 backdrop-blur ">
           <IconButton onClick={() => setOpen(true)} aria-label="Open menu">
             <MenuIcon />
           </IconButton>
-          <Typography variant="subtitle1" fontWeight={700}>
-            MyApp
-          </Typography>
-          <Box width={40} />
+          {/* <Typography variant="subtitle1" fontWeight={700}>
+            HABLAGUAI
+          </Typography> */}
+          {/* <Box width={40} /> */}
         </Box>
       </Box>
 

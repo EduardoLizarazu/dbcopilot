@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -23,24 +19,12 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@domain/*": [
-        "./src/core/domain/*"
-      ],
-      "@infra/*": [
-        "./src/infrastructure/*"
-      ],
-      "@useCases/*": [
-        "./src/core/application/usecases/*"
-      ],
-      "@controllers/*": [
-        "./src/controllers/*"
-      ]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@domain/*": ["./src/core/domain/*"],
+      "@infra/*": ["./src/infrastructure/*"],
+      "@useCases/*": ["./src/core/application/usecases/*"],
+      "@controllers/*": ["./src/controllers/*"]
     }
   },
   "include": [
@@ -50,7 +34,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

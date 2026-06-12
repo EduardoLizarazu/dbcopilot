@@ -89,7 +89,7 @@ export class UpdateVbdSplitterUseCase implements IUpdateVbdSplitterUseCase {
       );
       return {
         success: false,
-        message: "Error updating VBD Splitter " + error.message,
+        message: error?.message || "Failed to update VBD Splitter",
         data: null,
       };
     }

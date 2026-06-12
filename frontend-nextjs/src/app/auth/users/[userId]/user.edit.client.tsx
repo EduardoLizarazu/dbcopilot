@@ -47,6 +47,7 @@ export default function UserEditClient({
   const [showPassword, setShowPassword] = React.useState(false);
 
   const [loading, setLoading] = React.useState(false);
+  const [cancelLoading, setCancelLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
 
@@ -100,22 +101,20 @@ export default function UserEditClient({
               fullWidth
             />
 
-            <Box className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <TextField
-                label="Name"
-                value={name}
-                required
-                onChange={(e) => setName(e.target.value)}
-                fullWidth
-              />
-              <TextField
-                label="Lastname"
-                value={lastname}
-                required
-                onChange={(e) => setLastname(e.target.value)}
-                fullWidth
-              />
-            </Box>
+            <TextField
+              label="Name"
+              value={name}
+              required
+              onChange={(e) => setName(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Lastname"
+              value={lastname}
+              required
+              onChange={(e) => setLastname(e.target.value)}
+              fullWidth
+            />
 
             {/* ✅ Optional Password field */}
             <TextField
@@ -194,17 +193,20 @@ export default function UserEditClient({
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading}
+                disabled={loading || cancelLoading}
+                loading={loading}
                 sx={{ textTransform: "none" }}
               >
-                {loading ? <CircularProgress size={22} /> : "Update"}
+                Update
               </Button>
 
               <Button
                 component={Link}
                 href="/auth/users"
                 variant="outlined"
-                disabled={loading}
+                disabled={loading || cancelLoading}
+                loading={cancelLoading}
+                onClick={() => setCancelLoading(true)}
                 sx={{ textTransform: "none" }}
               >
                 Cancel

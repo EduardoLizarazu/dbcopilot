@@ -25,6 +25,7 @@ export default function VbdSplitterClient({
 
   const [name, setName] = React.useState(initial ? initial.name : "");
   const [loading, setLoading] = React.useState(false);
+  const [cancelBtnLoading, setCancelBtnLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
 
@@ -32,6 +33,7 @@ export default function VbdSplitterClient({
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    setCancelBtnLoading(false);
     setLoading(true);
     if (initial) {
       await onUpdate(e);
@@ -42,47 +44,46 @@ export default function VbdSplitterClient({
 
   const onCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
+    try {
+      const formattedName = formatName(name); // Apply formatting to the name
+      const res = await CreateVbdSplitterAction({ name: formattedName });
 
-    const formattedName = formatName(name); // Apply formatting to the name
-    const res = await CreateVbdSplitterAction({ name: formattedName });
-
-    if (res.ok) {
-      console.log("VBD Splitter created:", res);
-      setSuccess("VBD Splitter created successfully. Redirecting to list…");
-      setTimeout(() => router.replace("/vbd-splitter"), 800);
+      if (res.ok) {
+        console.log("VBD Splitter created:", res);
+        setSuccess("VBD Splitter created successfully. Redirecting to list…");
+        setTimeout(() => router.replace("/vbd-splitter"), 800);
+      }
+      if (!res.ok) {
+        setError(res?.message ?? "Failed to create VBD Splitter.");
+      }
+    } finally {
+      setLoading(false);
     }
-    if (!res.ok) {
-      setError(res?.message ?? "Failed to create VBD Splitter.");
-    }
-    setLoading(false);
   };
 
   const onUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
-    const formattedName = formatName(name); // Apply formatting to the name
-    // Assuming UpdateVbdSplitterAction is imported and available
-    const res = await UpdateVbdSplitterAction(initial!.id, {
-      id: initial!.id,
-      name: formattedName,
-    });
+    try {
+      const formattedName = formatName(name); // Apply formatting to the name
+      // Assuming UpdateVbdSplitterAction is imported and available
+      const res = await UpdateVbdSplitterAction(initial!.id, {
+        id: initial!.id,
+        name: formattedName,
+      });
 
-    if (res.ok) {
-      setSuccess("VBD Splitter updated successfully. Redirecting to list…");
-      // short delay so user sees feedback, then go back to list
-      setTimeout(() => router.replace("/vbd-splitter"), 800);
-    }
+      if (res.ok) {
+        setSuccess("VBD Splitter updated successfully. Redirecting to list…");
+        // short delay so user sees feedback, then go back to list
+        setTimeout(() => router.replace("/vbd-splitter"), 800);
+      }
 
-    if (!res.ok) {
-      setError(res?.message ?? "Failed to update VBD Splitter.");
+      if (!res.ok) {
+        setError(res?.message ?? "Failed to update VBD Splitter.");
+      }
+      console.log("VBD Splitter updated:", res);
+    } finally {
+      setLoading(false);
     }
-    console.log("VBD Splitter updated:", res);
-    setLoading(false);
   };
 
   // Add a function to format the name
@@ -120,23 +121,20 @@ export default function VbdSplitterClient({
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading}
+                disabled={loading || cancelBtnLoading}
                 sx={{ textTransform: "none" }}
+                loading={loading}
               >
-                {loading ? (
-                  <CircularProgress size={22} />
-                ) : initial ? (
-                  "Update"
-                ) : (
-                  "Create"
-                )}
+                {initial ? "Update" : "Create"}
               </Button>
 
               <Button
                 component={Link}
                 href="/vbd-splitter"
                 variant="outlined"
-                disabled={loading}
+                disabled={loading || cancelBtnLoading}
+                loading={cancelBtnLoading}
+                onClick={() => setCancelBtnLoading(true)}
                 sx={{ textTransform: "none" }}
               >
                 Cancel

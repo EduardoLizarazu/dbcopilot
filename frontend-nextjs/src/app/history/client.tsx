@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useFeedbackContext } from "@/contexts/feedback.context";
+import SearchIcon from "@mui/icons-material/Search";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { TNlqQaWitFeedbackOutRequestDto } from "@/core/application/dtos/nlq/nlq-qa.app.dto";
 import { DeleteHistoryByIdAction } from "@/_actions/nlq-qa/history/delete-history-by-id.action";
@@ -42,19 +42,8 @@ export default function HistoryClient({
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState<Set<string>>(new Set());
-
-  const filtered = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((r) => {
-      const question = (r.question || "").toLowerCase();
-      const email = (r.user?.email || "").toLowerCase();
-      return question.includes(q) || email.includes(q);
-    });
-  }, [rows, query]);
-
-  const [sortDir, setSortDir] = React.useState<"desc" | "asc">("desc");
-
+  const [startDate, setStartDate] = React.useState<string>("");
+  const [endDate, setEndDate] = React.useState<string>("");
   const getTime = (val: any) => {
     if (!val) return 0;
     // Firestore-like timestamp
@@ -70,6 +59,26 @@ export default function HistoryClient({
     const d = new Date(val);
     return isNaN(d.getTime()) ? 0 : d.getTime();
   };
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const start = startDate ? new Date(startDate).getTime() : 0;
+    const end = endDate ? new Date(endDate).getTime() : Infinity;
+
+    return rows.filter((r) => {
+      // Text search
+      if (q) {
+        const question = (r.question || "").toLowerCase();
+        const email = (r.user?.email || "").toLowerCase();
+        if (!question.includes(q) && !email.includes(q)) return false;
+      }
+      // Date range search
+      const rTime = getTime(r.createdAt);
+      if (rTime < start || rTime > end) return false;
+      return true;
+    });
+  }, [rows, query, startDate, endDate]);
+
+  const [sortDir, setSortDir] = React.useState<"desc" | "asc">("desc");
 
   const displayed = React.useMemo(() => {
     const arr = filtered.slice();
@@ -131,30 +140,63 @@ export default function HistoryClient({
   return (
     <Box className="max-w-7xl mx-auto px-4 py-6">
       <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        NLQ History
+        Chat history
       </Typography>
 
       <Paper className="p-3 sm:p-4" elevation={1} sx={{ mb: 2 }}>
-        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-          <TextField
-            size="small"
-            placeholder="Search by email or question..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            fullWidth
-          />
-          <FormControl size="small" sx={{ minWidth: 200 }}>
-            <InputLabel id="sort-label">Sort by createdAt</InputLabel>
-            <Select
-              labelId="sort-label"
-              label="Sort by createdAt"
-              value={sortDir}
-              onChange={(e) => setSortDir(e.target.value as any)}
-            >
-              <MenuItem value="desc">Newest first</MenuItem>
-              <MenuItem value="asc">Oldest first</MenuItem>
-            </Select>
-          </FormControl>
+        <Box sx={{ display: "grid", gap: 2 }}>
+          {/* Date Range */}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <TextField
+              size="small"
+              label="From"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 180 }}
+            />
+            <TextField
+              size="small"
+              label="To"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 180 }}
+            />
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel id="sort-label">Sort</InputLabel>
+              <Select
+                labelId="sort-label"
+                label="Sort"
+                value={sortDir}
+                onChange={(e) => setSortDir(e.target.value as any)}
+              >
+                <MenuItem value="desc">Newest</MenuItem>
+                <MenuItem value="asc">Oldest</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+          {/* Search Bar - Full Width */}
+          <Box className="flex items-center gap-2 mb-3">
+            <SearchIcon fontSize="small" />
+            <TextField
+              size="small"
+              placeholder="Search by email or question..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              fullWidth
+            />
+          </Box>
         </Box>
       </Paper>
 
@@ -175,14 +217,23 @@ export default function HistoryClient({
             <CircularProgress />
           </Box>
         ) : (
-          <TableContainer>
+          <TableContainer component={Paper} elevation={0}>
             <Table size="small" aria-label="nlq history table">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Question</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Created At</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                  <TableCell sx={{ fontWeight: 700, whiteSpace: "nowrap" }}>
+                    Email
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, whiteSpace: "nowrap" }}>
+                    Question
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, whiteSpace: "nowrap" }}>
+                    Created At
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{ fontWeight: 700, whiteSpace: "nowrap" }}
+                  >
                     Actions
                   </TableCell>
                 </TableRow>
@@ -201,33 +252,35 @@ export default function HistoryClient({
                 ) : (
                   displayed.map((r) => (
                     <TableRow key={r.id} hover>
-                      <TableCell sx={{ maxWidth: 640 }}>
-                        <div
-                          style={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {r.user?.email || "—"}
-                        </div>
+                      <TableCell
+                        sx={{
+                          maxWidth: 640,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {r.user?.email || "—"}
                       </TableCell>
-                      <TableCell sx={{ maxWidth: 640 }}>
-                        <div
-                          style={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {r.question
-                            ? r.question.length > 100
-                              ? `${r.question.slice(0, 100)}...`
-                              : r.question
-                            : "—"}
-                        </div>
+                      <TableCell
+                        sx={{
+                          maxWidth: 640,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        <Tooltip title={r.question || ""}>
+                          <span>
+                            {r.question
+                              ? r.question.length > 50
+                                ? `${r.question.slice(0, 50)}...`
+                                : r.question
+                              : "—"}
+                          </span>
+                        </Tooltip>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
                         {r.createdAt ? (
                           <LocalTime
                             fb_date={
@@ -243,7 +296,7 @@ export default function HistoryClient({
                           "—"
                         )}
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                         <Tooltip title="Edit">
                           <IconButton
                             component={Link}
