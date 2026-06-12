@@ -136,48 +136,49 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
       //   JSON.stringify(mergeSchemaCtx),
       // );
       // END COMMENT
-      // // 5. Create prompt template to generate SQL query
-      // const promptTemplateToGenQuery =
-      //   await this.createPromptToGenQueryStep.run({
-      //     question: data.question,
-      //     // schemaBased: mergeSchemaCtx ?? formattedRawSchema, // SCHEMA CONTEXT
-      //     schemaBased: schemaBased, // RAW SCHEMA ONLY
-      //     similarKnowledgeBased: similarQuestionFromKnowledgeBase,
-      //     dbType: dbConnWithSplitterAndSchemaQuery?.type || "ANSI SQL",
-      //   });
+      // 5. Create prompt template to generate SQL query
+      const promptTemplateToGenQuery =
+        await this.createPromptToGenQueryStep.run({
+          question: data.question,
+          // schemaBased: mergeSchemaCtx ?? formattedRawSchema, // SCHEMA CONTEXT
+          schemaBased: schemaBased, // RAW SCHEMA ONLY - CHECK FILE nlq-qa-generation.dto.ts
+          similarKnowledgeBased: similarQuestionFromKnowledgeBase,
+          dbType: dbConnWithSplitterAndSchemaQuery?.type || "ANSI SQL",
+        });
 
-      // // 6. Generate SQL query from prompt template
-      // const genQueryFromPromptTemplate =
-      //   await this.genQueryFromPromptTemplateStep.run({
-      //     promptTemplate: promptTemplateToGenQuery.promptTemplate,
-      //   });
+      // 6. Generate SQL query from prompt template
+      const genQueryFromPromptTemplate =
+        await this.genQueryFromPromptTemplateStep.run({
+          promptTemplate: promptTemplateToGenQuery.promptTemplate,
+        });
 
-      // // 6.a Extract SQL query
-      // const extractQueryFromGenQuery =
-      //   await this.extractQueryFromGenQueryStep.run({
-      //     unCleanQuery: genQueryFromPromptTemplate.answer,
-      //   });
+      // 6.a Extract SQL query
+      const extractQueryFromGenQuery =
+        await this.extractQueryFromGenQueryStep.run({
+          unCleanQuery: genQueryFromPromptTemplate.answer,
+        });
 
-      // // 6.a.1 If SQL query is null, extract suggestion from generation response and return with suggestion
-      // if (!extractQueryFromGenQuery?.query) {
-      //   const suggestion = await this.extractSuggestionFromGenQueryStep.run({
-      //     genResponse: genQueryFromPromptTemplate.answer,
-      //   });
-      //   return {
-      //     data: null,
-      //     success: false,
-      //     message: `Failed to generate SQL query. Suggestion: ${suggestion.suggestion}`,
-      //   };
-      // }
+      // 6.a.1 If SQL query is null, extract suggestion from generation response and return with suggestion
+      if (!extractQueryFromGenQuery?.query) {
+        const suggestion = await this.extractSuggestionFromGenQueryStep.run({
+          genResponse: genQueryFromPromptTemplate.answer,
+        });
+        return {
+          data: null,
+          success: false,
+          message: `Failed to generate SQL query. Suggestion: ${suggestion.suggestion}`,
+        };
+      }
+      // TEST - START COMMENT
+      //       const query = `
+      // DROP TABLE clientes;
 
-      const query = `
-DROP TABLE clientes;
+      //       `; // PONER QUERY AQUI
 
-      `; // PONER QUERY AQUI
-
-      const extractQueryFromGenQuery = {
-        query: query,
-      }; // COMENTAR ESTA LINEA CUANDO NO SE NECESITE SOBREESCRIBIR EL QUERY GENERADO
+      //       const extractQueryFromGenQuery = {
+      //         query: query,
+      //       }; // COMENTAR ESTA LINEA CUANDO NO SE NECESITE SOBREESCRIBIR EL QUERY GENERADO
+      // TEST - END COMMENT
 
       // 6.a.3 If query is not null, validate SQL Query policy (no mutation)
       const safePolicyUnMutationQuery =
@@ -262,18 +263,19 @@ DROP TABLE clientes;
       }
 
       // 8. Create NLQ QA entry
-      // const createdNlqQa = await this.createNlqQaStep.run({
-      //   question: data.question,
-      //   query: extractQueryFromGenQuery.query,
-      //   isGood: true,
-      //   nlqErrorId: "",
-      //   knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
-      //     (q) => q.id,
-      //   ),
-      //   dbConnectionId: data.dbConnectionId,
-      //   createdBy: dateValidate.actorId,
-      //   updatedBy: dateValidate.actorId,
-      // });
+
+      const createdNlqQa = await this.createNlqQaStep.run({
+        question: data.question,
+        query: extractQueryFromGenQuery.query,
+        isGood: true,
+        nlqErrorId: "",
+        knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
+          (q) => q.id,
+        ),
+        dbConnectionId: data.dbConnectionId,
+        createdBy: dateValidate.actorId,
+        updatedBy: dateValidate.actorId,
+      });
 
       // 9. Return response with information
 
@@ -284,19 +286,21 @@ DROP TABLE clientes;
       //     queryResult: queryResult,
       //   }),
       // );
-      const createdNlqQa = {
-        id: "generated-nlq-qa-id",
-        question: data.question,
-        query: query,
-        isGood: true,
-        nlqErrorId: "",
-        knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
-          (q) => q.id,
-        ),
-        dbConnectionId: data.dbConnectionId,
-        createdBy: dateValidate.actorId,
-        updatedBy: dateValidate.actorId,
-      };
+      // TEST - COMMENT
+      // const createdNlqQa = {
+      //   id: "generated-nlq-qa-id",
+      //   question: data.question,
+      //   query: query,
+      //   isGood: true,
+      //   nlqErrorId: "",
+      //   knowledgeSourceUsedId: similarQuestionFromKnowledgeBase.map(
+      //     (q) => q.id,
+      //   ),
+      //   dbConnectionId: data.dbConnectionId,
+      //   createdBy: dateValidate.actorId,
+      //   updatedBy: dateValidate.actorId,
+      // };
+      // TEST -END COMMENT
       return {
         success: true,
         message: "NLQ QA created successfully",
