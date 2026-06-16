@@ -76,6 +76,9 @@ export function SingleChat({ props = null }: Props = { props: null }) {
       if (!response.data.results || response.data.results.length === 0) {
         setResult([]);
         setWarn("No results found for the given prompt.");
+        setSubmitting(false);
+        setPromptId(response.data.id ?? null);
+        return;
       }
 
       setResult(response.data.results || []);
@@ -100,7 +103,7 @@ export function SingleChat({ props = null }: Props = { props: null }) {
     setError(null);
     setWarn(null);
     setSuccess(null);
-    setDbConnId(null);
+    setSubmitting(false);
   }
 
   return (

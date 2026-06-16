@@ -10,10 +10,10 @@ import { OpenAIProvider } from "@/infrastructure/providers/ai/openai.infra.provi
 export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
   constructor(
     private readonly logger: ILogger,
-    private readonly aiProvider: OpenAIProvider
+    private readonly aiProvider: OpenAIProvider,
   ) {}
   async genCorrectQuery(
-    data: TGenQueryCorrectionDto
+    data: TGenQueryCorrectionDto,
   ): Promise<{ query: string }> {
     try {
       // type TGenQueryCorrectionDto = {
@@ -29,7 +29,7 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
       // };
       this.logger.info(
         `Generating correct query from previous query: ${data.wrongQuery} with hint: ${data.hint}`,
-        data
+        data,
       );
       const template = `
           You are a SQL expert. Your task is to CORRECT a previously generated SQL query.
@@ -208,7 +208,7 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
 
       const genRes = response.choices[0]?.message?.content?.trim() || "";
       this.logger.info(
-        `Received response for new question and query generation: ${genRes}`
+        `Received response for new question and query generation: ${genRes}`,
       );
       if (!genRes) {
         throw new Error("Empty response from AI provider");
@@ -241,17 +241,17 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
     } catch (error) {
       this.logger.error(
         "NlqQaGenerationAdapter: Error generating correct query",
-        { message: error.message }
+        { message: error.message },
       );
       throw new Error(error.message || "Error generating correct query");
     }
   }
   async genNewQuestionAndQuery(
-    data: TGenNewQuestionQueryFromOldDto
+    data: TGenNewQuestionQueryFromOldDto,
   ): Promise<{ question: string; query: string }> {
     try {
       this.logger.info(
-        `Generating new question and query from previous question: ${data.previousQuestion} and previous query: ${data.previousQuery}`
+        `Generating new question and query from previous question: ${data.previousQuestion} and previous query: ${data.previousQuery}`,
       );
       const prompt = `
         You are an expert SQL refactoring assistant.
@@ -391,7 +391,7 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
 
       const genRes = response.choices[0]?.message?.content?.trim() || "";
       this.logger.info(
-        `Received response for new question and query generation: ${genRes}`
+        `Received response for new question and query generation: ${genRes}`,
       );
       if (!genRes) {
         throw new Error("Empty response from AI provider");
@@ -427,10 +427,10 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
     } catch (error) {
       this.logger.error(
         "NlqQaGenerationAdapter: Error generating new question and query",
-        { message: error.message }
+        { message: error.message },
       );
       throw new Error(
-        error.message || "Error generating new question and query"
+        error.message || "Error generating new question and query",
       );
     }
   }
@@ -465,12 +465,12 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
     }
   }
   async createPromptTemplateToGenerateQuery(
-    data: TCreateNlqQaGenerationPromptTemplate
+    data: TCreateNlqQaGenerationPromptTemplate,
   ): Promise<{ promptTemplate: string }> {
     try {
       this.logger.info(
         `[NlqQaGenerationAdapter] Creating prompt template with data: `,
-        JSON.stringify(data)
+        JSON.stringify(data),
       );
       // Create a prompt template using the provided data
       // const template = `
@@ -610,6 +610,7 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
         10) Limit the query to SELECT statements only. Do not generate data-modifying queries.
         11) Answer only the sql query, do not add any explanations and without ";" at the end.
         12) Ignore D_E_L_E_T_E columns in all tables when constructing queries.
+        13) EXPLICIT LITERALS RULE: Any text enclosed in single quotes within the User Question (e.g., 'LL', 'KG', 'Corporacion XYZ') represents an EXACT literal filter. You MUST use it verbatim in the WHERE clause without altering, translating, or transforming its casing or content.
 
         D) Similarity Enforcement (STRICT)
         13) Let similarity_threshold = 0.95:
@@ -643,13 +644,13 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
     } catch (error) {
       this.logger.error(
         "NlqQaGenerationInfraRepository: Error creating prompt template",
-        { error }
+        { error },
       );
       throw new Error("Error creating prompt template");
     }
   }
   async extractQueryFromGenerationResponse(
-    prompt: string
+    prompt: string,
   ): Promise<{ query: string }> {
     try {
       const sqlMatch = prompt.match(/```sql([\s\S]*?)```/);
@@ -686,11 +687,11 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
   }
 
   async extractSuggestionsFromGenerationResponse(
-    generationResponse: string
+    generationResponse: string,
   ): Promise<{ suggestion: string }> {
     try {
       const suggestionMatch = generationResponse.match(
-        /```NOT_ANSWERED([\s\S]*?)```/
+        /```NOT_ANSWERED([\s\S]*?)```/,
       );
       if (suggestionMatch && suggestionMatch[1]) {
         const suggestion = suggestionMatch[1].trim();
@@ -703,7 +704,7 @@ export class NlqQaGenerationAdapter implements INlqQaQueryGenerationPort {
     } catch (error) {
       this.logger.error(
         "Error extracting suggestion from generation response",
-        { error }
+        { error },
       );
       throw new Error("Error extracting suggestion from generation response");
     }

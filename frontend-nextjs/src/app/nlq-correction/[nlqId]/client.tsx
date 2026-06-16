@@ -87,28 +87,38 @@ export default function NlqCorrectionClient({
     setLoadingNew(false);
   };
 
+  // MODIFIED
   const saveCorrection = async () => {
-    setSaveError(null);
-    setSaveOk(null);
-    setLoadingSave(true);
-    const res = await CreateNlqQaGoodAction({
-      originId: initial.id,
-      question: initial.question,
-      query: newSql.trimStart().trimEnd().toLowerCase(),
-      questionBy: initial.user?.id || "",
-      dbConnectionId: initial.dbConnection?.id || "",
-      isOnKnowledgeSource: true,
-    });
+    try {
+      setSaveError(null);
+      setSaveOk(null);
+      setLoadingSave(true);
+      const res = await CreateNlqQaGoodAction({
+        originId: initial.id,
+        question: initial.question,
+        query: newSql.trimStart().trimEnd(),
+        questionBy: initial.user?.id || "",
+        dbConnectionId: initial.dbConnection?.id || "",
+        isOnKnowledgeSource: true,
+      });
 
-    if (res.ok) {
-      setSaveOk(res.message || "Everything was OK ");
-      router.push("/nlq-correction");
-    }
+      if (res.ok) {
+        setSaveOk(res.message || "Everything was OK ");
+        router.push("/nlq-correction");
+      }
 
-    if (!res.ok) {
-      setSaveError(res.message || "Save failed");
+      if (!res.ok) {
+        setSaveError(res.message || "Save failed");
+      }
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Failed to save correction. Please try again.",
+      );
+    } finally {
+      setLoadingSave(false);
     }
-    setLoadingSave(false);
   };
 
   return (
@@ -288,7 +298,8 @@ export default function NlqCorrectionClient({
                 onClick={runPrev}
                 disabled={loadingPrev}
               >
-                {loadingPrev ? <CircularProgress size={18} /> : "Run previous"}
+                {/* {loadingPrev ? <CircularProgress size={18} /> : ""} */}
+                Run previous
               </Button>
             </Stack>
 
@@ -330,12 +341,14 @@ export default function NlqCorrectionClient({
                 onClick={runNew}
                 disabled={loadingNew || !newSql.trim()}
               >
-                {loadingNew ? <CircularProgress size={18} /> : "Run corrected"}
+                {/* {loadingNew ? <CircularProgress size={18} /> : "Run corrected"} */}
+                Run corrected
               </Button>
               <Button
                 variant="contained"
                 onClick={saveCorrection}
                 disabled={!newSql.trim()}
+                loading={loadingSave}
               >
                 Save correction
               </Button>
