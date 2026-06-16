@@ -169,16 +169,13 @@ export class CreateNlqQaUseCase implements ICreateNlqQaUseCase {
           message: `Failed to generate SQL query. Suggestion: ${suggestion.suggestion}`,
         };
       }
-      // TEST - START COMMENT
-      //       const query = `
-      // DROP TABLE clientes;
+      // // TEST - START COMMENT
+      // const query = `SELECT pb.pb7_pedido, sa.a1_nome FROM tmprd.pb7300 AS pb JOIN tmprd.sa1300 AS sa ON pb.pb7_cliente = sa.a1_cod`; // PONER QUERY AQUI
 
-      //       `; // PONER QUERY AQUI
-
-      //       const extractQueryFromGenQuery = {
-      //         query: query,
-      //       }; // COMENTAR ESTA LINEA CUANDO NO SE NECESITE SOBREESCRIBIR EL QUERY GENERADO
-      // TEST - END COMMENT
+      // const extractQueryFromGenQuery = {
+      //   query: query,
+      // }; // COMENTAR ESTA LINEA CUANDO NO SE NECESITE SOBREESCRIBIR EL QUERY GENERADO
+      // // TEST - END COMMENT
 
       // 6.a.3 If query is not null, validate SQL Query policy (no mutation)
       const safePolicyUnMutationQuery =

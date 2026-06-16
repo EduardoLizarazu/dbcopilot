@@ -76,7 +76,7 @@ export default function NlqClient({
           createdAt: new Date(),
           updatedAt: new Date(),
         },
-      }
+      },
     );
 
   const [dbConn, setDbConn] = React.useState<
@@ -136,8 +136,8 @@ export default function NlqClient({
     if (disabledSave) return;
     setSaving(true);
     const r = await CreateNlqQaGoodAction({
-      question: nlq?.question?.trimStart().trimEnd().toLowerCase() || "",
-      query: nlq?.query?.trimStart().trimEnd().toLowerCase() || "",
+      question: nlq?.question?.trimStart().trimEnd() || "",
+      query: nlq?.query?.trimStart().trimEnd() || "",
       dbConnectionId: nlq?.dbConnectionId || "",
       isOnKnowledgeSource: nlq?.isOnKnowledgeSource || false,
     });
@@ -157,8 +157,8 @@ export default function NlqClient({
     setSaving(true);
     const r = await UpdateNlqQaGoodAction({
       id: nlq?.id || "",
-      question: nlq?.question?.trimStart().trimEnd().toLowerCase() || "",
-      query: nlq?.query?.trimStart().trimEnd().toLowerCase() || "",
+      question: nlq?.question?.trimStart().trimEnd() || "",
+      query: nlq?.query?.trimStart().trimEnd() || "",
       dbConnectionId: nlq?.dbConnectionId || "",
       isOnKnowledgeSource: nlq?.isOnKnowledgeSource || false,
     });
@@ -267,7 +267,7 @@ export default function NlqClient({
               variant="outlined"
               onClick={onRun}
               disabled={disabledRun || running || saving || cancelBtnLoading}
-              loading={running}
+              // loading={running}
             >
               Run SQL
             </Button>
